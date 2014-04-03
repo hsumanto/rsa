@@ -56,8 +56,6 @@ system, so you need to configure it manually.
 1. Click on *External Folder*, choose */usr/local/lib*, and click *OK*.
 1. Click *OK* to dismiss the Preferences dialogue.
 
-The build issues in SpatialCubeService should now be resolved.
-
 
 ## Importing the Projects
 
