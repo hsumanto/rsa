@@ -60,9 +60,16 @@ public class QueryRunner {
 				q.close();
 			}
 		} finally {
-			// FIXME : Need to request to fix NetCdf java library 4.3.16 - currently throws null pointer exception
-			if (!outputDataset.isDefineMode())
-				outputDataset.close();
+			// Just catch exceptions on close - otherwise real exceptions get
+			// hidden.
+			// FIXME : Need to request to fix NetCdf java library 4.3.16 -
+			// currently throws null pointer exception
+			try {
+				if (!outputDataset.isDefineMode())
+					outputDataset.close();
+			} catch (Exception e) {
+				log.error("Could not close output dataset", e);
+			}
 		}
 	}
 
