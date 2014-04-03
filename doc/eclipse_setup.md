@@ -2,6 +2,11 @@
 
 These instructions are for [Eclipse][ecl] 4.3 "Kepler" on Ubuntu 13.10.
 
+Note that these instructions cover setting up Eclipse to debug all of the
+existing RSA projects. You can skip steps in certain situations. E.g. if you
+aren't interested in the web services, don't import the SpatialCubeService
+project and skip the instructions for Tomcat.
+
 ## Pre-requisites
 
 Follow the instructions for setting up a [manual installation][mi]. RSA
@@ -13,16 +18,21 @@ Create a **new workspace** in Eclipse, and then install the Java EE libraries:
 1. Choose *Help > Install New Software*
 1. In the *Work with* box, choose the sources that match your version of
    Eclipse, e.g. `Kepler - http://download.eclipse.org/releases/kepler`.
-1. Tick the box for *Web, XML, Java EE and OSGi Enterprise Development*.
-1. Proceed with the installation (press *Next >* etc.)
+1. Tick the box for *Web, XML, Java EE and OSGi Enterprise Development*, and
+   proceed with the installation (press *Next >* etc.).
 1. Restart Eclipse if it asks you to.
 
-Install the Python development tools:
+Install the Python development tools (optional: this is useful but not required
+for rsaquery code generation):
 
 1. Choose *Help > Eclipse Marketplace*
-1. *Find* box, search for 'pydev'.
-1. Click *Install* in the PyDev row.
+1. Search for 'pydev'.
+1. Click *Install* in the PyDev row, and continue with the installation.
 1. Restart Eclipse if it asks you to.
+1. Choose *Window > Preferences > PyDev > Interpreters > Python Interpreter*.
+1. Click *New*.
+1. Set the name to "Python2", and the executable location to `/usr/bin/python2`.
+1. Continue with the installation of the interpreter.
 
 Add a Tomcat server to your workspace.
 
@@ -36,7 +46,6 @@ Add a Tomcat server to your workspace.
 1. Select *Apache > Apache Tomcat v6.0* and click *Next*.
 1. Set the *Tomcat installation directory* to the instance you created
    above (`tomcat_instance`).
-1. Click *Finish* and then *OK*.
 
 
 ## Library Dependencies
@@ -53,8 +62,7 @@ system, so you need to configure it manually.
 1. Browse to the location of your GDAL `.jar` file - e.g.
    `/usr/local/lib/gdal.jar`, and accept it (click *OK*).
 1. Double-click on *Native library location* under *gdal.jar*.
-1. Click on *External Folder*, choose */usr/local/lib*, and click *OK*.
-1. Click *OK* to dismiss the Preferences dialogue.
+1. Click on *External Folder* and choose */usr/local/lib*.
 
 
 ## Importing the Projects
@@ -70,6 +78,17 @@ Note that a number of classes required by SpatialCubeService are provided by
 Tomcat and GDAL. If you skipped ahead and imported the projects first, there
 will be compilation errors until Tomcat and GDAL are set up (see above).
 
+
+## Database Connection Settings
+
+Ensure RSA has been configured to use the right database and storage pool. Refer
+to the database configuration section of the [manual installation][mi] guide.
+
+1. Copy `SpatialCubeService/config/*.SAMPLE`: remove the `.SAMPLE` prefix,
+   and customise the contents (e.g. set passwords).
+1. Do the same for `StorageManager/config/*.SAMPLE`.
+1. Do the same for `CmdClient/config/*.SAMPLE`.
+
 At this point, you should be able to run the tests and command line client (see
 `org.vpac.ndg.cli.Client`). Read on for instructions for setting up the web
 services.
@@ -83,10 +102,8 @@ Configure SpatialCubeService to start in Tomcat:
 1. Right-click in the blank area and choose *New > Server*.
 1. Select *Apache > Tomcat v6.0 Server*.
 1. Set the *Server runtime environment* to the server installed above (the
-   default name is *Apache Tomcat v6.0*).
-1. Click *Next*.
+   default name is *Apache Tomcat v6.0*), and click *Next*.
 1. Select *SpatialCubeService* from the list on the left, and click *Add >*.
-1. Click *Finish*.
 
 Unfortunately, Eclipse [doesn't allow][eso] a project to automatically use a
 native library in Tomcat. So you need to manually configure it to use GDAL.
@@ -98,20 +115,8 @@ native library in Tomcat. So you need to manually configure it to use GDAL.
 1. Choose the *Classpath* tab.
 1. Select *User Entries* and click *Add External JARs*.
 1. Browse to your `gdal.jar` file, e.g. `/usr/local/gdal.jar`.
-1. Click *OK* to accept the launch configuration.
 
 [eso]: http://stackoverflow.com/a/7005867/320036
-
-
-## Database Connection Settings
-
-Ensure RSA has been configured to use the right database and storage pool. Refer
-to the database configuration section of the [manual installation][mi] guide.
-
-1. Copy `SpatialCubeService/config/*.SAMPLE`: remove the `.SAMPLE` prefix,
-   and customise the contents (e.g. set passwords).
-1. Do the same for `StorageManager/config/*.SAMPLE`.
-1. Do the same for `CmdClient/config/*.SAMPLE`.
 
 
 ## Start the Server
