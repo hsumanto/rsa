@@ -40,6 +40,7 @@ import org.vpac.ndg.query.coordinates.TimeAxis;
 import org.vpac.ndg.query.coordinates.Warp;
 import org.vpac.ndg.query.coordinates.WarpFactory;
 import org.vpac.ndg.query.iteration.Flatten;
+import org.vpac.ndg.query.iteration.ZipN;
 import org.vpac.ndg.query.math.BoxInt;
 import org.vpac.ndg.query.math.BoxReal;
 import org.vpac.ndg.query.math.VectorInt;
@@ -284,14 +285,13 @@ public class Query implements Closeable {
 		progress.setTotalQuanta(totalPixels);
 		log.info("Total output volume: {} pixels", totalPixels);
 
-		int step = 0;
-
 		if (numThreads == 1)
 			tileProcessor = new TileProcessorSingle();
 		else
 			tileProcessor = new TileProcessorMultiple(numThreads);
 
 		log.info("Processing");
+		int step = 0;
 		try {
 			for (VectorInt shape : bindings.keys()) {
 				progress.setStep(step + 1, String.format(
@@ -348,6 +348,14 @@ public class Query implements Closeable {
 		}
 
 		progress.finishedStep();
+	}
+
+	private void reduce() {
+		for (Iterable<FilterAdapter> fs : new ZipN<FilterAdapter>(filters)) {
+			for (FilterAdapter f : fs) {
+				// Combine results of these filters together!
+			}
+		}
 	}
 
 	/**
