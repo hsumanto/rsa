@@ -36,21 +36,10 @@ Add a Tomcat server to your workspace.
 1. Select *Apache > Apache Tomcat v6.0* and click *Next*.
 1. Set the *Tomcat installation directory* to the instance you created
    above (`tomcat_instance`).
-1. Click *Finish* and then *OK*. You should find that the build errors are
-   now resolved.
+1. Click *Finish* and then *OK*.
 
 
-## Importing the Projects
-
-Import all RSA projects into your workspace.
-
-1. Right-click in the Projects or Package Explorer and choose *Import >
-   General > Existing Projects into Workspace*.
-1. Make sure all projects (*CmdClient*, *Common*, etc.) are selected.
-1. Click *Finish*.
-
-
-## Configure Library Dependencies
+## Library Dependencies
 
 Most the RSA's dependencies are already checked in to the repository, and the
 classpaths are set up to use them. However GDAL needs to be provided by the
@@ -70,6 +59,24 @@ system, so you need to configure it manually.
 The build issues in SpatialCubeService should now be resolved.
 
 
+## Importing the Projects
+
+Import all RSA projects into your workspace.
+
+1. Right-click in the Projects or Package Explorer and choose *Import >
+   General > Existing Projects into Workspace*.
+1. Make sure all projects (*CmdClient*, *Common*, etc.) are selected.
+1. Click *Finish*.
+
+Note that a number of classes required by SpatialCubeService are provided by
+Tomcat and GDAL. If you skipped ahead and imported the projects first, there
+will be compilation errors until Tomcat and GDAL are set up (see above).
+
+At this point, you should be able to run the tests and command line client (see
+`org.vpac.ndg.cli.Client`). Read on for instructions for setting up the web
+services.
+
+
 ## Configure the Server
 
 Configure SpatialCubeService to start in Tomcat:
@@ -82,6 +89,10 @@ Configure SpatialCubeService to start in Tomcat:
 1. Click *Next*.
 1. Select *SpatialCubeService* from the list on the left, and click *Add >*.
 1. Click *Finish*.
+
+Unfortunately, Eclipse [doesn't allow][eso] a project to automatically use a
+native library in Tomcat. So you need to manually configure it to use GDAL.
+
 1. Double-click on the new server in the Servers view. This will open a new
    editor for the server properties.
 1. Choose *General Information > Open launch configuration*.
@@ -91,7 +102,13 @@ Configure SpatialCubeService to start in Tomcat:
 1. Browse to your `gdal.jar` file, e.g. `/usr/local/gdal.jar`.
 1. Click *OK* to accept the launch configuration.
 
-Ensure RSA has been configured to use the right database and storage pool.
+[eso]: http://stackoverflow.com/a/7005867/320036
+
+
+## Database Connection Settings
+
+Ensure RSA has been configured to use the right database and storage pool. Refer
+to the database configuration section of the [manual installation][mi] guide.
 
 1. Copy `SpatialCubeService/config/*.SAMPLE`: remove the `.SAMPLE` prefix,
    and customise the contents (e.g. set passwords).
