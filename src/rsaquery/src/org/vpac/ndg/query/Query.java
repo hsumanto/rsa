@@ -39,6 +39,7 @@ import org.vpac.ndg.query.coordinates.QueryCoordinateSystem;
 import org.vpac.ndg.query.coordinates.TimeAxis;
 import org.vpac.ndg.query.coordinates.Warp;
 import org.vpac.ndg.query.coordinates.WarpFactory;
+import org.vpac.ndg.query.iteration.Flatten;
 import org.vpac.ndg.query.math.BoxInt;
 import org.vpac.ndg.query.math.BoxReal;
 import org.vpac.ndg.query.math.VectorInt;
@@ -69,7 +70,7 @@ public class Query implements Closeable {
 	protected BindingStore bindings;
 	protected DatasetOutput outputDs;
 	protected NetcdfFileWriter output;
-	protected List<FilterAdapter> filters;
+	protected List<List<FilterAdapter>> filters;
 
 	/**
 	 * The arrangement of output pages. For input pages, see {@link PageCache}.
@@ -90,7 +91,7 @@ public class Query implements Closeable {
 		referential = null;
 		bindings = new BindingStore();
 		this.output = output;
-		filters = new ArrayList<FilterAdapter>();
+		filters = new ArrayList<List<FilterAdapter>>();
 		numThreads = DEFAULT_WORKER_THREADS;
 		progress = new ProgressNull();
 
@@ -174,7 +175,7 @@ public class Query implements Closeable {
 		// inherit metadata.
 		log.info("Constructing filters");
 		for (FilterFactory factory : factories) {
-			filters.addAll(factory.createFilters(qdp.getQueryDefinition().filters));
+			filters.add(factory.createFilters(qdp.getQueryDefinition().filters));
 		}
 
 		// Construct the output, so the filters can be bound to it. At this
@@ -191,8 +192,8 @@ public class Query implements Closeable {
 		for (FilterFactory factory : factories) {
 			factory.bindFilters(variableBindingDefs);
 		}
-		for (FilterAdapter adapter : filters) {
-			adapter.verifyConfiguration();
+		for (FilterAdapter f : new Flatten<FilterAdapter>(filters)) {
+			f.verifyConfiguration();
 		}
 	}
 
@@ -271,10 +272,11 @@ public class Query implements Closeable {
 		progress.setNsteps(bindings.keys().size());
 
 		log.info("Initialising filters");
-		for (FilterAdapter f : filters) {
+		for (FilterAdapter f : new Flatten<FilterAdapter>(filters)) {
 			f.initialise();
 		}
 
+		// Calculate volume (just for progress information)
 		long totalPixels = 0;
 		for (VectorInt shape : bindings.keys()) {
 			totalPixels += shape.volume() * bindings.get(shape).size();
@@ -354,9 +356,8 @@ public class Query implements Closeable {
 	@Override
 	public void close() throws IOException {
 		datasetStore.closeAll();
-		for (FilterAdapter filter : filters) {
-			filter.diagnostics();
-		}
+		for (FilterAdapter f : new Flatten<FilterAdapter>(filters))
+			f.diagnostics();
 	}
 
 	public Progress getProgress() {
