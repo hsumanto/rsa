@@ -92,6 +92,7 @@ public class Query implements Closeable {
 		this.output = output;
 		filters = new ArrayList<FilterAdapter>();
 		numThreads = DEFAULT_WORKER_THREADS;
+		progress = new ProgressNull();
 
 		//tilingStrategy = new TilingStrategyCube(TILE_SIZE);
 		tilingStrategy = new TilingStrategyStride(TILE_SIZE * TILE_SIZE * 3);
@@ -267,22 +268,19 @@ public class Query implements Closeable {
 	public void run() throws IOException, QueryConfigurationException,
 			QueryRuntimeException {
 
-		if (progress != null)
-			progress.setNsteps(bindings.keys().size());
+		progress.setNsteps(bindings.keys().size());
 
 		log.info("Initialising filters");
 		for (FilterAdapter f : filters) {
 			f.initialise();
 		}
 
-		if (progress != null) {
-			long totalPixels = 0;
-			for (VectorInt shape : bindings.keys()) {
-				totalPixels += shape.volume() * bindings.get(shape).size();
-			}
-			progress.setTotalQuanta(totalPixels);
-			log.info("Total output volume: {} pixels", totalPixels);
+		long totalPixels = 0;
+		for (VectorInt shape : bindings.keys()) {
+			totalPixels += shape.volume() * bindings.get(shape).size();
 		}
+		progress.setTotalQuanta(totalPixels);
+		log.info("Total output volume: {} pixels", totalPixels);
 
 		int step = 0;
 
@@ -294,10 +292,8 @@ public class Query implements Closeable {
 		log.info("Processing");
 		try {
 			for (VectorInt shape : bindings.keys()) {
-				if (progress != null) {
-					progress.setStep(step + 1, String.format(
-							"Processing variables with shape %s", shape));
-				}
+				progress.setStep(step + 1, String.format(
+						"Processing variables with shape %s", shape));
 	
 				process(shape, bindings.get(shape));
 				step++;
@@ -307,10 +303,8 @@ public class Query implements Closeable {
 		}
 
 		log.info("Finished");
-		if (progress != null) {
-			progress.setStep(step, "Finished running filters");
-			progress.finished();
-		}
+		progress.setStep(step, "Finished running filters");
+		progress.finished();
 	}
 
 	protected void process(VectorInt imageShape,
@@ -347,14 +341,11 @@ public class Query implements Closeable {
 			for (Binding b : localBindings)
 				b.commit(output);
 
-			if (progress != null) {
-				long npixels = bounds.getSize().volume() * localBindings.size();
-				progress.addProcessedQuanta(npixels);
-			}
+			long npixels = bounds.getSize().volume() * localBindings.size();
+			progress.addProcessedQuanta(npixels);
 		}
 
-		if (progress != null)
-			progress.finishedStep();
+		progress.finishedStep();
 	}
 
 	/**
