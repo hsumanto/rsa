@@ -60,10 +60,10 @@ These instructions are for [Eclipse][ecl] 4.3 "Kepler".
        editor for the server properties.
     1. Choose *General Information > Open launch configuration*.
     1. Choose *Environment > New*, and set `LD_LIBRARY_PATH` to `/usr/local/lib`
-    1. Choose *Classpath > Advanced*.
-    1. Select *Add Library* and click *OK*.
-    1. Select *User Library* and click *Next*.
-    1. Select *GDAL* and click *Finish*.
+    1. Choose the *Classpath* tab.
+    1. Select *User Entries* and click *Add External JARs*.
+    1. Browse to your `gdal.jar` file, e.g. `/usr/local/gdal.jar`.
+    1. Click *OK* to accept the launch configuration.
 1. Ensure RSA has been configured to use the right database and storage pool.
     1. Copy `SpatialCubeService/config/*.SAMPLE`: remove the `.SAMPLE` prefix,
        and customise the contents (e.g. set passwords).
