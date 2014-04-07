@@ -21,9 +21,11 @@ package org.vpac.ndg.query;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.vpac.ndg.query.filter.Foldable;
 
 import ucar.nc2.NetcdfFileWriter;
 import ucar.nc2.NetcdfFileWriter.Version;
@@ -36,10 +38,18 @@ public class QueryRunner {
 
 	static final Logger log = LoggerFactory.getLogger(QueryRunner.class);
 
+	public static Map<String, Foldable<?>> run(File config, File output) throws Exception {
+		return run(config, output, 1);
+	}
+
 	/**
 	 * Run a query from XML.
+	 *
+	 * @return {@link Query#getAccumulatedOutput() Accumulated metadata}. Note
+	 *         that primary data is written to the output file.
 	 */
-	public static void run(File config, File output) throws Exception {
+	public static Map<String, Foldable<?>> run(File config, File output,
+			int threads) throws Exception {
 		QueryDefinition qd = QueryDefinition.fromXML(config);
 		File projectRoot = config.getParentFile();
 		if (projectRoot == null)
@@ -53,9 +63,11 @@ public class QueryRunner {
 
 		try {
 			Query q = new Query(outputDataset);
+			q.setNumThreads(threads);
 			q.setMemento(qd, projectRoot.getAbsolutePath());
 			try {
 				q.run();
+				return q.getAccumulatedOutput();
 			} finally {
 				q.close();
 			}

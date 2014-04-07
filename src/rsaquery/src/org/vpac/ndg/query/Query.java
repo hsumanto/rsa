@@ -23,7 +23,9 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormatter;
@@ -39,6 +41,8 @@ import org.vpac.ndg.query.coordinates.QueryCoordinateSystem;
 import org.vpac.ndg.query.coordinates.TimeAxis;
 import org.vpac.ndg.query.coordinates.Warp;
 import org.vpac.ndg.query.coordinates.WarpFactory;
+import org.vpac.ndg.query.filter.Accumulator;
+import org.vpac.ndg.query.filter.Foldable;
 import org.vpac.ndg.query.iteration.Flatten;
 import org.vpac.ndg.query.iteration.ZipN;
 import org.vpac.ndg.query.math.BoxInt;
@@ -350,12 +354,48 @@ public class Query implements Closeable {
 		progress.finishedStep();
 	}
 
-	private void reduce() {
+	/**
+	 * Collects the output that was accumated while running this query.
+	 *
+	 * Most filters are designed to process pixels in an image and transform
+	 * their values, with the new value being written to an output image. Some
+	 * filters may also collect aggregate information about the data as it is
+	 * being processed; e.g. a filter may sum the values of all the pixels it
+	 * processes. This method gives access to that data.
+	 *
+	 * @return The output that has been accumulated while running this query.
+	 *         This is a map from filter ID to accumulated output.
+	 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public Map<String, Foldable<?>> getAccumulatedOutput() {
+		Map<String, Foldable<?>> values = new HashMap<String, Foldable<?>>();
+
+		// In a multithreaded query, accumulated output may be split across
+		// several filter instances. So we zip all instances of the same filter
+		// together, and then fold (reduce) the output.
 		for (Iterable<FilterAdapter> fs : new ZipN<FilterAdapter>(filters)) {
-			for (FilterAdapter f : fs) {
-				// Combine results of these filters together!
+			Foldable value = null;
+			String id = null;
+			for (FilterAdapter fa : fs) {
+				if (!(fa.getInnerFilter() instanceof Accumulator<?>))
+					continue;
+				Accumulator ac = (Accumulator) fa.getInnerFilter();
+
+				if (value == null) {
+					value = ac.getAccumulatedOutput();
+					id = fa.getName();
+				} else {
+					value = value.fold(value.getClass().cast(
+							ac.getAccumulatedOutput()));
+				}
+			}
+			if (value != null) {
+				log.info("Accumulated value is {}", value);
+				values.put(id, value);
 			}
 		}
+
+		return values;
 	}
 
 	/**

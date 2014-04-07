@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<query xmlns="http://www.vpac.org/namespaces/rsaquery-0.2">
+
+	<input id="infile" href="../input/2d_dataset.nc" />
+
+	<output id="outfile" >
+		<grid ref="#infile" />
+
+		<variable name="Band1" ref="#sum/output" />
+	</output>
+
+	<filter id="sum" cls="org.vpac.ndg.query.SumAccumulate">
+		<sampler name="input" ref="#infile/temp" />
+	</filter>
+</query>
+
