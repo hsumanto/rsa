@@ -97,6 +97,17 @@ public class ElementByte implements ScalarElement {
 	}
 
 	@Override
+	public ElementByte minimise() {
+		this.value = Byte.MIN_VALUE;
+		return this;
+	}
+	@Override
+	public ElementByte maximise() {
+		this.value = Byte.MAX_VALUE;
+		return this;
+	}
+
+	@Override
 	public byte byteValue() {
 		return value;
 	}

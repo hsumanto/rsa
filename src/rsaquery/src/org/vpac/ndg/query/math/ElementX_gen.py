@@ -139,6 +139,17 @@ SPECIAL_CAST_TEMPLATE = Template("""
 		this.valid = true;
 		return this;
 	}
+
+	@Override
+	public $cname minimise() {
+		this.value = $boxtype.MIN_VALUE;
+		return this;
+	}
+	@Override
+	public $cname maximise() {
+		this.value = $boxtype.MAX_VALUE;
+		return this;
+	}
 """)
 
 CAST_TEMPLATE = Template("""

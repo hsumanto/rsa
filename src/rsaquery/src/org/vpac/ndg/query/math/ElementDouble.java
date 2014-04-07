@@ -97,6 +97,17 @@ public class ElementDouble implements ScalarElement {
 	}
 
 	@Override
+	public ElementDouble minimise() {
+		this.value = Double.MIN_VALUE;
+		return this;
+	}
+	@Override
+	public ElementDouble maximise() {
+		this.value = Double.MAX_VALUE;
+		return this;
+	}
+
+	@Override
 	public byte byteValue() {
 		return (byte)value;
 	}

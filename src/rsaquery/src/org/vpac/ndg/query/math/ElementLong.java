@@ -97,6 +97,17 @@ public class ElementLong implements ScalarElement {
 	}
 
 	@Override
+	public ElementLong minimise() {
+		this.value = Long.MIN_VALUE;
+		return this;
+	}
+	@Override
+	public ElementLong maximise() {
+		this.value = Long.MAX_VALUE;
+		return this;
+	}
+
+	@Override
 	public byte byteValue() {
 		return (byte)value;
 	}

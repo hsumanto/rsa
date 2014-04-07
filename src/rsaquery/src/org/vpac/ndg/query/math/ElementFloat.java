@@ -97,6 +97,17 @@ public class ElementFloat implements ScalarElement {
 	}
 
 	@Override
+	public ElementFloat minimise() {
+		this.value = Float.MIN_VALUE;
+		return this;
+	}
+	@Override
+	public ElementFloat maximise() {
+		this.value = Float.MAX_VALUE;
+		return this;
+	}
+
+	@Override
 	public byte byteValue() {
 		return (byte)value;
 	}

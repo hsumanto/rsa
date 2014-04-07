@@ -97,6 +97,17 @@ public class ElementInt implements ScalarElement {
 	}
 
 	@Override
+	public ElementInt minimise() {
+		this.value = Integer.MIN_VALUE;
+		return this;
+	}
+	@Override
+	public ElementInt maximise() {
+		this.value = Integer.MAX_VALUE;
+		return this;
+	}
+
+	@Override
 	public byte byteValue() {
 		return (byte)value;
 	}

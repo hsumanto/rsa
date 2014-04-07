@@ -23,68 +23,73 @@ import java.io.IOException;
 import org.vpac.ndg.query.filter.Accumulator;
 import org.vpac.ndg.query.filter.Foldable;
 import org.vpac.ndg.query.math.BoxReal;
-import org.vpac.ndg.query.math.ScalarElement;
+import org.vpac.ndg.query.math.Element;
 import org.vpac.ndg.query.math.VectorReal;
 import org.vpac.ndg.query.sampling.Cell;
 import org.vpac.ndg.query.sampling.CellType;
-import org.vpac.ndg.query.sampling.PixelSourceScalar;
+import org.vpac.ndg.query.sampling.PixelSource;
 
 /**
- * Accumulates a value for the whole image. Apart from the sum, this operates
- * like a pass-through filter.
+ * Accumulates statistics metadata (min, max, etc.) for the whole image.
  *
  * @author Alex Fraser
  */
-@Description(name = "Accumulate Sum", description = "Sum the values of all pixels in an image.")
+@Description(name = "Statistics", description = "Find mean, max, etc. for all pixels.")
 @InheritDimensions(from = "input")
-public class SumAccumulate implements Filter,
-		Accumulator<SumAccumulate.IntAdder> {
+public class Statistics implements Filter, Accumulator<Statistics.Stats> {
 
-	public PixelSourceScalar input;
+	public PixelSource input;
 
 	@CellType("input")
 	public Cell output;
 
-	private IntAdder adder;
+	private Stats stats;
 
 	@Override
 	public void initialise(BoxReal bounds) throws QueryConfigurationException {
-		adder = new IntAdder(0);
+		stats = new Stats(input.getPrototype().getElement());
 	}
 
 	@Override
 	public void kernel(VectorReal coords) throws IOException {
-		ScalarElement temp = input.getScalarPixel(coords);
-		adder.add(temp.longValue());
+		Element<?> temp = input.getPixel(coords);
+		stats.update(temp);
 		output.set(temp);
 	}
 
 	@Override
-	public IntAdder getAccumulatedOutput() {
-		return adder;
+	public Stats getAccumulatedOutput() {
+		return stats;
 	}
 
-	public class IntAdder implements Foldable<IntAdder> {
+	public class Stats implements Foldable<Statistics.Stats> {
 
-		private long value;
+		private Element<?> min;
+		private Element<?> max;
 
-		public IntAdder(long value) {
-			this.value = value;
+		public Stats(Element<?> prototype) {
+			min = prototype.copy().maximise();
+			max = prototype.copy().minimise();
 		}
 
-		void add(long other) {
-			this.value += other;
+		void update(Element<?> value) {
+			min.min(value);
+			max.max(value);
 		}
 
 		@Override
-		public Foldable<IntAdder> fold(IntAdder other) {
-			return new IntAdder(value + other.value);
+		public Foldable<Stats> fold(Stats other) {
+			Stats res = new Stats(min);
+			res.min = min.minNew(other.min);
+			res.max = max.minNew(other.max);
+			return res;
 		}
 
 		@Override
 		public String toString() {
-			return Long.toString(value);
+			return String.format("min: %s, max: %s", min, max);
 		}
 
 	}
+
 }

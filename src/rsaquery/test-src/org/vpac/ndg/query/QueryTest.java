@@ -424,6 +424,15 @@ public class QueryTest extends TestCase {
 
 	}
 
+	@Test
+	public void test_stats() throws Exception {
+		File config = new File("data/config/stats.xml");
+		File outputFile = new File("data/output/stats.nc");
+
+		Map<String, Foldable<?>> output = QueryRunner.run(config, outputFile, 8);
+
+	}
+
 
 	/**
 	 * Confirm that the contents of two arrays are the same.
