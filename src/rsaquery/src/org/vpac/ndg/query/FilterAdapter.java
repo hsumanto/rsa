@@ -258,9 +258,15 @@ public class FilterAdapter implements HasBounds, HasRank, Diagnostics {
 	 * of the inputs.
 	 */
 	void inferShapeFromInputs() throws QueryConfigurationException {
-		InheritDimensions reduces = innerFilter.getClass().getAnnotation(InheritDimensions.class);
-		if (reduces == null)
-			return;
+		InheritDimensions reduces = innerFilter.getClass().getAnnotation(
+				InheritDimensions.class);
+
+		if (reduces == null) {
+			throw new QueryConfigurationException(String.format(
+					"Could not determine dimensionality of filter %s. Class "
+					+ "should be annotated with @InheritDimensions.",
+					innerFilter.getClass().getName()));
+		}
 
 		Field field;
 		try {
