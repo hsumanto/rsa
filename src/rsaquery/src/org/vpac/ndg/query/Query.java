@@ -381,16 +381,17 @@ public class Query implements Closeable {
 					continue;
 				Accumulator ac = (Accumulator) fa.getInnerFilter();
 
+				Foldable currentValue = ac.getAccumulatedOutput();
 				if (value == null) {
-					value = ac.getAccumulatedOutput();
+					value = currentValue;
 					id = fa.getName();
 				} else {
-					value = value.fold(value.getClass().cast(
-							ac.getAccumulatedOutput()));
+					value = value.fold(value.getClass().cast(currentValue));
 				}
+				log.debug("Partial output of '{}' is {}", id, currentValue);
 			}
 			if (value != null) {
-				log.info("Accumulated value is {}", value);
+				log.info("Accumulated output of '{}' is {}", id, value);
 				values.put(id, value);
 			}
 		}
