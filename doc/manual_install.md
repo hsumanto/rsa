@@ -21,12 +21,12 @@ The RSA requires:
 | Java 7 JRE | 7 (1.7)      | [OpenJDK][4] is suitable. If you also wish to compile/develop, you'll need a Java 7 JDK as well.|
 | PostgreSQL | 8.4+         | [PostgreSQL][5] - deployed as core database backend. |
 
-[1]: 	http://www.gdal.org/
-[2]: 	http://www.unidata.ucar.edu/software/netcdf/
-[3]:	http://www.hdfgroup.org/HDF5/
-[4]:	http://openjdk.java.net/
-[5]:	http://www.postgresql.org/
-[6]:	http://tomcat.apache.org/ 
+[1]: http://www.gdal.org/
+[2]: http://www.unidata.ucar.edu/software/netcdf/
+[3]: http://www.hdfgroup.org/HDF5/
+[4]: http://openjdk.java.net/
+[5]: http://www.postgresql.org/
+[6]: http://tomcat.apache.org/ 
 
 Additional web server dependencies required for `spatialcubeservice` war deployment:
 
@@ -190,21 +190,7 @@ That script could be configured to run from your login script
 The GDAL Java bindings aren't installed automatically as part of make
 install. To set them up manually, follow the instructions below.
 
-First:
-
- * edit the file *swig/java/java.opt* (from your GDAL source directory)
- * change the JAVA_HOME variable listed to suit your install.
-
-   Debian/Ubuntu:
-
-    JAVA_HOME=/usr/lib/jvm/java-7-openjdk
-
-   Centos/RedHat (on NCI):
-
-    JAVA_HOME=/usr/java/latest
-
-And just for good measure, set your `JAVA_HOME` environment variable (on the
-command line).
+Set your `JAVA_HOME` environment variable (on the command line).
 
 Debian/Ubuntu:
 
@@ -217,11 +203,11 @@ Centos/RedHat (on NCI):
 Then go to your GDAL source root dir, and run the build:
 
 	$ cd swig/java
-	$ make
+	$ make JAVA_HOME=$JAVA_HOME
 	$ sudo cp *.jar *.so /usr/local/lib/
 	$ pushd /usr/local/lib
 	$ sudo ln -s libgdalconstjni.so libgdalconstjni.so.1
-	$ sudo ln -s libgdaljni.so libgdaljni.so.1	   
+	$ sudo ln -s libgdaljni.so libgdaljni.so.1
 	$ sudo ln -s libogrjni.so libogrjni.so.1
 	$ sudo ln -s libosrjni.so libosrjni.so.1
 	$ popd
@@ -237,7 +223,7 @@ You should also do a dynamic library update to be safe:
 
 	$ sudo ldconfig
 
-## 2. Set Up Database
+## 2. Configure Database
 
 ### Configuring PostgreSQL
 
@@ -305,7 +291,7 @@ It is possible to set up the database graphically using [pgAdmin][pga] - but you
 
 [pga]: http://www.pgadmin.org/
 
-## 3. Setup Filesystem
+## 3. Configure Filesystem
 
 The RSA requires four directories on the filesystem:
 
