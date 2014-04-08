@@ -35,7 +35,7 @@ import org.vpac.ndg.query.sampling.PixelSource;
  *
  * @author Alex Fraser
  */
-@Description(name = "Statistics", description = "Find mean, max, etc. for all pixels.")
+@Description(name = "Statistics", description = "Finds mean, max, etc. for all pixels. This is a pass-through filter with metadata collection.")
 @InheritDimensions(from = "input")
 public class Statistics implements Filter, Accumulator<Statistics.Stats> {
 

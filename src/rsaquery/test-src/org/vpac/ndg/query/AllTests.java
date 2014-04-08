@@ -32,6 +32,7 @@ import org.vpac.ndg.query.math.SwizzleTest;
 	ElementTest.class,
 	SwizzleTest.class,
 	FunctionalTest.class,
+	StatisticsTest.class,
 	QueryTest.class,
 })
 public class AllTests {

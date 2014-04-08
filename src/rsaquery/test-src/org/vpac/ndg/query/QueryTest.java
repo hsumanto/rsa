@@ -28,6 +28,7 @@ import junit.framework.TestCase;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.BlockJUnit4ClassRunner;
+import org.vpac.ndg.query.Statistics.Stats;
 import org.vpac.ndg.query.filter.Foldable;
 
 import ucar.ma2.Array;
@@ -424,12 +425,20 @@ public class QueryTest extends TestCase {
 
 	}
 
+	final static double EPSILON = 1.0e-6;
+
 	@Test
 	public void test_statsFilter() throws Exception {
 		File config = new File("data/config/stats.xml");
 		File outputFile = new File("data/output/stats.nc");
 
-		QueryRunner.run(config, outputFile, 8);
+		Map<String, Foldable<?>> output = QueryRunner.run(config, outputFile, 8);
+		Stats stats = (Stats) output.get("stats");
+
+		assertEquals(35, stats.min.getComponents()[0].longValue());
+		assertEquals(209, stats.max.getComponents()[0].longValue());
+		assertEquals(124.04589843750001, stats.mean.getComponents()[0].doubleValue(), EPSILON);
+		assertEquals(31.17135124667003, stats.getStdDev().getComponents()[0].doubleValue(), EPSILON);
 	}
 
 
