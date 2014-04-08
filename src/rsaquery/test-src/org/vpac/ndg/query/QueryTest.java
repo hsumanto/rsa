@@ -425,12 +425,11 @@ public class QueryTest extends TestCase {
 	}
 
 	@Test
-	public void test_stats() throws Exception {
+	public void test_statsFilter() throws Exception {
 		File config = new File("data/config/stats.xml");
 		File outputFile = new File("data/output/stats.nc");
 
-		Map<String, Foldable<?>> output = QueryRunner.run(config, outputFile, 8);
-
+		QueryRunner.run(config, outputFile, 8);
 	}
 
 

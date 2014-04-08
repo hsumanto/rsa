@@ -77,7 +77,7 @@ public class SumAccumulate implements Filter,
 		}
 
 		@Override
-		public Foldable<IntAdder> fold(IntAdder other) {
+		public IntAdder fold(IntAdder other) {
 			return new IntAdder(value + other.value);
 		}
 

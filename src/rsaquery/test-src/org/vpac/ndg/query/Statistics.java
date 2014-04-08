@@ -67,13 +67,14 @@ public class Statistics implements Filter, Accumulator<Statistics.Stats> {
 	 * Basic statistics (min, max, mean, standard deviation).
 	 * @author Alex Fraser
 	 */
-	public class Stats implements Foldable<Statistics.Stats> {
+	static public class Stats implements Foldable<Statistics.Stats> {
 
-		private Element<?> min;
-		private Element<?> max;
-		private Element<?> mean;
+		public Element<?> min;
+		public Element<?> max;
+		public Element<?> mean;
 
 		// M2 = variance * (n - 1)
+		// Variance is the square of the standard deviation.
 		private Element<?> M2;
 		private long n;
 
@@ -112,7 +113,7 @@ public class Statistics implements Filter, Accumulator<Statistics.Stats> {
 		}
 
 		@Override
-		public Foldable<Stats> fold(Stats other) {
+		public Stats fold(Stats other) {
 			Stats res = new Stats(min);
 			res.min = min.minNew(other.min);
 			res.max = max.minNew(other.max);
@@ -122,16 +123,32 @@ public class Statistics implements Filter, Accumulator<Statistics.Stats> {
 			// Wikipedia.
 			// http://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Parallel_algorithm
 
-			res.n = n + other.n;
-			// (nA * meanA) + (nB * meanB) / (nA + nB)
-			res.mean = mean.mulNew(n).add(other.mean.mulNew(other.n)).
-					divNew(res.n);
-			// (meanB - meanA)^2
-			Element<?> deltaSq = other.mean.subNew(mean);
-			deltaSq = deltaSq.mulNew(deltaSq);
+			double deltaWeight;
+			Element<?> delta;
+			Element<?> deltaSq;
 
-			res.M2 = M2.addNew(other.M2).
-					add(deltaSq.mulNew((n * other.n) / res.n));
+			// nX = nA + nB
+			res.n = n + other.n;
+
+			// delta = meanB - meanA
+			delta = other.mean.subNew(mean);
+
+			if (other.n < 10 || other.n < n / 10) {
+				// For small n, or where nB is much smaller than nA.
+				// meanX = meanA + delta * nB/nX
+				deltaWeight = (double)other.n / (double)res.n;
+				res.mean.addOf(mean, delta.mulNew(deltaWeight));
+			} else {
+				// For large n.
+				// meanX = ((nA * meanA) + (nB * meanB)) / (nA + nB)
+				res.mean = mean.mulNew(n).add(other.mean.mulNew(other.n)).
+						divNew(res.n);
+			}
+			// (meanB - meanA)^2
+			deltaSq = delta.mulNew(delta);
+
+			deltaWeight = ((double)n * (double)other.n) / (double)res.n;
+			res.M2 = M2.addNew(other.M2).add(deltaSq.mulNew(deltaWeight));
 
 			// The delta fields are re-calculated for each input, so we don't
 			// need to fold them in.
@@ -139,7 +156,7 @@ public class Statistics implements Filter, Accumulator<Statistics.Stats> {
 			return res;
 		}
 
-		private Element<?> getStdDev() {
+		public Element<?> getStdDev() {
 			Element<?> variance = M2.divNew(n - 1);
 			Element<?> stddev = variance.asDouble();
 			for (ScalarElement e : stddev.getComponents()) {
