@@ -1,0 +1,89 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>org.vpac.ndg</groupId>
+	<artifactId>rsaquery</artifactId>
+	<packaging>jar</packaging>
+	<version>2.3.6</version>
+	<name>rsaquery</name>
+	<description>Query engine / image processing system for geospatial raster datasets.</description>
+	<build>
+		<!-- TODO: How to specify multiple source directories? Might need to
+		     change directory structure to standard Maven layout, and put
+		     all filter sources in src/main along with the rest of the code. -->
+		<sourceDirectory>${basedir}/src</sourceDirectory>
+
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.1</version>
+				<configuration>
+					<source>1.7</source>
+					<target>1.7</target>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>exec-maven-plugin</artifactId>
+				<version>1.2.1</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>java</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<mainClass>org.vpac.ndg.query.QueryRunner</mainClass>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+	<dependencies>
+
+		<dependency>
+			<groupId>edu.ucar</groupId>
+			<artifactId>netcdf</artifactId>
+			<version>4.3.16</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.thoughtworks.xstream</groupId>
+			<artifactId>xstream</artifactId>
+			<version>1.4.2</version>
+		</dependency>
+
+		<dependency>
+			<groupId>joda-time</groupId>
+			<artifactId>joda-time</artifactId>
+			<version>2.0</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<version>1.6.1</version>
+		</dependency>
+
+		<dependency>
+			<groupId>ch.qos.logback</groupId>
+			<artifactId>logback-classic</artifactId>
+			<version>1.0.7</version>
+		</dependency>
+
+		<!-- for testing -->
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.10</version>
+		</dependency>
+
+		<!-- <dependency> -->
+		<!-- <groupId>org.hamcrest</groupId> -->
+		<!-- <artifactId>hamcrest-core</artifactId> -->
+		<!-- <version>1.1.0</version> -->
+		<!-- </dependency> -->
+	</dependencies>
+</project>
