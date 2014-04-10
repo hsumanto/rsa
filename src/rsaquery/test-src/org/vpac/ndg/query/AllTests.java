@@ -25,6 +25,8 @@ import org.junit.runners.Suite.SuiteClasses;
 import org.vpac.ndg.query.iteration.FunctionalTest;
 import org.vpac.ndg.query.math.ElementTest;
 import org.vpac.ndg.query.math.SwizzleTest;
+import org.vpac.ndg.query.stats.HistogramTest;
+import org.vpac.ndg.query.stats.StatisticsTest;
 
 @RunWith(Suite.class)
 @SuiteClasses({
@@ -33,6 +35,7 @@ import org.vpac.ndg.query.math.SwizzleTest;
 	SwizzleTest.class,
 	FunctionalTest.class,
 	StatisticsTest.class,
+	HistogramTest.class,
 	QueryTest.class,
 })
 public class AllTests {

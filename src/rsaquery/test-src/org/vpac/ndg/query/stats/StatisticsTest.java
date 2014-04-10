@@ -1,4 +1,4 @@
-package org.vpac.ndg.query;
+package org.vpac.ndg.query.stats;
 
 import java.util.ArrayList;
 import java.util.List;
