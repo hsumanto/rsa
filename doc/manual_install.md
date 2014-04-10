@@ -320,11 +320,14 @@ within the storagepool directory if you intend to store large datasets there.
 
 ## 4. Build RSA from source
 
-To build RSA from source using [ant](http://ant.apache.org/):
+The RSA uses [Maven](http://maven.apache.org/) for its build process. In order
+for this to work, you will need to set up some external repositories for some
+of the dependencies: merge [settings.xml](settings.xml) with your own Maven
+settings file at `~/.m2/settings.xml`. Then run:
 
 	$ git clone https://github.com/VPAC/rsa.git
 	$ cd rsa/src
-	$ ant
+	$ mvn
 
 Once the build process completes, user can find all RSA components inside dist directory.
 	

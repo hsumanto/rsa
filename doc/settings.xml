@@ -1,0 +1,32 @@
+<!-- This is a Maven settings file that defines some non-standard repositories.
+     In order to build RSA, you will need to merge it with your own Maven
+     settings in ~/.m2/settings.xml -->
+
+<settings>
+	<profiles>
+		<profile>
+			<id>unidata</id>
+			<repositories>
+				<repository>
+					<id>unidata</id>
+					<url>http://artifacts.unidata.ucar.edu/content/repositories/unidata-releases
+					</url>
+					<releases>
+						<enabled>true</enabled>
+					</releases>
+					<snapshots>
+						<enabled>true</enabled>
+					</snapshots>
+				</repository>
+				<repository>
+					<id>Java.Net</id>
+					<url>http://download.java.net/maven/2/</url>
+				</repository>
+			</repositories>
+		</profile>
+	</profiles>
+	<activeProfiles>
+		<!--make the profile active all the time -->
+		<activeProfile>unidata</activeProfile>
+	</activeProfiles>
+</settings>
