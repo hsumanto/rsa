@@ -10,8 +10,8 @@ import org.junit.runner.RunWith;
 import org.junit.runners.BlockJUnit4ClassRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vpac.ndg.query.Statistics.Stats;
 import org.vpac.ndg.query.math.ElementInt;
+import org.vpac.ndg.query.stats.Stats;
 
 @RunWith(BlockJUnit4ClassRunner.class)
 public class StatisticsTest extends TestCase {

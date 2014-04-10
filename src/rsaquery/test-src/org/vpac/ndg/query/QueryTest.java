@@ -28,8 +28,8 @@ import junit.framework.TestCase;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.BlockJUnit4ClassRunner;
-import org.vpac.ndg.query.Statistics.Stats;
 import org.vpac.ndg.query.filter.Foldable;
+import org.vpac.ndg.query.stats.Stats;
 
 import ucar.ma2.Array;
 import ucar.ma2.DataType;

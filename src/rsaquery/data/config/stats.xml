@@ -9,7 +9,7 @@
 		<variable name="Band1" ref="#stats/output" />
 	</output>
 
-	<filter id="stats" cls="org.vpac.ndg.query.Statistics">
+	<filter id="stats" cls="org.vpac.ndg.query.stats.Statistics">
 		<sampler name="input" ref="#infile/Quality" />
 	</filter>
 </query>
