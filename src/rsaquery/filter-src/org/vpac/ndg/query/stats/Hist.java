@@ -1,11 +1,13 @@
 package org.vpac.ndg.query.stats;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 import org.vpac.ndg.query.filter.Foldable;
 import org.vpac.ndg.query.math.Element;
+import org.vpac.ndg.query.math.ScalarElement;
 
 /**
  * Groups values together.
@@ -19,13 +21,60 @@ public class Hist implements Foldable<Hist> {
 	static final double SCALE = 0.1;
 	static final int NUM_BUCKETS = 45;
 
-	public Element<?> min;
+	public Element<?> prototype;
 
 	private double[] lbs;
+	private Stats[][] buckets;
+	private int mruBuckets[];
 
 	public Hist(Element<?> prototype) {
+		this.prototype = prototype;
 		lbs = genBuckets(BASE, BUCKETS_PER_ORDER_OF_MAGNITUDE, SCALE,
 				NUM_BUCKETS);
+
+		ScalarElement[] es = prototype.getComponents();
+		buckets = new Stats[es.length][];
+		mruBuckets = new int[es.length];
+		for (int j = 0; j < es.length; j++) {
+			mruBuckets[j] = NUM_BUCKETS / 2;
+			buckets[j] = new Stats[lbs.length];
+			for (int i = 0; i < lbs.length; i++) {
+					buckets[j][i] = new Stats(es[j]);
+			}
+		}
+	}
+
+	public void update(Element<?> value) {
+		ScalarElement[] es = value.getComponents();
+		for (int i = 0; i < es.length; i++) {
+			ScalarElement e = es[i];
+			Stats stats;
+			int bucketIndex = mruBuckets[i];
+			if (e.compareTo(lbs[bucketIndex]) >= 0 &&
+					e.compareTo(lbs[bucketIndex + 1]) < 0) {
+				stats = buckets[i][bucketIndex];
+			} else {
+				bucketIndex = Arrays.binarySearch(lbs, e.doubleValue());
+				if (bucketIndex < 0)
+					bucketIndex = (0 - bucketIndex) - 2;
+				stats = buckets[i][bucketIndex];
+				mruBuckets[i] = bucketIndex;
+			}
+			stats.update(e);
+		}
+	}
+
+	@Override
+	public Hist fold(Hist other) {
+		Hist res = new Hist(prototype);
+
+		for (int i = 0; i < buckets.length; i++) {
+			for (int j = 0; j < lbs.length; j++) {
+				res.buckets[i][j] = res.buckets[i][j].fold(other.buckets[i][j]);
+			}
+		}
+
+		return res;
 	}
 
 	/**
@@ -64,6 +113,7 @@ public class Hist implements Foldable<Hist> {
 			buckets.add(0.0 - lowerBound(i, base, root, scale));
 
 		buckets.add(Double.NEGATIVE_INFINITY);
+		buckets.add(Double.POSITIVE_INFINITY);
 
 		Collections.sort(buckets);
 
@@ -92,22 +142,38 @@ public class Hist implements Foldable<Hist> {
 		return Math.pow(base, i / root) * scale;
 	}
 
-	public void update(Element<?> value) {
-		// TODO
-	}
-
-	@Override
-	public Hist fold(Hist other) {
-		Hist res = new Hist(min);
-
-		// TODO
-		return res;
-	}
-
 	@Override
 	public String toString() {
-		// TODO
-		return null;
+		StringBuffer sb = new StringBuffer();
+		sb.append("{\n");
+
+		boolean firstComponent = true;
+		for (int i = 0; i < buckets.length; i++) {
+			sb.append("\t[");
+
+			if (!firstComponent)
+				sb.append(",\n");
+			else
+				firstComponent = false;
+
+			boolean firstBucket = true;
+			for (int j = 0; j < lbs.length; j++) {
+				Stats stats = buckets[i][j];
+				if (stats.n <= 0)
+					continue;
+
+				if (!firstBucket)
+					sb.append(", ");
+				else
+					firstBucket = false;
+
+				sb.append(String.format("{%g: %d}", lbs[j], stats.n));
+			}
+			sb.append("]");
+		}
+
+		sb.append("\n}");
+		return sb.toString();
 	}
 
 }

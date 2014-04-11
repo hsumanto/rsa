@@ -13,11 +13,11 @@ public class Stats implements Foldable<Stats> {
 	public Element<?> min;
 	public Element<?> max;
 	public Element<?> mean;
+	public long n;
 
 	// M2 = variance * (n - 1)
 	// Variance is the square of the standard deviation.
 	private Element<?> M2;
-	private long n;
 
 	// Supporting fields. These aren't part of the useful output, but we
 	// declare them here to prevent calling new for them for each value.

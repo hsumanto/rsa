@@ -1,6 +1,5 @@
 package org.vpac.ndg.query.stats;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import junit.framework.TestCase;
@@ -10,8 +9,8 @@ import org.junit.runner.RunWith;
 import org.junit.runners.BlockJUnit4ClassRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.vpac.ndg.query.iteration.ListTranslator;
 import org.vpac.ndg.query.math.ElementInt;
-import org.vpac.ndg.query.stats.Stats;
 
 @RunWith(BlockJUnit4ClassRunner.class)
 public class StatisticsTest extends TestCase {
@@ -22,22 +21,12 @@ public class StatisticsTest extends TestCase {
 
 	Logger log = LoggerFactory.getLogger(StatisticsTest.class);
 
-	private List<Integer> getPermutations(int n, int m) {
-		List<Integer> permutations = new ArrayList<Integer>();
-		for (int i = 1; i <= n; i++) {
-			for (int j = 1; j <= m; j++) {
-				permutations.add(i + j);
-			}
-		}
-		return permutations;
-	}
-
 	/**
 	 * Tests online statistics gathering, using the cheaper incremental method.
 	 */
 	@Test
 	public void test_stats() throws Exception {
-		List<Integer> permutations = getPermutations(DIE_1_SIDES, DIE_2_SIDES);
+		List<Integer> permutations = MockData.permute(DIE_1_SIDES, DIE_2_SIDES);
 		log.info("Stats test. Permutations: {}", permutations.size());
 
 		// Calculate mean and stddev using a basic algorithm.
@@ -46,10 +35,8 @@ public class StatisticsTest extends TestCase {
 		log.info("Baseline mean: {}, StdDev: {}", m, sdev);
 
 		// Now compare the computation above to other algorithm being tested.
-		ElementInt value = new ElementInt();
-		Stats stats = new Stats(value);
-		for (Integer p : permutations) {
-			value.set(p);
+		Stats stats = new Stats(new ElementInt());
+		for (ElementInt value : ListTranslator.ints(permutations)) {
 			stats.update(value);
 		}
 		log.info("Computed mean: {}, StdDev: {}",
@@ -67,7 +54,7 @@ public class StatisticsTest extends TestCase {
 	 */
 	@Test
 	public void test_statsParallelSmallChunk() throws Exception {
-		List<Integer> permutations = getPermutations(DIE_1_SIDES, DIE_2_SIDES);
+		List<Integer> permutations = MockData.permute(DIE_1_SIDES, DIE_2_SIDES);
 		log.info("Stats test. Permutations: {}", permutations.size());
 
 		// Calculate mean and stddev using a basic algorithm.
@@ -76,11 +63,9 @@ public class StatisticsTest extends TestCase {
 		log.info("Baseline mean: {}, StdDev: {}", m, sdev);
 
 		// Now compare the computation above to other algorithm being tested.
-		ElementInt value = new ElementInt();
 		Stats stats = null;
 		Stats stats2;
-		for (Integer p : permutations) {
-			value.set(p);
+		for (ElementInt value : ListTranslator.ints(permutations)) {
 			stats2 = new Stats(value);
 			stats2.update(value);
 			if (stats == null)
@@ -103,7 +88,7 @@ public class StatisticsTest extends TestCase {
 	 */
 	@Test
 	public void test_statsParallel() throws Exception {
-		List<Integer> permutations = getPermutations(DIE_1_SIDES, DIE_2_SIDES);
+		List<Integer> permutations = MockData.permute(DIE_1_SIDES, DIE_2_SIDES);
 		log.info("Stats test. Permutations: {}", permutations.size());
 
 		// Calculate mean and stddev using a basic algorithm.
@@ -133,10 +118,8 @@ public class StatisticsTest extends TestCase {
 	}
 
 	private Stats calculateStatsIteratively(List<Integer> permutations) {
-		ElementInt value = new ElementInt();
-		Stats stats = new Stats(value);
-		for (Integer p : permutations) {
-			value.set(p);
+		Stats stats = new Stats(new ElementInt());
+		for (ElementInt value : ListTranslator.ints(permutations)) {
 			stats.update(value);
 		}
 		return stats;
