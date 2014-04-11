@@ -29,7 +29,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.BlockJUnit4ClassRunner;
 import org.vpac.ndg.query.filter.Foldable;
-import org.vpac.ndg.query.stats.Stats;
+import org.vpac.ndg.query.stats.VectorStats;
 
 import ucar.ma2.Array;
 import ucar.ma2.DataType;
@@ -433,11 +433,11 @@ public class QueryTest extends TestCase {
 		File outputFile = new File("data/output/stats.nc");
 
 		Map<String, Foldable<?>> output = QueryRunner.run(config, outputFile, 8);
-		Stats stats = (Stats) output.get("stats");
+		VectorStats stats = (VectorStats) output.get("stats");
 
-		assertEquals(35, stats.min.getComponents()[0].longValue());
-		assertEquals(209, stats.max.getComponents()[0].longValue());
-		assertEquals(124.04589843750001, stats.mean.getComponents()[0].doubleValue(), EPSILON);
+		assertEquals(35, stats.getMin().getComponents()[0].longValue());
+		assertEquals(209, stats.getMax().getComponents()[0].longValue());
+		assertEquals(124.04589843750001, stats.getMean().getComponents()[0].doubleValue(), EPSILON);
 		assertEquals(31.17135124667003, stats.getStdDev().getComponents()[0].doubleValue(), EPSILON);
 	}
 

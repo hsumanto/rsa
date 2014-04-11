@@ -53,7 +53,7 @@ public class HistogramTest extends TestCase {
 		for (ElementInt value : ListTranslator.ints(permutations)) {
 			hist.update(value);
 		}
-		System.out.println(hist);
+		System.out.println(hist.toCsv());
 	}
 
 }

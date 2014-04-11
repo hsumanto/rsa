@@ -39,18 +39,18 @@ import org.vpac.ndg.query.sampling.PixelSource;
  */
 @Description(name = "Statistics", description = "Finds mean, max, etc. for all pixels. This is a pass-through filter with metadata collection.")
 @InheritDimensions(from = "input")
-public class Statistics implements Filter, Accumulator<VectorStats> {
+public class Histogram implements Filter, Accumulator<VectorHist> {
 
 	public PixelSource input;
 
 	@CellType("input")
 	public Cell output;
 
-	private VectorStats stats;
+	private VectorHist stats;
 
 	@Override
 	public void initialise(BoxReal bounds) throws QueryConfigurationException {
-		stats = new VectorStats(input.getPrototype().getElement());
+		stats = new VectorHist(input.getPrototype().getElement());
 	}
 
 	@Override
@@ -61,7 +61,7 @@ public class Statistics implements Filter, Accumulator<VectorStats> {
 	}
 
 	@Override
-	public VectorStats getAccumulatedOutput() {
+	public VectorHist getAccumulatedOutput() {
 		return stats;
 	}
 

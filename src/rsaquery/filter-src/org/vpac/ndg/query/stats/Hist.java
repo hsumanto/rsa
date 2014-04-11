@@ -6,12 +6,11 @@ import java.util.Collections;
 import java.util.List;
 
 import org.vpac.ndg.query.filter.Foldable;
-import org.vpac.ndg.query.math.Element;
 import org.vpac.ndg.query.math.ScalarElement;
 
 /**
- * Groups values together.
- * 
+ * Groups values together based on their intrinsic distribution.
+ *
  * @author Alex Fraser
  */
 public class Hist implements Foldable<Hist> {
@@ -21,57 +20,44 @@ public class Hist implements Foldable<Hist> {
 	static final double SCALE = 0.1;
 	static final int NUM_BUCKETS = 45;
 
-	public Element<?> prototype;
+	public ScalarElement prototype;
 
 	private double[] lbs;
-	private Stats[][] buckets;
-	private int mruBuckets[];
+	private Stats[] buckets;
+	private int mruBucket;
 
-	public Hist(Element<?> prototype) {
+	public Hist(ScalarElement prototype) {
 		this.prototype = prototype;
 		lbs = genBuckets(BASE, BUCKETS_PER_ORDER_OF_MAGNITUDE, SCALE,
 				NUM_BUCKETS);
 
-		ScalarElement[] es = prototype.getComponents();
-		buckets = new Stats[es.length][];
-		mruBuckets = new int[es.length];
-		for (int j = 0; j < es.length; j++) {
-			mruBuckets[j] = NUM_BUCKETS / 2;
-			buckets[j] = new Stats[lbs.length];
-			for (int i = 0; i < lbs.length; i++) {
-					buckets[j][i] = new Stats(es[j]);
-			}
+		buckets = new Stats[lbs.length];
+		mruBucket = NUM_BUCKETS / 2;
+		for (int i = 0; i < lbs.length; i++) {
+				buckets[i] = new Stats(prototype);
 		}
 	}
 
-	public void update(Element<?> value) {
-		ScalarElement[] es = value.getComponents();
-		for (int i = 0; i < es.length; i++) {
-			ScalarElement e = es[i];
-			Stats stats;
-			int bucketIndex = mruBuckets[i];
-			if (e.compareTo(lbs[bucketIndex]) >= 0 &&
-					e.compareTo(lbs[bucketIndex + 1]) < 0) {
-				stats = buckets[i][bucketIndex];
-			} else {
-				bucketIndex = Arrays.binarySearch(lbs, e.doubleValue());
-				if (bucketIndex < 0)
-					bucketIndex = (0 - bucketIndex) - 2;
-				stats = buckets[i][bucketIndex];
-				mruBuckets[i] = bucketIndex;
-			}
-			stats.update(e);
+	public void update(ScalarElement value) {
+		Stats stats;
+		if (value.compareTo(lbs[mruBucket]) >= 0 &&
+				value.compareTo(lbs[mruBucket + 1]) < 0) {
+			stats = buckets[mruBucket];
+		} else {
+			mruBucket = Arrays.binarySearch(lbs, value.doubleValue());
+			if (mruBucket < 0)
+				mruBucket = (0 - mruBucket) - 2;
+			stats = buckets[mruBucket];
 		}
+		stats.update(value);
 	}
 
 	@Override
 	public Hist fold(Hist other) {
 		Hist res = new Hist(prototype);
 
-		for (int i = 0; i < buckets.length; i++) {
-			for (int j = 0; j < lbs.length; j++) {
-				res.buckets[i][j] = res.buckets[i][j].fold(other.buckets[i][j]);
-			}
+		for (int i = 0; i < lbs.length; i++) {
+			res.buckets[i] = res.buckets[i].fold(other.buckets[i]);
 		}
 
 		return res;
@@ -145,35 +131,38 @@ public class Hist implements Foldable<Hist> {
 	@Override
 	public String toString() {
 		StringBuffer sb = new StringBuffer();
-		sb.append("{\n");
+		sb.append("[");
 
-		boolean firstComponent = true;
-		for (int i = 0; i < buckets.length; i++) {
-			sb.append("\t[");
+		boolean firstBucket = true;
+		for (int i = 0; i < lbs.length; i++) {
+			Stats stats = buckets[i];
+			if (stats.n <= 0)
+				continue;
 
-			if (!firstComponent)
-				sb.append(",\n");
+			if (!firstBucket)
+				sb.append(", ");
 			else
-				firstComponent = false;
+				firstBucket = false;
 
-			boolean firstBucket = true;
-			for (int j = 0; j < lbs.length; j++) {
-				Stats stats = buckets[i][j];
-				if (stats.n <= 0)
-					continue;
-
-				if (!firstBucket)
-					sb.append(", ");
-				else
-					firstBucket = false;
-
-				sb.append(String.format("{%g: %d}", lbs[j], stats.n));
-			}
-			sb.append("]");
+			sb.append(String.format("{%g: %d}", lbs[i], stats.n));
 		}
+		sb.append("]");
 
-		sb.append("\n}");
 		return sb.toString();
 	}
 
+	public String toCsv() {
+		StringBuffer sb = new StringBuffer();
+		sb.append("LowerBound,count,min,max,mean,stddev\n");
+		for (int i = 0; i < lbs.length; i++) {
+			Stats stats = buckets[i];
+			if (stats.getCount().longValue() == 0)
+				continue;
+			sb.append(String.format("%g,%d,%g,%g,%g,%g\n", lbs[i], stats.n,
+					stats.getMin().doubleValue(), stats.getMax().doubleValue(),
+					stats.getMean().doubleValue(),
+					stats.getStdDev().doubleValue()));
+		}
+		return sb.toString();
+	}
 }

@@ -1,7 +1,8 @@
 package org.vpac.ndg.query.stats;
 
 import org.vpac.ndg.query.filter.Foldable;
-import org.vpac.ndg.query.math.Element;
+import org.vpac.ndg.query.math.ElementDouble;
+import org.vpac.ndg.query.math.ElementLong;
 import org.vpac.ndg.query.math.ScalarElement;
 
 /**
@@ -10,35 +11,28 @@ import org.vpac.ndg.query.math.ScalarElement;
  */
 public class Stats implements Foldable<Stats> {
 
-	public Element<?> min;
-	public Element<?> max;
-	public Element<?> mean;
-	public long n;
+	ScalarElement min;
+	ScalarElement max;
+	double mean;
+	long n;
 
 	// M2 = variance * (n - 1)
 	// Variance is the square of the standard deviation.
-	private Element<?> M2;
+	double M2;
 
-	// Supporting fields. These aren't part of the useful output, but we
-	// declare them here to prevent calling new for them for each value.
-	private Element<?> delta1;
-	private Element<?> delta2;
-	private Element<?> deltaProportional;
-
-	public Stats(Element<?> prototype) {
+	public Stats(ScalarElement prototype) {
 		min = prototype.copy().maximise();
 		max = prototype.copy().minimise();
 
 		n = 0;
-		M2 = prototype.asDouble().set(0.0);
-		mean = prototype.asDouble().set(0.0);
-
-		delta1 = prototype.asDouble();
-		delta2 = prototype.asDouble();
-		deltaProportional = prototype.asDouble();
+		M2 = 0.0;
+		mean = 0.0;
 	}
 
-	public void update(Element<?> value) {
+	public void update(ScalarElement value) {
+		if (!value.isValid())
+			return;
+
 		min.min(value);
 		max.max(value);
 
@@ -46,18 +40,24 @@ public class Stats implements Foldable<Stats> {
 		// finding the variance. This is converted to the standard
 		// deviation in getStdDev(). This algorithm is due to Knuth.
 		n += 1;
-		delta1.subOf(value, mean);
-		deltaProportional.divOf(delta1, n);
-		mean.add(deltaProportional);
-		delta2.subOf(value, mean);
-		M2.add(delta1.mul(delta2));
+		double v = value.doubleValue();
+		double delta = v - mean;
+		double deltaProportional = delta / n;
+		mean += deltaProportional;
+		M2 += delta * (v - mean);
 	}
 
 	@Override
 	public Stats fold(Stats other) {
 		Stats res = new Stats(min);
+
+		// nX = nA + nB
+		res.n = n + other.n;
+		if (res.n == 0)
+			return res;
+
 		res.min = min.minNew(other.min);
-		res.max = max.minNew(other.max);
+		res.max = max.maxNew(other.max);
 
 		// Algorithm for combining parallel-processed variance is due to
 		// Chan et. al. with modification for stability suggested on
@@ -65,31 +65,27 @@ public class Stats implements Foldable<Stats> {
 		// http://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Parallel_algorithm
 
 		double deltaWeight;
-		Element<?> delta;
-		Element<?> deltaSq;
-
-		// nX = nA + nB
-		res.n = n + other.n;
+		double delta;
+		double deltaSq;
 
 		// delta = meanB - meanA
-		delta = other.mean.subNew(mean);
+		delta = other.mean - mean;
 
 		if (other.n < 10 || other.n < n / 10) {
 			// For small n, or where nB is much smaller than nA.
 			// meanX = meanA + delta * nB/nX
 			deltaWeight = (double)other.n / (double)res.n;
-			res.mean.addOf(mean, delta.mulNew(deltaWeight));
+			res.mean = mean + (delta * deltaWeight);
 		} else {
 			// For large n.
 			// meanX = ((nA * meanA) + (nB * meanB)) / (nA + nB)
-			res.mean = mean.mulNew(n).add(other.mean.mulNew(other.n)).
-					divNew(res.n);
+			res.mean = ((mean * n) + (other.mean * other.n)) / (double)res.n;
 		}
 		// (meanB - meanA)^2
-		deltaSq = delta.mulNew(delta);
+		deltaSq = delta * delta;
 
 		deltaWeight = ((double)n * (double)other.n) / (double)res.n;
-		res.M2 = M2.addNew(other.M2).add(deltaSq.mulNew(deltaWeight));
+		res.M2 = M2 + other.M2 + (deltaSq * deltaWeight);
 
 		// The delta fields are re-calculated for each input, so we don't
 		// need to fold them in.
@@ -97,13 +93,25 @@ public class Stats implements Foldable<Stats> {
 		return res;
 	}
 
-	public Element<?> getStdDev() {
-		Element<?> variance = M2.divNew(n - 1);
-		Element<?> stddev = variance.asDouble();
-		for (ScalarElement e : stddev.getComponents()) {
-			e.set(Math.sqrt(e.doubleValue()));
-		}
-		return stddev;
+	public ElementLong getCount() {
+		return new ElementLong(n);
+	}
+
+	public ScalarElement getMin() {
+		return min;
+	}
+
+	public ScalarElement getMax() {
+		return max;
+	}
+
+	public ElementDouble getMean() {
+		return new ElementDouble(mean);
+	}
+
+	public ElementDouble getStdDev() {
+		double variance = M2 / (n - 1);
+		return new ElementDouble(Math.sqrt(variance));
 	}
 
 	@Override
