@@ -16,10 +16,8 @@ import java.util.Set;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
-import org.vpac.ndg.geometry.TileManager;
 import org.vpac.ndg.query.io.DatasetProvider;
 import org.vpac.ndg.query.io.ProviderRegistry;
-import org.vpac.ndg.storage.util.TimeSliceUtil;
 
 public class Main {
 	/**
@@ -51,7 +49,15 @@ public class Main {
 	}
 
 	public void startService() throws InterruptedException {
-		Address joinAddress = startBackend(null);
+		Address joinAddress = null;
+		Config c = ConfigFactory.load("master");
+		if (c.hasPath("master.hostip")) {
+			String hostip = c.getString("master.hostip").toString();
+			String port = c.getString("master.port").toString();
+			if(hostip != null && port != null)
+				joinAddress = new Address("akka.tcp", "Workers@" + hostip + ":" + port);
+		}
+		joinAddress = startBackend(joinAddress);
 	    Thread.sleep(5000);
 //	    startBackend(joinAddress, "backend");
 	    startWorker(joinAddress);
@@ -75,7 +81,6 @@ public class Main {
 	  public static Address startBackend(Address joinAddress) {
 	    Config conf = ConfigFactory.parseString("akka.cluster.roles=[backend]").
 				withFallback(ConfigFactory.load("master"));
-	    System.out.println("Config files:" + ConfigFactory.systemProperties().toString());
 	    ActorSystem system = ActorSystem.create(systemName, conf);
 	    Address realJoinAddress =
 	      (joinAddress == null) ? Cluster.get(system).selfAddress() : joinAddress;
@@ -96,13 +101,5 @@ public class Main {
 	    ActorRef clusterClient = system.actorOf(ClusterClient.defaultProps(initialContacts),
 	      "clusterClient");
 	    system.actorOf(Worker.props(clusterClient, Props.create(WorkExecutor.class)), "worker");
-	  }
-	
-	  public static void startFrontend(Address joinAddress) {
-	    ActorSystem system = ActorSystem.create(systemName);
-	    Cluster.get(system).join(joinAddress);
-	 //   ActorRef frontend = system.actorOf(Props.create(Frontend.class), "frontend");
-	//    system.actorOf(Props.create(WorkProducer.class, frontend), "producer");
-	    system.actorOf(Props.create(WorkResultConsumer.class), "consumer");
 	  }
 }
