@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<query xmlns="http://www.vpac.org/namespaces/rsaquery-0.2">
+	<input id="vic_0" href="file:///var/lib/ndg/storagepool/vic_m25/2002-01-01T00-00-00.000/B10_tile_x31_y24.nc"/>
+
+	<output id="output">
+		<grid/>
+		<variable name="band" ref="#Pass_Through_0/output"/>
+	</output>
+
+	<filter id="Pass_Through_0" cls="org.vpac.ndg.query.PassThrough">
+		<sampler name="input" ref="#vic_0/Band1"/>
+	</filter>
+</query>
