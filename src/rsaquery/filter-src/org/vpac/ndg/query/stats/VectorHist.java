@@ -41,6 +41,10 @@ public class VectorHist implements Foldable<VectorHist> {
 		return res;
 	}
 
+	public Hist[] getComponents() {
+		return components;
+	}
+
 	@Override
 	public String toString() {
 		StringBuffer sb = new StringBuffer();

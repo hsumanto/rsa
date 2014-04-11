@@ -2536,6 +2536,8 @@ public class ElementDouble implements ScalarElement {
 			return false;
 
 		ScalarElement other = (ScalarElement) obj;
+		if (valid != other.isValid())
+			return false;
 
 		if (ElementByte.class == obj.getClass()) {
 			return value == other.byteValue();

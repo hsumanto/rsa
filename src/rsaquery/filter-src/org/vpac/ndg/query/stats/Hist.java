@@ -15,6 +15,8 @@ import org.vpac.ndg.query.math.ScalarElement;
  */
 public class Hist implements Foldable<Hist> {
 
+	// Beware! If you change these, old histograms will not be comparable to
+	// new ones.
 	static final double BASE = 10;
 	static final double BUCKETS_PER_ORDER_OF_MAGNITUDE = 3.0;
 	static final double SCALE = 0.1;
@@ -67,6 +69,8 @@ public class Hist implements Foldable<Hist> {
 	}
 
 	public void update(ScalarElement value) {
+		if (!value.isValid())
+			return;
 		if (!mruBucket.canContain(value)) {
 			int i = Arrays.binarySearch(lowerBounds, value.doubleValue());
 			if (i < 0)
@@ -85,6 +89,10 @@ public class Hist implements Foldable<Hist> {
 		}
 
 		return res;
+	}
+
+	public List<Bucket> getBuckets() {
+		return buckets;
 	}
 
 	/**

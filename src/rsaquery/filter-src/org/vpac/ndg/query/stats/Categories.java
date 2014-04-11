@@ -27,41 +27,45 @@ import org.vpac.ndg.query.QueryConfigurationException;
 import org.vpac.ndg.query.filter.Accumulator;
 import org.vpac.ndg.query.math.BoxReal;
 import org.vpac.ndg.query.math.Element;
+import org.vpac.ndg.query.math.ScalarElement;
 import org.vpac.ndg.query.math.VectorReal;
 import org.vpac.ndg.query.sampling.Cell;
 import org.vpac.ndg.query.sampling.CellType;
 import org.vpac.ndg.query.sampling.PixelSource;
+import org.vpac.ndg.query.sampling.PixelSourceScalar;
 
 /**
- * Groups data into buckets based on its values.
+ * Groups data into categories based on a metadata band.
  *
  * @author Alex Fraser
  */
-@Description(name = "Histogram", description = "Groups data into buckets based on its values. This is a pass-through filter with metadata collection.")
+@Description(name = "Categories", description = "Groups data into categories based on a metadata band. This is a pass-through filter with metadata collection.")
 @InheritDimensions(from = "input")
-public class Histogram implements Filter, Accumulator<VectorHist> {
+public class Categories implements Filter, Accumulator<VectorCats> {
 
 	public PixelSource input;
+	public PixelSourceScalar categories;
 
 	@CellType("input")
 	public Cell output;
 
-	private VectorHist stats;
+	private VectorCats stats;
 
 	@Override
 	public void initialise(BoxReal bounds) throws QueryConfigurationException {
-		stats = new VectorHist(input.getPrototype().getElement());
+		stats = new VectorCats(input.getPrototype().getElement());
 	}
 
 	@Override
 	public void kernel(VectorReal coords) throws IOException {
 		Element<?> temp = input.getPixel(coords);
-		stats.update(temp);
+		ScalarElement cat = categories.getScalarPixel(coords);
+		stats.update(cat, temp);
 		output.set(temp);
 	}
 
 	@Override
-	public VectorHist getAccumulatedOutput() {
+	public VectorCats getAccumulatedOutput() {
 		return stats;
 	}
 
