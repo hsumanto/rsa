@@ -22,42 +22,66 @@ public class Hist implements Foldable<Hist> {
 
 	public ScalarElement prototype;
 
-	private double[] lbs;
-	private Stats[] buckets;
-	private int mruBucket;
+	double[] lowerBounds;
+	private List<Bucket> buckets;
+	private Bucket mruBucket;
 
 	public Hist(ScalarElement prototype) {
 		this.prototype = prototype;
-		lbs = genBuckets(BASE, BUCKETS_PER_ORDER_OF_MAGNITUDE, SCALE,
+		lowerBounds = genBuckets(BASE, BUCKETS_PER_ORDER_OF_MAGNITUDE, SCALE,
 				NUM_BUCKETS);
 
-		buckets = new Stats[lbs.length];
-		mruBucket = NUM_BUCKETS / 2;
-		for (int i = 0; i < lbs.length; i++) {
-				buckets[i] = new Stats(prototype);
+		buckets = new ArrayList<Hist.Bucket>();
+		for (int i = 0; i < lowerBounds.length - 1; i++) {
+			buckets.add(new Bucket(lowerBounds[i], lowerBounds[i + 1],
+					new Stats(prototype)));
+		}
+
+		mruBucket = buckets.get(buckets.size() / 2);
+	}
+
+	class Bucket implements Foldable<Bucket> {
+		double lower;
+		double upper;
+		Stats stats;
+
+		public Bucket(Double lower, Double upper, Stats stats) {
+			this.lower = lower;
+			this.upper = upper;
+			this.stats = stats;
+		}
+
+		public boolean canContain(ScalarElement value) {
+			if (value.compareTo(mruBucket.lower) < 0)
+				return false;
+			else if (value.compareTo(mruBucket.upper) >= 0)
+				return false;
+			return true;
+		}
+
+		@Override
+		public Bucket fold(Bucket other) {
+			return new Bucket(Math.min(lower, other.lower),
+					Math.max(upper, other.upper), stats.fold(other.stats));
 		}
 	}
 
 	public void update(ScalarElement value) {
-		Stats stats;
-		if (value.compareTo(lbs[mruBucket]) >= 0 &&
-				value.compareTo(lbs[mruBucket + 1]) < 0) {
-			stats = buckets[mruBucket];
-		} else {
-			mruBucket = Arrays.binarySearch(lbs, value.doubleValue());
-			if (mruBucket < 0)
-				mruBucket = (0 - mruBucket) - 2;
-			stats = buckets[mruBucket];
+		if (!mruBucket.canContain(value)) {
+			int i = Arrays.binarySearch(lowerBounds, value.doubleValue());
+			if (i < 0)
+				i = (0 - i) - 2;
+			mruBucket = buckets.get(i);
 		}
-		stats.update(value);
+		mruBucket.stats.update(value);
 	}
 
 	@Override
 	public Hist fold(Hist other) {
 		Hist res = new Hist(prototype);
 
-		for (int i = 0; i < lbs.length; i++) {
-			res.buckets[i] = res.buckets[i].fold(other.buckets[i]);
+		for (int i = 0; i < buckets.size(); i++) {
+			res.buckets.set(i, buckets.get(i).fold(other.buckets.get(i)));
 		}
 
 		return res;
@@ -80,7 +104,6 @@ public class Hist implements Foldable<Hist> {
 	 * @return An array of bucket lower bounds.
 	 */
 	static double[] genBuckets(double base, double root, double scale, int n) {
-		List<Double> buckets = new ArrayList<Double>(n);
 
 		// Lower bound generation only works for positive numbers! So do this
 		// in three steps:
@@ -89,6 +112,8 @@ public class Hist implements Foldable<Hist> {
 		// 3. Repeat 1, but negate numbers before insertion.
 		// 4. Add NEGATIVE_INFINITY, to catch all very large negative values.
 		// 4. Sort the list.
+
+		List<Double> buckets = new ArrayList<Double>();
 
 		for (int i = 0; i < n / 2; i++)
 			buckets.add(lowerBound(i, base, root, scale));
@@ -106,7 +131,6 @@ public class Hist implements Foldable<Hist> {
 		double[] bs = new double[buckets.size()];
 		for (int i = 0; i < bs.length; i++)
 			bs[i] = buckets.get(i);
-
 		return bs;
 	}
 
@@ -134,9 +158,8 @@ public class Hist implements Foldable<Hist> {
 		sb.append("[");
 
 		boolean firstBucket = true;
-		for (int i = 0; i < lbs.length; i++) {
-			Stats stats = buckets[i];
-			if (stats.n <= 0)
+		for (Bucket b : buckets) {
+			if (b.stats.n <= 0)
 				continue;
 
 			if (!firstBucket)
@@ -144,7 +167,7 @@ public class Hist implements Foldable<Hist> {
 			else
 				firstBucket = false;
 
-			sb.append(String.format("{%g: %d}", lbs[i], stats.n));
+			sb.append(String.format("{%g-%g: %d}", b.lower, b.upper, b.stats.n));
 		}
 		sb.append("]");
 
@@ -154,11 +177,11 @@ public class Hist implements Foldable<Hist> {
 	public String toCsv() {
 		StringBuffer sb = new StringBuffer();
 		sb.append("LowerBound,count,min,max,mean,stddev\n");
-		for (int i = 0; i < lbs.length; i++) {
-			Stats stats = buckets[i];
+		for (Bucket b : buckets) {
+			Stats stats = b.stats;
 			if (stats.getCount().longValue() == 0)
 				continue;
-			sb.append(String.format("%g,%d,%g,%g,%g,%g\n", lbs[i], stats.n,
+			sb.append(String.format("%g,%d,%g,%g,%g,%g\n", b.lower, stats.n,
 					stats.getMin().doubleValue(), stats.getMax().doubleValue(),
 					stats.getMean().doubleValue(),
 					stats.getStdDev().doubleValue()));
