@@ -437,8 +437,9 @@ public class FilterAdapter implements HasBounds, HasRank, Diagnostics {
 								f.getName()));
 					}
 				} else {
-					log.warn("Public filter field {}.{} is unbound.",
-							getName(), f.getName());
+					throw new QueryConfigurationException(String.format(
+							"Public filter field %s.%s is unbound.",
+							getName(), f.getName()));
 				}
 			}
 		}
