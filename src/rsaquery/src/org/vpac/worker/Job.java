@@ -2,7 +2,7 @@ package org.vpac.worker;
 
 import java.io.Serializable;
 
-import org.vpac.ndg.geometry.Box;
+import org.vpac.ndg.query.math.BoxReal;
 
 import ucar.nc2.NetcdfFileWriter.Version;
 
@@ -19,9 +19,9 @@ public class Job {
 //    public final QueryProgress qp;
     public final String outputPath;
     public final Version netcdfVersion;
-    public final Box bound;
+    public final BoxReal bound;
 
-    public Work(String workId, String queryDefinitionString, String path, Version ver, Box bound) {
+    public Work(String workId, String queryDefinitionString, String path, Version ver, BoxReal bound) {
       this.workId = workId;
       this.queryDefinitionString = queryDefinitionString;
       this.outputPath = path;
@@ -42,5 +42,20 @@ public class Job {
     }
  
  }
+ 
+ public static final class WorkComplete  implements Serializable {
+	    public final Object result;
+
+	    public WorkComplete(Object result) {
+	      this.result = result;
+	    }
+
+	    @Override
+	    public String toString() {
+	      return "WorkComplete{" +
+	        "result=" + result +
+	        '}';
+	    }
+	  }
  
 }

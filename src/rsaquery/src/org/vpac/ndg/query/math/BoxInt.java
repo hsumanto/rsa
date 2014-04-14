@@ -19,14 +19,17 @@
 
 package org.vpac.ndg.query.math;
 
+import java.io.Serializable;
+
 
 /**
  * A simple axis-aligned box.
  * @author Alex Fraser
  *
  */
-public class BoxInt {
+public class BoxInt implements Serializable {
 
+	private static final long serialVersionUID = 1L;
 	protected VectorInt min;
 	protected VectorInt max;
 

@@ -52,6 +52,7 @@ CLASS_HEADER_TEMPLATE = Template("""/*
 
 package org.vpac.ndg.query.math;
 
+import java.io.Serializable;
 import java.util.Arrays;
 
 import ucar.ma2.Index;
@@ -61,8 +62,9 @@ import ucar.ma2.Index;
  * 
  * @author Alex Fraser
  */
-public class $cname {
+public class $cname implements Serializable {
 
+	private static final long serialVersionUID = 1L;
 	$ptype[] components;
 
 	protected $cname() {

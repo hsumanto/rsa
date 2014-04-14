@@ -21,6 +21,7 @@
 
 package org.vpac.ndg.query.math;
 
+import java.io.Serializable;
 import java.util.Arrays;
 
 import ucar.ma2.Index;
@@ -30,8 +31,9 @@ import ucar.ma2.Index;
  * 
  * @author Alex Fraser
  */
-public class VectorReal {
+public class VectorReal implements Serializable {
 
+	private static final long serialVersionUID = 1L;
 	double[] components;
 
 	protected VectorReal() {

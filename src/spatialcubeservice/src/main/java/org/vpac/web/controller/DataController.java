@@ -26,7 +26,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -76,6 +75,7 @@ import org.vpac.ndg.query.QueryDefinition;
 import org.vpac.ndg.query.filter.FilterUtils;
 import org.vpac.ndg.query.io.DatasetProvider;
 import org.vpac.ndg.query.io.ProviderRegistry;
+import org.vpac.ndg.query.math.BoxReal;
 import org.vpac.ndg.query.math.ScalarElement;
 import org.vpac.ndg.query.math.Type;
 import org.vpac.ndg.query.sampling.ArrayAdapter;
@@ -110,20 +110,14 @@ import org.vpac.web.model.response.TaskCollectionResponse;
 import org.vpac.web.model.response.TaskResponse;
 import org.vpac.web.util.ControllerHelper;
 import org.vpac.web.util.Pager;
-import org.vpac.worker.Master;
 
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
-
+import akka.actor.ActorRef;
 import ucar.ma2.Array;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.NetcdfFileWriter;
 import ucar.nc2.NetcdfFileWriter.Version;
 import ucar.nc2.Variable;
 import ucar.nc2.dataset.NetcdfDataset;
-// akka
-import akka.actor.*;
-import akka.cluster.Cluster;
 
 @Controller
 @RequestMapping("/Data")
@@ -628,7 +622,12 @@ public class DataController {
 		for(Tile t : tiles) {
 			Box bound = tileManager.getNngGrid().getBounds(t.getIndex(), ds.getResolution());
 			bound.intersect(extent);
-			frontend.tell(new org.vpac.worker.Job.Work(UUID.randomUUID().toString(), query, path, ver, bound),  ActorRef.noSender());
+			BoxReal bb = new BoxReal(2);
+			bb.getMin().setX(bound.getXMin());
+			bb.getMin().setY(bound.getYMin());
+			bb.getMax().setX(bound.getXMax());
+			bb.getMax().setY(bound.getYMax());
+			frontend.tell(new org.vpac.worker.Job.Work(UUID.randomUUID().toString(), query, path, ver, bb),  ActorRef.noSender());
 		}
 
 		return "Success";

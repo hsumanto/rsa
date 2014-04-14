@@ -10,7 +10,7 @@ import akka.util.Timeout;
 
 import java.io.Serializable;
 
-import org.vpac.worker.Master;
+import org.vpac.worker.master.Ack;
 
 import scala.concurrent.duration.*;
 import scala.concurrent.ExecutionContext;
@@ -32,7 +32,7 @@ public class Frontend extends UntypedActor {
     Future<Object> res = f.map(new Mapper<Object, Object>() {
       @Override
       public Object apply(Object msg) {
-        if (msg instanceof Master.Ack)
+        if (msg instanceof Ack)
           return Ok.getInstance();
         else
           return super.apply(msg);

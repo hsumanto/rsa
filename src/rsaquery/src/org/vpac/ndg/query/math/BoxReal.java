@@ -19,6 +19,8 @@
 
 package org.vpac.ndg.query.math;
 
+import java.io.Serializable;
+
 import org.vpac.ndg.query.coordinates.HasRank;
 
 
@@ -27,8 +29,9 @@ import org.vpac.ndg.query.coordinates.HasRank;
  * @author Alex Fraser
  *
  */
-public class BoxReal implements HasRank {
+public class BoxReal implements HasRank, Serializable {
 
+	private static final long serialVersionUID = 1L;
 	protected VectorReal min;
 	protected VectorReal max;
 

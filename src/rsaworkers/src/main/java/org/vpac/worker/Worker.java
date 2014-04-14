@@ -6,10 +6,10 @@ import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import akka.japi.Function;
 
-import java.io.Serializable;
 import java.util.UUID;
 
 import org.vpac.worker.Job.Work;
+import org.vpac.worker.Job.WorkComplete;
 
 import scala.concurrent.duration.Duration;
 import scala.concurrent.duration.FiniteDuration;
@@ -161,20 +161,5 @@ public class Worker extends UntypedActor {
 
   private void sendToMaster(Object msg) {
     clusterClient.tell(new SendToAll("/user/master/active", msg), getSelf());
-  }
-
-  public static final class WorkComplete  implements Serializable {
-    public final Object result;
-
-    public WorkComplete(Object result) {
-      this.result = result;
-    }
-
-    @Override
-    public String toString() {
-      return "WorkComplete{" +
-        "result=" + result +
-        '}';
-    }
   }
 }

@@ -27,17 +27,16 @@ public class WorkExecutor extends UntypedActor {
       int n2 = n.intValue() * n.intValue();
       String result = n + " * " + n + " = " + n2;
       log.debug("Produced result {}", result);
-      getSender().tell(new Worker.WorkComplete(result), getSelf());
+      getSender().tell(new Job.WorkComplete(result), getSelf());
     } else if (message instanceof Work) {
     	Work work = (Work) message;
     	String result = null;
 
     	final QueryDefinition qd = QueryDefinition.fromString(work.queryDefinitionString);
-    	qd.output.grid.bounds = String.format("%f %f %f %f", work.bound.getXMin(), work.bound.getYMin(), work.bound.getXMax(), work.bound.getYMax());
-    	//log.debug("QD Bound {}", qd.output.grid.bounds);
+    	qd.output.grid.bounds = String.format("%f %f %f %f", work.bound.getMin().getX(), work.bound.getMin().getY(), work.bound.getMax().getX(), work.bound.getMax().getY());
 		final WorkProgress wp = new WorkProgress(work.workId);
 		Path outputDir = Paths.get("output/" + work.workId + "/");
-//		final Path queryPath = outputDir.resolve(work.outputPath);
+		
 		final Path queryPath = outputDir.resolve("out.nc");
 		if (!Files.exists(outputDir))
 			try {
@@ -57,14 +56,13 @@ public class WorkExecutor extends UntypedActor {
 		}
         
         log.debug("Produced result {}", result);
-        getSender().tell(new Worker.WorkComplete(result), getSelf());
+        getSender().tell(new Job.WorkComplete(result), getSelf());
     }
   }
 	private void executeQuery(QueryDefinition qd, WorkProgress wp,
 			Path outputPath, Version netcdfVersion)
 			throws IOException, QueryConfigurationException {
-		NetcdfFileWriter outputDataset = NetcdfFileWriter.createNew(
-				netcdfVersion, outputPath.toString());
+		NetcdfFileWriter outputDataset = NetcdfFileWriter.createNew(netcdfVersion, outputPath.toString());
 	
 		try {
 			Query q = new Query(outputDataset);
