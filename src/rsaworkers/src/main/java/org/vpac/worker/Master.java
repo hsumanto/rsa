@@ -11,6 +11,8 @@ import java.io.Serializable;
 import java.util.*;
 
 import org.vpac.worker.Job.Work;
+import org.vpac.worker.master.Ack;
+import org.vpac.worker.master.WorkResult;
 
 import scala.concurrent.duration.Deadline;
 import scala.concurrent.duration.FiniteDuration;
@@ -277,39 +279,6 @@ public class Master extends UntypedActor {
       return "CleanupTick";
     }
   };
-
-  public static final class WorkResult implements Serializable {
-    public final String workId;
-    public final Object result;
-
-    public WorkResult(String workId, Object result) {
-      this.workId = workId;
-      this.result = result;
-    }
-
-    @Override
-    public String toString() {
-      return "WorkResult{" +
-        "workId='" + workId + '\'' +
-        ", result=" + result +
-        '}';
-    }
-  }
-
-  public static final class Ack implements Serializable {
-    final String workId;
-
-    public Ack(String workId) {
-      this.workId = workId;
-    }
-
-    @Override
-    public String toString() {
-      return "Ack{" +
-        "workId='" + workId + '\'' +
-        '}';
-    }
-  }
 
   // TODO cleanup old workers
   // TODO cleanup old workIds

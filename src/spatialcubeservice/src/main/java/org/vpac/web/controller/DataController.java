@@ -607,14 +607,16 @@ public class DataController {
 		String query = "<?xml version='1.0' encoding='UTF-8'?>" +
 		"<query xmlns='http://www.vpac.org/namespaces/rsaquery-0.2'>" +
 			"<input id='vic_0' href='rsa:vic/25m'/>" +
-			"<output id='output'>" +
-			"	<grid/>" +
-			"	<variable name='band' ref='#Pass_Through_0/output'/>" +
+			"<output id='outfile' >" + 
+			"	<grid ref='vic_0' />" + 
+			"	<variable name='Band1' ref='#cats/output' />" + 
 			"</output>" +
-			"<filter id='Pass_Through_0' cls='org.vpac.ndg.query.PassThrough'>" +
-			"	<sampler name='input' ref='#vic_0/B10'/>" +
+			"<filter id='cats' cls='org.vpac.ndg.query.stats.Categories'>" +
+				"<sampler name='input' ref='#vic_0/B10' />" +
+				"<sampler name='categories' ref='#add2/output' />" +
 			"</filter>" +
 		"</query>";
+
 		final Version ver = Version.netcdf4;
 		final String path = "";
 		

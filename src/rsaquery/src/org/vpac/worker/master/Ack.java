@@ -11,6 +11,10 @@ public class Ack implements Serializable {
 		this.workId = workId;
 	}
 	
+	public String getWorkId() {
+		return this.workId;
+	}
+	
 	@Override
 	public String toString() {
 		return "Ack{" +

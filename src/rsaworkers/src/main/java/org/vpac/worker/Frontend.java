@@ -7,11 +7,14 @@ import akka.contrib.pattern.DistributedPubSubMediator.Send;
 import akka.dispatch.Mapper;
 import akka.dispatch.Recover;
 import akka.util.Timeout;
+
 import java.io.Serializable;
+
+import org.vpac.worker.master.Ack;
+
 import scala.concurrent.duration.*;
 import scala.concurrent.ExecutionContext;
 import scala.concurrent.Future;
-
 import static akka.pattern.Patterns.ask;
 import static akka.pattern.Patterns.pipe;
 
@@ -29,7 +32,7 @@ public class Frontend extends UntypedActor {
     Future<Object> res = f.map(new Mapper<Object, Object>() {
       @Override
       public Object apply(Object msg) {
-        if (msg instanceof Master.Ack)
+        if (msg instanceof Ack)
           return Ok.getInstance();
         else
           return super.apply(msg);

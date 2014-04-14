@@ -4,10 +4,12 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Map;
 
 import org.vpac.ndg.query.Query;
 import org.vpac.ndg.query.QueryConfigurationException;
 import org.vpac.ndg.query.QueryDefinition;
+import org.vpac.ndg.query.filter.Foldable;
 import org.vpac.worker.Job.Work;
 
 import ucar.nc2.NetcdfFileWriter;
@@ -64,6 +66,8 @@ public class WorkExecutor extends UntypedActor {
 			throws IOException, QueryConfigurationException {
 		NetcdfFileWriter outputDataset = NetcdfFileWriter.createNew(netcdfVersion, outputPath.toString());
 	
+		Map<String, Foldable<?>> output = null;
+				
 		try {
 			Query q = new Query(outputDataset);
 			q.setNumThreads(1);
@@ -71,6 +75,8 @@ public class WorkExecutor extends UntypedActor {
 			try {
 				q.setProgress(wp);
 				q.run();
+				output = q.getAccumulatedOutput();
+				System.out.println("output" + output);
 			} finally {
 				q.close();
 			}
@@ -81,5 +87,6 @@ public class WorkExecutor extends UntypedActor {
 				log.error("Failed to close output file", e);
 			}
 		}
+//		return output;
 	}
 }

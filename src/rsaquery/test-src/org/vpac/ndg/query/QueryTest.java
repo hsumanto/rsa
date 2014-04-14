@@ -477,6 +477,8 @@ public class QueryTest extends TestCase {
 		Map<String, Foldable<?>> output = QueryRunner.run(config, outputFile, 8);
 		VectorCats vcats = (VectorCats) output.get("cats");
 
+		System.out.println(vcats.toString());
+		
 		Cats cats;
 		Hist hist;
 		List<Bucket> buckets;

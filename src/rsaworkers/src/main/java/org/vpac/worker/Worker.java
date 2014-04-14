@@ -10,6 +10,7 @@ import java.util.UUID;
 
 import org.vpac.worker.Job.Work;
 import org.vpac.worker.Job.WorkComplete;
+import org.vpac.worker.master.Ack;
 
 import scala.concurrent.duration.Duration;
 import scala.concurrent.duration.FiniteDuration;
@@ -17,7 +18,6 @@ import static akka.actor.SupervisorStrategy.Directive;
 import static akka.actor.SupervisorStrategy.escalate;
 import static akka.actor.SupervisorStrategy.restart;
 import static akka.actor.SupervisorStrategy.stop;
-import static org.vpac.worker.Master.Ack;
 import static org.vpac.worker.MasterWorkerProtocol.*;
 
 public class Worker extends UntypedActor {
@@ -126,7 +126,7 @@ public class Worker extends UntypedActor {
   private Behavior waitForWorkIsDoneAck(final Object result) {
     return new Behavior() {
       public void apply(Object message) {
-        if (message instanceof Ack && ((Ack) message).workId.equals(workId())) {
+        if (message instanceof Ack && ((Ack) message).getWorkId().equals(workId())) {
           sendToMaster(new WorkerRequestsWork(workerId));
           getContext().setReceiveTimeout(Duration.Undefined());
           getContext().become(idle);

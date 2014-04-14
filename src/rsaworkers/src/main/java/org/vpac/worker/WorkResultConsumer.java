@@ -1,6 +1,6 @@
 package org.vpac.worker;
 
-import org.vpac.worker.Master.WorkResult;
+import org.vpac.worker.master.WorkResult;
 
 import akka.actor.ActorRef;
 import akka.actor.UntypedActor;
