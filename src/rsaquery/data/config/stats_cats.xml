@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<query xmlns="http://www.vpac.org/namespaces/rsaquery-0.2">
+
+	<input id="infile" href="../input/colour.nc" />
+
+	<output id="outfile" >
+		<grid ref="#infile" />
+
+		<variable name="Band1" ref="#cats/output" />
+	</output>
+
+	<!-- Split the quality band up into 4 categories. -->
+
+	<filter id="gt1" cls="org.vpac.ndg.query.GreaterOrEqual">
+		<literal name="value" value="64"/>
+		<sampler name="input" ref="#infile/Quality" />
+	</filter>
+
+	<filter id="gt2" cls="org.vpac.ndg.query.GreaterOrEqual">
+		<literal name="value" value="128"/>
+		<sampler name="input" ref="#infile/Quality" />
+	</filter>
+
+	<filter id="gt3" cls="org.vpac.ndg.query.GreaterOrEqual">
+		<literal name="value" value="196"/>
+		<sampler name="input" ref="#infile/Quality" />
+	</filter>
+
+	<filter id="add1" cls="org.vpac.ndg.query.AddBinary">
+		<sampler name="inputA" ref="#gt1/mask" />
+		<sampler name="inputB" ref="#gt2/mask" />
+	</filter>
+
+	<filter id="add2" cls="org.vpac.ndg.query.AddBinary">
+		<sampler name="inputA" ref="#add1/output" />
+		<sampler name="inputB" ref="#gt3/mask" />
+	</filter>
+
+	<filter id="cats" cls="org.vpac.ndg.query.stats.Categories">
+		<sampler name="input" ref="#infile/Quality" />
+		<sampler name="categories" ref="#add2/output" />
+	</filter>
+</query>
+

@@ -189,6 +189,19 @@ CAST_DECLARATION_TEMPLATE = Template("""
 	 * @return A new element with the same rank as this one.
 	 */
 	Element<?> asDouble();
+
+	/**
+	 * Set this element's value(s) to the minimum possible value for its storage
+	 * type (e.g. -128 if the storage type is byte).
+	 * @return A reference to this element (does not create a new instance).
+	 */
+	T minimise();
+	/**
+	 * Set this element's value(s) to the maximum possible value for its storage
+	 * type (e.g. 127 if the storage type is byte).
+	 * @return A reference to this element (does not create a new instance).
+	 */
+	T maximise();
 """)
 
 ARITHMETIC_DECLARATION_TEMPLATE = Template("""

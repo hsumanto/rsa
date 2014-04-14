@@ -13,55 +13,56 @@
  * You should have received a copy of the GNU General Public License along with
  * the RSA.  If not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright 2013 CRCSI - Cooperative Research Centre for Spatial Information
- * http://www.crcsi.com.au/
+ * Copyright 2014 VPAC Innovations
  */
 
-package org.vpac.ndg.query;
+package org.vpac.ndg.query.stats;
 
 import java.io.IOException;
 
+import org.vpac.ndg.query.Description;
+import org.vpac.ndg.query.Filter;
+import org.vpac.ndg.query.InheritDimensions;
+import org.vpac.ndg.query.QueryConfigurationException;
+import org.vpac.ndg.query.filter.Accumulator;
 import org.vpac.ndg.query.math.BoxReal;
 import org.vpac.ndg.query.math.Element;
-import org.vpac.ndg.query.math.ScalarElement;
 import org.vpac.ndg.query.math.VectorReal;
-import org.vpac.ndg.query.sampling.CellScalar;
+import org.vpac.ndg.query.sampling.Cell;
 import org.vpac.ndg.query.sampling.CellType;
 import org.vpac.ndg.query.sampling.PixelSource;
 
-
 /**
- * Add pixels from multiple layers
+ * Groups data into buckets based on its values.
  *
- * @author Lachlan Hurst
+ * @author Alex Fraser
  */
-@Description(name = "Add Multiple", description = "Add pixels from multiple layers")
-@InheritDimensions(from = "inputA")
-public class AddMultiple implements Filter {
+@Description(name = "Histogram", description = "Groups data into buckets based on its values. This is a pass-through filter with metadata collection.")
+@InheritDimensions(from = "input")
+public class Histogram implements Filter, Accumulator<VectorHist> {
 
-	public PixelSource inputA;
+	public PixelSource input;
 
-	@CellType("int")
-	public CellScalar output;
+	@CellType("input")
+	public Cell output;
 
-	private ScalarElement total;
-	
+	private VectorHist stats;
+
 	@Override
 	public void initialise(BoxReal bounds) throws QueryConfigurationException {
-		total = (ScalarElement) output.getPrototype().getElement().copy();
+		stats = new VectorHist(input.getPrototype().getElement());
 	}
 
 	@Override
 	public void kernel(VectorReal coords) throws IOException {
-		Element<?> element = inputA.getPixel(coords);
-		
-		int total = 0;
-		for (ScalarElement comp : element.getComponents()) {
-			total += comp.intValue();
-		}
-		this.total.set(total);
-		
-		output.set(this.total);
+		Element<?> temp = input.getPixel(coords);
+		stats.update(temp);
+		output.set(temp);
+	}
+
+	@Override
+	public VectorHist getAccumulatedOutput() {
+		return stats;
 	}
 
 }

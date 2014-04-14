@@ -139,6 +139,17 @@ SPECIAL_CAST_TEMPLATE = Template("""
 		this.valid = true;
 		return this;
 	}
+
+	@Override
+	public $cname minimise() {
+		this.value = $boxtype.MIN_VALUE;
+		return this;
+	}
+	@Override
+	public $cname maximise() {
+		this.value = $boxtype.MAX_VALUE;
+		return this;
+	}
 """)
 
 CAST_TEMPLATE = Template("""
@@ -911,6 +922,8 @@ COMPARISON_TEMPLATE = Template("""
 			return false;
 
 		ScalarElement other = (ScalarElement) obj;
+		if (valid != other.isValid())
+			return false;
 
 		if (ElementByte.class == obj.getClass()) {
 			return value == other.byteValue();
