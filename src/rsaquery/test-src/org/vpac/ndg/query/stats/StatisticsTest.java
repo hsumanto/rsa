@@ -32,8 +32,8 @@ public class StatisticsTest extends TestCase {
 		log.info("Iterative. Permutations: {}", permutations.size());
 
 		// Calculate mean and stddev using a basic algorithm.
-		double m = mean(permutations);
-		double sdev = stddev(permutations);
+		double m = MockData.mean(permutations);
+		double sdev = MockData.stddev(permutations);
 		log.info("Baseline mean: {}, StdDev: {}", m, sdev);
 
 		// Now compare the computation above to other algorithm being tested.
@@ -58,8 +58,8 @@ public class StatisticsTest extends TestCase {
 		log.info("Parallel small. Permutations: {}", permutations.size());
 
 		// Calculate mean and stddev using a basic algorithm.
-		double m = mean(permutations);
-		double sdev = stddev(permutations);
+		double m = MockData.mean(permutations);
+		double sdev = MockData.stddev(permutations);
 		log.info("Baseline mean: {}, StdDev: {}", m, sdev);
 
 		// Now compare the computation above to other algorithm being tested.
@@ -90,8 +90,8 @@ public class StatisticsTest extends TestCase {
 		log.info("Parallel large. Permutations: {}", permutations.size());
 
 		// Calculate mean and stddev using a basic algorithm.
-		double m = mean(permutations);
-		double sdev = stddev(permutations);
+		double m = MockData.mean(permutations);
+		double sdev = MockData.stddev(permutations);
 		log.info("Baseline mean: {}, StdDev: {}", m, sdev);
 
 		// Now compare the computation above to other algorithm being tested.
@@ -121,8 +121,8 @@ public class StatisticsTest extends TestCase {
 		}
 
 		// Calculate mean and stddev using a basic algorithm.
-		double m = mean(permutations);
-		double sdev = stddev(permutations);
+		double m = MockData.mean(permutations);
+		double sdev = MockData.stddev(permutations);
 		log.info("Middle (i=1) baseline mean: {}, StdDev: {}", m, sdev);
 
 		VectorStats stats = foldVStatsRecursively(inputs);
@@ -170,29 +170,6 @@ public class StatisticsTest extends TestCase {
 			stats.update(value);
 		}
 		return stats;
-	}
-
-	private double mean(List<Integer> xs) {
-		long m = 0;
-		for (Integer x : xs) {
-			m += x;
-		}
-		return (double)m / xs.size();
-	}
-
-	/**
-	 * Find the standard deviation of a list of integers. This uses a fool-proof
-	 * two-pass algorithm.
-	 * http://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Two-pass_algorithm
-	 */
-	private double stddev(List<Integer> xs) {
-		double m = mean(xs);
-		double variance = 0.0;
-		for (Integer x : xs) {
-			variance += (x - m) * (x - m);
-		}
-		variance /= xs.size() - 1;
-		return Math.sqrt(variance);
 	}
 
 }

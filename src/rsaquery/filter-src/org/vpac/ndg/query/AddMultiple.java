@@ -23,19 +23,17 @@ import java.io.IOException;
 
 import org.vpac.ndg.query.math.BoxReal;
 import org.vpac.ndg.query.math.Element;
-import org.vpac.ndg.query.math.ElementInt;
 import org.vpac.ndg.query.math.ScalarElement;
 import org.vpac.ndg.query.math.VectorReal;
-import org.vpac.ndg.query.sampling.Cell;
 import org.vpac.ndg.query.sampling.CellScalar;
 import org.vpac.ndg.query.sampling.CellType;
 import org.vpac.ndg.query.sampling.PixelSource;
 
 
 /**
- * Multiplies two bands together.
+ * Add pixels from multiple layers
  *
- * @author Alex Fraser
+ * @author Lachlan Hurst
  */
 @Description(name = "Add Multiple", description = "Add pixels from multiple layers")
 @InheritDimensions(from = "inputA")

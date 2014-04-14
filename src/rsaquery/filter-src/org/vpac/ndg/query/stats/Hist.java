@@ -42,10 +42,10 @@ public class Hist implements Foldable<Hist> {
 		mruBucket = buckets.get(buckets.size() / 2);
 	}
 
-	class Bucket implements Foldable<Bucket> {
-		double lower;
-		double upper;
-		Stats stats;
+	public static class Bucket implements Foldable<Bucket> {
+		private double lower;
+		private double upper;
+		private Stats stats;
 
 		public Bucket(Double lower, Double upper, Stats stats) {
 			this.lower = lower;
@@ -54,9 +54,9 @@ public class Hist implements Foldable<Hist> {
 		}
 
 		public boolean canContain(ScalarElement value) {
-			if (value.compareTo(mruBucket.lower) < 0)
+			if (value.compareTo(lower) < 0)
 				return false;
-			else if (value.compareTo(mruBucket.upper) >= 0)
+			else if (value.compareTo(upper) >= 0)
 				return false;
 			return true;
 		}
@@ -65,6 +65,35 @@ public class Hist implements Foldable<Hist> {
 		public Bucket fold(Bucket other) {
 			return new Bucket(Math.min(lower, other.lower),
 					Math.max(upper, other.upper), stats.fold(other.stats));
+		}
+
+		public double getLower() {
+			return lower;
+		}
+
+		public void setLower(double lower) {
+			this.lower = lower;
+		}
+
+		public double getUpper() {
+			return upper;
+		}
+
+		public void setUpper(double upper) {
+			this.upper = upper;
+		}
+
+		public Stats getStats() {
+			return stats;
+		}
+
+		public void setStats(Stats stats) {
+			this.stats = stats;
+		}
+
+		@Override
+		public String toString() {
+			return String.format("Bucket(%g-%g)", lower, upper);
 		}
 	}
 
@@ -77,7 +106,7 @@ public class Hist implements Foldable<Hist> {
 				i = (0 - i) - 2;
 			mruBucket = buckets.get(i);
 		}
-		mruBucket.stats.update(value);
+		mruBucket.getStats().update(value);
 	}
 
 	@Override
@@ -93,6 +122,28 @@ public class Hist implements Foldable<Hist> {
 
 	public List<Bucket> getBuckets() {
 		return buckets;
+	}
+
+	public List<Bucket> getNonemtyBuckets() {
+		List<Bucket> bs = new ArrayList<Hist.Bucket>();
+		for (Bucket b : buckets) {
+			if (b.stats.n > 0)
+				bs.add(b);
+		}
+		return bs;
+	}
+
+	/**
+	 * @return A single stats object that summarises all values in this
+	 *         histogram.
+	 */
+	public Stats getSummary() {
+		Stats res = new Stats(prototype);
+		for (Bucket b : buckets) {
+			if (b.stats.n > 0)
+				res = res.fold(b.stats);
+		}
+		return res;
 	}
 
 	/**
@@ -166,8 +217,10 @@ public class Hist implements Foldable<Hist> {
 		sb.append("[");
 
 		boolean firstBucket = true;
-		for (Bucket b : buckets) {
-			if (b.stats.n <= 0)
+		for (int i = 0; i < buckets.size(); i++) {
+			Bucket b = buckets.get(i);
+
+			if (b.getStats().n <= 0)
 				continue;
 
 			if (!firstBucket)
@@ -175,7 +228,10 @@ public class Hist implements Foldable<Hist> {
 			else
 				firstBucket = false;
 
-			sb.append(String.format("{%g-%g: %d}", b.lower, b.upper, b.stats.n));
+			sb.append(String.format("%d: {%g-%g: n=%d, mean=%g}", i,
+					b.getLower(), b.getUpper(),
+					b.getStats().getCount().longValue(),
+					b.getStats().getMean().doubleValue()));
 		}
 		sb.append("]");
 
@@ -186,10 +242,10 @@ public class Hist implements Foldable<Hist> {
 		StringBuffer sb = new StringBuffer();
 		sb.append("LowerBound,count,min,max,mean,stddev\n");
 		for (Bucket b : buckets) {
-			Stats stats = b.stats;
+			Stats stats = b.getStats();
 			if (stats.getCount().longValue() == 0)
 				continue;
-			sb.append(String.format("%g,%d,%g,%g,%g,%g\n", b.lower, stats.n,
+			sb.append(String.format("%g,%d,%g,%g,%g,%g\n", b.getLower(), stats.n,
 					stats.getMin().doubleValue(), stats.getMax().doubleValue(),
 					stats.getMean().doubleValue(),
 					stats.getStdDev().doubleValue()));

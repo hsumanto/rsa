@@ -25,7 +25,7 @@ public class VectorHist implements Foldable<VectorHist> {
 	}
 
 	public void update(Element<?> value) {
-		ScalarElement[] es = prototype.getComponents();
+		ScalarElement[] es = value.getComponents();
 		for (int i = 0; i < components.length; i++)
 			components[i].update(es[i]);
 	}
@@ -48,7 +48,7 @@ public class VectorHist implements Foldable<VectorHist> {
 	@Override
 	public String toString() {
 		StringBuffer sb = new StringBuffer();
-		sb.append("{\n");
+		sb.append("[\n");
 
 		boolean firstComponent = true;
 		for (int i = 0; i < components.length; i++) {
@@ -61,7 +61,7 @@ public class VectorHist implements Foldable<VectorHist> {
 
 			sb.append(c.toString());
 		}
-		sb.append("\n}");
+		sb.append("\n]");
 
 		return sb.toString();
 	}

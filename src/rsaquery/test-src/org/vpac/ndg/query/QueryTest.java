@@ -21,6 +21,7 @@ package org.vpac.ndg.query;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
 import junit.framework.TestCase;
@@ -29,6 +30,13 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.BlockJUnit4ClassRunner;
 import org.vpac.ndg.query.filter.Foldable;
+import org.vpac.ndg.query.math.ElementInt;
+import org.vpac.ndg.query.stats.Hist;
+import org.vpac.ndg.query.stats.Hist.Bucket;
+import org.vpac.ndg.query.stats.Cats;
+import org.vpac.ndg.query.stats.Stats;
+import org.vpac.ndg.query.stats.VectorCats;
+import org.vpac.ndg.query.stats.VectorHist;
 import org.vpac.ndg.query.stats.VectorStats;
 
 import ucar.ma2.Array;
@@ -425,20 +433,76 @@ public class QueryTest extends TestCase {
 
 	}
 
-	final static double EPSILON = 1.0e-6;
+	final static double EPSILON = 1.0e-3;
 
 	@Test
 	public void test_statsFilter() throws Exception {
-		File config = new File("data/config/stats.xml");
+		File config = new File("data/config/stats_stats.xml");
 		File outputFile = new File("data/output/stats.nc");
 
 		Map<String, Foldable<?>> output = QueryRunner.run(config, outputFile, 8);
 		VectorStats stats = (VectorStats) output.get("stats");
 
 		assertEquals(35, stats.getMin().getComponents()[0].longValue());
-		assertEquals(209, stats.getMax().getComponents()[0].longValue());
+		assertEquals(230, stats.getMax().getComponents()[0].longValue());
 		assertEquals(124.04589843750001, stats.getMean().getComponents()[0].doubleValue(), EPSILON);
 		assertEquals(31.17135124667003, stats.getStdDev().getComponents()[0].doubleValue(), EPSILON);
+	}
+
+	@Test
+	public void test_histFilter() throws Exception {
+		File config = new File("data/config/stats_hist.xml");
+		File outputFile = new File("data/output/hist.nc");
+
+		Map<String, Foldable<?>> output = QueryRunner.run(config, outputFile, 8);
+		VectorHist vhist = (VectorHist) output.get("hist");
+
+		Hist hist = vhist.getComponents()[0];
+		List<Bucket> buckets = hist.getNonemtyBuckets();
+		Bucket b = buckets.get(0);
+		Stats s = b.getStats();
+		assertEquals("Number of elements in first bucket", 68, s.getCount().longValue());
+		assertEquals("Mean of first bucket", 41.9706, s.getMean().doubleValue(), EPSILON);
+		b = buckets.get(buckets.size() - 1);
+		s = b.getStats();
+		assertEquals("Number of elements in last bucket", 21, s.getCount().longValue());
+		assertEquals("Mean of last bucket", 222.333, s.getMean().doubleValue(), EPSILON);
+	}
+
+	@Test
+	public void test_catsFilter() throws Exception {
+		File config = new File("data/config/stats_cats.xml");
+		File outputFile = new File("data/output/cats.nc");
+
+		Map<String, Foldable<?>> output = QueryRunner.run(config, outputFile, 8);
+		VectorCats vcats = (VectorCats) output.get("cats");
+
+		Cats cats;
+		Hist hist;
+		List<Bucket> buckets;
+		Bucket b;
+		Stats s;
+
+		cats = vcats.getComponents()[0];
+		hist = cats.get(new ElementInt(0));
+		buckets = hist.getNonemtyBuckets();
+		b = buckets.get(0);
+		s = b.getStats();
+		assertEquals("Number of pixels in first bucket of category 0", 68, s.getCount().longValue());
+		s = hist.getSummary();
+		assertEquals("Number of pixels where x < 64", 365, s.getCount().longValue());
+
+		hist = cats.get(new ElementInt(1));
+		buckets = hist.getNonemtyBuckets();
+		b = buckets.get(0);
+		s = b.getStats();
+		assertEquals("Number of pixels in first bucket of category 1", 2233, s.getCount().longValue());
+		s = hist.getSummary();
+		assertEquals("Number of pixels where 64 <= x < 128", 6422, s.getCount().longValue());
+
+		hist = cats.get(new ElementInt(2));
+		s = hist.getSummary();
+		assertEquals("Number of pixels where 196 <= x", 5393, s.getCount().longValue());
 	}
 
 

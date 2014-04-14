@@ -60,7 +60,7 @@ public class VectorStats implements Foldable<VectorStats> {
 	public VectorElement getMax() {
 		ScalarElement[] es = new ScalarElement[components.length];
 		for (int i = 0; i < es.length; i++) {
-			es[i] = components[i].getMin();
+			es[i] = components[i].getMax();
 		}
 		return new VectorElement(es);
 	}
@@ -84,7 +84,7 @@ public class VectorStats implements Foldable<VectorStats> {
 	@Override
 	public String toString() {
 		StringBuffer sb = new StringBuffer();
-		sb.append("{\n");
+		sb.append("[\n");
 
 		boolean firstComponent = true;
 		for (int i = 0; i < components.length; i++) {
@@ -97,7 +97,7 @@ public class VectorStats implements Foldable<VectorStats> {
 
 			sb.append(c.toString());
 		}
-		sb.append("\n}");
+		sb.append("\n]");
 
 		return sb.toString();
 	}

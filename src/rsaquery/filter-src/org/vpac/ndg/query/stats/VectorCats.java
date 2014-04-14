@@ -25,7 +25,7 @@ public class VectorCats implements Foldable<VectorCats> {
 	}
 
 	public void update(ScalarElement category, Element<?> value) {
-		ScalarElement[] es = prototype.getComponents();
+		ScalarElement[] es = value.getComponents();
 		for (int i = 0; i < components.length; i++)
 			components[i].update(category, es[i]);
 	}
@@ -45,4 +45,24 @@ public class VectorCats implements Foldable<VectorCats> {
 		return components;
 	}
 
+	@Override
+	public String toString() {
+		StringBuffer sb = new StringBuffer();
+		sb.append("[\n");
+
+		boolean firstComponent = true;
+		for (int i = 0; i < components.length; i++) {
+			Cats c = components[i];
+
+			if (!firstComponent)
+				sb.append(",\n");
+			else
+				firstComponent = false;
+
+			sb.append(c.toString());
+		}
+		sb.append("\n]");
+
+		return sb.toString();
+	}
 }

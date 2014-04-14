@@ -3,6 +3,7 @@ package org.vpac.ndg.query.stats;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.vpac.ndg.query.filter.Foldable;
@@ -19,6 +20,10 @@ public class Cats implements Foldable<Cats> {
 	private Hist currentHist;
 	private ScalarElement prototype;
 
+	/**
+	 * @param prototype The data type of the values to store (not the
+	 *            categories).
+	 */
 	public Cats(ScalarElement prototype) {
 		this.prototype = prototype;
 		currentCategory = null;
@@ -29,10 +34,10 @@ public class Cats implements Foldable<Cats> {
 	public void update(ScalarElement category, ScalarElement value) {
 		if (!value.isValid())
 			return;
-		getHistogram(category).update(value);
+		getOrCreateHistogram(category).update(value);
 	}
 
-	Hist getHistogram(ScalarElement category) {
+	private Hist getOrCreateHistogram(ScalarElement category) {
 		if (category.equals(currentCategory))
 			return currentHist;
 
@@ -60,4 +65,30 @@ public class Cats implements Foldable<Cats> {
 		return res;
 	}
 
+	public Set<ScalarElement> getKeys() {
+		return categories.keySet();
+	}
+
+	public Hist get(ScalarElement key) {
+		return categories.get(key);
+	}
+
+	public Set<Entry<ScalarElement, Hist>> getEntries() {
+		return categories.entrySet();
+	}
+
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("Cats(\n");
+		boolean first = true;
+		for (Entry<ScalarElement, Hist> e : categories.entrySet()) {
+			if (!first)
+				sb.append(",\n");
+			else
+				first = false;
+			sb.append(String.format("%s: %s", e.getKey(), e.getValue()));
+		}
+		sb.append(")");
+		return sb.toString();
+	}
 }
