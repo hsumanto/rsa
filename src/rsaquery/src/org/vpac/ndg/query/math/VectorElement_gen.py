@@ -179,6 +179,21 @@ public class VectorElement implements Element<VectorElement> {
 	public ScalarElement[] getComponents() {
 		return components;
 	}
+
+	@Override
+	public VectorElement minimise() {
+		for (int i = 0; i < components.length; i++) {
+			components[i].minimise();
+		}
+		return this;
+	}
+	@Override
+	public VectorElement maximise() {
+		for (int i = 0; i < components.length; i++) {
+			components[i].maximise();
+		}
+		return this;
+	}
 """)
 
 CLASS_FOOTER_TEMPLATE = Template("""

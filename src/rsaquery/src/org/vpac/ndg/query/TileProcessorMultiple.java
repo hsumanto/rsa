@@ -46,14 +46,16 @@ public class TileProcessorMultiple implements TileProcessor {
 	int numThreads;
 	volatile boolean running;
 	AtomicInteger numRunning;
-	volatile Exception abortException;
+	IOException abortIOException;
+	RuntimeException abortRtException;
 
 	public TileProcessorMultiple(int numThreads) {
 		this.numThreads = numThreads;
 
 		numRunning = new AtomicInteger(0);
 		running = true;
-		abortException = null;
+		abortIOException = null;
+		abortRtException = null;
 
 		log.info("Starting {} threads.", numThreads);
 		executor = Executors.newFixedThreadPool(numThreads);
@@ -91,7 +93,7 @@ public class TileProcessorMultiple implements TileProcessor {
 			rect.setOrigin(offset);
 
 			for (CoordinatePair coords : rect) {
-				if (!running || abortException != null) {
+				if (!running) {
 					log.trace("Worker {} exiting early.", id);
 					return;
 				}
@@ -101,10 +103,16 @@ public class TileProcessorMultiple implements TileProcessor {
 				try {
 					for (Binding b : bindings)
 						b.transfer(coords.coordinates, coords.imageIndex, id);
-				} catch (Exception e) {
+				} catch (RuntimeException e) {
 					log.error("Worker {} encountered an exception.", id);
 					log.error("Details:", e);
-					abortException = e;
+					abortRtException = e;
+					running = false;
+					return;
+				} catch (IOException e) {
+					log.error("Worker {} encountered an exception.", id);
+					log.error("Details:", e);
+					abortIOException = e;
 					running = false;
 					return;
 				}
@@ -138,6 +146,10 @@ public class TileProcessorMultiple implements TileProcessor {
 						"to be generated.", e);
 			}
 		}
+		if (abortIOException != null)
+			throw abortIOException;
+		if (abortRtException != null)
+			throw abortRtException;
 		log.trace("Finished processing tile.");
 	}
 

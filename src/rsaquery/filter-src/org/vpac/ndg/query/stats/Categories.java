@@ -13,55 +13,60 @@
  * You should have received a copy of the GNU General Public License along with
  * the RSA.  If not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright 2013 CRCSI - Cooperative Research Centre for Spatial Information
- * http://www.crcsi.com.au/
+ * Copyright 2014 VPAC Innovations
  */
 
-package org.vpac.ndg.query;
+package org.vpac.ndg.query.stats;
 
 import java.io.IOException;
 
+import org.vpac.ndg.query.Description;
+import org.vpac.ndg.query.Filter;
+import org.vpac.ndg.query.InheritDimensions;
+import org.vpac.ndg.query.QueryConfigurationException;
+import org.vpac.ndg.query.filter.Accumulator;
 import org.vpac.ndg.query.math.BoxReal;
 import org.vpac.ndg.query.math.Element;
 import org.vpac.ndg.query.math.ScalarElement;
 import org.vpac.ndg.query.math.VectorReal;
-import org.vpac.ndg.query.sampling.CellScalar;
+import org.vpac.ndg.query.sampling.Cell;
 import org.vpac.ndg.query.sampling.CellType;
 import org.vpac.ndg.query.sampling.PixelSource;
-
+import org.vpac.ndg.query.sampling.PixelSourceScalar;
 
 /**
- * Add pixels from multiple layers
+ * Groups data into categories based on a metadata band.
  *
- * @author Lachlan Hurst
+ * @author Alex Fraser
  */
-@Description(name = "Add Multiple", description = "Add pixels from multiple layers")
-@InheritDimensions(from = "inputA")
-public class AddMultiple implements Filter {
+@Description(name = "Categories", description = "Groups data into categories based on a metadata band. This is a pass-through filter with metadata collection.")
+@InheritDimensions(from = "input")
+public class Categories implements Filter, Accumulator<VectorCats> {
 
-	public PixelSource inputA;
+	public PixelSource input;
+	public PixelSourceScalar categories;
 
-	@CellType("int")
-	public CellScalar output;
+	@CellType("input")
+	public Cell output;
 
-	private ScalarElement total;
-	
+	private VectorCats stats;
+
 	@Override
 	public void initialise(BoxReal bounds) throws QueryConfigurationException {
-		total = (ScalarElement) output.getPrototype().getElement().copy();
+		stats = new VectorCats(input.getPrototype().getElement());
 	}
 
 	@Override
 	public void kernel(VectorReal coords) throws IOException {
-		Element<?> element = inputA.getPixel(coords);
-		
-		int total = 0;
-		for (ScalarElement comp : element.getComponents()) {
-			total += comp.intValue();
-		}
-		this.total.set(total);
-		
-		output.set(this.total);
+		Element<?> temp = input.getPixel(coords);
+		ScalarElement cat = categories.getScalarPixel(coords);
+		stats.update(cat, temp);
+		output.set(temp);
+	}
+
+	@Override
+	public VectorCats getAccumulatedOutput() {
+		return stats;
 	}
 
 }

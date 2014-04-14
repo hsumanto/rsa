@@ -22,15 +22,23 @@ package org.vpac.ndg.query;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
+import org.vpac.ndg.query.iteration.FunctionalTest;
 import org.vpac.ndg.query.math.ElementTest;
 import org.vpac.ndg.query.math.SwizzleTest;
+import org.vpac.ndg.query.stats.CategoriesTest;
+import org.vpac.ndg.query.stats.HistogramTest;
+import org.vpac.ndg.query.stats.StatisticsTest;
 
 @RunWith(Suite.class)
 @SuiteClasses({
 	QueryDefinitionTest.class,
-	QueryTest.class,
 	ElementTest.class,
-	SwizzleTest.class
+	SwizzleTest.class,
+	FunctionalTest.class,
+	StatisticsTest.class,
+	HistogramTest.class,
+	CategoriesTest.class,
+	QueryTest.class,
 })
 public class AllTests {
 	// Empty; tests are defined above.

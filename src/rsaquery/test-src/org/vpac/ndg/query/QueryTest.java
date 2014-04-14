@@ -21,12 +21,23 @@ package org.vpac.ndg.query;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 
 import junit.framework.TestCase;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.BlockJUnit4ClassRunner;
+import org.vpac.ndg.query.filter.Foldable;
+import org.vpac.ndg.query.math.ElementInt;
+import org.vpac.ndg.query.stats.Hist;
+import org.vpac.ndg.query.stats.Hist.Bucket;
+import org.vpac.ndg.query.stats.Cats;
+import org.vpac.ndg.query.stats.Stats;
+import org.vpac.ndg.query.stats.VectorCats;
+import org.vpac.ndg.query.stats.VectorHist;
+import org.vpac.ndg.query.stats.VectorStats;
 
 import ucar.ma2.Array;
 import ucar.ma2.DataType;
@@ -47,145 +58,6 @@ public class QueryTest extends TestCase {
 
 		QueryRunner.run(config, outputFile);
 	}
-
-/*	
-	// TODO: To be moved to SpatialCubeService test cases.
-	@Test
-	public void testMultiPreview() throws Exception {
-		File outputFile = new File("data/output/hypercube.nc");
-		NetcdfFile dataset = null;
-		NetcdfFileWriter outputDataset = null;
-		try {
-			dataset = NetcdfFile.open(outputFile.getPath());
-
-			List<Variable> variables = dataset.getVariables();
-			int numOfBand = 0;
-			int numOfTimeslice = 0;
-			for(Variable v: variables) {
-				if(v.getRank() < 2) {
-					// Only interested with >= 2D variables
-					continue;
-				}
-				else if(v.getRank() == 2) {
-					if(numOfTimeslice < 1) {
-						numOfTimeslice = 1;
-					}
-				}
-				else if(v.getRank() >= 3) {
-					if(numOfTimeslice < 3) {
-						int currNumOfTimeslice = v.getShape()[0];
-						if(currNumOfTimeslice < 3) {
-							numOfTimeslice = currNumOfTimeslice;
-						} else {
-							numOfTimeslice = 3;
-						}
-					}
-				}
-
-				log.debug(v.getNameAndDimensions());
-				log.debug("variable rank: {}", v.getRank());
-				log.debug("variable dimension size: {}", v.getDimensions().size());
-				numOfBand++;
-			}
-			outputDataset = NetcdfFileWriter.createNew(Version.netcdf4,
-					"data/output/watermark_multipreview.nc");
-			outputDataset.addDimension(null, "x", 64 * numOfTimeslice);
-			outputDataset.addDimension(null, "y", 64 * numOfBand);
-			outputDataset.addVariable(null, "x", DataType.INT, "x");
-			outputDataset.addVariable(null, "y", DataType.INT, "y");
-			outputDataset.addVariable(null, "multipreview", DataType.FLOAT,
-					"y x");
-			outputDataset.create();
-			log.debug("number of preview allowable bands: " + numOfBand);
-			log.debug("number of preview allowable timeslice: "
-					+ numOfTimeslice);
-
-			Variable multiPreviewVar = outputDataset.findVariable("multipreview");
-			numOfBand = 0;
-			for(Variable v: variables) {
-				if(v.getRank() < 2) {
-					// Only interested with 2D or more than 2D variables
-					continue;
-				}
-				else if(v.getRank() == 2) {
-					int[] origin = new int[] { 0, 0 };
-					int[] shape = new int[] { DEFAULT_PIXEL_NUMBER,
-							DEFAULT_PIXEL_NUMBER };
-					Array otherArray = v.read(origin, shape);
-					Array array = Array.factory(DataType.FLOAT, new int[] {
-							DEFAULT_PIXEL_NUMBER, DEFAULT_PIXEL_NUMBER });
-					float min = Float.MAX_VALUE;
-					float max = Float.MIN_VALUE;
-					for (int i = 0; i < DEFAULT_PIXEL_NUMBER
-							* DEFAULT_PIXEL_NUMBER; i++) {
-						float val = otherArray.getFloat(i);
-						if (val < min) {
-							min = val;
-						}
-						if (val > max) {
-							max = val;
-						}
-					}
-					for (int i = 0; i < DEFAULT_PIXEL_NUMBER
-							* DEFAULT_PIXEL_NUMBER; i++) {
-						float val = otherArray.getFloat(i);
-						float scaled = (val - min) / (max - min);
-						array.setFloat(i, scaled);
-					}
-					int[] offset = new int[] {
-							numOfBand * DEFAULT_PIXEL_NUMBER, 0 };
-					outputDataset.write(multiPreviewVar, offset, array);
-				}
-				else if(v.getRank() >= 3) {
-					float min = Float.MAX_VALUE;
-					float max = Float.MIN_VALUE;
-					for (int t = 0; t < numOfTimeslice; t++) {
-						int[] origin = new int[] { t, 0, 0 };
-						// The shape for multipreview we are interested is always [1, 64, 64]
-						int[] shape = new int[] { 1, DEFAULT_PIXEL_NUMBER,
-								DEFAULT_PIXEL_NUMBER };
-						Array otherArray = v.read(origin, shape);
-						Array array = Array.factory(DataType.FLOAT, new int[] {
-								DEFAULT_PIXEL_NUMBER, DEFAULT_PIXEL_NUMBER });
-						for (int i = 0; i < DEFAULT_PIXEL_NUMBER
-								* DEFAULT_PIXEL_NUMBER; i++) {
-							float val = otherArray.getFloat(i);
-							if (val < min) {
-								min = val;
-							}
-							if (val > max) {
-								max = val;
-							}
-						}
-						for (int i = 0; i < DEFAULT_PIXEL_NUMBER
-								* DEFAULT_PIXEL_NUMBER; i++) {
-							float val = otherArray.getFloat(i);
-							float scaled = (val - min) / (max - min);
-							array.setFloat(i, scaled);
-						}
-						int[] offset = new int[] {
-								numOfBand * DEFAULT_PIXEL_NUMBER,
-								t * DEFAULT_PIXEL_NUMBER };
-						outputDataset.write(multiPreviewVar, offset, array);
-					}
-				}
-				log.debug(v.getNameAndDimensions());
-				log.debug("variable rank: {}", v.getRank());
-				log.debug("variable dimension size: {}", v.getDimensions()
-						.size());
-				numOfBand++;
-			}
-		} finally {
-			if (dataset != null)
-				dataset.close();
-			try {
-				outputDataset.close();
-			} catch (Exception e) {
-				log.warn("Failed to close output file", e);
-			}
-		}
-	}
-*/
 
 	@Test
 	public void test_1_wetting() throws Exception {
@@ -469,7 +341,7 @@ public class QueryTest extends TestCase {
 		File outputFile = new File("data/output/blur.nc");
 		File expectedFile = new File("data/expected/blur.nc");
 
-		QueryRunner.run(config, outputFile);
+		QueryRunner.run(config, outputFile, 8);
 
 		NetcdfFile dataset = null;
 		NetcdfFile expected = null;
@@ -542,6 +414,95 @@ public class QueryTest extends TestCase {
 			if (expected != null)
 				expected.close();
 		}
+	}
+
+	@Test
+	public void test_accumulate() throws Exception {
+		File config = new File("data/config/accumulate.xml");
+		File outputFile = new File("data/output/accumulate.nc");
+
+		// Basic run with accumulate function. The output is assigned to the
+		// map using the ID of the filter that accumulates it.
+		Map<String, Foldable<?>> output = QueryRunner.run(config, outputFile);
+		assertEquals("520240", output.get("sum").toString());
+
+		// Run again with threading. This tests that the output can be folded
+		// together.
+		output = QueryRunner.run(config, outputFile, 8);
+		assertEquals("520240", output.get("sum").toString());
+
+	}
+
+	final static double EPSILON = 1.0e-3;
+
+	@Test
+	public void test_statsFilter() throws Exception {
+		File config = new File("data/config/stats_stats.xml");
+		File outputFile = new File("data/output/stats.nc");
+
+		Map<String, Foldable<?>> output = QueryRunner.run(config, outputFile, 8);
+		VectorStats stats = (VectorStats) output.get("stats");
+
+		assertEquals(35, stats.getMin().getComponents()[0].longValue());
+		assertEquals(230, stats.getMax().getComponents()[0].longValue());
+		assertEquals(124.04589843750001, stats.getMean().getComponents()[0].doubleValue(), EPSILON);
+		assertEquals(31.17135124667003, stats.getStdDev().getComponents()[0].doubleValue(), EPSILON);
+	}
+
+	@Test
+	public void test_histFilter() throws Exception {
+		File config = new File("data/config/stats_hist.xml");
+		File outputFile = new File("data/output/hist.nc");
+
+		Map<String, Foldable<?>> output = QueryRunner.run(config, outputFile, 8);
+		VectorHist vhist = (VectorHist) output.get("hist");
+
+		Hist hist = vhist.getComponents()[0];
+		List<Bucket> buckets = hist.getNonemtyBuckets();
+		Bucket b = buckets.get(0);
+		Stats s = b.getStats();
+		assertEquals("Number of elements in first bucket", 68, s.getCount().longValue());
+		assertEquals("Mean of first bucket", 41.9706, s.getMean().doubleValue(), EPSILON);
+		b = buckets.get(buckets.size() - 1);
+		s = b.getStats();
+		assertEquals("Number of elements in last bucket", 21, s.getCount().longValue());
+		assertEquals("Mean of last bucket", 222.333, s.getMean().doubleValue(), EPSILON);
+	}
+
+	@Test
+	public void test_catsFilter() throws Exception {
+		File config = new File("data/config/stats_cats.xml");
+		File outputFile = new File("data/output/cats.nc");
+
+		Map<String, Foldable<?>> output = QueryRunner.run(config, outputFile, 8);
+		VectorCats vcats = (VectorCats) output.get("cats");
+
+		Cats cats;
+		Hist hist;
+		List<Bucket> buckets;
+		Bucket b;
+		Stats s;
+
+		cats = vcats.getComponents()[0];
+		hist = cats.get(new ElementInt(0));
+		buckets = hist.getNonemtyBuckets();
+		b = buckets.get(0);
+		s = b.getStats();
+		assertEquals("Number of pixels in first bucket of category 0", 68, s.getCount().longValue());
+		s = hist.getSummary();
+		assertEquals("Number of pixels where x < 64", 365, s.getCount().longValue());
+
+		hist = cats.get(new ElementInt(1));
+		buckets = hist.getNonemtyBuckets();
+		b = buckets.get(0);
+		s = b.getStats();
+		assertEquals("Number of pixels in first bucket of category 1", 2233, s.getCount().longValue());
+		s = hist.getSummary();
+		assertEquals("Number of pixels where 64 <= x < 128", 6422, s.getCount().longValue());
+
+		hist = cats.get(new ElementInt(2));
+		s = hist.getSummary();
+		assertEquals("Number of pixels where 196 <= x", 5393, s.getCount().longValue());
 	}
 
 

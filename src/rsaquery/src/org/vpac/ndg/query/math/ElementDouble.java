@@ -97,6 +97,17 @@ public class ElementDouble implements ScalarElement {
 	}
 
 	@Override
+	public ElementDouble minimise() {
+		this.value = Double.MIN_VALUE;
+		return this;
+	}
+	@Override
+	public ElementDouble maximise() {
+		this.value = Double.MAX_VALUE;
+		return this;
+	}
+
+	@Override
 	public byte byteValue() {
 		return (byte)value;
 	}
@@ -2525,6 +2536,8 @@ public class ElementDouble implements ScalarElement {
 			return false;
 
 		ScalarElement other = (ScalarElement) obj;
+		if (valid != other.isValid())
+			return false;
 
 		if (ElementByte.class == obj.getClass()) {
 			return value == other.byteValue();

@@ -21,8 +21,6 @@ package org.vpac.ndg.query.iteration;
 
 import java.util.Iterator;
 
-import org.vpac.ndg.query.QueryConfigurationException;
-
 /**
  * Iterates over two iterables in unison.
  * @author Alex Fraser
@@ -37,10 +35,11 @@ public class Zip<T, U> implements Iterable<Pair<T, U>> {
 	ZipIterator iter;
 	Pair<T, U> pair;
 
-	public Zip(Iterable<T> a, Iterable<U> b) throws QueryConfigurationException {
+	public Zip(Iterable<T> a, Iterable<U> b) {
 		this.a = a;
 		this.b = b;
 		iter = new ZipIterator();
+		pair = new Pair<T, U>();
 	}
 
 	@Override

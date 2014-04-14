@@ -23,7 +23,9 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormatter;
@@ -39,6 +41,10 @@ import org.vpac.ndg.query.coordinates.QueryCoordinateSystem;
 import org.vpac.ndg.query.coordinates.TimeAxis;
 import org.vpac.ndg.query.coordinates.Warp;
 import org.vpac.ndg.query.coordinates.WarpFactory;
+import org.vpac.ndg.query.filter.Accumulator;
+import org.vpac.ndg.query.filter.Foldable;
+import org.vpac.ndg.query.iteration.Flatten;
+import org.vpac.ndg.query.iteration.ZipN;
 import org.vpac.ndg.query.math.BoxInt;
 import org.vpac.ndg.query.math.BoxReal;
 import org.vpac.ndg.query.math.VectorInt;
@@ -69,7 +75,7 @@ public class Query implements Closeable {
 	protected BindingStore bindings;
 	protected DatasetOutput outputDs;
 	protected NetcdfFileWriter output;
-	protected List<FilterAdapter> filters;
+	protected List<List<FilterAdapter>> filters;
 
 	/**
 	 * The arrangement of output pages. For input pages, see {@link PageCache}.
@@ -90,8 +96,9 @@ public class Query implements Closeable {
 		referential = null;
 		bindings = new BindingStore();
 		this.output = output;
-		filters = new ArrayList<FilterAdapter>();
+		filters = new ArrayList<List<FilterAdapter>>();
 		numThreads = DEFAULT_WORKER_THREADS;
+		progress = new ProgressNull();
 
 		//tilingStrategy = new TilingStrategyCube(TILE_SIZE);
 		tilingStrategy = new TilingStrategyStride(TILE_SIZE * TILE_SIZE * 3);
@@ -173,7 +180,7 @@ public class Query implements Closeable {
 		// inherit metadata.
 		log.info("Constructing filters");
 		for (FilterFactory factory : factories) {
-			filters.addAll(factory.createFilters(qdp.getQueryDefinition().filters));
+			filters.add(factory.createFilters(qdp.getQueryDefinition().filters));
 		}
 
 		// Construct the output, so the filters can be bound to it. At this
@@ -190,8 +197,8 @@ public class Query implements Closeable {
 		for (FilterFactory factory : factories) {
 			factory.bindFilters(variableBindingDefs);
 		}
-		for (FilterAdapter adapter : filters) {
-			adapter.verifyConfiguration();
+		for (FilterAdapter f : new Flatten<FilterAdapter>(filters)) {
+			f.verifyConfiguration();
 		}
 	}
 
@@ -267,24 +274,20 @@ public class Query implements Closeable {
 	public void run() throws IOException, QueryConfigurationException,
 			QueryRuntimeException {
 
-		if (progress != null)
-			progress.setNsteps(bindings.keys().size());
+		progress.setNsteps(bindings.keys().size());
 
 		log.info("Initialising filters");
-		for (FilterAdapter f : filters) {
+		for (FilterAdapter f : new Flatten<FilterAdapter>(filters)) {
 			f.initialise();
 		}
 
-		if (progress != null) {
-			long totalPixels = 0;
-			for (VectorInt shape : bindings.keys()) {
-				totalPixels += shape.volume() * bindings.get(shape).size();
-			}
-			progress.setTotalQuanta(totalPixels);
-			log.info("Total output volume: {} pixels", totalPixels);
+		// Calculate volume (just for progress information)
+		long totalPixels = 0;
+		for (VectorInt shape : bindings.keys()) {
+			totalPixels += shape.volume() * bindings.get(shape).size();
 		}
-
-		int step = 0;
+		progress.setTotalQuanta(totalPixels);
+		log.info("Total output volume: {} pixels", totalPixels);
 
 		if (numThreads == 1)
 			tileProcessor = new TileProcessorSingle();
@@ -292,12 +295,11 @@ public class Query implements Closeable {
 			tileProcessor = new TileProcessorMultiple(numThreads);
 
 		log.info("Processing");
+		int step = 0;
 		try {
 			for (VectorInt shape : bindings.keys()) {
-				if (progress != null) {
-					progress.setStep(step + 1, String.format(
-							"Processing variables with shape %s", shape));
-				}
+				progress.setStep(step + 1, String.format(
+						"Processing variables with shape %s", shape));
 	
 				process(shape, bindings.get(shape));
 				step++;
@@ -307,10 +309,8 @@ public class Query implements Closeable {
 		}
 
 		log.info("Finished");
-		if (progress != null) {
-			progress.setStep(step, "Finished running filters");
-			progress.finished();
-		}
+		progress.setStep(step, "Finished running filters");
+		progress.finished();
 	}
 
 	protected void process(VectorInt imageShape,
@@ -347,14 +347,56 @@ public class Query implements Closeable {
 			for (Binding b : localBindings)
 				b.commit(output);
 
-			if (progress != null) {
-				long npixels = bounds.getSize().volume() * localBindings.size();
-				progress.addProcessedQuanta(npixels);
+			long npixels = bounds.getSize().volume() * localBindings.size();
+			progress.addProcessedQuanta(npixels);
+		}
+
+		progress.finishedStep();
+	}
+
+	/**
+	 * Collects the output that was accumated while running this query.
+	 *
+	 * Most filters are designed to process pixels in an image and transform
+	 * their values, with the new value being written to an output image. Some
+	 * filters may also collect aggregate information about the data as it is
+	 * being processed; e.g. a filter may sum the values of all the pixels it
+	 * processes. This method gives access to that data.
+	 *
+	 * @return The output that has been accumulated while running this query.
+	 *         This is a map from filter ID to accumulated output.
+	 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public Map<String, Foldable<?>> getAccumulatedOutput() {
+		Map<String, Foldable<?>> values = new HashMap<String, Foldable<?>>();
+
+		// In a multithreaded query, accumulated output may be split across
+		// several filter instances. So we zip all instances of the same filter
+		// together, and then fold (reduce) the output.
+		for (Iterable<FilterAdapter> fs : new ZipN<FilterAdapter>(filters)) {
+			Foldable value = null;
+			String id = null;
+			for (FilterAdapter fa : fs) {
+				if (!(fa.getInnerFilter() instanceof Accumulator<?>))
+					continue;
+				Accumulator ac = (Accumulator) fa.getInnerFilter();
+
+				Foldable currentValue = ac.getAccumulatedOutput();
+				if (value == null) {
+					value = currentValue;
+					id = fa.getName();
+				} else {
+					value = value.fold(value.getClass().cast(currentValue));
+				}
+				log.debug("Partial output of '{}' is {}", id, currentValue);
+			}
+			if (value != null) {
+				log.info("Accumulated output of '{}' is {}", id, value);
+				values.put(id, value);
 			}
 		}
 
-		if (progress != null)
-			progress.finishedStep();
+		return values;
 	}
 
 	/**
@@ -363,9 +405,8 @@ public class Query implements Closeable {
 	@Override
 	public void close() throws IOException {
 		datasetStore.closeAll();
-		for (FilterAdapter filter : filters) {
-			filter.diagnostics();
-		}
+		for (FilterAdapter f : new Flatten<FilterAdapter>(filters))
+			f.diagnostics();
 	}
 
 	public Progress getProgress() {

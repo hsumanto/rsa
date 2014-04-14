@@ -97,6 +97,17 @@ public class ElementShort implements ScalarElement {
 	}
 
 	@Override
+	public ElementShort minimise() {
+		this.value = Short.MIN_VALUE;
+		return this;
+	}
+	@Override
+	public ElementShort maximise() {
+		this.value = Short.MAX_VALUE;
+		return this;
+	}
+
+	@Override
 	public byte byteValue() {
 		return (byte)value;
 	}
@@ -2525,6 +2536,8 @@ public class ElementShort implements ScalarElement {
 			return false;
 
 		ScalarElement other = (ScalarElement) obj;
+		if (valid != other.isValid())
+			return false;
 
 		if (ElementByte.class == obj.getClass()) {
 			return value == other.byteValue();

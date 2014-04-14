@@ -230,8 +230,8 @@ public class FilterFactory {
 
 			if (refs.size() == 0) {
 				throw new QueryConfigurationException(String.format(
-						"Can't configure sampler \"%s\": no sockets match " +
-						"references.", sd.name));
+						"Can't configure sampler \"%s.%s\": no " +
+						"sockets match references.", f.getName(), sd.name));
 			}
 			List<PixelSource> sources = gatherPixelSources(refs);
 
@@ -249,7 +249,7 @@ public class FilterFactory {
 				if (!isScalar) {
 					throw new QueryConfigurationException(String.format(
 							"Can't assign vector source to scalar field " +
-							"\"%s\"", sd.name));
+							"\"%s.%s\"", f.getName(), sd.name));
 				}
 				log.debug("Assigning scalar sampler to scalar socket {}", sd.name);
 				source = sources.get(0);
