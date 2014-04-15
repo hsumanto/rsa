@@ -17,7 +17,7 @@
 	<context:component-scan base-package="org.vpac.ndg.storage.dao" />
 	<bean id="controllerHelper" class="org.vpac.web.util.ControllerHelper" />
 	<bean id="restTemplate" class="org.springframework.web.client.RestTemplate" />
-	<bean id="rsaDatasetProvider" class="org.vpac.web.controller.RsaDatasetProvider" lazy-init="true" />
+	<bean id="rsaDatasetProvider" class="org.vpac.ndg.datamodel.RsaDatasetProvider" lazy-init="true" />
 	<bean id="previewDatasetProvider" class="org.vpac.web.controller.PreviewDatasetProvider" lazy-init="true" />
 	<aop:config>
 		<aop:aspect id="afterImportTimeSlice" ref="activityLogger">
