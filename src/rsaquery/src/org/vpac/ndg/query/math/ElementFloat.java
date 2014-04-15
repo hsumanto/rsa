@@ -32,12 +32,16 @@ public class ElementFloat implements ScalarElement {
 	private float value;
 	private boolean valid;
 
+	/* Components array makes this scalar element look like a vector. */
+	private ElementFloat[] components;
+
 	/**
 	 * Create a new ElementFloat, initalised to zero.
 	 */
 	public ElementFloat() {
 		this.value = 0;
 		this.valid = true;
+		components = new ElementFloat[] { this };
 	}
 	/**
 	 * Create a new ElementFloat.
@@ -54,8 +58,8 @@ public class ElementFloat implements ScalarElement {
 		return res;
 	}
 	@Override
-	public ScalarElement[] getComponents() {
-		return new ScalarElement[] { this };
+	public ElementFloat[] getComponents() {
+		return components;
 	}
 
 	@Override

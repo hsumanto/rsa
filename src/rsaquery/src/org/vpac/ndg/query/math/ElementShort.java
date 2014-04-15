@@ -32,12 +32,16 @@ public class ElementShort implements ScalarElement {
 	private short value;
 	private boolean valid;
 
+	/* Components array makes this scalar element look like a vector. */
+	private ElementShort[] components;
+
 	/**
 	 * Create a new ElementShort, initalised to zero.
 	 */
 	public ElementShort() {
 		this.value = 0;
 		this.valid = true;
+		components = new ElementShort[] { this };
 	}
 	/**
 	 * Create a new ElementShort.
@@ -54,8 +58,8 @@ public class ElementShort implements ScalarElement {
 		return res;
 	}
 	@Override
-	public ScalarElement[] getComponents() {
-		return new ScalarElement[] { this };
+	public ElementShort[] getComponents() {
+		return components;
 	}
 
 	@Override

@@ -1,43 +1,43 @@
-<benchmark-results tstamp="2013-06-19T13:10:20.684+1000">
+<benchmark-results tstamp="2014-04-15T10:45:24.548+1000">
 
 	<testname classname="org.vpac.ndg.cli.QueryTest" name="testWetNdviReduced"
 		 benchmark-rounds="4" warmup-rounds="1"
-		 round-avg="5.359" round-stddev="0.43"
+		 round-avg="5.636" round-stddev="0.534"
 		 gc-avg="0" gc-stddev="0"
-		 gc-invocations="5" gc-time="0.086"
-		 benchmark-time-total="21.434" warmup-time-total="7.196"
+		 gc-invocations="5" gc-time="0.084"
+		 benchmark-time-total="22.544" warmup-time-total="7.185"
 		 threads="1"/>
 
 	<testname classname="org.vpac.ndg.cli.QueryTest" name="testThreshold"
 		 benchmark-rounds="4" warmup-rounds="1"
-		 round-avg="4.819" round-stddev="0.439"
+		 round-avg="5.1" round-stddev="0.041"
 		 gc-avg="0" gc-stddev="0"
 		 gc-invocations="4" gc-time="0.039"
-		 benchmark-time-total="19.275" warmup-time-total="5.059"
+		 benchmark-time-total="20.4" warmup-time-total="5.049"
 		 threads="1"/>
 
 	<testname classname="org.vpac.ndg.cli.QueryTest" name="testAddUnary"
 		 benchmark-rounds="4" warmup-rounds="1"
-		 round-avg="7.308" round-stddev="0.432"
+		 round-avg="7.832" round-stddev="0.453"
 		 gc-avg="0" gc-stddev="0"
-		 gc-invocations="8" gc-time="0.077"
-		 benchmark-time-total="29.233" warmup-time-total="8.071"
+		 gc-invocations="10" gc-time="0.104"
+		 benchmark-time-total="31.329" warmup-time-total="8.322"
 		 threads="1"/>
 
 	<testname classname="org.vpac.ndg.cli.QueryTest" name="testAddBinary"
 		 benchmark-rounds="4" warmup-rounds="1"
-		 round-avg="6.302" round-stddev="0.432"
+		 round-avg="6.745" round-stddev="0.659"
 		 gc-avg="0" gc-stddev="0"
-		 gc-invocations="17" gc-time="0.322"
-		 benchmark-time-total="25.209" warmup-time-total="6.052"
+		 gc-invocations="21" gc-time="0.45"
+		 benchmark-time-total="26.98" warmup-time-total="6.063"
 		 threads="1"/>
 
 	<testname classname="org.vpac.ndg.cli.QueryTest" name="testWetNdvi"
 		 benchmark-rounds="4" warmup-rounds="1"
-		 round-avg="5.061" round-stddev="0.013"
+		 round-avg="5.165" round-stddev="0.058"
 		 gc-avg="0" gc-stddev="0"
-		 gc-invocations="8" gc-time="0.081"
-		 benchmark-time-total="20.243" warmup-time-total="5.052"
+		 gc-invocations="7" gc-time="0.082"
+		 benchmark-time-total="20.659" warmup-time-total="5.142"
 		 threads="1"/>
 
 </benchmark-results>

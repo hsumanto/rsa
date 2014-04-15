@@ -63,12 +63,16 @@ public class $cname implements ScalarElement {
 	private $ptype value;
 	private boolean valid;
 
+	/* Components array makes this scalar element look like a vector. */
+	private $cname[] components;
+
 	/**
 	 * Create a new $cname, initalised to zero.
 	 */
 	public $cname() {
 		this.value = 0;
 		this.valid = true;
+		components = new $cname[] { this };
 	}
 	/**
 	 * Create a new $cname.
@@ -85,8 +89,8 @@ public class $cname implements ScalarElement {
 		return res;
 	}
 	@Override
-	public ScalarElement[] getComponents() {
-		return new ScalarElement[] { this };
+	public $cname[] getComponents() {
+		return components;
 	}
 
 	@Override
