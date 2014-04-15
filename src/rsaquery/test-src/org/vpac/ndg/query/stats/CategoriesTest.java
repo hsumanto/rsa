@@ -28,7 +28,7 @@ public class CategoriesTest extends TestCase {
 
 	Logger log = LoggerFactory.getLogger(CategoriesTest.class);
 
-	final static int DIE_1_SIDES = 10;
+	final static int DIE_1_SIDES = 1000;
 	final static int DIE_2_SIDES = 2000;
 
 	final static double EPSILON = 1.0e-9;
@@ -59,7 +59,7 @@ public class CategoriesTest extends TestCase {
 		}
 
 		Set<Entry<ScalarElement, Hist>> entries = cats.getEntries();
-		assertEquals("Number of categories", 10, entries.size());
+		assertEquals("Number of categories", 1000, entries.size());
 
 		Hist hist = cats.get(new ElementInt(1));
 		List<Bucket> buckets = hist.getNonemtyBuckets();
@@ -95,7 +95,7 @@ public class CategoriesTest extends TestCase {
 		}
 
 		Set<Entry<ScalarElement, Hist>> entries = cats.getEntries();
-		assertEquals("Number of categories", 10, entries.size());
+		assertEquals("Number of categories", 1000, entries.size());
 
 		Hist hist = cats.get(new ElementInt(1));
 		List<Bucket> buckets = hist.getNonemtyBuckets();
