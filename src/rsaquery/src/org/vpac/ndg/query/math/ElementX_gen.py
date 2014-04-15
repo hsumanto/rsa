@@ -70,9 +70,7 @@ public class $cname implements ScalarElement {
 	 * Create a new $cname, initalised to zero.
 	 */
 	public $cname() {
-		this.value = 0;
-		this.valid = true;
-		components = new $cname[] { this };
+		this(($ptype)0);
 	}
 	/**
 	 * Create a new $cname.
@@ -81,6 +79,7 @@ public class $cname implements ScalarElement {
 	public $cname($ptype value) {
 		this.value = value;
 		this.valid = true;
+		components = new $cname[] { this };
 	}
 	@Override
 	public $cname copy() {

@@ -39,9 +39,7 @@ public class ElementInt implements ScalarElement {
 	 * Create a new ElementInt, initalised to zero.
 	 */
 	public ElementInt() {
-		this.value = 0;
-		this.valid = true;
-		components = new ElementInt[] { this };
+		this((int)0);
 	}
 	/**
 	 * Create a new ElementInt.
@@ -50,6 +48,7 @@ public class ElementInt implements ScalarElement {
 	public ElementInt(int value) {
 		this.value = value;
 		this.valid = true;
+		components = new ElementInt[] { this };
 	}
 	@Override
 	public ElementInt copy() {

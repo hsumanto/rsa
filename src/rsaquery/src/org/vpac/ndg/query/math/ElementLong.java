@@ -39,9 +39,7 @@ public class ElementLong implements ScalarElement {
 	 * Create a new ElementLong, initalised to zero.
 	 */
 	public ElementLong() {
-		this.value = 0;
-		this.valid = true;
-		components = new ElementLong[] { this };
+		this((long)0);
 	}
 	/**
 	 * Create a new ElementLong.
@@ -50,6 +48,7 @@ public class ElementLong implements ScalarElement {
 	public ElementLong(long value) {
 		this.value = value;
 		this.valid = true;
+		components = new ElementLong[] { this };
 	}
 	@Override
 	public ElementLong copy() {

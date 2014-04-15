@@ -39,9 +39,7 @@ public class ElementFloat implements ScalarElement {
 	 * Create a new ElementFloat, initalised to zero.
 	 */
 	public ElementFloat() {
-		this.value = 0;
-		this.valid = true;
-		components = new ElementFloat[] { this };
+		this((float)0);
 	}
 	/**
 	 * Create a new ElementFloat.
@@ -50,6 +48,7 @@ public class ElementFloat implements ScalarElement {
 	public ElementFloat(float value) {
 		this.value = value;
 		this.valid = true;
+		components = new ElementFloat[] { this };
 	}
 	@Override
 	public ElementFloat copy() {

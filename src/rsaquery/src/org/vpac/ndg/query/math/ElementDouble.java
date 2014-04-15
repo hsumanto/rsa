@@ -39,9 +39,7 @@ public class ElementDouble implements ScalarElement {
 	 * Create a new ElementDouble, initalised to zero.
 	 */
 	public ElementDouble() {
-		this.value = 0;
-		this.valid = true;
-		components = new ElementDouble[] { this };
+		this((double)0);
 	}
 	/**
 	 * Create a new ElementDouble.
@@ -50,6 +48,7 @@ public class ElementDouble implements ScalarElement {
 	public ElementDouble(double value) {
 		this.value = value;
 		this.valid = true;
+		components = new ElementDouble[] { this };
 	}
 	@Override
 	public ElementDouble copy() {

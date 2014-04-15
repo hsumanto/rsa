@@ -39,9 +39,7 @@ public class ElementShort implements ScalarElement {
 	 * Create a new ElementShort, initalised to zero.
 	 */
 	public ElementShort() {
-		this.value = 0;
-		this.valid = true;
-		components = new ElementShort[] { this };
+		this((short)0);
 	}
 	/**
 	 * Create a new ElementShort.
@@ -50,6 +48,7 @@ public class ElementShort implements ScalarElement {
 	public ElementShort(short value) {
 		this.value = value;
 		this.valid = true;
+		components = new ElementShort[] { this };
 	}
 	@Override
 	public ElementShort copy() {

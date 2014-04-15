@@ -39,9 +39,7 @@ public class ElementByte implements ScalarElement {
 	 * Create a new ElementByte, initalised to zero.
 	 */
 	public ElementByte() {
-		this.value = 0;
-		this.valid = true;
-		components = new ElementByte[] { this };
+		this((byte)0);
 	}
 	/**
 	 * Create a new ElementByte.
@@ -50,6 +48,7 @@ public class ElementByte implements ScalarElement {
 	public ElementByte(byte value) {
 		this.value = value;
 		this.valid = true;
+		components = new ElementByte[] { this };
 	}
 	@Override
 	public ElementByte copy() {
