@@ -101,12 +101,12 @@ public class ElementFloat implements ScalarElement {
 
 	@Override
 	public ElementFloat minimise() {
-		this.value = Float.MIN_VALUE;
+		this.value = Float.NEGATIVE_INFINITY;
 		return this;
 	}
 	@Override
 	public ElementFloat maximise() {
-		this.value = Float.MAX_VALUE;
+		this.value = Float.POSITIVE_INFINITY;
 		return this;
 	}
 

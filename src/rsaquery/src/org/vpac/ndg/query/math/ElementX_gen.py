@@ -145,12 +145,12 @@ SPECIAL_CAST_TEMPLATE = Template("""
 
 	@Override
 	public $cname minimise() {
-		this.value = $boxtype.MIN_VALUE;
+		this.value = $minifier;
 		return this;
 	}
 	@Override
 	public $cname maximise() {
-		this.value = $boxtype.MAX_VALUE;
+		this.value = $maxifier;
 		return this;
 	}
 """)
@@ -955,6 +955,8 @@ def write_class(output, t):
 			"boxtype": t.boxed_name,
 			"formatspec": t.format_spec,
 			"specials": t.special_functions,
+			"minifier": t.minifier,
+			"maxifier": t.maxifier,
 			}
 
 	for u in Element_types.TYPES:

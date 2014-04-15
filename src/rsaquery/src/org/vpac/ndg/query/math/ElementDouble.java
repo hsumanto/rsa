@@ -101,12 +101,12 @@ public class ElementDouble implements ScalarElement {
 
 	@Override
 	public ElementDouble minimise() {
-		this.value = Double.MIN_VALUE;
+		this.value = Double.NEGATIVE_INFINITY;
 		return this;
 	}
 	@Override
 	public ElementDouble maximise() {
-		this.value = Double.MAX_VALUE;
+		this.value = Double.POSITIVE_INFINITY;
 		return this;
 	}
 
