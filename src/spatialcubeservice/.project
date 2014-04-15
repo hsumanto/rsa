@@ -36,11 +36,6 @@
 	</natures>
 	<linkedResources>
 		<link>
-			<name>CommonSrc</name>
-			<type>2</type>
-			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/common/src</locationURI>
-		</link>
-		<link>
 			<name>StorageManagerConfig</name>
 			<type>2</type>
 			<locationURI>PARENT-1-PROJECT_LOC/storagemanager/config</locationURI>
