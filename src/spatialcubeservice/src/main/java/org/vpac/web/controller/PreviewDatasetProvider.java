@@ -83,7 +83,7 @@ import ucar.nc2.dataset.NetcdfDataset;
  */
 public class PreviewDatasetProvider implements DatasetProvider {
 
-	final Logger log = LoggerFactory.getLogger(RsaDatasetProvider.class);
+	final Logger log = LoggerFactory.getLogger(PreviewDatasetProvider.class);
 	final private int PREVIEW_SIZE = 128;
 
 	RsaAggregationFactory factory;

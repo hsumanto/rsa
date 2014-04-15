@@ -17,7 +17,7 @@
  * http://www.crcsi.com.au/
  */
 
-package org.vpac.ndg.cli.smadaptor.local;
+package org.vpac.ndg.datamodel;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -39,9 +39,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.vpac.ndg.common.datamodel.CellSize;
 import org.vpac.ndg.common.datamodel.TaskType;
 import org.vpac.ndg.configuration.NdgConfigManager;
-import org.vpac.ndg.datamodel.AggregationDefinition;
-import org.vpac.ndg.datamodel.AggregationOpener;
-import org.vpac.ndg.datamodel.RsaAggregationFactory;
 import org.vpac.ndg.geometry.Box;
 import org.vpac.ndg.lock.RsaNetcdfDataset;
 import org.vpac.ndg.lock.TimeSliceDbReadWriteLock;
@@ -109,7 +106,7 @@ public class RsaDatasetProvider implements DatasetProvider {
 		String scheme = parsedUri.getScheme();
 		if (scheme == null)
 			return false;
-		if (!scheme.equals("rsa"))
+		if (!scheme.toLowerCase().equals("rsa"))
 			return false;
 
 		return true;

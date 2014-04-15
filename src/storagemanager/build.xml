@@ -21,6 +21,9 @@
 	<property name="test-reports" location="test-reports" />
 
 	<!-- Project Dependencies -->
+	<property name="querySrc" location="../rsaquery/src" />
+	<property name="queryFilterSrc" location="../rsaquery/filter-src" />
+
 	<!-- Make sure gdal library location is correct for production -->
 	<condition property="gdalLib" value="C:\tmp\gdalapps\bin">
 		<os family="windows" />
@@ -101,6 +104,11 @@
 		<javac srcdir="${src}" destdir="${build}" source="${source}" target="${target}" debug="on" debuglevel="lines,vars,source">
 			<classpath refid="classpath" />
 			<classpath refid="gdal-classpath" />
+
+			<!-- Include dependencies. These don't compile to intermediate jar files
+             that can be added to the classpath. -->
+			<src path="${querySrc}" />
+			<src path="${queryFilterSrc}" />
 		</javac>
 	</target>
 
