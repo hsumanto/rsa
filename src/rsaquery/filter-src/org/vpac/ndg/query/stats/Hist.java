@@ -69,7 +69,7 @@ public class Hist implements Foldable<Hist> {
 		return buckets;
 	}
 
-	public List<Bucket> getNonemtyBuckets() {
+	public List<Bucket> getNonemptyBuckets() {
 		List<Bucket> bs = new ArrayList<Bucket>();
 		for (Bucket b : buckets) {
 			if (b.stats.n > 0)

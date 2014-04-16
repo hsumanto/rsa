@@ -61,7 +61,7 @@ public class CategoriesTest extends TestCase {
 		assertEquals("Number of categories", 1000, entries.size());
 
 		Hist hist = cats.get(new ElementInt(1));
-		List<Bucket> buckets = hist.getNonemtyBuckets();
+		List<Bucket> buckets = hist.getNonemptyBuckets();
 		Bucket b = buckets.get(0);
 		Stats s = b.getStats();
 		assertEquals("Lower bound of first bucket of category 1", 1.0, b.getLower(), EPSILON);
@@ -69,7 +69,7 @@ public class CategoriesTest extends TestCase {
 		assertEquals("Mean of first bucket of category 1", 1.5, s.getMean(), EPSILON);
 
 		hist = cats.get(new ElementInt(10));
-		buckets = hist.getNonemtyBuckets();
+		buckets = hist.getNonemptyBuckets();
 		b = buckets.get(0);
 		s = b.getStats();
 		assertEquals("Lower bound of first bucket of category 10", 10.0, b.getLower(), EPSILON);
@@ -97,12 +97,12 @@ public class CategoriesTest extends TestCase {
 		assertEquals("Number of categories", 1000, entries.size());
 
 		Hist hist = cats.get(new ElementInt(1));
-		List<Bucket> buckets = hist.getNonemtyBuckets();
+		List<Bucket> buckets = hist.getNonemptyBuckets();
 		Bucket b = buckets.get(0);
 		assertEquals("Lower bound of first bucket of category 1", 1.0, b.getLower(), EPSILON);
 
 		hist = cats.get(new ElementInt(10));
-		buckets = hist.getNonemtyBuckets();
+		buckets = hist.getNonemptyBuckets();
 		b = buckets.get(0);
 		assertEquals("Lower bound of first bucket of category 10", 10.0, b.getLower(), EPSILON);
 	}

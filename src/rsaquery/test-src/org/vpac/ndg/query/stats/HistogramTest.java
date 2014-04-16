@@ -65,7 +65,7 @@ public class HistogramTest extends TestCase {
 		}
 		log.info("Histogram: {}", hist.toCsv());
 
-		List<Bucket> buckets = hist.getNonemtyBuckets();
+		List<Bucket> buckets = hist.getNonemptyBuckets();
 		assertEquals("Number of nonempty buckets", 11, buckets.size());
 
 		Bucket b = buckets.get(0);
@@ -119,17 +119,17 @@ public class HistogramTest extends TestCase {
 				numLessThanTen++;
 		}
 
-		Bucket b = stats.getComponents()[0].getNonemtyBuckets().get(0);
+		Bucket b = stats.getComponents()[0].getNonemptyBuckets().get(0);
 		Stats s = b.getStats();
 		assertEquals("Lower bound of first bucket of first component", 0.0, b.getLower(), EPSILON);
 		assertEquals("Elements in first bucket of first component", numLessThanTen, s.getCount());
 
-		b = stats.getComponents()[1].getNonemtyBuckets().get(0);
+		b = stats.getComponents()[1].getNonemptyBuckets().get(0);
 		s = b.getStats();
 		assertEquals("Lower bound of first bucket of second component", 1.0, b.getLower(), EPSILON);
 		assertEquals("Elements in first bucket of second component", 1, s.getCount());
 
-		b = stats.getComponents()[2].getNonemtyBuckets().get(0);
+		b = stats.getComponents()[2].getNonemptyBuckets().get(0);
 		s = b.getStats();
 		assertEquals("Lower bound of first bucket of third component", 10.0, b.getLower(), EPSILON);
 		assertEquals("Elements in first bucket of third component", 1, s.getCount());
