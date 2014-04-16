@@ -29,7 +29,7 @@ import org.junit.runners.BlockJUnit4ClassRunner;
 public class ElementTest {
 
 	@Test
-	public void test_ternary_coercion() throws Exception {
+	public void test_ternaryCoercion() throws Exception {
 		ElementByte opA = new ElementByte((byte) 1);
 		ElementByte opB = new ElementByte((byte) 2);
 		ElementFloat result = new ElementFloat();
@@ -37,4 +37,52 @@ public class ElementTest {
 		assertEquals(0.5, result.floatValue(), 0.01);
 	}
 
+	@Test
+	public void test_smallestAndLargest() {
+		ScalarElement e;
+
+		e = new ElementByte();
+		e.minimise();
+		assertEquals(-128, e.byteValue());
+		e.maximise();
+		assertEquals(127, e.byteValue());
+
+		e = new ElementShort();
+		e.minimise();
+		assertEquals(-32768, e.shortValue());
+		e.maximise();
+		assertEquals(32767, e.shortValue());
+
+		e = new ElementInt();
+		e.minimise();
+		assertEquals(-2147483648, e.intValue());
+		e.maximise();
+		assertEquals(2147483647, e.intValue());
+
+		e = new ElementLong();
+		e.minimise();
+		assertEquals(-9223372036854775808L, e.longValue());
+		e.maximise();
+		assertEquals(9223372036854775807L, e.longValue());
+
+		e = new ElementFloat();
+		e.minimise();
+		assertEquals(Float.NEGATIVE_INFINITY, e.floatValue(), 0.00001);
+		assertEquals(Double.NEGATIVE_INFINITY, e.doubleValue(), 0.00001);
+		assertEquals(-1, e.compareTo(Long.MIN_VALUE));
+		e.maximise();
+		assertEquals(Float.POSITIVE_INFINITY, e.floatValue(), 0.00001);
+		assertEquals(Double.POSITIVE_INFINITY, e.doubleValue(), 0.00001);
+		assertEquals(1, e.compareTo(Long.MAX_VALUE));
+
+		e = new ElementDouble();
+		e.minimise();
+		assertEquals(Float.NEGATIVE_INFINITY, e.floatValue(), 0.00001);
+		assertEquals(Double.NEGATIVE_INFINITY, e.doubleValue(), 0.00001);
+		assertEquals(-1, e.compareTo(Long.MIN_VALUE));
+		e.maximise();
+		assertEquals(Float.POSITIVE_INFINITY, e.floatValue(), 0.00001);
+		assertEquals(Double.POSITIVE_INFINITY, e.doubleValue(), 0.00001);
+		assertEquals(1, e.compareTo(Long.MAX_VALUE));
+	}
 }

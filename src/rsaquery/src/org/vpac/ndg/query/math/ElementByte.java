@@ -32,12 +32,14 @@ public class ElementByte implements ScalarElement {
 	private byte value;
 	private boolean valid;
 
+	/* Components array makes this scalar element look like a vector. */
+	private ElementByte[] components;
+
 	/**
 	 * Create a new ElementByte, initalised to zero.
 	 */
 	public ElementByte() {
-		this.value = 0;
-		this.valid = true;
+		this((byte)0);
 	}
 	/**
 	 * Create a new ElementByte.
@@ -46,6 +48,7 @@ public class ElementByte implements ScalarElement {
 	public ElementByte(byte value) {
 		this.value = value;
 		this.valid = true;
+		components = new ElementByte[] { this };
 	}
 	@Override
 	public ElementByte copy() {
@@ -54,8 +57,8 @@ public class ElementByte implements ScalarElement {
 		return res;
 	}
 	@Override
-	public ScalarElement[] getComponents() {
-		return new ScalarElement[] { this };
+	public ElementByte[] getComponents() {
+		return components;
 	}
 
 	@Override

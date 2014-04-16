@@ -38,7 +38,7 @@ BOUNDING_OPS = [
 		("max", ">", "maximum"),
 		]
 
-T = namedtuple("T", "formal_name primitive_name boxed_name format_spec special_functions")
+T = namedtuple("T", "formal_name primitive_name boxed_name format_spec special_functions minifier maxifier")
 TYPES = [
 		T("ElementByte", "byte", "Byte", "%d", """
 	@Override
@@ -46,7 +46,7 @@ TYPES = [
 		final int prime = 31;
 		return prime + value;
 	}
-"""),
+""", "Byte.MIN_VALUE", "Byte.MAX_VALUE"),
 
 		T("ElementShort", "short", "Short", "%d", """
 	@Override
@@ -54,7 +54,7 @@ TYPES = [
 		final int prime = 31;
 		return prime + value;
 	}
-"""),
+""", "Short.MIN_VALUE", "Short.MAX_VALUE"),
 
 		T("ElementInt", "int", "Integer", "%d", """
 	@Override
@@ -62,7 +62,7 @@ TYPES = [
 		final int prime = 31;
 		return prime + value;
 	}
-"""),
+""", "Integer.MIN_VALUE", "Integer.MAX_VALUE"),
 
 		T("ElementLong", "long", "Long", "%d", """
 	@Override
@@ -70,7 +70,7 @@ TYPES = [
 		final int prime = 31;
 		return prime + (int) (value ^ (value >>> 32));
 	}
-"""),
+""", "Long.MIN_VALUE", "Long.MAX_VALUE"),
 
 		T("ElementFloat", "float", "Float", "%g", """
 	@Override
@@ -78,7 +78,7 @@ TYPES = [
 		final int prime = 31;
 		return prime + Float.floatToIntBits(value);
 	}
-"""),
+""", "Float.NEGATIVE_INFINITY", "Float.POSITIVE_INFINITY"),
 
 		T("ElementDouble", "double", "Double", "%g", """
 	@Override
@@ -88,7 +88,7 @@ TYPES = [
 		temp = Double.doubleToLongBits(value);
 		return prime + (int) (temp ^ (temp >>> 32));
 	}
-"""),
+""", "Double.NEGATIVE_INFINITY", "Double.POSITIVE_INFINITY"),
 		]
 
 

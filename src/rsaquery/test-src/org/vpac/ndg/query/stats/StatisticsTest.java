@@ -37,14 +37,14 @@ public class StatisticsTest extends TestCase {
 		log.info("Baseline mean: {}, StdDev: {}", m, sdev);
 
 		// Now compare the computation above to other algorithm being tested.
-		Stats stats = new Stats(new ElementInt());
+		Stats stats = new Stats();
 		for (ElementInt value : ListTranslator.ints(permutations)) {
 			stats.update(value);
 		}
 		log.info("Computed mean: {}, StdDev: {}", stats.mean, stats.getStdDev());
 
-		assertEquals(m, stats.getMean().doubleValue(), EPSILON);
-		assertEquals(sdev, stats.getStdDev().doubleValue(), EPSILON);
+		assertEquals(m, stats.getMean(), EPSILON);
+		assertEquals(sdev, stats.getStdDev(), EPSILON);
 	}
 
 	/**
@@ -66,7 +66,7 @@ public class StatisticsTest extends TestCase {
 		Stats stats = null;
 		Stats stats2;
 		for (ElementInt value : ListTranslator.ints(permutations)) {
-			stats2 = new Stats(value);
+			stats2 = new Stats();
 			stats2.update(value);
 			if (stats == null)
 				stats = stats2;
@@ -75,8 +75,8 @@ public class StatisticsTest extends TestCase {
 		}
 		log.info("Computed mean: {}, StdDev: {}", stats.getMean(), stats.getStdDev());
 
-		assertEquals(m, stats.getMean().doubleValue(), EPSILON);
-		assertEquals(sdev, stats.getStdDev().doubleValue(), EPSILON);
+		assertEquals(m, stats.getMean(), EPSILON);
+		assertEquals(sdev, stats.getStdDev(), EPSILON);
 	}
 
 	/**
@@ -98,8 +98,8 @@ public class StatisticsTest extends TestCase {
 		Stats stats = foldStatsRecursively(permutations);
 		log.info("Computed mean: {}, StdDev: {}", stats.getMean(), stats.getStdDev());
 
-		assertEquals(m, stats.getMean().doubleValue(), EPSILON);
-		assertEquals(sdev, stats.getStdDev().doubleValue(), EPSILON);
+		assertEquals(m, stats.getMean(), EPSILON);
+		assertEquals(sdev, stats.getStdDev(), EPSILON);
 	}
 
 	/**
@@ -130,8 +130,8 @@ public class StatisticsTest extends TestCase {
 		// Now compare the computation above to other algorithm being tested.
 		log.info("Computed mean: {}, StdDev: {}", stats.getMean(), stats.getStdDev());
 
-		assertEquals(m, stats.getMean().getComponents()[1].doubleValue(), EPSILON);
-		assertEquals(sdev, stats.getStdDev().getComponents()[1].doubleValue(), EPSILON);
+		assertEquals(m, stats.getMean()[1], EPSILON);
+		assertEquals(sdev, stats.getStdDev()[1], EPSILON);
 	}
 
 	private Stats foldStatsRecursively(List<Integer> inputs) {
@@ -146,7 +146,7 @@ public class StatisticsTest extends TestCase {
 	}
 
 	private Stats calculateStatsIteratively(List<Integer> inputs) {
-		Stats stats = new Stats(new ElementInt());
+		Stats stats = new Stats();
 		for (ElementInt value : ListTranslator.ints(inputs)) {
 			stats.update(value);
 		}
@@ -165,7 +165,7 @@ public class StatisticsTest extends TestCase {
 	}
 
 	private VectorStats calculateVStatsIteratively(List<VectorElement> inputs) {
-		VectorStats stats = new VectorStats(inputs.get(0));
+		VectorStats stats = new VectorStats(inputs.get(0).getComponents().length);
 		for (VectorElement value : inputs) {
 			stats.update(value);
 		}

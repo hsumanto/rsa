@@ -32,12 +32,14 @@ public class ElementInt implements ScalarElement {
 	private int value;
 	private boolean valid;
 
+	/* Components array makes this scalar element look like a vector. */
+	private ElementInt[] components;
+
 	/**
 	 * Create a new ElementInt, initalised to zero.
 	 */
 	public ElementInt() {
-		this.value = 0;
-		this.valid = true;
+		this((int)0);
 	}
 	/**
 	 * Create a new ElementInt.
@@ -46,6 +48,7 @@ public class ElementInt implements ScalarElement {
 	public ElementInt(int value) {
 		this.value = value;
 		this.valid = true;
+		components = new ElementInt[] { this };
 	}
 	@Override
 	public ElementInt copy() {
@@ -54,8 +57,8 @@ public class ElementInt implements ScalarElement {
 		return res;
 	}
 	@Override
-	public ScalarElement[] getComponents() {
-		return new ScalarElement[] { this };
+	public ElementInt[] getComponents() {
+		return components;
 	}
 
 	@Override

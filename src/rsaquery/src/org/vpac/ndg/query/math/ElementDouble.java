@@ -32,12 +32,14 @@ public class ElementDouble implements ScalarElement {
 	private double value;
 	private boolean valid;
 
+	/* Components array makes this scalar element look like a vector. */
+	private ElementDouble[] components;
+
 	/**
 	 * Create a new ElementDouble, initalised to zero.
 	 */
 	public ElementDouble() {
-		this.value = 0;
-		this.valid = true;
+		this((double)0);
 	}
 	/**
 	 * Create a new ElementDouble.
@@ -46,6 +48,7 @@ public class ElementDouble implements ScalarElement {
 	public ElementDouble(double value) {
 		this.value = value;
 		this.valid = true;
+		components = new ElementDouble[] { this };
 	}
 	@Override
 	public ElementDouble copy() {
@@ -54,8 +57,8 @@ public class ElementDouble implements ScalarElement {
 		return res;
 	}
 	@Override
-	public ScalarElement[] getComponents() {
-		return new ScalarElement[] { this };
+	public ElementDouble[] getComponents() {
+		return components;
 	}
 
 	@Override
@@ -98,12 +101,12 @@ public class ElementDouble implements ScalarElement {
 
 	@Override
 	public ElementDouble minimise() {
-		this.value = Double.MIN_VALUE;
+		this.value = Double.NEGATIVE_INFINITY;
 		return this;
 	}
 	@Override
 	public ElementDouble maximise() {
-		this.value = Double.MAX_VALUE;
+		this.value = Double.POSITIVE_INFINITY;
 		return this;
 	}
 

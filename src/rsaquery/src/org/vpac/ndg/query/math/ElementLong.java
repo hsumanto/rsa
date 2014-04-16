@@ -32,12 +32,14 @@ public class ElementLong implements ScalarElement {
 	private long value;
 	private boolean valid;
 
+	/* Components array makes this scalar element look like a vector. */
+	private ElementLong[] components;
+
 	/**
 	 * Create a new ElementLong, initalised to zero.
 	 */
 	public ElementLong() {
-		this.value = 0;
-		this.valid = true;
+		this((long)0);
 	}
 	/**
 	 * Create a new ElementLong.
@@ -46,6 +48,7 @@ public class ElementLong implements ScalarElement {
 	public ElementLong(long value) {
 		this.value = value;
 		this.valid = true;
+		components = new ElementLong[] { this };
 	}
 	@Override
 	public ElementLong copy() {
@@ -54,8 +57,8 @@ public class ElementLong implements ScalarElement {
 		return res;
 	}
 	@Override
-	public ScalarElement[] getComponents() {
-		return new ScalarElement[] { this };
+	public ElementLong[] getComponents() {
+		return components;
 	}
 
 	@Override

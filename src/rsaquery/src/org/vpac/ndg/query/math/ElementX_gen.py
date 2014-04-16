@@ -63,12 +63,14 @@ public class $cname implements ScalarElement {
 	private $ptype value;
 	private boolean valid;
 
+	/* Components array makes this scalar element look like a vector. */
+	private $cname[] components;
+
 	/**
 	 * Create a new $cname, initalised to zero.
 	 */
 	public $cname() {
-		this.value = 0;
-		this.valid = true;
+		this(($ptype)0);
 	}
 	/**
 	 * Create a new $cname.
@@ -77,6 +79,7 @@ public class $cname implements ScalarElement {
 	public $cname($ptype value) {
 		this.value = value;
 		this.valid = true;
+		components = new $cname[] { this };
 	}
 	@Override
 	public $cname copy() {
@@ -85,8 +88,8 @@ public class $cname implements ScalarElement {
 		return res;
 	}
 	@Override
-	public ScalarElement[] getComponents() {
-		return new ScalarElement[] { this };
+	public $cname[] getComponents() {
+		return components;
 	}
 
 	@Override
@@ -142,12 +145,12 @@ SPECIAL_CAST_TEMPLATE = Template("""
 
 	@Override
 	public $cname minimise() {
-		this.value = $boxtype.MIN_VALUE;
+		this.value = $minifier;
 		return this;
 	}
 	@Override
 	public $cname maximise() {
-		this.value = $boxtype.MAX_VALUE;
+		this.value = $maxifier;
 		return this;
 	}
 """)
@@ -952,6 +955,8 @@ def write_class(output, t):
 			"boxtype": t.boxed_name,
 			"formatspec": t.format_spec,
 			"specials": t.special_functions,
+			"minifier": t.minifier,
+			"maxifier": t.maxifier,
 			}
 
 	for u in Element_types.TYPES:
