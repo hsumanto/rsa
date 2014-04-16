@@ -31,8 +31,8 @@ import org.junit.runner.RunWith;
 import org.junit.runners.BlockJUnit4ClassRunner;
 import org.vpac.ndg.query.filter.Foldable;
 import org.vpac.ndg.query.math.ElementInt;
+import org.vpac.ndg.query.stats.Bucket;
 import org.vpac.ndg.query.stats.Hist;
-import org.vpac.ndg.query.stats.Hist.Bucket;
 import org.vpac.ndg.query.stats.Cats;
 import org.vpac.ndg.query.stats.Stats;
 import org.vpac.ndg.query.stats.VectorCats;
@@ -443,10 +443,10 @@ public class QueryTest extends TestCase {
 		Map<String, Foldable<?>> output = QueryRunner.run(config, outputFile, 8);
 		VectorStats stats = (VectorStats) output.get("stats");
 
-		assertEquals(35, stats.getMin().getComponents()[0].longValue());
-		assertEquals(230, stats.getMax().getComponents()[0].longValue());
-		assertEquals(124.04589843750001, stats.getMean().getComponents()[0].doubleValue(), EPSILON);
-		assertEquals(31.17135124667003, stats.getStdDev().getComponents()[0].doubleValue(), EPSILON);
+		assertEquals(35, stats.getMin()[0], EPSILON);
+		assertEquals(230, stats.getMax()[0], EPSILON);
+		assertEquals(124.04589843750001, stats.getMean()[0], EPSILON);
+		assertEquals(31.17135124667003, stats.getStdDev()[0], EPSILON);
 	}
 
 	@Test
@@ -461,12 +461,12 @@ public class QueryTest extends TestCase {
 		List<Bucket> buckets = hist.getNonemtyBuckets();
 		Bucket b = buckets.get(0);
 		Stats s = b.getStats();
-		assertEquals("Number of elements in first bucket", 68, s.getCount().longValue());
-		assertEquals("Mean of first bucket", 41.9706, s.getMean().doubleValue(), EPSILON);
+		assertEquals("Number of elements in first bucket", 68, s.getCount());
+		assertEquals("Mean of first bucket", 41.9706, s.getMean(), EPSILON);
 		b = buckets.get(buckets.size() - 1);
 		s = b.getStats();
-		assertEquals("Number of elements in last bucket", 21, s.getCount().longValue());
-		assertEquals("Mean of last bucket", 222.333, s.getMean().doubleValue(), EPSILON);
+		assertEquals("Number of elements in last bucket", 21, s.getCount());
+		assertEquals("Mean of last bucket", 222.333, s.getMean(), EPSILON);
 	}
 
 	@Test
@@ -488,21 +488,21 @@ public class QueryTest extends TestCase {
 		buckets = hist.getNonemtyBuckets();
 		b = buckets.get(0);
 		s = b.getStats();
-		assertEquals("Number of pixels in first bucket of category 0", 68, s.getCount().longValue());
+		assertEquals("Number of pixels in first bucket of category 0", 68, s.getCount());
 		s = hist.getSummary();
-		assertEquals("Number of pixels where x < 64", 365, s.getCount().longValue());
+		assertEquals("Number of pixels where x < 64", 365, s.getCount());
 
 		hist = cats.get(new ElementInt(1));
 		buckets = hist.getNonemtyBuckets();
 		b = buckets.get(0);
 		s = b.getStats();
-		assertEquals("Number of pixels in first bucket of category 1", 2233, s.getCount().longValue());
+		assertEquals("Number of pixels in first bucket of category 1", 2233, s.getCount());
 		s = hist.getSummary();
-		assertEquals("Number of pixels where 64 <= x < 128", 6422, s.getCount().longValue());
+		assertEquals("Number of pixels where 64 <= x < 128", 6422, s.getCount());
 
 		hist = cats.get(new ElementInt(2));
 		s = hist.getSummary();
-		assertEquals("Number of pixels where 196 <= x", 5393, s.getCount().longValue());
+		assertEquals("Number of pixels where 196 <= x", 5393, s.getCount());
 	}
 
 

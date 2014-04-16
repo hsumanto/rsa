@@ -13,7 +13,6 @@ import org.slf4j.LoggerFactory;
 import org.vpac.ndg.query.iteration.ListTranslator;
 import org.vpac.ndg.query.math.ElementInt;
 import org.vpac.ndg.query.math.VectorElement;
-import org.vpac.ndg.query.stats.Hist.Bucket;
 
 @RunWith(BlockJUnit4ClassRunner.class)
 public class HistogramTest extends TestCase {
@@ -72,20 +71,20 @@ public class HistogramTest extends TestCase {
 		Bucket b = buckets.get(0);
 		Stats s = b.getStats();
 		assertEquals("Lower bound of first bucket", 1.0, b.getLower(), EPSILON);
-		assertEquals("Elements in first bucket", 1, s.getCount().longValue());
-		assertEquals("Minimum of first bucket", 2, s.getMin().intValue(), EPSILON);
-		assertEquals("Maximum of first bucket", 2, s.getMax().intValue(), EPSILON);
-		assertEquals("Mean of first bucket", 2.0, s.getMean().doubleValue(), EPSILON);
-		assertEquals("StdDev of first bucket", Double.NaN, s.getStdDev().doubleValue(), EPSILON);
+		assertEquals("Elements in first bucket", 1, s.getCount());
+		assertEquals("Minimum of first bucket", 2, s.getMin(), EPSILON);
+		assertEquals("Maximum of first bucket", 2, s.getMax(), EPSILON);
+		assertEquals("Mean of first bucket", 2.0, s.getMean(), EPSILON);
+		assertEquals("StdDev of first bucket", Double.NaN, s.getStdDev(), EPSILON);
 
 		b = buckets.get(buckets.size() - 2);
 		s = b.getStats();
 		assertEquals("Lower bound of second-last bucket", 1000.0, b.getLower(), EPSILON);
-		assertEquals("Elements in second-last bucket", 1796718, s.getCount().longValue());
-		assertEquals("Minimum of second-last bucket", 1000, s.getMin().intValue());
-		assertEquals("Maximum of second-last bucket", 2154, s.getMax().intValue());
-		assertEquals("Mean of second-last bucket", 1641.5612411073373, s.getMean().doubleValue(), EPSILON);
-		assertEquals("StdDev of second-last bucket", 323.7411898125304, s.getStdDev().doubleValue(), EPSILON);
+		assertEquals("Elements in second-last bucket", 1796718, s.getCount());
+		assertEquals("Minimum of second-last bucket", 1000, s.getMin(), EPSILON);
+		assertEquals("Maximum of second-last bucket", 2154, s.getMax(), EPSILON);
+		assertEquals("Mean of second-last bucket", 1641.5612411073373, s.getMean(), EPSILON);
+		assertEquals("StdDev of second-last bucket", 323.7411898125304, s.getStdDev(), EPSILON);
 	}
 
 	/**
@@ -123,17 +122,17 @@ public class HistogramTest extends TestCase {
 		Bucket b = stats.getComponents()[0].getNonemtyBuckets().get(0);
 		Stats s = b.getStats();
 		assertEquals("Lower bound of first bucket of first component", 0.0, b.getLower(), EPSILON);
-		assertEquals("Elements in first bucket of first component", numLessThanTen, s.getCount().longValue());
+		assertEquals("Elements in first bucket of first component", numLessThanTen, s.getCount());
 
 		b = stats.getComponents()[1].getNonemtyBuckets().get(0);
 		s = b.getStats();
 		assertEquals("Lower bound of first bucket of second component", 1.0, b.getLower(), EPSILON);
-		assertEquals("Elements in first bucket of second component", 1, s.getCount().longValue());
+		assertEquals("Elements in first bucket of second component", 1, s.getCount());
 
 		b = stats.getComponents()[2].getNonemtyBuckets().get(0);
 		s = b.getStats();
 		assertEquals("Lower bound of first bucket of third component", 10.0, b.getLower(), EPSILON);
-		assertEquals("Elements in first bucket of third component", 1, s.getCount().longValue());
+		assertEquals("Elements in first bucket of third component", 1, s.getCount());
 	}
 
 	private VectorHist foldVStatsRecursively(List<VectorElement> inputs) {

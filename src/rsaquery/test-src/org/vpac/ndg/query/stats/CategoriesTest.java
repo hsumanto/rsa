@@ -17,7 +17,6 @@ import org.slf4j.LoggerFactory;
 import org.vpac.ndg.query.iteration.Pair;
 import org.vpac.ndg.query.math.ElementInt;
 import org.vpac.ndg.query.math.ScalarElement;
-import org.vpac.ndg.query.stats.Hist.Bucket;
 
 import com.carrotsearch.junitbenchmarks.BenchmarkOptions;
 import com.carrotsearch.junitbenchmarks.BenchmarkRule;
@@ -66,16 +65,16 @@ public class CategoriesTest extends TestCase {
 		Bucket b = buckets.get(0);
 		Stats s = b.getStats();
 		assertEquals("Lower bound of first bucket of category 1", 1.0, b.getLower(), EPSILON);
-		assertEquals("Elements in first bucket of category 1", 2, s.getCount().longValue());
-		assertEquals("Mean of first bucket of category 1", 1.5, s.getMean().doubleValue(), EPSILON);
+		assertEquals("Elements in first bucket of category 1", 2, s.getCount());
+		assertEquals("Mean of first bucket of category 1", 1.5, s.getMean(), EPSILON);
 
 		hist = cats.get(new ElementInt(10));
 		buckets = hist.getNonemtyBuckets();
 		b = buckets.get(0);
 		s = b.getStats();
 		assertEquals("Lower bound of first bucket of category 10", 10.0, b.getLower(), EPSILON);
-		assertEquals("Elements in first bucket of category 10", 2, s.getCount().longValue());
-		assertEquals("Mean of first bucket of category 10", 15.0, s.getMean().doubleValue(), EPSILON);
+		assertEquals("Elements in first bucket of category 10", 2, s.getCount());
+		assertEquals("Mean of first bucket of category 10", 15.0, s.getMean(), EPSILON);
 	}
 
 	@Test

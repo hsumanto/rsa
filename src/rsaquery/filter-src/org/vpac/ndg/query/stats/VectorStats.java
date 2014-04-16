@@ -3,7 +3,6 @@ package org.vpac.ndg.query.stats;
 import org.vpac.ndg.query.filter.Foldable;
 import org.vpac.ndg.query.math.Element;
 import org.vpac.ndg.query.math.ScalarElement;
-import org.vpac.ndg.query.math.VectorElement;
 
 /**
  * Basic statistics (min, max, mean, standard deviation). The components
@@ -12,15 +11,12 @@ import org.vpac.ndg.query.math.VectorElement;
  */
 public class VectorStats implements Foldable<VectorStats> {
 
-	private Element<?> prototype;
 	private Stats[] components;
 
-	public VectorStats(Element<?> prototype) {
-		this.prototype = prototype;
-		ScalarElement[] es = prototype.getComponents();
-		components = new Stats[es.length];
+	public VectorStats(int nComponents) {
+		components = new Stats[nComponents];
 		for (int i = 0; i < components.length; i++) {
-			components[i] = new Stats(es[i]);
+			components[i] = new Stats();
 		}
 	}
 
@@ -32,7 +28,7 @@ public class VectorStats implements Foldable<VectorStats> {
 
 	@Override
 	public VectorStats fold(VectorStats other) {
-		VectorStats res = new VectorStats(prototype);
+		VectorStats res = new VectorStats(components.length);
 
 		for (int i = 0; i < components.length; i++) {
 			res.components[i] = components[i].fold(other.components[i]);
@@ -41,44 +37,44 @@ public class VectorStats implements Foldable<VectorStats> {
 		return res;
 	}
 
-	public VectorElement getCount() {
-		ScalarElement[] es = new ScalarElement[components.length];
+	public long[] getCount() {
+		long[] es = new long[components.length];
 		for (int i = 0; i < es.length; i++) {
 			es[i] = components[i].getCount();
 		}
-		return new VectorElement(es);
+		return es;
 	}
 
-	public VectorElement getMin() {
-		ScalarElement[] es = new ScalarElement[components.length];
+	public double[] getMin() {
+		double[] es = new double[components.length];
 		for (int i = 0; i < es.length; i++) {
 			es[i] = components[i].getMin();
 		}
-		return new VectorElement(es);
+		return es;
 	}
 
-	public VectorElement getMax() {
-		ScalarElement[] es = new ScalarElement[components.length];
+	public double[] getMax() {
+		double[] es = new double[components.length];
 		for (int i = 0; i < es.length; i++) {
 			es[i] = components[i].getMax();
 		}
-		return new VectorElement(es);
+		return es;
 	}
 
-	public VectorElement getMean() {
-		ScalarElement[] es = new ScalarElement[components.length];
+	public double[] getMean() {
+		double[] es = new double[components.length];
 		for (int i = 0; i < es.length; i++) {
 			es[i] = components[i].getMean();
 		}
-		return new VectorElement(es);
+		return es;
 	}
 
-	public VectorElement getStdDev() {
-		ScalarElement[] es = new ScalarElement[components.length];
+	public double[] getStdDev() {
+		double[] es = new double[components.length];
 		for (int i = 0; i < es.length; i++) {
 			es[i] = components[i].getStdDev();
 		}
-		return new VectorElement(es);
+		return es;
 	}
 
 	@Override

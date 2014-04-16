@@ -50,7 +50,7 @@ public class Statistics implements Filter, Accumulator<VectorStats> {
 
 	@Override
 	public void initialise(BoxReal bounds) throws QueryConfigurationException {
-		stats = new VectorStats(input.getPrototype().getElement());
+		stats = new VectorStats(input.getPrototype().getElement().getComponents().length);
 	}
 
 	@Override
