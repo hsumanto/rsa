@@ -7,7 +7,7 @@
 	<property name="version.number" value="2.3.6" />
 	<property name="svn.info.lastRev" value="e6b65fa4ea" />
 
-	<target name="dist" depends="clean,cli,web_services,rsaquery">
+	<target name="dist" depends="clean,cli,web_services,rsaquery,rsaworkers">
 	</target>
 
 	<target name="publish" depends="dist">
@@ -51,6 +51,17 @@
 		</copy>
 	</target>
 
+	<target name="rsaworkers" depends="init" description="Cluster worker application">
+		<ant dir="rsaworkers" target="dist" />
+
+		<copy todir="dist" flatten="false" verbose="true">
+			<fileset dir="rsaworkers/dist">
+				<include name="*.zip" />
+			</fileset>
+		</copy>
+	</target>
+
+
 	<target name="storagemanager-test" description="Storage manager unit testing">
 		<ant dir="storagemanager" target="test" />
 	</target>
@@ -61,6 +72,10 @@
 	
 	<target name="rsaquery-test" description="rsaquery unit testing">
 		<ant dir="rsaquery" target="test" />
+	</target>
+	
+	<target name="rsaworkers-test" description="rsaworkers unit testing">
+		<ant dir="rsaworkers" target="test" />
 	</target>
 
 	<target name="web_services" depends="init" description="Spatial Cube Services">
