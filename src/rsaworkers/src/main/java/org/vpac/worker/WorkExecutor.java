@@ -38,6 +38,7 @@ public class WorkExecutor extends UntypedActor {
     	qd.output.grid.bounds = String.format("%f %f %f %f", work.bound.getMin().getX(), work.bound.getMin().getY(), work.bound.getMax().getX(), work.bound.getMax().getY());
 		final WorkProgress wp = new WorkProgress(work.workId);
 		Path outputDir = Paths.get("output/" + work.workId + "/");
+		Map<String, Foldable<?>> output = null;
 		
 		final Path queryPath = outputDir.resolve("out.nc");
 		if (!Files.exists(outputDir))
@@ -50,18 +51,18 @@ public class WorkExecutor extends UntypedActor {
 			}
 
 		try {
-			executeQuery(qd, wp, queryPath, work.netcdfVersion);
+			output = executeQuery(qd, wp, queryPath, work.netcdfVersion);
 		} catch (Exception e) {
 			wp.setErrorMessage(e.getMessage());
 			log.error("Task exited abnormally: ", e);
 			throw e;
 		}
         
-        log.debug("Produced result {}", result);
+        log.debug("Produced result {}", output);
         getSender().tell(new Job.WorkComplete(result), getSelf());
     }
   }
-	private void executeQuery(QueryDefinition qd, WorkProgress wp,
+	private Map<String, Foldable<?>> executeQuery(QueryDefinition qd, WorkProgress wp,
 			Path outputPath, Version netcdfVersion)
 			throws IOException, QueryConfigurationException {
 		NetcdfFileWriter outputDataset = NetcdfFileWriter.createNew(netcdfVersion, outputPath.toString());
@@ -87,6 +88,6 @@ public class WorkExecutor extends UntypedActor {
 				log.error("Failed to close output file", e);
 			}
 		}
-//		return output;
+		return output;
 	}
 }

@@ -595,31 +595,29 @@ public class DataController {
 	@RequestMapping(value = "/DQuery", method = RequestMethod.GET)
 	public String distributedQuery() throws IllegalAccessException {
 		
-//		String query = "<?xml version='1.0' encoding='UTF-8'?>" +
-//		"<query xmlns='http://www.vpac.org/namespaces/rsaquery-0.2'>" +
-//			"<input id='vic_0' href='rsa:vic/25m'/>" +
-//			"<input id='infile' href='../input/colour.nc' />" +
-//			"<output id='outfile' >" + 
-//			"	<grid ref='vic_0' />" + 
-//			"	<variable name='Band1' ref='#cats/output' />" + 
-//			"</output>" +
-//			"<filter id='cats' cls='org.vpac.ndg.query.stats.Categories'>" +
-//				"<sampler name='input' ref='#vic_0/B10' />" +
-//				"<sampler name='categories' ref='#infile/Quality' />" +
-//			"</filter>" +
-//		"</query>";
-
 		String query = "<?xml version='1.0' encoding='UTF-8'?>" +
 		"<query xmlns='http://www.vpac.org/namespaces/rsaquery-0.2'>" +
 			"<input id='vic_0' href='rsa:vic/25m'/>" +
 			"<output id='outfile' >" + 
 			"	<grid />" + 
-			"	<variable name='band' ref='#Pass_Through_0/output'/>" + 
+			"	<variable name='Band1' ref='#hist/output' />" + 
 			"</output>" +
-			"<filter id='Pass_Through_0' cls='org.vpac.ndg.query.PassThrough'>" +
-				"<sampler name='input' ref='#vic_0/B10'/>" +
+			"	<filter id='hist' cls='org.vpac.ndg.query.stats.Histogram'>" +
+			"	<sampler name='input' ref='#vic_0/B10' />" +
 			"</filter>" +
 		"</query>";
+
+//		String query = "<?xml version='1.0' encoding='UTF-8'?>" +
+//		"<query xmlns='http://www.vpac.org/namespaces/rsaquery-0.2'>" +
+//			"<input id='vic_0' href='rsa:vic/25m'/>" +
+//			"<output id='outfile' >" + 
+//			"	<grid />" + 
+//			"	<variable name='band' ref='#Pass_Through_0/output'/>" + 
+//			"</output>" +
+//			"<filter id='Pass_Through_0' cls='org.vpac.ndg.query.PassThrough'>" +
+//				"<sampler name='input' ref='#vic_0/B10'/>" +
+//			"</filter>" +
+//		"</query>";
 		
 		String datasetId = datasetDao.findDatasetByName("vic", CellSize.m25).getId();
 		List<TimeSlice> tsList = datasetDao.getTimeSlices(datasetId);
@@ -944,7 +942,7 @@ public class DataController {
 			}
 		}
 	}
-	
+
 	public class Pair {
 		private Date date;
 		private Double value;
