@@ -1,5 +1,7 @@
 package org.vpac.ndg.query.stats;
 
+import java.io.Serializable;
+
 import org.vpac.ndg.query.filter.Foldable;
 import org.vpac.ndg.query.math.ScalarElement;
 
@@ -7,12 +9,50 @@ import org.vpac.ndg.query.math.ScalarElement;
  * Basic statistics (min, max, mean, standard deviation).
  * @author Alex Fraser
  */
-public class Stats implements Foldable<Stats> {
+public class Stats implements Foldable<Stats>, Serializable {
 
-	double min;
-	double max;
-	double mean;
-	long n;
+	private static final long serialVersionUID = 1L;
+	private String id;
+	private double min;
+	private double max;
+	private double mean;
+	private long n;
+
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
+	}
+
+	public long getN() {
+		return n;
+	}
+
+	public void setN(long n) {
+		this.n = n;
+	}
+
+	public double getM2() {
+		return M2;
+	}
+
+	public void setM2(double m2) {
+		M2 = m2;
+	}
+
+	public void setMin(double min) {
+		this.min = min;
+	}
+
+	public void setMax(double max) {
+		this.max = max;
+	}
+
+	public void setMean(double mean) {
+		this.mean = mean;
+	}
 
 	// M2 = variance * (n - 1)
 	// Variance is the square of the standard deviation.

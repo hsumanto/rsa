@@ -41,7 +41,7 @@ public class StatisticsTest extends TestCase {
 		for (ElementInt value : ListTranslator.ints(permutations)) {
 			stats.update(value);
 		}
-		log.info("Computed mean: {}, StdDev: {}", stats.mean, stats.getStdDev());
+		log.info("Computed mean: {}, StdDev: {}", stats.getMean(), stats.getStdDev());
 
 		assertEquals(m, stats.getMean(), EPSILON);
 		assertEquals(sdev, stats.getStdDev(), EPSILON);

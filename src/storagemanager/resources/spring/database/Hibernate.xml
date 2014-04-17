@@ -23,6 +23,7 @@ http://www.springframework.org/schema/aop/spring-aop-3.1.xsd">
     	<property name="mappingResources">
 			<list>
 				<value>/spring/hibernate/StorageManager.hbm.xml</value>
+				<value>/spring/hibernate/Statistics.hbm.xml</value>
 			</list>
 		</property>
     </bean>

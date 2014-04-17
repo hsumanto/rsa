@@ -72,7 +72,7 @@ public class Hist implements Foldable<Hist> {
 	public List<Bucket> getNonemptyBuckets() {
 		List<Bucket> bs = new ArrayList<Bucket>();
 		for (Bucket b : buckets) {
-			if (b.stats.n > 0)
+			if (b.stats.getN() > 0)
 				bs.add(b);
 		}
 		return bs;
@@ -85,7 +85,7 @@ public class Hist implements Foldable<Hist> {
 	public Stats getSummary() {
 		Stats res = new Stats();
 		for (Bucket b : buckets) {
-			if (b.stats.n > 0)
+			if (b.stats.getN() > 0)
 				res = res.fold(b.stats);
 		}
 		return res;
@@ -165,7 +165,7 @@ public class Hist implements Foldable<Hist> {
 		for (int i = 0; i < buckets.size(); i++) {
 			Bucket b = buckets.get(i);
 
-			if (b.getStats().n <= 0)
+			if (b.getStats().getN() <= 0)
 				continue;
 
 			if (!firstBucket)
@@ -190,7 +190,7 @@ public class Hist implements Foldable<Hist> {
 			Stats stats = b.getStats();
 			if (stats.getCount() == 0)
 				continue;
-			sb.append(String.format("%g,%d,%g,%g,%g,%g\n", b.getLower(), stats.n,
+			sb.append(String.format("%g,%d,%g,%g,%g,%g\n", b.getLower(), stats.getN(),
 					stats.getMin(), stats.getMax(),
 					stats.getMean(),
 					stats.getStdDev()));
