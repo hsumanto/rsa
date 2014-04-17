@@ -138,10 +138,6 @@ public class DataController {
 	@Autowired
 	TimeSliceUtil timeSliceUtil;
 	@Autowired
-	DatasetProvider rsaDatasetProvider;
-	@Autowired
-	DatasetProvider previewDatasetProvider;
-	@Autowired
 	TileManager tileManager;
 
 	private Pager<JobProgress> pager = new Pager<JobProgress>();
@@ -538,11 +534,6 @@ public class DataController {
 			ModelMap model)
 			throws IOException, QueryConfigurationException {
 
-		// FIXME: this should only be done once!
-		ProviderRegistry.getInstance().clearProivders();
-		ProviderRegistry.getInstance().addProivder(rsaDatasetProvider);
-		ProviderRegistry.getInstance().addProivder(previewDatasetProvider);
-
 		final QueryDefinition qd = QueryDefinition.fromXML(file.getInputStream());
 		if(minX != null)
 			qd.output.grid.bounds = String.format("%f %f %f %f", minX, minY, maxX, maxY);
@@ -659,11 +650,6 @@ public class DataController {
 			ModelMap model)
 			throws IOException, QueryConfigurationException {
 
-		// FIXME: this should only be done once!
-		ProviderRegistry.getInstance().clearProivders();
-		ProviderRegistry.getInstance().addProivder(rsaDatasetProvider);
-		ProviderRegistry.getInstance().addProivder(previewDatasetProvider);
-
 		final QueryDefinition qd = QueryDefinition.fromString(query);
 		if(minX != null)
 			qd.output.grid.bounds = String.format("%f %f %f %f", minX, minY, maxX, maxY);
@@ -725,11 +711,6 @@ public class DataController {
 			@RequestParam(required = false) String netcdfVersion,
 			ModelMap model, HttpServletResponse response)
 			throws Exception {
-
-		// FIXME: this should only be done once!
-		ProviderRegistry.getInstance().clearProivders();
-		ProviderRegistry.getInstance().addProivder(rsaDatasetProvider);
-		ProviderRegistry.getInstance().addProivder(previewDatasetProvider);
 
 		final QueryDefinition qd = QueryDefinition.fromString(query);
 		if(minX != null)
@@ -814,11 +795,6 @@ public class DataController {
 			@RequestParam(required = false) String netcdfVersion,
 			ModelMap model, HttpServletResponse response)
 			throws Exception {
-
-		// FIXME: this should only be done once!
-		ProviderRegistry.getInstance().clearProivders();
-		ProviderRegistry.getInstance().addProivder(rsaDatasetProvider);
-		ProviderRegistry.getInstance().addProivder(previewDatasetProvider);
 
 		final QueryDefinition qd = QueryDefinition.fromString(query);
 		if(minX != null)
