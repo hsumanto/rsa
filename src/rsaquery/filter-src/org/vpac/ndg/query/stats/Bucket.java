@@ -1,5 +1,7 @@
 package org.vpac.ndg.query.stats;
 
+import java.io.Serializable;
+
 import org.vpac.ndg.query.filter.Foldable;
 import org.vpac.ndg.query.math.ScalarElement;
 
@@ -7,10 +9,13 @@ import org.vpac.ndg.query.math.ScalarElement;
  * A bucket in a histogram.
  * @author Alex Fraser
  */
-public class Bucket implements Foldable<Bucket> {
+public class Bucket implements Foldable<Bucket>, Serializable {
+
+	private static final long serialVersionUID = 1L;
+	private String id;	
 	private double lower;
 	private double upper;
-	Stats stats;
+	private Stats stats;
 
 	public Bucket(Double lower, Double upper, Stats stats) {
 		this.lower = lower;
@@ -55,6 +60,14 @@ public class Bucket implements Foldable<Bucket> {
 	public void setStats(Stats stats) {
 		this.stats = stats;
 	}
+	
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
+	}	
 
 	@Override
 	public String toString() {

@@ -1,5 +1,6 @@
 package org.vpac.ndg.query.stats;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -13,18 +14,19 @@ import org.vpac.ndg.query.math.ScalarElement;
  *
  * @author Alex Fraser
  */
-public class Hist implements Foldable<Hist> {
+public class Hist implements Foldable<Hist>, Serializable {
 
 	// Beware! If you change these, old histograms will not be comparable to
 	// new ones.
+	private static final long serialVersionUID = 1L;
+	private String id;
 	static final double BASE = 10;
 	static final double BUCKETS_PER_ORDER_OF_MAGNITUDE = 3.0;
 	static final double SCALE = 0.1;
 	static final int NUM_BUCKETS = 45;
 
 	public ScalarElement prototype;
-
-	double[] lowerBounds;
+	private double[] lowerBounds;
 	private List<Bucket> buckets;
 	private Bucket mruBucket;
 
@@ -72,7 +74,7 @@ public class Hist implements Foldable<Hist> {
 	public List<Bucket> getNonemptyBuckets() {
 		List<Bucket> bs = new ArrayList<Bucket>();
 		for (Bucket b : buckets) {
-			if (b.stats.getN() > 0)
+			if (b.getStats().getN() > 0)
 				bs.add(b);
 		}
 		return bs;
@@ -85,8 +87,8 @@ public class Hist implements Foldable<Hist> {
 	public Stats getSummary() {
 		Stats res = new Stats();
 		for (Bucket b : buckets) {
-			if (b.stats.getN() > 0)
-				res = res.fold(b.stats);
+			if (b.getStats().getN() > 0)
+				res = res.fold(b.getStats());
 		}
 		return res;
 	}
@@ -196,5 +198,32 @@ public class Hist implements Foldable<Hist> {
 					stats.getStdDev()));
 		}
 		return sb.toString();
+	}
+
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
+	}
+	public double[] getLowerBounds() {
+		return lowerBounds;
+	}
+
+	public void setLowerBounds(double[] lowerBounds) {
+		this.lowerBounds = lowerBounds;
+	}
+
+	public Bucket getMruBucket() {
+		return mruBucket;
+	}
+
+	public void setMruBucket(Bucket mruBucket) {
+		this.mruBucket = mruBucket;
+	}
+
+	public void setBuckets(List<Bucket> buckets) {
+		this.buckets = buckets;
 	}
 }

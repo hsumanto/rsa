@@ -6,10 +6,15 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
 
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.vpac.ndg.query.Query;
 import org.vpac.ndg.query.QueryConfigurationException;
 import org.vpac.ndg.query.QueryDefinition;
 import org.vpac.ndg.query.filter.Foldable;
+import org.vpac.ndg.query.stats.VectorHist;
+import org.vpac.ndg.query.stats.dao.StatisticsDao;
+import org.vpac.ndg.query.stats.dao.StatisticsDaoImpl;
 import org.vpac.worker.Job.Work;
 
 import ucar.nc2.NetcdfFileWriter;
@@ -20,6 +25,33 @@ import akka.event.LoggingAdapter;
 
 public class WorkExecutor extends UntypedActor {
 
+	/**
+	 * The application context should only be initialised once EVER - otherwise
+	 * you get resource leaks (e.g. extra open sockets) when using something
+	 * like Nailgun. The use of the enum here ensures this. The context acquired
+	 * here is passed automatically to {@link AppContext} in the Storage
+	 * Manager for use by other parts of the RSA.
+	 */	
+	private static enum AppContextSingleton {
+		INSTANCE;
+
+		public ApplicationContext appContext;
+
+		private AppContextSingleton() {
+			System.out.println("Path");
+			appContext = new ClassPathXmlApplicationContext(
+					new String[] {"spring/config/BeanLocations.xml"});
+			
+		}
+	}
+	
+	public WorkExecutor() {
+		ApplicationContext appContext = AppContextSingleton.INSTANCE.appContext;
+		statisticsDao = (StatisticsDao)appContext.getBean("statisticsDao");		
+	}
+	
+	StatisticsDao statisticsDao;	
+	
   private LoggingAdapter log = Logging.getLogger(getContext().system(), this);
 
   @Override
@@ -77,6 +109,8 @@ public class WorkExecutor extends UntypedActor {
 				q.setProgress(wp);
 				q.run();
 				output = q.getAccumulatedOutput();
+				VectorHist vh = (VectorHist)output.get("hist");
+				statisticsDao.saveHist(vh.getComponents()[0]);
 				System.out.println("output" + output);
 			} finally {
 				q.close();
