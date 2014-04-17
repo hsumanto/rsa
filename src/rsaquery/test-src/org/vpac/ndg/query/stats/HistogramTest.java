@@ -59,7 +59,7 @@ public class HistogramTest extends TestCase {
 	public void test_population() throws Exception {
 		List<Integer> permutations = MockData.permute(DIE_1_SIDES, DIE_2_SIDES);
 
-		Hist hist = new Hist(new ElementInt());
+		Hist hist = new Hist();
 		for (ElementInt value : ListTranslator.ints(permutations)) {
 			hist.update(value);
 		}

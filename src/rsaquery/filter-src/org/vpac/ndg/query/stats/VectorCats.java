@@ -20,7 +20,7 @@ public class VectorCats implements Foldable<VectorCats> {
 		ScalarElement[] es = prototype.getComponents();
 		components = new Cats[es.length];
 		for (int i = 0; i < components.length; i++) {
-			components[i] = new Cats(es[i]);
+			components[i] = new Cats();
 		}
 	}
 

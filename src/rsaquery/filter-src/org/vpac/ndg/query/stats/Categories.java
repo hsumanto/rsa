@@ -27,6 +27,9 @@ import org.vpac.ndg.query.QueryConfigurationException;
 import org.vpac.ndg.query.filter.Accumulator;
 import org.vpac.ndg.query.math.BoxReal;
 import org.vpac.ndg.query.math.Element;
+import org.vpac.ndg.query.math.ElementByte;
+import org.vpac.ndg.query.math.ElementInt;
+import org.vpac.ndg.query.math.ElementShort;
 import org.vpac.ndg.query.math.ScalarElement;
 import org.vpac.ndg.query.math.VectorReal;
 import org.vpac.ndg.query.sampling.Cell;
@@ -53,6 +56,10 @@ public class Categories implements Filter, Accumulator<VectorCats> {
 
 	@Override
 	public void initialise(BoxReal bounds) throws QueryConfigurationException {
+		if ((!ElementInt.class.isAssignableFrom(categories.getPrototype().getElement().getClass())) &&
+				(!ElementShort.class.isAssignableFrom(categories.getPrototype().getElement().getClass())) &&
+				(!ElementByte.class.isAssignableFrom(categories.getPrototype().getElement().getClass())))
+			throw new QueryConfigurationException("Categories must be byte, short or integer.");
 		stats = new VectorCats(input.getPrototype().getElement());
 	}
 
