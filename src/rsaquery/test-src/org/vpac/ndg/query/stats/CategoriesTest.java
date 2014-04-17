@@ -16,7 +16,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.vpac.ndg.query.iteration.Pair;
 import org.vpac.ndg.query.math.ElementInt;
-import org.vpac.ndg.query.math.ScalarElement;
 
 import com.carrotsearch.junitbenchmarks.BenchmarkOptions;
 import com.carrotsearch.junitbenchmarks.BenchmarkRule;
@@ -50,17 +49,17 @@ public class CategoriesTest extends TestCase {
 		ElementInt category = new ElementInt();
 		ElementInt value = new ElementInt();
 
-		Cats cats = new Cats(new ElementInt());
+		Cats cats = new Cats();
 		for (Pair<Integer, Integer> p : permutations) {
 			category.set(p.a);
 			value.set(p.a * p.b);
 			cats.update(category, value);
 		}
 
-		Set<Entry<ScalarElement, Hist>> entries = cats.getEntries();
+		Set<Entry<Integer, Hist>> entries = cats.getEntries();
 		assertEquals("Number of categories", 1000, entries.size());
 
-		Hist hist = cats.get(new ElementInt(1));
+		Hist hist = cats.get(1);
 		List<Bucket> buckets = hist.getNonemptyBuckets();
 		Bucket b = buckets.get(0);
 		Stats s = b.getStats();
@@ -68,7 +67,7 @@ public class CategoriesTest extends TestCase {
 		assertEquals("Elements in first bucket of category 1", 2, s.getCount());
 		assertEquals("Mean of first bucket of category 1", 1.5, s.getMean(), EPSILON);
 
-		hist = cats.get(new ElementInt(10));
+		hist = cats.get(10);
 		buckets = hist.getNonemptyBuckets();
 		b = buckets.get(0);
 		s = b.getStats();
@@ -85,7 +84,7 @@ public class CategoriesTest extends TestCase {
 
 		int nperms = permutations.size();
 
-		Cats cats = new Cats(new ElementInt());
+		Cats cats = new Cats();
 		for (int i = 0; i < NUM_ELEMENTS; i++) {
 			Pair<Integer, Integer> p = permutations.get(i % nperms);
 			category.set(p.a);
@@ -93,15 +92,15 @@ public class CategoriesTest extends TestCase {
 			cats.update(category, value);
 		}
 
-		Set<Entry<ScalarElement, Hist>> entries = cats.getEntries();
+		Set<Entry<Integer, Hist>> entries = cats.getEntries();
 		assertEquals("Number of categories", 1000, entries.size());
 
-		Hist hist = cats.get(new ElementInt(1));
+		Hist hist = cats.get(1);
 		List<Bucket> buckets = hist.getNonemptyBuckets();
 		Bucket b = buckets.get(0);
 		assertEquals("Lower bound of first bucket of category 1", 1.0, b.getLower(), EPSILON);
 
-		hist = cats.get(new ElementInt(10));
+		hist = cats.get(10);
 		buckets = hist.getNonemptyBuckets();
 		b = buckets.get(0);
 		assertEquals("Lower bound of first bucket of category 10", 10.0, b.getLower(), EPSILON);

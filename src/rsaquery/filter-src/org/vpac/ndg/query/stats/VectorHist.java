@@ -20,7 +20,7 @@ public class VectorHist implements Foldable<VectorHist> {
 		ScalarElement[] es = prototype.getComponents();
 		components = new Hist[es.length];
 		for (int i = 0; i < components.length; i++) {
-			components[i] = new Hist(es[i]);
+			components[i] = new Hist();
 		}
 	}
 

@@ -30,8 +30,7 @@ public class Hist implements Foldable<Hist>, Serializable {
 	private List<Bucket> buckets;
 	private Bucket mruBucket;
 
-	public Hist(ScalarElement prototype) {
-		this.prototype = prototype;
+	public Hist() {
 		lowerBounds = genBuckets(BASE, BUCKETS_PER_ORDER_OF_MAGNITUDE, SCALE,
 				NUM_BUCKETS);
 
@@ -58,7 +57,7 @@ public class Hist implements Foldable<Hist>, Serializable {
 
 	@Override
 	public Hist fold(Hist other) {
-		Hist res = new Hist(prototype);
+		Hist res = new Hist();
 
 		for (int i = 0; i < buckets.size(); i++) {
 			res.buckets.set(i, buckets.get(i).fold(other.buckets.get(i)));

@@ -30,10 +30,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.BlockJUnit4ClassRunner;
 import org.vpac.ndg.query.filter.Foldable;
-import org.vpac.ndg.query.math.ElementInt;
 import org.vpac.ndg.query.stats.Bucket;
-import org.vpac.ndg.query.stats.Hist;
 import org.vpac.ndg.query.stats.Cats;
+import org.vpac.ndg.query.stats.Hist;
 import org.vpac.ndg.query.stats.Stats;
 import org.vpac.ndg.query.stats.VectorCats;
 import org.vpac.ndg.query.stats.VectorHist;
@@ -486,7 +485,7 @@ public class QueryTest extends TestCase {
 		Stats s;
 
 		cats = vcats.getComponents()[0];
-		hist = cats.get(new ElementInt(0));
+		hist = cats.get(0);
 		buckets = hist.getNonemptyBuckets();
 		b = buckets.get(0);
 		s = b.getStats();
@@ -494,7 +493,7 @@ public class QueryTest extends TestCase {
 		s = hist.getSummary();
 		assertEquals("Number of pixels where x < 64", 365, s.getCount());
 
-		hist = cats.get(new ElementInt(1));
+		hist = cats.get(1);
 		buckets = hist.getNonemptyBuckets();
 		b = buckets.get(0);
 		s = b.getStats();
@@ -502,7 +501,7 @@ public class QueryTest extends TestCase {
 		s = hist.getSummary();
 		assertEquals("Number of pixels where 64 <= x < 128", 6422, s.getCount());
 
-		hist = cats.get(new ElementInt(2));
+		hist = cats.get(2);
 		s = hist.getSummary();
 		assertEquals("Number of pixels where 196 <= x", 5393, s.getCount());
 	}
