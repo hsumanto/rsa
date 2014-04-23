@@ -1,5 +1,6 @@
 package org.vpac.ndg.query.stats;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -13,9 +14,19 @@ import org.vpac.ndg.query.math.ScalarElement;
  * Groups values into arbitrary buckets (categories to be provided by user). 
  * @author Alex Fraser
  */
-public class Cats implements Foldable<Cats> {
+public class Cats implements Foldable<Cats>, Serializable {
 
+	private static final long serialVersionUID = 1L;
+	private String id;
 	private Map<Integer, Hist> categories;
+	public Map<Integer, Hist> getCategories() {
+		return categories;
+	}
+
+	public void setCategories(Map<Integer, Hist> categories) {
+		this.categories = categories;
+	}
+
 	private ScalarElement currentCategory;
 	private Hist currentHist;
 
@@ -88,5 +99,13 @@ public class Cats implements Foldable<Cats> {
 		}
 		sb.append(")");
 		return sb.toString();
+	}
+
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
 	}
 }

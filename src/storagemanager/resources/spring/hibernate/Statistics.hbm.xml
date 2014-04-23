@@ -4,6 +4,16 @@
         "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping>
+	<class name="org.vpac.ndg.query.stats.Cats" table="CATS" lazy="true" >
+		<id name="id" type="string" column="ID">
+			<generator class="uuid"/>
+		</id>
+		<map name="categories" cascade="save-update" lazy="true">
+           <key column="cat_id" not-null="true"/>
+           <map-key column="cat" type="integer"/>
+           <element column="value" type="org.vpac.ndg.query.stats.Hist"/>
+      	</map>
+	</class>
 	<class name="org.vpac.ndg.query.stats.Stats" table="STATS" lazy="true" >
 		<id name="id" type="string" column="ID">
 			<generator class="uuid"/>
@@ -25,10 +35,9 @@
 		<id name="id" type="string" column="ID">
 			<generator class="uuid"/>
 		</id>
- 		<one-to-one name="mruBucket" class="org.vpac.ndg.query.stats.Bucket" cascade="save-update" />
-  		<list name="buckets" cascade="save-update" lazy="true" table="BUCKET">
-			<key column="BUCKETS" />
-			<list-index column="ID" />
+  		<list name="buckets" cascade="save-update" lazy="true">
+			<key column="hist_id" />
+			<list-index column="idx" />
 			<one-to-many class="org.vpac.ndg.query.stats.Bucket" />
 		</list>
 	</class>
