@@ -14,7 +14,6 @@ import org.vpac.ndg.query.QueryDefinition;
 import org.vpac.ndg.query.filter.Foldable;
 import org.vpac.ndg.query.stats.VectorHist;
 import org.vpac.ndg.query.stats.dao.StatisticsDao;
-import org.vpac.ndg.query.stats.dao.StatisticsDaoImpl;
 import org.vpac.worker.Job.Work;
 
 import ucar.nc2.NetcdfFileWriter;
@@ -108,9 +107,9 @@ public class WorkExecutor extends UntypedActor {
 			try {
 				q.setProgress(wp);
 				q.run();
-				output = q.getAccumulatedOutput();
-				VectorHist vh = (VectorHist)output.get("hist");
-				statisticsDao.saveHist(vh.getComponents()[0]);
+//				output = q.getAccumulatedOutput();
+//				VectorHist vh = (VectorHist)output.get("hist");
+//				statisticsDao.saveHist(vh.getComponents()[0]);
 				System.out.println("output" + output);
 			} finally {
 				q.close();

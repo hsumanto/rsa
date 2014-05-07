@@ -115,7 +115,10 @@ public class QueryDefinitionProprocessor {
 		CoordinateSystem srs = null;
 		for (DatasetInput di : inputDatasets) {
 			QueryCoordinateSystem csys = di.getCoordinateSystem();
-			if (srs == null) {
+			// TODO : csys error checking
+			if(csys == null) {
+//				srs = new CoordinateSystem(ds, axes, coordTrans)
+			} else if (srs == null) {
 				srs = csys.getGrid().getSrs();
 				qd.output.grid.ref = String.format("#%s", di.getName());
 				log.info("Grid reference not specified. Using grid defined by {}", qd.output.grid.ref);

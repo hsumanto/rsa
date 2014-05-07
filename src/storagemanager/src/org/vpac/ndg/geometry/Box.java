@@ -22,6 +22,7 @@ package org.vpac.ndg.geometry;
 import java.io.Serializable;
 
 
+
 /**
  * A simple bounding box defined by two points. This is only suitable when the
  * box will be aligned to the coordinate system.

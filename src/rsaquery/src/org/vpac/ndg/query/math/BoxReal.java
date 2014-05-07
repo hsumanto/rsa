@@ -97,8 +97,22 @@ public class BoxReal implements HasRank, Serializable {
 	 * @param other The box to be constrained by.
 	 */
 	public void intersect(BoxReal other) {
-		this.min.max(other.getMin());
-		this.max.min(other.getMax());
+		// TO DO : fix if the boundary of the boxes are not intersected.
+		if(checkIntersect(other)) {		
+			this.min.max(other.getMin());
+			this.max.min(other.getMax());
+		}
+//		else {
+//			this.min.set(0, 0);
+//			this.max.set(0, 0);
+//		}
+	}
+	
+	public boolean checkIntersect(BoxReal other) {
+        return this.min.components[0] >= other.min.components[0] &&
+               this.min.components[1] <= other.min.components[1] &&
+               this.max.components[0] >= other.max.components[0] &&
+               this.max.components[1] <= other.max.components[1];              
 	}
 
 	public VectorReal getMin() {

@@ -570,30 +570,32 @@ public class DatasetOutput implements DatasetMeta {
 		for (CoordinateTransform ct : grid.getSrs().getCoordinateTransforms()) {
 			String name = ct.getName();
 			Variable sourceVar = sourceDataset.findVariable(name);
-			Variable varnew = target
-					.addVariable(null, sourceVar.getFullNameEscaped(),
-							sourceVar.getDataType(), "");
-
-			for (Attribute ain : sourceVar.getAttributes()) {
-				if (ain.getFullName().equals("GeoTransform")) {
-					// Use own transform as determined in intialiseGrid
-
-					// TODO: will this work if the image is oriented south-up?
-					// See http://www.gdal.org/gdal_datamodel.html
-					VectorReal min = grid.getBounds().getMin();
-					VectorReal max = grid.getBounds().getMax();
-					String affineTransform = String.format("%f %f %f %f %f %f",
-							// xmin, xres, 0
-							min.getX(), grid.getResolution().getX(), 0f,
-							// ymax, 0, -yres
-							max.getY(), 0f, -grid.getResolution().getY());
-
-					varnew.addAttribute(new Attribute("GeoTransform",
-							affineTransform));
-
-				} else {
-					// Pass-through
-					varnew.addAttribute(copyAttribute(ain));
+			if(sourceVar != null) {
+				Variable varnew = target
+						.addVariable(null, sourceVar.getFullNameEscaped(),
+								sourceVar.getDataType(), "");
+	
+				for (Attribute ain : sourceVar.getAttributes()) {
+					if (ain.getFullName().equals("GeoTransform")) {
+						// Use own transform as determined in intialiseGrid
+	
+						// TODO: will this work if the image is oriented south-up?
+						// See http://www.gdal.org/gdal_datamodel.html
+						VectorReal min = grid.getBounds().getMin();
+						VectorReal max = grid.getBounds().getMax();
+						String affineTransform = String.format("%f %f %f %f %f %f",
+								// xmin, xres, 0
+								min.getX(), grid.getResolution().getX(), 0f,
+								// ymax, 0, -yres
+								max.getY(), 0f, -grid.getResolution().getY());
+	
+						varnew.addAttribute(new Attribute("GeoTransform",
+								affineTransform));
+	
+					} else {
+						// Pass-through
+						varnew.addAttribute(copyAttribute(ain));
+					}
 				}
 			}
 		}

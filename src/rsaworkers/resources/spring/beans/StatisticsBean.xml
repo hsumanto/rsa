@@ -11,6 +11,7 @@
 	<!-- Service object -->
 	<bean id="applicationContextProvider" class="org.vpac.ndg.ApplicationContextProvider"></bean>
 	<bean id="rsaDatasetProvider" class="org.vpac.ndg.datamodel.RsaDatasetProvider" lazy-init="true" />
+	<bean id="epiphanyDatasetProvider" class="org.vpac.ndg.datamodel.EpiphanyDatasetProvider" lazy-init="true" />
 	<bean id="statisticsDao" class="org.vpac.ndg.query.stats.dao.StatisticsDaoImpl" lazy-init="true" >
 		<property name="sessionFactory" ref="sessionFactory" />
 	</bean>

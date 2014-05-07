@@ -19,7 +19,7 @@ public class ActorCreator {
 				withFallback(ConfigFactory.parseString("akka.remote.netty.tcp.port = 0")).
 				withFallback(ConfigFactory.parseString("akka.extensions = [akka.contrib.pattern.ClusterReceptionistExtension]"));
 		ActorCreator.system = ActorSystem.create("Workers", config);
-		Address address = new Address("akka.tcp", "Workers", "172.31.66.87", 2552);
+		Address address = new Address("akka.tcp", "Workers", "172.31.66.52", 2552);
 		Cluster.get(system).join(address);
 		ActorCreator.frontend = system.actorOf(Props.create(Frontend.class), "frontend");
 	}

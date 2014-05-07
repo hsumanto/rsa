@@ -44,8 +44,10 @@ public class Main {
 		ApplicationContext appContext = AppContextSingleton.INSTANCE.appContext;
 
 		DatasetProvider dataProvider = (DatasetProvider)appContext.getBean("rsaDatasetProvider");
+		DatasetProvider epiphanyProvider = (DatasetProvider)appContext.getBean("epiphanyDatasetProvider");
 		ProviderRegistry.getInstance().clearProivders();
-		ProviderRegistry.getInstance().addProivder(dataProvider);	
+		ProviderRegistry.getInstance().addProivder(dataProvider);
+		ProviderRegistry.getInstance().addProivder(epiphanyProvider);
 	}
 
 	public void startService() throws InterruptedException {

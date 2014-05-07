@@ -53,7 +53,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 import org.vpac.actor.ActorCreator;
-import org.vpac.actor.Frontend;
 import org.vpac.ndg.CommandUtil;
 import org.vpac.ndg.FileUtils;
 import org.vpac.ndg.common.datamodel.CellSize;
@@ -65,7 +64,6 @@ import org.vpac.ndg.datamodel.RsaAggregationFactory;
 import org.vpac.ndg.exceptions.TaskException;
 import org.vpac.ndg.exceptions.TaskInitialisationException;
 import org.vpac.ndg.geometry.Box;
-import org.vpac.ndg.geometry.BoxInt;
 import org.vpac.ndg.geometry.Tile;
 import org.vpac.ndg.geometry.TileManager;
 import org.vpac.ndg.lock.ProcessUpdateTimer;
@@ -73,8 +71,6 @@ import org.vpac.ndg.query.Query;
 import org.vpac.ndg.query.QueryConfigurationException;
 import org.vpac.ndg.query.QueryDefinition;
 import org.vpac.ndg.query.filter.FilterUtils;
-import org.vpac.ndg.query.io.DatasetProvider;
-import org.vpac.ndg.query.io.ProviderRegistry;
 import org.vpac.ndg.query.math.BoxReal;
 import org.vpac.ndg.query.math.ScalarElement;
 import org.vpac.ndg.query.math.Type;
@@ -111,13 +107,13 @@ import org.vpac.web.model.response.TaskResponse;
 import org.vpac.web.util.ControllerHelper;
 import org.vpac.web.util.Pager;
 
-import akka.actor.ActorRef;
 import ucar.ma2.Array;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.NetcdfFileWriter;
 import ucar.nc2.NetcdfFileWriter.Version;
 import ucar.nc2.Variable;
 import ucar.nc2.dataset.NetcdfDataset;
+import akka.actor.ActorRef;
 
 @Controller
 @RequestMapping("/Data")
@@ -585,30 +581,17 @@ public class DataController {
 
 	@RequestMapping(value = "/DQuery", method = RequestMethod.GET)
 	public String distributedQuery() throws IllegalAccessException {
-		
 		String query = "<?xml version='1.0' encoding='UTF-8'?>" +
 		"<query xmlns='http://www.vpac.org/namespaces/rsaquery-0.2'>" +
-			"<input id='vic_0' href='rsa:vic/25m'/>" +
+			"<input id='vic_0' href='epiphany:1064'/>" +
 			"<output id='outfile' >" + 
 			"	<grid />" + 
-			"	<variable name='Band1' ref='#hist/output' />" + 
+			"	<variable name='band' ref='#Pass_Through_0/output'/>" + 
 			"</output>" +
-			"	<filter id='hist' cls='org.vpac.ndg.query.stats.Histogram'>" +
-			"	<sampler name='input' ref='#vic_0/B10' />" +
+			"<filter id='Pass_Through_0' cls='org.vpac.ndg.query.PassThrough'>" +
+				"<sampler name='input' ref='#vic_0/Band1'/>" +
 			"</filter>" +
 		"</query>";
-
-//		String query = "<?xml version='1.0' encoding='UTF-8'?>" +
-//		"<query xmlns='http://www.vpac.org/namespaces/rsaquery-0.2'>" +
-//			"<input id='vic_0' href='rsa:vic/25m'/>" +
-//			"<output id='outfile' >" + 
-//			"	<grid />" + 
-//			"	<variable name='band' ref='#Pass_Through_0/output'/>" + 
-//			"</output>" +
-//			"<filter id='Pass_Through_0' cls='org.vpac.ndg.query.PassThrough'>" +
-//				"<sampler name='input' ref='#vic_0/B10'/>" +
-//			"</filter>" +
-//		"</query>";
 		
 		String datasetId = datasetDao.findDatasetByName("vic", CellSize.m25).getId();
 		List<TimeSlice> tsList = datasetDao.getTimeSlices(datasetId);
@@ -623,6 +606,7 @@ public class DataController {
 		final String path = "";
 		
 		ActorRef frontend = ActorCreator.getFrontend();
+		
 		for(Tile t : tiles) {
 			Box bound = tileManager.getNngGrid().getBounds(t.getIndex(), ds.getResolution());
 			bound.intersect(extent);
@@ -631,6 +615,7 @@ public class DataController {
 			bb.getMin().setY(bound.getYMin());
 			bb.getMax().setX(bound.getXMax());
 			bb.getMax().setY(bound.getYMax());
+			log.info("message" + bb);
 			frontend.tell(new org.vpac.worker.Job.Work(UUID.randomUUID().toString(), query, path, ver, bb),  ActorRef.noSender());
 		}
 
