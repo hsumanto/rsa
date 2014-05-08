@@ -50,6 +50,9 @@ public class Hist implements Foldable<Hist>, Serializable {
 			int i = Arrays.binarySearch(lowerBounds, value.doubleValue());
 			if (i < 0)
 				i = (0 - i) - 2;
+			// TODO : need to fix like this?
+			if (i >= buckets.size())
+				i = buckets.size() - 1;
 			mruBucket = buckets.get(i);
 		}
 		mruBucket.getStats().update(value);

@@ -92,15 +92,15 @@ public class EpiphanyDatasetProvider implements DatasetProvider {
 			BoxReal boundsHint, DateTime minTimeHint, DateTime maxTimeHint,
 			List<String> bands) throws IOException {
 		
+		String epiphanyHost = "127.0.0.1";
+		String epiphanyPort = "8000";
 		String datasetId = findDataset(uri, referential);
-		String url = "http://127.0.0.1:8000/map/wcs/" + datasetId + "?LAYERS=" + datasetId + "&FORMAT=application%2Fx-netCDF&SERVICE=WCS&VERSION=1.1.1&REQUEST=GetMap&STYLES=&YEAR=none&QUERY=none&GEOMETRY=none&VIEWMETHOD=none&COLOURSCHEME=Choose%20a%20color%20scheme&LEGENDEXTENT=global&NUMBERFILTERS=none&VISTYPE=none&SRS=EPSG%3A3577&BBOX=" + boundsHint.getMin().getX() + "," + boundsHint.getMin().getY() + "," + boundsHint.getMax().getX() + "," + boundsHint.getMax().getY() + "&WIDTH=5000&HEIGHT=5000";
-
-		System.out.println("boundsHint:" + boundsHint);
+		String url = "http://" + epiphanyHost + ":" + epiphanyPort + "/map/wcs/" + datasetId + "?LAYERS=" + datasetId + "&FORMAT=application%2Fx-netCDF&SERVICE=WCS&VERSION=1.1.1&REQUEST=GetMap&STYLES=&YEAR=none&QUERY=none&GEOMETRY=none&VIEWMETHOD=none&COLOURSCHEME=Choose%20a%20color%20scheme&LEGENDEXTENT=global&NUMBERFILTERS=none&VISTYPE=none&SRS=EPSG%3A3577&BBOX=" + boundsHint.getMin().getX() + "," + boundsHint.getMin().getY() + "," + boundsHint.getMax().getX() + "," + boundsHint.getMax().getY() + "&WIDTH=5000&HEIGHT=5000";
 		URL connectionUrl = new URL(url);
 		HttpURLConnection connection = (HttpURLConnection) connectionUrl.openConnection();
 		connection.setRequestMethod("GET");
 		
-		int responseCode = connection.getResponseCode();
+//		int responseCode = connection.getResponseCode();
 		InputStream in = connection.getInputStream();
 		String uuid = UUID.randomUUID().toString();
 		OutputStream out = new FileOutputStream("output_" + uuid + ".nc");
@@ -113,7 +113,7 @@ public class EpiphanyDatasetProvider implements DatasetProvider {
 		out.flush();
 		out.close();
 		
-		System.out.println("RESPONSE:" + responseCode);
+//		System.out.println("RESPONSE:" + responseCode);
 		NetcdfDataset returnDs = new NetcdfDataset().openDataset("/home/parallels/git/rsa/src/rsaworkers/output_" + uuid + ".nc");
 		return returnDs;
 	}

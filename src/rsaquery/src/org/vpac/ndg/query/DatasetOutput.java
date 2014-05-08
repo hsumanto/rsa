@@ -135,8 +135,7 @@ public class DatasetOutput implements DatasetMeta {
 		adoptCoordinateSystem(dimensions, csys);
 
 		populateDimensions(dimensionVars, csys);
-		targetDs = NetcdfDataset
-				.wrap(target.getNetcdfFile(), CSYS_ENHANCEMENTS);
+		targetDs = NetcdfDataset.wrap(target.getNetcdfFile(), CSYS_ENHANCEMENTS);
 		return vbds;
 	}
 

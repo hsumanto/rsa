@@ -107,9 +107,9 @@ public class WorkExecutor extends UntypedActor {
 			try {
 				q.setProgress(wp);
 				q.run();
-//				output = q.getAccumulatedOutput();
-//				VectorHist vh = (VectorHist)output.get("hist");
-//				statisticsDao.saveHist(vh.getComponents()[0]);
+				output = q.getAccumulatedOutput();
+				VectorHist vh = (VectorHist)output.get("hist");
+				statisticsDao.saveHist(vh.getComponents()[0]);
 				System.out.println("output" + output);
 			} finally {
 				q.close();
