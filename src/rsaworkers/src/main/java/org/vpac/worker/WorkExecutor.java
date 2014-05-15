@@ -1,5 +1,6 @@
 package org.vpac.worker;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -126,7 +127,7 @@ public class WorkExecutor extends UntypedActor {
 		try {
 			Query q = new Query(outputDataset);
 			q.setNumThreads(1);
-			q.setMemento(qd, "output");
+			q.setMemento(qd, new File(".").getAbsolutePath());
 			try {
 				q.setProgress(wp);
 				q.run();
@@ -170,8 +171,8 @@ public class WorkExecutor extends UntypedActor {
 		connection.setRequestMethod("GET");
 
 		InputStream in = connection.getInputStream();
-		String uuid = UUID.randomUUID().toString();
-		OutputStream out = new FileOutputStream("output_" + uuid + ".nc");
+		File tempFile = File.createTempFile("epiphany_", "_" + w.workId);
+		OutputStream out = new FileOutputStream(tempFile);
 
 		// TO DO : file doesn't need to be stored.
 		byte[] buffer = new byte[1024];
@@ -181,7 +182,7 @@ public class WorkExecutor extends UntypedActor {
 		}
 		out.flush();
 		out.close();
-		return "../output_" + uuid + ".nc";
+		return tempFile.toString();
 
 	}
 
