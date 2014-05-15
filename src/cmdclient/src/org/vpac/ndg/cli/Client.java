@@ -166,7 +166,7 @@ public class Client {
 
 		DatasetProvider dataProvider = (DatasetProvider)appContext.getBean("dataProvider");
 		ProviderRegistry.getInstance().clearProivders();
-		ProviderRegistry.getInstance().addProivder(dataProvider);
+		ProviderRegistry.getInstance().addProvider(dataProvider);
 		log.debug("initialisation complete");
 	}
 

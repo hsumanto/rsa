@@ -44,7 +44,7 @@ import ucar.nc2.dataset.NetcdfDataset;
  * can open any local file. For security reasons you should consider either
  * {@link #clearProivders() removing it} or configuring it with a
  * {@link FileDatasetProvider#getWhitelist() whitelist}. Other providers can be
- * {@link #addProivder(DatasetProvider) added}.
+ * {@link #addProvider(DatasetProvider) added}.
  * </p>
  *
  * @author Alex Fraser
@@ -54,7 +54,7 @@ public class ProviderRegistry implements DatasetProvider {
 	private static ProviderRegistry instance;
 	static {
 		instance = new ProviderRegistry();
-		instance.addProivder(new FileDatasetProvider());
+		instance.addProvider(new FileDatasetProvider());
 	}
 
 	public static ProviderRegistry getInstance() {
@@ -72,7 +72,7 @@ public class ProviderRegistry implements DatasetProvider {
 	 * are added.
 	 * @param p The provider to register.
 	 */
-	public void addProivder(DatasetProvider p) {
+	public void addProvider(DatasetProvider p) {
 		providers.add(p);
 	}
 
