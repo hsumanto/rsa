@@ -126,7 +126,7 @@ public class WorkExecutor extends UntypedActor {
 		try {
 			Query q = new Query(outputDataset);
 			q.setNumThreads(1);
-			q.setMemento(qd, "preview:");
+			q.setMemento(qd, "output");
 			try {
 				q.setProgress(wp);
 				q.run();
@@ -181,7 +181,7 @@ public class WorkExecutor extends UntypedActor {
 		}
 		out.flush();
 		out.close();
-		return "/home/parallels/git/rsa/src/rsaworkers/output_" + uuid + ".nc";
+		return "../output_" + uuid + ".nc";
 
 	}
 
