@@ -29,8 +29,23 @@ import org.vpac.ndg.query.math.BoxReal;
 import ucar.nc2.dataset.NetcdfDataset;
 
 /**
- * A provider that contains uses other providers to open files. This is a
- * Singleton; use {@link ProviderRegistry#getInstance()}. 
+ * <p>
+ * A provider that contains uses other providers to open files. The
+ * first-registered provider that {@link #canOpen(String) can open} a dataset
+ * will be used.
+ * </p>
+ *
+ * <p>
+ * This is a Singleton; use {@link ProviderRegistry#getInstance() getInstance}.
+ * </p>
+ *
+ * <p>
+ * Initially the registry contains only a {@link FileDatasetProvider}, which
+ * can open any local file. For security reasons you should consider either
+ * {@link #clearProivders() removing it} or configuring it with a
+ * {@link FileDatasetProvider#getWhitelist() whitelist}. Other providers can be
+ * {@link #addProivder(DatasetProvider) added}.
+ * </p>
  *
  * @author Alex Fraser
  */
@@ -39,8 +54,6 @@ public class ProviderRegistry implements DatasetProvider {
 	private static ProviderRegistry instance;
 	static {
 		instance = new ProviderRegistry();
-		// Just for now, hard-code a provider.
-		// TODO: This should be configurable.
 		instance.addProivder(new FileDatasetProvider());
 	}
 
@@ -62,6 +75,7 @@ public class ProviderRegistry implements DatasetProvider {
 	public void addProivder(DatasetProvider p) {
 		providers.add(p);
 	}
+
 	/**
 	 * Remove all registered providers.
 	 */
@@ -69,13 +83,26 @@ public class ProviderRegistry implements DatasetProvider {
 		providers.clear();
 	}
 
-	@Override
-	public boolean canOpen(String uri) {
+	/**
+	 * @param uri A URI of a dataset.
+	 * @return The provider that would be used to open that dataset.
+	 */
+	public DatasetProvider getProvider(String uri) {
 		for (DatasetProvider p : providers) {
 			if (p.canOpen(uri))
-				return true;
+				return p;
 		}
-		return false;
+		return null;
+	}
+
+	public void removeProvider(DatasetProvider p) {
+		providers.remove(p);
+	}
+
+	@Override
+	public boolean canOpen(String uri) {
+		DatasetProvider p = getProvider(uri);
+		return p != null;
 	}
 
 	@Override
@@ -83,27 +110,27 @@ public class ProviderRegistry implements DatasetProvider {
 			BoxReal boundsHint, DateTime minTimeHint, DateTime maxTimeHint,
 			List<String> bands) throws IOException {
 
-		for (DatasetProvider p : providers) {
-			if (p.canOpen(uri)) {
-				return p.open(uri, referential, boundsHint, minTimeHint,
-						maxTimeHint, bands);
-			}
+		DatasetProvider p = getProvider(uri);
+		if (p == null) {
+			throw new IOException(String.format(
+					"No registered IO provider can open %s.", uri));
 		}
-		throw new IOException(String.format(
-				"No registered IO provider can open %s.", uri));
+
+		return p.open(uri, referential, boundsHint, minTimeHint, maxTimeHint,
+				bands);
 	}
 
 	@Override
 	public DatasetMetadata queryMetadata(String uri, String referential)
 			throws IOException {
 
-		for (DatasetProvider p : providers) {
-			if (p.canOpen(uri)) {
-				return p.queryMetadata(uri, referential);
-			}
+		DatasetProvider p = getProvider(uri);
+		if (p == null) {
+			throw new IOException(String.format(
+					"No registered IO provider can open %s.", uri));
 		}
-		throw new IOException(String.format(
-				"No registered IO provider can open %s.", uri));
+
+		return p.queryMetadata(uri, referential);
 	}
 
 }

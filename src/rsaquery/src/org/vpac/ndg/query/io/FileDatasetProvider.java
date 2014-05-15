@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.joda.time.DateTime;
@@ -40,11 +41,19 @@ import ucar.nc2.Variable;
 import ucar.nc2.dataset.NetcdfDataset;
 
 /**
+ * <p>
  * Opens datasets on the local filesystem using URIs like
  * <em>../data/test.nc</em> or <em>file:///data/test.nc</em>
- * 
+ * <p>
+ *
+ * <p>
+ * By default, there are no restrictions on which files can be opened (apart
+ * from the usual restrictions imposed by the operating system). Restrictions
+ * can be added by modifying the {@link #getWhitelist() whitelist}.
+ * </p>
+ *
  * @author Alex Fraser
- * 
+ *
  */
 public class FileDatasetProvider implements DatasetProvider {
 
@@ -53,9 +62,44 @@ public class FileDatasetProvider implements DatasetProvider {
 	private DatasetUtils datasetUtils;
 	private GridUtils gridUtils;
 
+	private Collection<String> whitelist;
+
 	public FileDatasetProvider() {
 		datasetUtils = new DatasetUtils();
 		gridUtils = new GridUtils();
+		whitelist = new ArrayList<String>();
+	}
+
+	/**
+	 * <p>
+	 * This {@link DatasetProvider} can open files on the local computer. The
+	 * <em>whitelist</em> allows you to restrict which files can be opened.
+	 * </p>
+	 *
+	 * <p>
+	 * By default, the whitelist is empty, which means any file can be opened.
+	 * If the whitelist is not empty, then a file can only be opened if its
+	 * {@link File#getCanonicalPath() canonical path} is in the whitelist or is
+	 * in a subdirectory of an entry in the whitelist.
+	 * </p>
+	 *
+	 * @return A list of directories that contain files that can be opened.
+	 */
+	public Collection<String> getWhitelist() {
+		return whitelist;
+	}
+
+	protected boolean permittedToOpen(File file) throws IOException {
+		if (whitelist.size() == 0)
+			return true;
+
+		String path = file.getCanonicalPath();
+		for (String root : whitelist) {
+			if (path.startsWith(root))
+				return true;
+		}
+
+		return false;
 	}
 
 	@Override
@@ -115,6 +159,10 @@ public class FileDatasetProvider implements DatasetProvider {
 		String path = parsedUri.getPath();
 		File resolvedFile = resolve(referential, path);
 		log.trace("Opening dataset {}", resolvedFile);
+
+		if (!permittedToOpen(resolvedFile))
+			throw new IOException("Access denied: " + resolvedFile);
+
 		return NetcdfDataset.openDataset(resolvedFile.getAbsolutePath());
 	}
 
