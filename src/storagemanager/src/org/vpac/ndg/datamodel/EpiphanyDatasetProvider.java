@@ -17,7 +17,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.joda.time.DateTime;
-import org.vpac.ndg.common.datamodel.CellSize;
 import org.vpac.ndg.query.DatasetUtils;
 import org.vpac.ndg.query.GridUtils;
 import org.vpac.ndg.query.coordinates.GridProjected;
@@ -26,7 +25,6 @@ import org.vpac.ndg.query.coordinates.TimeAxis;
 import org.vpac.ndg.query.io.DatasetMetadata;
 import org.vpac.ndg.query.io.DatasetProvider;
 import org.vpac.ndg.query.math.BoxReal;
-import org.vpac.ndg.storage.model.Dataset;
 
 import ucar.nc2.Variable;
 import ucar.nc2.dataset.NetcdfDataset;
@@ -52,7 +50,10 @@ import ucar.nc2.dataset.NetcdfDataset;
 
 
 /**
- * Gives access to datasets that are stored in an Epiphany.
+ * Opens access to datasets that are stored in an Epiphany.
+ * using URIs like
+ * <em>../data/test.nc</em> or <em>epiphany:1064?AGELOWER=1&AGEUPPER=111&GENDER=F&YEAR=2006&QUERY=Count&GEOMETRY=SA2%20Vic&VIEWMETHOD=Box%20Plot</em>
+ * 
  * @author Jin Park
  */
 public class EpiphanyDatasetProvider implements DatasetProvider {
@@ -94,17 +95,18 @@ public class EpiphanyDatasetProvider implements DatasetProvider {
 		
 		String epiphanyHost = "127.0.0.1";
 		String epiphanyPort = "8000";
+		String query = "AGELOWER=1&AGEUPPER=111&GENDER=F&YEAR=2006&QUERY=Count&GEOMETRY=SA2%20Vic&VIEWMETHOD=Box%20Plot";
 		String datasetId = findDataset(uri, referential);
-		String url = "http://" + epiphanyHost + ":" + epiphanyPort + "/map/wcs/" + datasetId + "?LAYERS=" + datasetId + "&FORMAT=application%2Fx-netCDF&SERVICE=WCS&VERSION=1.1.1&REQUEST=GetMap&STYLES=&YEAR=none&QUERY=none&GEOMETRY=none&VIEWMETHOD=none&COLOURSCHEME=Choose%20a%20color%20scheme&LEGENDEXTENT=global&NUMBERFILTERS=none&VISTYPE=none&SRS=EPSG%3A3577&BBOX=" + boundsHint.getMin().getX() + "," + boundsHint.getMin().getY() + "," + boundsHint.getMax().getX() + "," + boundsHint.getMax().getY() + "&WIDTH=5000&HEIGHT=5000";
+		String url = "http://" + epiphanyHost + ":" + epiphanyPort + "/map/wcs/" + datasetId + "?LAYERS=" + datasetId + "&FORMAT=application%2Fx-netCDF&SERVICE=WCS&VERSION=1.1.1&REQUEST=GetMap&STYLES=&YEAR=none&QUERY=none&GEOMETRY=none&VIEWMETHOD=none&COLOURSCHEME=ColourBrewer%20Blues&LEGENDEXTENT=STATIC&NUMBERFILTERS=none&VISTYPE=none&SRS=EPSG%3A3577&BBOX=" + boundsHint.getMin().getX() + "," + boundsHint.getMin().getY() + "," + boundsHint.getMax().getX() + "," + boundsHint.getMax().getY() + "&WIDTH=5000&HEIGHT=5000";
 		URL connectionUrl = new URL(url);
 		HttpURLConnection connection = (HttpURLConnection) connectionUrl.openConnection();
 		connection.setRequestMethod("GET");
 		
-//		int responseCode = connection.getResponseCode();
 		InputStream in = connection.getInputStream();
 		String uuid = UUID.randomUUID().toString();
 		OutputStream out = new FileOutputStream("output_" + uuid + ".nc");
 		
+		// TO DO : file doesn't need to be stored.
 		byte[] buffer = new byte[1024];
 		int bytesRead;
 		while((bytesRead = in.read(buffer)) != -1) {
@@ -113,8 +115,7 @@ public class EpiphanyDatasetProvider implements DatasetProvider {
 		out.flush();
 		out.close();
 		
-//		System.out.println("RESPONSE:" + responseCode);
-		NetcdfDataset returnDs = new NetcdfDataset().openDataset("/home/parallels/git/rsa/src/rsaworkers/output_" + uuid + ".nc");
+		NetcdfDataset returnDs = NetcdfDataset.openDataset("/home/parallels/git/rsa/src/rsaworkers/output_" + uuid + ".nc");
 		return returnDs;
 	}
 	
@@ -145,7 +146,7 @@ public class EpiphanyDatasetProvider implements DatasetProvider {
 	public DatasetMetadata queryMetadata(String uri, String referential)
 			throws IOException {
 		
-		String url = "file:///home/parallels/git/rsa/src/rsaworkers/data/input/blur.nc";
+		String url = "file:///home/parallels/git/rsa/src/rsaworkers/data/input/B10_blank.nc";
 		NetcdfDataset ds = open(url, referential);
 		try {
 			DatasetMetadata meta = new DatasetMetadata();

@@ -24,9 +24,9 @@ public class Main {
 	 * The application context should only be initialised once EVER - otherwise
 	 * you get resource leaks (e.g. extra open sockets) when using something
 	 * like Nailgun. The use of the enum here ensures this. The context acquired
-	 * here is passed automatically to {@link AppContext} in the Storage
-	 * Manager for use by other parts of the RSA.
-	 */	
+	 * here is passed automatically to {@link AppContext} in the Storage Manager
+	 * for use by other parts of the RSA.
+	 */
 	private static enum AppContextSingleton {
 		INSTANCE;
 
@@ -35,19 +35,24 @@ public class Main {
 		private AppContextSingleton() {
 			System.out.println("Path");
 			appContext = new ClassPathXmlApplicationContext(
-					new String[] {"spring/config/BeanLocations.xml"});
-			
+					new String[] { "spring/config/BeanLocations.xml" });
+
 		}
 	}
 
 	public void initBeans() {
 		ApplicationContext appContext = AppContextSingleton.INSTANCE.appContext;
 
-		DatasetProvider dataProvider = (DatasetProvider)appContext.getBean("rsaDatasetProvider");
-		DatasetProvider epiphanyProvider = (DatasetProvider)appContext.getBean("epiphanyDatasetProvider");
+		DatasetProvider dataProvider = (DatasetProvider) appContext
+				.getBean("rsaDatasetProvider");
+		DatasetProvider fileDatasetProvider = (DatasetProvider) appContext
+				.getBean("fileDatasetProvider");
+		// DatasetProvider epiphanyProvider =
+		// (DatasetProvider)appContext.getBean("epiphanyDatasetProvider");
 		ProviderRegistry.getInstance().clearProivders();
 		ProviderRegistry.getInstance().addProivder(dataProvider);
-		ProviderRegistry.getInstance().addProivder(epiphanyProvider);
+		ProviderRegistry.getInstance().addProivder(fileDatasetProvider);
+		// ProviderRegistry.getInstance().addProivder(epiphanyProvider);
 	}
 
 	public void startService() throws InterruptedException {
@@ -56,52 +61,55 @@ public class Main {
 		if (c.hasPath("master.hostip")) {
 			String hostip = c.getString("master.hostip").toString();
 			String port = c.getString("master.port").toString();
-			if(hostip != null && port != null)
-				joinAddress = new Address("akka.tcp", "Workers@" + hostip + ":" + port);
+			if (hostip != null && port != null)
+				joinAddress = new Address("akka.tcp", "Workers@" + hostip + ":"
+						+ port);
 		}
 		joinAddress = startBackend(joinAddress);
-	    Thread.sleep(5000);
-//	    startBackend(joinAddress, "backend");
-	    startWorker(joinAddress);
+		Thread.sleep(5000);
+		// startBackend(joinAddress, "backend");
+		startWorker(joinAddress);
 	}
-	
-	
-	
-	  public static void main(String[] args) throws InterruptedException {
+
+	public static void main(String[] args) throws InterruptedException {
 		Main main = new Main();
 		main.initBeans();
 		main.startService();
-		
-	//    startWorker(joinAddress);
-	//    Thread.sleep(5000);
-	//    startFrontend(joinAddress);
-	  }
-	
-	  private static String systemName = "Workers";
-	  private static FiniteDuration workTimeout = Duration.create(100, "seconds");
-	
-	  public static Address startBackend(Address joinAddress) {
-	    Config conf = ConfigFactory.parseString("akka.cluster.roles=[backend]").
-				withFallback(ConfigFactory.load("master"));
-	    ActorSystem system = ActorSystem.create(systemName, conf);
-	    Address realJoinAddress =
-	      (joinAddress == null) ? Cluster.get(system).selfAddress() : joinAddress;
-	    Cluster.get(system).join(realJoinAddress);
-	
-	    system.actorOf(ClusterSingletonManager.defaultProps(Master.props(workTimeout), "active",
-	      PoisonPill.getInstance(), "backend"), "master");
-	
-	    return realJoinAddress;
-	  }
-	
-	  public static void startWorker(Address contactAddress) {
-	    Config conf = ConfigFactory.parseString("akka.cluster.roles=[backend]").
-				withFallback(ConfigFactory.load("worker"));
-	    ActorSystem system = ActorSystem.create(systemName, conf);
-	    Set<ActorSelection> initialContacts = new HashSet<ActorSelection>();
-	    initialContacts.add(system.actorSelection(contactAddress + "/user/receptionist"));
-	    ActorRef clusterClient = system.actorOf(ClusterClient.defaultProps(initialContacts),
-	      "clusterClient");
-	    system.actorOf(Worker.props(clusterClient, Props.create(WorkExecutor.class)), "worker");
-	  }
+
+		// startWorker(joinAddress);
+		// Thread.sleep(5000);
+		// startFrontend(joinAddress);
+	}
+
+	private static String systemName = "Workers";
+	private static FiniteDuration workTimeout = Duration.create(100, "seconds");
+
+	public static Address startBackend(Address joinAddress) {
+		Config conf = ConfigFactory.parseString("akka.cluster.roles=[backend]")
+				.withFallback(ConfigFactory.load("master"));
+		ActorSystem system = ActorSystem.create(systemName, conf);
+		Address realJoinAddress = (joinAddress == null) ? Cluster.get(system)
+				.selfAddress() : joinAddress;
+		Cluster.get(system).join(realJoinAddress);
+
+		system.actorOf(ClusterSingletonManager.defaultProps(
+				Master.props(workTimeout), "active", PoisonPill.getInstance(),
+				"backend"), "master");
+
+		return realJoinAddress;
+	}
+
+	public static void startWorker(Address contactAddress) {
+		Config conf = ConfigFactory.parseString("akka.cluster.roles=[backend]")
+				.withFallback(ConfigFactory.load("worker"));
+		ActorSystem system = ActorSystem.create(systemName, conf);
+		Set<ActorSelection> initialContacts = new HashSet<ActorSelection>();
+		initialContacts.add(system.actorSelection(contactAddress
+				+ "/user/receptionist"));
+		ActorRef clusterClient = system.actorOf(
+				ClusterClient.defaultProps(initialContacts), "clusterClient");
+		system.actorOf(
+				Worker.props(clusterClient, Props.create(WorkExecutor.class)),
+				"worker");
+	}
 }
