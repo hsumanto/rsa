@@ -114,6 +114,10 @@ public class WorkExecutor extends UntypedActor {
 		final QueryDefinition qd1 = QueryDefinition.fromString(work.queryDefinitionString);
 		qd1.output.grid.bounds = String.format("%f %f %f %f", work.bound.getMin().getX(), work.bound.getMin().getY(), work.bound.getMax().getX(), work.bound.getMax().getY());
 
+		// Fetch external data and store in local files before executing query.
+		// This is required because the query engine needs to know some metadata
+		// early in the query configuration process, before the files are
+		// opened.
 		for (DatasetInputDefinition di : qd1.inputs) {
 			if (di.href.startsWith("epiphany")) {
 				Path epiphanyTempFile = fetchEpiphanyData(di, work);
@@ -141,7 +145,6 @@ public class WorkExecutor extends UntypedActor {
 	private Map<String, Foldable<?>> executeQuery(QueryDefinition qd,
 			WorkProgress wp, Path outputPath, Version netcdfVersion)
 					throws IOException, QueryConfigurationException {
-
 
 		NetcdfFileWriter outputDataset = NetcdfFileWriter.createNew(
 				netcdfVersion, outputPath.toString());
