@@ -129,7 +129,7 @@ public class Query implements Closeable {
 
 		// Pre-process query: Sort filters into creation order, expand
 		// references to sockets, etc.
-		QueryDefinitionProprocessor qdp = new QueryDefinitionProprocessor();
+		QueryDefinitionPreprocessor qdp = new QueryDefinitionPreprocessor();
 		qdp.setQueryDefinition(qdOrig);
 		qdp.gatherFilterInfo();
 		// Sort filters first - avoids sorting based on more numerous expanded

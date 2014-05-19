@@ -44,9 +44,9 @@ import org.vpac.ndg.query.sampling.Cell;
 
 import ucar.nc2.dataset.CoordinateSystem;
 
-public class QueryDefinitionProprocessor {
+public class QueryDefinitionPreprocessor {
 
-	Logger log = LoggerFactory.getLogger(QueryDefinitionProprocessor.class);
+	Logger log = LoggerFactory.getLogger(QueryDefinitionPreprocessor.class);
 
 	private QueryDefinition qd;
 	private Map<String, DatasetInputDefinition> inputMap;
@@ -57,7 +57,7 @@ public class QueryDefinitionProprocessor {
 	ClassLoader loader;
 	Resolve resolve;
 
-	public QueryDefinitionProprocessor() {
+	public QueryDefinitionPreprocessor() {
 		resolve = new Resolve();
 		loader = Thread.currentThread().getContextClassLoader();
 
@@ -116,9 +116,7 @@ public class QueryDefinitionProprocessor {
 		for (DatasetInput di : inputDatasets) {
 			QueryCoordinateSystem csys = di.getCoordinateSystem();
 			// TODO : csys error checking
-			if(csys == null) {
-//				srs = new CoordinateSystem(ds, axes, coordTrans)
-			} else if (srs == null) {
+			if (srs == null) {
 				srs = csys.getGrid().getSrs();
 				qd.output.grid.ref = String.format("#%s", di.getName());
 				log.info("Grid reference not specified. Using grid defined by {}", qd.output.grid.ref);
