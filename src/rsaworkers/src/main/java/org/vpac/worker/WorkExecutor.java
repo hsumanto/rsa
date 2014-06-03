@@ -20,6 +20,7 @@ import java.util.regex.Pattern;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.vpac.ndg.configuration.NdgConfigManager;
 import org.vpac.ndg.query.Query;
 import org.vpac.ndg.query.QueryConfigurationException;
 import org.vpac.ndg.query.QueryDefinition;
@@ -60,9 +61,11 @@ public class WorkExecutor extends UntypedActor {
 	public WorkExecutor() {
 		ApplicationContext appContext = AppContextSingleton.INSTANCE.appContext;
 		statisticsDao = (StatisticsDao) appContext.getBean("statisticsDao");
+		ndgConfigManager = (NdgConfigManager) appContext.getBean("ndgConfigManager");
 	}
 
-	StatisticsDao statisticsDao;
+	private StatisticsDao statisticsDao;
+	private NdgConfigManager ndgConfigManager;
 	// Dataset identifier looks like "epiphany:id"
 	private static final Pattern DATASET_PATTERN = Pattern.compile("^([^/]+)");
 
@@ -149,8 +152,8 @@ public class WorkExecutor extends UntypedActor {
 	}
 
 	private String fetchEpiphany(DatasetInputDefinition di, Work w) throws IOException {
-		String epiphanyHost = "127.0.0.1";
-		String epiphanyPort = "8000";
+		String epiphanyHost = ndgConfigManager.getConfig().getEpiphanyIp();
+		String epiphanyPort = ndgConfigManager.getConfig().getEpiphanyPort();
 		String query = "AGELOWER=1&AGEUPPER=111&GENDER=F&YEAR=2006&QUERY=Count&GEOMETRY=SA2%20Vic&VIEWMETHOD=Box%20Plot";
 		String datasetId = findDataset(di.href);
 		String url = "http://"

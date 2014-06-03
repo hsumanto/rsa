@@ -69,6 +69,27 @@ public class NdgConfig {
 	private String defaultPickupLocation;
 	@XStreamAlias("gdalprefix")
 	private String gdalLocation;
+	@XStreamAlias("epiphanyIp")
+	private String epiphanyIp;
+	public String getEpiphanyIp() {
+		return epiphanyIp;
+	}
+
+	public void setEpiphanyIp(String epiphanyIp) {
+		this.epiphanyIp = epiphanyIp;
+	}
+
+	public String getEpiphanyPort() {
+		return epiphanyPort;
+	}
+
+	public void setEpiphanyPort(String epiphanyPort) {
+		this.epiphanyPort = epiphanyPort;
+	}
+
+	@XStreamAlias("epiphanyPort")
+	private String epiphanyPort;
+
 	
 	public String getTargetProjection() {
 		return "EPSG:" + targetSrsEpsgId;
