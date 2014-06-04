@@ -97,6 +97,9 @@ public class BoxInt implements Serializable {
 	public void intersect(BoxInt other) {
 		this.min.max(other.getMin());
 		this.max.min(other.getMax());
+		// Make sure the new bounds aren't inside out (max < min). If they are,
+		// shift min just enough to make a zero-sized box.
+		this.min.min(this.max);
 	}
 
 	public VectorInt getMin() {

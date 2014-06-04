@@ -50,9 +50,8 @@ public class Main {
 		// DatasetProvider epiphanyProvider =
 		// (DatasetProvider)appContext.getBean("epiphanyDatasetProvider");
 		ProviderRegistry.getInstance().clearProivders();
-		ProviderRegistry.getInstance().addProivder(dataProvider);
-		ProviderRegistry.getInstance().addProivder(fileDatasetProvider);
-		// ProviderRegistry.getInstance().addProivder(epiphanyProvider);
+		ProviderRegistry.getInstance().addProvider(dataProvider);
+		ProviderRegistry.getInstance().addProvider(fileDatasetProvider);
 	}
 
 	public void startService() throws InterruptedException {

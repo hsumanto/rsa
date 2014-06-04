@@ -13,6 +13,8 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Map;
 import java.util.UUID;
 import java.util.regex.Matcher;
@@ -20,6 +22,7 @@ import java.util.regex.Pattern;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.vpac.ndg.AppContext;
 import org.vpac.ndg.configuration.NdgConfigManager;
 import org.vpac.ndg.query.Query;
 import org.vpac.ndg.query.QueryConfigurationException;
@@ -79,39 +82,30 @@ public class WorkExecutor extends UntypedActor {
 			String result = n + " * " + n + " = " + n2;
 			log.debug("Produced result {}", result);
 			getSender().tell(new Job.WorkComplete(result), getSelf());
+
 		} else if (message instanceof Work) {
 			Work work = (Work) message;
+			WorkProgress wp = new WorkProgress(work.workId);
 			String result = null;
+			Collection<Path> tempFiles = new ArrayList<>();
 
-			final QueryDefinition qd = QueryDefinition.fromString(work.queryDefinitionString);
-			qd.output.grid.bounds = String.format("%f %f %f %f", work.bound.getMin().getX(), work.bound.getMin().getY(), work.bound.getMax().getX(), work.bound.getMax().getY());
-			for(DatasetInputDefinition di : qd.inputs) {
-				if (di.href.startsWith("epiphany")) {
-					String epiphanyTempFile = fetchEpiphany(di, work);
-					di.href = epiphanyTempFile;
-				}
-			}
-
-			final WorkProgress wp = new WorkProgress(work.workId);
-			Path outputDir = Paths.get("output/" + work.workId + "/");
-			Map<String, Foldable<?>> output = null;
-
-			final Path queryPath = outputDir.resolve("out.nc");
-			if (!Files.exists(outputDir))
-				try {
-					Files.createDirectories(outputDir);
-				} catch (IOException e1) {
-					log.error("directory creation error:", e1);
-					e1.printStackTrace();
-					throw e1;
-				}
-
+			Map<String, Foldable<?>> output;
 			try {
+				QueryDefinition qd = preprocessQueryDef(work, tempFiles);
+				Path queryPath = getOutputPath(work);
 				output = executeQuery(qd, wp, queryPath, work.netcdfVersion);
 			} catch (Exception e) {
 				wp.setErrorMessage(e.getMessage());
-				log.error("Task exited abnormally: ", e);
+				log.error(e, "Task {} exited abnormally", work.workId);
 				throw e;
+			} finally {
+				for (Path path : tempFiles) {
+					try {
+						Files.delete(path);
+					} catch (IOException e) {
+						log.error(e, "Failed to delete temp file {}", path);
+					}
+				}
 			}
 
 			log.debug("Produced result {}", output);
@@ -119,9 +113,43 @@ public class WorkExecutor extends UntypedActor {
 		}
 	}
 
+	private QueryDefinition preprocessQueryDef(Work work,
+			Collection<Path> tempFiles) throws IOException {
+		final QueryDefinition qd1 = QueryDefinition.fromString(work.queryDefinitionString);
+		qd1.output.grid.bounds = String.format("%f %f %f %f", work.bound.getMin().getX(), work.bound.getMin().getY(), work.bound.getMax().getX(), work.bound.getMax().getY());
+
+		// Fetch external data and store in local files before executing query.
+		// This is required because the query engine needs to know some metadata
+		// early in the query configuration process, before the files are
+		// opened.
+		for (DatasetInputDefinition di : qd1.inputs) {
+			if (di.href.startsWith("epiphany")) {
+				Path epiphanyTempFile = fetchEpiphanyData(di, work);
+				tempFiles.add(epiphanyTempFile);
+				di.href = epiphanyTempFile.toString();
+			}
+		}
+		return qd1;
+	}
+
+	private Path getOutputPath(Work work) throws IOException {
+		Path outputDir = Paths.get("output/" + work.workId + "/");
+		Path queryPath = outputDir.resolve("out.nc");
+		if (!Files.exists(outputDir))
+			try {
+				Files.createDirectories(outputDir);
+			} catch (IOException e1) {
+				log.error("directory creation error:", e1);
+				e1.printStackTrace();
+				throw e1;
+			}
+		return queryPath;
+	}
+
 	private Map<String, Foldable<?>> executeQuery(QueryDefinition qd,
 			WorkProgress wp, Path outputPath, Version netcdfVersion)
 					throws IOException, QueryConfigurationException {
+
 		NetcdfFileWriter outputDataset = NetcdfFileWriter.createNew(
 				netcdfVersion, outputPath.toString());
 
@@ -151,7 +179,7 @@ public class WorkExecutor extends UntypedActor {
 		return output;
 	}
 
-	private String fetchEpiphany(DatasetInputDefinition di, Work w) throws IOException {
+	private Path fetchEpiphanyData(DatasetInputDefinition di, Work w) throws IOException {
 		String epiphanyHost = ndgConfigManager.getConfig().getEpiphanyIp();
 		String epiphanyPort = ndgConfigManager.getConfig().getEpiphanyPort();
 		String query = "AGELOWER=1&AGEUPPER=111&GENDER=F&YEAR=2006&QUERY=Count&GEOMETRY=SA2%20Vic&VIEWMETHOD=Box%20Plot";
@@ -173,20 +201,21 @@ public class WorkExecutor extends UntypedActor {
 				.openConnection();
 		connection.setRequestMethod("GET");
 
-		InputStream in = connection.getInputStream();
-		File tempFile = File.createTempFile("epiphany_", "_" + w.workId);
-		OutputStream out = new FileOutputStream(tempFile);
-
-		// TO DO : file doesn't need to be stored.
-		byte[] buffer = new byte[1024];
-		int bytesRead;
-		while ((bytesRead = in.read(buffer)) != -1) {
-			out.write(buffer, 0, bytesRead);
+		Path path = Files.createTempFile("epiphany_" + w.workId, ".nc");
+		// TODO : file doesn't need to be stored. -JP
+		// It's probably good practice to store it, though: otherwise we might
+		// fill our RAM. rsaquery will only read a small amount at a time. -AF
+		try (
+				InputStream in = connection.getInputStream();
+				OutputStream out = new FileOutputStream(path.toFile());
+				) {
+			byte[] buffer = new byte[4096];
+			int bytesRead;
+			while ((bytesRead = in.read(buffer)) != -1) {
+				out.write(buffer, 0, bytesRead);
+			}
 		}
-		out.flush();
-		out.close();
-		return tempFile.toString();
-
+		return path;
 	}
 
 	private String findDataset(String uri) throws IOException {

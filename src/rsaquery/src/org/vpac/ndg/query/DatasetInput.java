@@ -127,8 +127,7 @@ public class DatasetInput implements DatasetMeta, HasCoordinateSystem {
 		DatasetProvider provider = ProviderRegistry.getInstance();
 		dataset = provider.open(def.href, referential, boundsHint, minTime,
 				maxTime, requestedBands);
-		
-		if(dataset == null) return;
+
 		try {
 			GridProjected grid = gridUtils.findBounds(dataset);
 			TimeAxis timeAxis = datasetUtils.findTimeCoordinates(dataset);

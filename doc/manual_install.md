@@ -32,7 +32,7 @@ Additional web server dependencies required for `spatialcubeservice` war deploym
 
 | Software   | Version | Notes |
 |:-----------|:--------|:-------------|
-|Tomcat      | 6.0.x   | An [Apache Tomcat][6] server 6 stack| 
+|Tomcat      | 6.0.x   | An [Apache Tomcat][6] server 6 stack. Tomcat 7 is not supported; it lacks some classes that the RSA uses. |
 
 Several other packages relied upon by the RSA application, such as the
 Hibernate ORM framework, are distributed as JAR archives as part of the RSA itself.
@@ -46,13 +46,17 @@ For server deployment, see [deploy.md](deploy.md).
 
 #### Installing PostgreSQL
 
-Debian/Ubuntu 11.10:
+Debian/Ubuntu 11.10 comes with version 8.4:
 
 	$ sudo apt-get install postgresql-8.4
 
-Debian/Ubuntu 12.04:
+Debian/Ubuntu 12.04 comes with version 9.1, which is supported:
 
 	$ sudo apt-get install postgresql-9.1
+
+Debian/Ubuntu 14.04 comes with 9.3:
+
+    $ sudo apt-get install postgresql
 
 Centos/RedHat:
 
@@ -242,6 +246,10 @@ Debian/Ubuntu 12.04:
 
 	vi /etc/postgresql/9.1/main/postgresql.conf
 
+Debian/Ubuntu 14.04:
+
+    vi /etc/postgresql/9.3/main/postgresql.conf
+
 Centos/RedHat:
 
 	vi /var/lib/pgsql/data/postgresql.conf
@@ -268,9 +276,9 @@ when it's first deployed.
 
 The default connection role the RSA will use is:
 
- * Username: *ula*
+ * Username: *rsa*
  * Password: *password*
- * Database: *uladb*
+ * Database: *rsadb*
 
 If you want to choose a different name and credential, you
 will need to modify the *rsacli* and *spatialcubeservice* *datasource.xml* file.
@@ -280,8 +288,8 @@ will need to modify the *rsacli* and *spatialcubeservice* *datasource.xml* file.
 To create RSA's database from the command-line, run the command below -
 substituting values for RSA database name and accessing user as appropriate:
 
-	$ sudo -u postgres createuser -D -A -P ula
-	$ sudo -u postgres createdb -O ula uladb
+	$ sudo -u postgres createuser -D -A -P rsa
+	$ sudo -u postgres createdb -O rsa rsadb
 
 You'll be prompted to enter a password for the new user after the first command. When asked *Shall the new role be allowed to create more new roles?*, answer *n*.
 

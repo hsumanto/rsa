@@ -92,7 +92,7 @@
 		<!-- Run JUnit test on test classes -->
 		<mkdir dir="${test-build}" />
 		<javac destdir="${test-build}" source="${source}" target="${target}"
-				debug="on" debuglevel="lines,vars,source">
+				debug="on" debuglevel="lines,vars,source" failonerror="false">
 			<src path="${test-src}" />
 			<classpath refid="classpath-test" />
 		</javac>

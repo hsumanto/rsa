@@ -22,6 +22,7 @@ package org.vpac.ndg.query;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
+import org.vpac.ndg.query.io.DatasetProviderTest;
 import org.vpac.ndg.query.iteration.FunctionalTest;
 import org.vpac.ndg.query.math.ElementTest;
 import org.vpac.ndg.query.math.SwizzleTest;
@@ -38,6 +39,7 @@ import org.vpac.ndg.query.stats.StatisticsTest;
 	StatisticsTest.class,
 	HistogramTest.class,
 	CategoriesTest.class,
+	DatasetProviderTest.class,
 	QueryTest.class,
 })
 public class AllTests {

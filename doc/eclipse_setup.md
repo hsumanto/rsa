@@ -1,6 +1,6 @@
 # Developing RSA in Eclipse
 
-These instructions are for [Eclipse][ecl] 4.3 "Kepler" on Ubuntu 13.10.
+These instructions are for [Eclipse][ecl] 4.3 "Kepler" on Ubuntu 13.10/14.04.
 
 Note that these instructions cover setting up Eclipse to debug all of the
 existing RSA projects. You can skip steps in certain situations. E.g. if you
@@ -22,8 +22,8 @@ Create a **new workspace** in Eclipse, and then install the Java EE libraries:
    proceed with the installation (press *Next >* etc.).
 1. Restart Eclipse if it asks you to.
 
-Install the Python development tools (optional: this is useful but not required
-for rsaquery code generation):
+Install the Python development tools (optional: this is useful for rsaquery
+code generation but not always required):
 
 1. Choose *Help > Eclipse Marketplace*
 1. Search for 'pydev'.
