@@ -83,6 +83,40 @@ public class SwizzleTest {
 		assertEquals(expected, to);
 	}
 
+	@Test
+	public void test_inversion() throws Exception {
+		Swizzle sw;
+		VectorElement from;
+		VectorElement to;
+		VectorElement expected;
+		
+		sw = SwizzleFactory.compile("x", "x");
+		from = new VectorElement(new ElementInt(1));
+		to = VectorElement.createInt(1, 0);
+		expected = from.copy();
+		sw.swizzle(from, to);
+		sw.invert().swizzle(to, from);
+		assertEquals(expected, from);
+		
+		sw = SwizzleFactory.compile("xyz", "zxy");
+		from = new VectorElement(new ElementInt(1), new ElementInt(2),
+				new ElementInt(3));
+		to = VectorElement.createInt(3, 0);
+		expected = from.copy();
+		sw.swizzle(from, to);
+		sw.invert().swizzle(to, from);
+		assertEquals(expected, from);
+		
+		sw = SwizzleFactory.compile("abcde", "ebdca");
+		from = new VectorElement(new ElementInt(1), new ElementInt(2),
+				new ElementInt(3), new ElementInt(4), new ElementInt(5));
+		to = VectorElement.createInt(5, 0);
+		expected = from.copy();
+		sw.swizzle(from, to);
+		sw.invert().swizzle(to, from);
+		assertEquals(expected, from);
+	}
+
 	static final int ITERATIONS = 10000000;
 
 	// Microbenchmark for specialised swizzle classes. If you're curious, try

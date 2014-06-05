@@ -21,6 +21,8 @@
 
 package org.vpac.ndg.query.math;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -89,6 +91,14 @@ public abstract class Swizzle {
 		swizzle(in.getMin(), out.getMin());
 		swizzle(in.getMax(), out.getMax());
 	}
+
+    /**
+     * Create a new swizzle that does the opposite of this one: from and to are
+     * reversed.
+     *
+     * @return The new swizzle object. 
+     */
+    abstract public Swizzle invert();
 
 
 	/**
@@ -893,6 +903,14 @@ public abstract class Swizzle {
 		}
 
 		@Override
+		public Swizzle0 invert() {
+			List<SwizzleOp> from = new ArrayList<SwizzleOp>();
+			List<SwizzleOp> to = new ArrayList<SwizzleOp>();
+
+			return new Swizzle0(to, from);
+		}
+
+		@Override
 		public String toString() {
 			String fromstr = "";
 			String tostr = "";
@@ -928,6 +946,16 @@ public abstract class Swizzle {
 		public void swizzle(VectorElement in, VectorElement out) {
 
 			to0.set(out, from0.get(in));
+		}
+
+		@Override
+		public Swizzle1 invert() {
+			List<SwizzleOp> from = new ArrayList<SwizzleOp>();
+			List<SwizzleOp> to = new ArrayList<SwizzleOp>();
+
+			to.add(to0);
+			from.add(from0);
+			return new Swizzle1(to, from);
 		}
 
 		@Override
@@ -975,6 +1003,18 @@ public abstract class Swizzle {
 
 			to0.set(out, from0.get(in));
 			to1.set(out, from1.get(in));
+		}
+
+		@Override
+		public Swizzle2 invert() {
+			List<SwizzleOp> from = new ArrayList<SwizzleOp>();
+			List<SwizzleOp> to = new ArrayList<SwizzleOp>();
+
+			to.add(to0);
+			from.add(from0);
+			to.add(to1);
+			from.add(from1);
+			return new Swizzle2(to, from);
 		}
 
 		@Override
@@ -1031,6 +1071,20 @@ public abstract class Swizzle {
 			to0.set(out, from0.get(in));
 			to1.set(out, from1.get(in));
 			to2.set(out, from2.get(in));
+		}
+
+		@Override
+		public Swizzle3 invert() {
+			List<SwizzleOp> from = new ArrayList<SwizzleOp>();
+			List<SwizzleOp> to = new ArrayList<SwizzleOp>();
+
+			to.add(to0);
+			from.add(from0);
+			to.add(to1);
+			from.add(from1);
+			to.add(to2);
+			from.add(from2);
+			return new Swizzle3(to, from);
 		}
 
 		@Override
@@ -1099,6 +1153,22 @@ public abstract class Swizzle {
 		}
 
 		@Override
+		public Swizzle4 invert() {
+			List<SwizzleOp> from = new ArrayList<SwizzleOp>();
+			List<SwizzleOp> to = new ArrayList<SwizzleOp>();
+
+			to.add(to0);
+			from.add(from0);
+			to.add(to1);
+			from.add(from1);
+			to.add(to2);
+			from.add(from2);
+			to.add(to3);
+			from.add(from3);
+			return new Swizzle4(to, from);
+		}
+
+		@Override
 		public String toString() {
 			String fromstr = "";
 			String tostr = "";
@@ -1152,6 +1222,16 @@ public abstract class Swizzle {
 			for (int i = 0; i < from.length; i++) {
 				to[i].set(out, from[i].get(in));
 			}
+		}
+
+		@Override
+		public SwizzleN invert() {
+			List<SwizzleOp> from = new ArrayList<SwizzleOp>();
+			List<SwizzleOp> to = new ArrayList<SwizzleOp>();
+
+			to.addAll(Arrays.asList(this.to));
+			from.addAll(Arrays.asList(this.from));
+			return new SwizzleN(to, from);
 		}
 
 		@Override

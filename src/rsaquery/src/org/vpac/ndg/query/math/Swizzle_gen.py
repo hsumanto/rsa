@@ -52,6 +52,8 @@ CLASS_HEADER_TEMPLATE = Template("""/*
 
 package org.vpac.ndg.query.math;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -120,6 +122,14 @@ public abstract class Swizzle {
 		swizzle(in.getMin(), out.getMin());
 		swizzle(in.getMax(), out.getMax());
 	}
+
+    /**
+     * Create a new swizzle that does the opposite of this one: from and to are
+     * reversed.
+     *
+     * @return The new swizzle object. 
+     */
+    abstract public Swizzle invert();
 
 
 	/**
@@ -288,6 +298,14 @@ ${apply}
 		}
 
 		@Override
+		public Swizzle${rank} invert() {
+			List<SwizzleOp> from = new ArrayList<SwizzleOp>();
+			List<SwizzleOp> to = new ArrayList<SwizzleOp>();
+${invert}
+			return new Swizzle${rank}(to, from);
+		}
+
+		@Override
 		public String toString() {
 			String fromstr = "";
 			String tostr = "";
@@ -318,6 +336,12 @@ SWIZZLE_APPLY_GENERIC = """
 			for (int i = 0; i < from.length; i++) {
 				to[i].set(out, from[i].get(in));
 			}"""
+SWIZZLE_INVERT_TEMPLATE = Template("""
+			to.add(to${opnum});
+			from.add(from${opnum});""")
+SWIZZLE_INVERT_GENERIC = """
+			to.addAll(Arrays.asList(this.to));
+			from.addAll(Arrays.asList(this.from));"""
 SWIZZLE_STR_TEMPLATE = Template("""
 			fromstr += from${opnum};
 			tostr += to${opnum};""")
@@ -406,6 +430,7 @@ def write_swizzles(output, ranks):
         declaration = ""
         construction = ""
         application = ""
+        inversion = ""
         formatbuilder = ""
         for j in xrange(i):
             mapping = {
@@ -414,12 +439,14 @@ def write_swizzles(output, ranks):
             declaration += SWIZZLE_DECL_TEMPLATE.substitute(mapping)
             construction += SWIZZLE_CTOR_TEMPLATE.substitute(mapping)
             application += SWIZZLE_APPLY_TEMPLATE.substitute(mapping)
+            inversion += SWIZZLE_INVERT_TEMPLATE.substitute(mapping)
             formatbuilder += SWIZZLE_STR_TEMPLATE.substitute(mapping)
         mapping = {
                    "rank" : str(i),
                    "declarations" : declaration,
                    "constructor" : construction,
                    "apply" : application,
+                   "invert" : inversion,
                    "formatbuilder" : formatbuilder
                    }
         output.write(SWIZZLE_TEMPLATE.substitute(mapping))
@@ -429,6 +456,7 @@ def write_swizzles(output, ranks):
                "declarations" : SWIZZLE_DECL_GENERIC,
                "constructor" : SWIZZLE_CTOR_GENERIC,
                "apply" : SWIZZLE_APPLY_GENERIC,
+               "invert" : SWIZZLE_INVERT_GENERIC,
                "formatbuilder" : SWIZZLE_STR_GENERIC
                }
     output.write(SWIZZLE_TEMPLATE.substitute(mapping))
