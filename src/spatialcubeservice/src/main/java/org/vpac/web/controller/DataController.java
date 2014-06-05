@@ -24,6 +24,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -70,6 +71,7 @@ import org.vpac.ndg.lock.ProcessUpdateTimer;
 import org.vpac.ndg.query.Query;
 import org.vpac.ndg.query.QueryConfigurationException;
 import org.vpac.ndg.query.QueryDefinition;
+import org.vpac.ndg.query.QueryDefinition.DatasetInputDefinition;
 import org.vpac.ndg.query.filter.FilterUtils;
 import org.vpac.ndg.query.math.BoxReal;
 import org.vpac.ndg.query.math.ScalarElement;
@@ -579,34 +581,53 @@ public class DataController {
 		return "Success";
 	}
 
-	@RequestMapping(value = "/DQuery", method = RequestMethod.GET)
-	public String distributedQuery() throws IllegalAccessException {
+	@RequestMapping(value = "/DQuery-test", method = RequestMethod.GET)
+	public String distributedQueryTest() throws IllegalAccessException {
 		
 		String query = "<?xml version='1.0' encoding='UTF-8'?>" +
 		"<query xmlns='http://www.vpac.org/namespaces/rsaquery-0.2'>" +
-			"<input id='vic_0' href='epiphany:1064'/>" +
-			"<output id='outfile' >" + 
-			"	<grid />" + 
-			"	<variable name='Band1' ref='#hist/output' />" + 
-			"</output>" +
-			"<filter id='hist' cls='org.vpac.ndg.query.stats.Histogram'>" +
-			"	<sampler name='input' ref='#vic_0/Band1' />" +
-			"</filter>" +
-		"</query>";
-
-//		String query = "<?xml version='1.0' encoding='UTF-8'?>" +
-//		"<query xmlns='http://www.vpac.org/namespaces/rsaquery-0.2'>" +
-//			"<input id='vic_0' href='epiphany:1064'/>" +
-//			"<output id='outfile' >" + 
-//			"	<grid />" + 
-//			"	<variable name='band' ref='#Pass_Through_0/output'/>" + 
-//			"</output>" +
-//			"<filter id='Pass_Through_0' cls='org.vpac.ndg.query.PassThrough'>" +
-//				"<sampler name='input' ref='#vic_0/Band1'/>" +
-//			"</filter>" +
-//		"</query>";
+//	    "<input id='ep' href='epiphany:1064?AGELOWER=35'/>" +
+		    "<input id='ep' href='epiphany:1064'/>" +
+		    "<input id='dem' href='rsa:vic/25m'/>" +
+		    "<input id='cat' href='rsa:vic_region/25m'/>" +
+		    "<filter id='Maximise' cls='org.vpac.ndg.query.MaximiseForTime'>" +
+				"<sampler name='toKeep' ref='#dem/Band1' />" +
+				"<sampler name='toMaximise' ref='#dem/Band1' />" +
+				"<sampler name='intime' ref='#dem/time' />" +
+		    "</filter>" +
+		    "<filter id='Add' cls='org.vpac.ndg.query.AddBinary'>" +
+		        "<sampler name='inputA' ref='#ep/Band1' />" +
+		        "<sampler name='inputB' ref='#Maximise/output'></sampler>" +
+		    "</filter>" +
+		    "<filter id='MaximiseCat' cls='org.vpac.ndg.query.MaximiseForTime'>" +
+				"<sampler name='toKeep' ref='#cat/region' />" +
+				"<sampler name='toMaximise' ref='#cat/region' />" +
+				"<sampler name='intime' ref='#cat/time' />" +
+		    "</filter>" +
+		    "<filter id='Cats' cls='org.vpac.ndg.query.stats.Categories'>" +
+		        "<sampler name='input' ref='#Add/output' />" +
+		        "<sampler name='categories' ref='#MaximiseCat/output'><slice dimension='time' value='0'/></sampler>" +
+		    "</filter>" +
+		    "<output id='outfile'>" +
+		        "<grid ref='#dem' />" +
+		        "<variable name='Sum' ref='#Cats/output' />" +
+		    "</output>" +
+	    "</query>";
 		
-		String datasetId = datasetDao.findDatasetByName("vic", CellSize.m25).getId();
+		QueryDefinition qd1 = QueryDefinition.fromString(query);
+		String baseRsaDatasetRef = qd1.output.grid.ref.replace("#", "");
+		String baseRsaDatasetName = "";
+		CellSize baseRsaDatasetResolution = null;
+
+		for (DatasetInputDefinition di : qd1.inputs) {
+			if (di.href.startsWith("rsa") && di.id.equals(baseRsaDatasetRef)) {
+				String[] baseRsaDataset = di.href.replace("rsa:", "").split("/");
+				baseRsaDatasetName = baseRsaDataset[0];
+				baseRsaDatasetResolution = CellSize.fromHumanString(baseRsaDataset[1]);
+			}
+		}
+
+		String datasetId = datasetDao.findDatasetByName(baseRsaDatasetName, baseRsaDatasetResolution).getId();
 		List<TimeSlice> tsList = datasetDao.getTimeSlices(datasetId);
 		Dataset ds = datasetDao.retrieve(datasetId);
 		if(ds == null || tsList == null)
@@ -631,9 +652,66 @@ public class DataController {
 			log.info("message" + bb);
 			frontend.tell(new org.vpac.worker.Job.Work(UUID.randomUUID().toString(), query, path, ver, bb),  ActorRef.noSender());
 		}
-
 		return "Success";
 	}
+
+	@RequestMapping(value = "/DQuery", method = RequestMethod.GET)
+	public String distributedQuery(@RequestParam(required = false) MultipartFile file,
+			@RequestParam(required = false) String threads,
+			@RequestParam(required = false) Double minX,
+			@RequestParam(required = false) Double minY,
+			@RequestParam(required = false) Double maxX,
+			@RequestParam(required = false) Double maxY,
+			@RequestParam(required = false) String startDate,
+			@RequestParam(required = false) String endDate,
+			@RequestParam(required = false) String netcdfVersion,
+			ModelMap model)
+			throws IOException, QueryConfigurationException, IllegalAccessException {
+
+		QueryDefinition qd1 = QueryDefinition.fromXML(file.getInputStream());
+		String baseRsaDatasetRef = qd1.output.grid.ref.replace("#", "");
+		String baseRsaDatasetName = "";
+		CellSize baseRsaDatasetResolution = null;		
+		
+		for (DatasetInputDefinition di : qd1.inputs) {
+			if (di.href.startsWith("rsa") && di.id.equals(baseRsaDatasetRef)) {
+				String[] baseRsaDataset = di.href.replace("rsa:", "").split("/");
+				baseRsaDatasetName = baseRsaDataset[0];
+				baseRsaDatasetResolution = CellSize.fromHumanString(baseRsaDataset[1]);
+			}
+		}
+		
+		if(baseRsaDatasetName == "" || baseRsaDatasetResolution == null)
+			throw new IllegalArgumentException("No input reference of output grid");
+
+		String datasetId = datasetDao.findDatasetByName(baseRsaDatasetName, baseRsaDatasetResolution).getId();
+		List<TimeSlice> tsList = datasetDao.getTimeSlices(datasetId);
+		Dataset ds = datasetDao.retrieve(datasetId);
+		if(ds == null || tsList == null)
+			throw new IllegalAccessException("No dataset or timeslice");
+		
+		Box extent = timeSliceUtil.aggregateBounds(tsList);
+		List<Tile> tiles = tileManager.getTiles(extent, ds.getResolution());
+		
+		final Version ver = Version.netcdf4;
+		final String path = "";
+		
+		ActorRef frontend = ActorCreator.getFrontend();
+		
+		for(Tile t : tiles) {
+			Box bound = tileManager.getNngGrid().getBounds(t.getIndex(), ds.getResolution());
+			bound.intersect(extent);
+			BoxReal bb = new BoxReal(2);
+			bb.getMin().setX(bound.getXMin());
+			bb.getMin().setY(bound.getYMin());
+			bb.getMax().setX(bound.getXMax());
+			bb.getMax().setY(bound.getYMax());
+			log.info("message" + bb);
+			frontend.tell(new org.vpac.worker.Job.Work(UUID.randomUUID().toString(), qd1.toXML(), path, ver, bb),  ActorRef.noSender());
+		}
+		return "Success";
+	}
+	
 	
 	@RequestMapping(value = "/QueryOutput", method = RequestMethod.POST)
 	public String queryOutput(@RequestParam(required = false) String query,

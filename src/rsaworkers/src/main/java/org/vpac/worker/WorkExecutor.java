@@ -16,7 +16,6 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
-import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -133,8 +132,8 @@ public class WorkExecutor extends UntypedActor {
 	}
 
 	private Path getOutputPath(Work work) throws IOException {
-		Path outputDir = Paths.get("output/" + work.workId + "/");
-		Path queryPath = outputDir.resolve("out.nc");
+		Path outputDir = Paths.get("output");
+		Path queryPath = outputDir.resolve(work.workId + "_out.nc");
 		if (!Files.exists(outputDir))
 			try {
 				Files.createDirectories(outputDir);
@@ -150,9 +149,13 @@ public class WorkExecutor extends UntypedActor {
 			WorkProgress wp, Path outputPath, Version netcdfVersion)
 					throws IOException, QueryConfigurationException {
 
-		NetcdfFileWriter outputDataset = NetcdfFileWriter.createNew(
+/*		NetcdfFileWriter outputDataset = NetcdfFileWriter.createNew(
 				netcdfVersion, outputPath.toString());
+*/
+		NetcdfFileWriter outputDataset = NetcdfFileWriter.createNew(
+				Version.netcdf3, outputPath.toString());
 
+		
 		Map<String, Foldable<?>> output = null;
 
 		try {
@@ -164,8 +167,8 @@ public class WorkExecutor extends UntypedActor {
 				q.run();
 				output = q.getAccumulatedOutput();
 				VectorHist vh = (VectorHist) output.get("hist");
-				statisticsDao.saveHist(vh.getComponents()[0]);
-				System.out.println("output" + output);
+				if(vh != null)
+					statisticsDao.saveHist(vh.getComponents()[0]);
 			} finally {
 				q.close();
 			}
@@ -182,7 +185,8 @@ public class WorkExecutor extends UntypedActor {
 	private Path fetchEpiphanyData(DatasetInputDefinition di, Work w) throws IOException {
 		String epiphanyHost = ndgConfigManager.getConfig().getEpiphanyIp();
 		String epiphanyPort = ndgConfigManager.getConfig().getEpiphanyPort();
-		String query = "AGELOWER=1&AGEUPPER=111&GENDER=F&YEAR=2006&QUERY=Count&GEOMETRY=SA2%20Vic&VIEWMETHOD=Box%20Plot";
+		String query = "AGELOWER=35";
+		//String query = "AGELOWER=1&AGEUPPER=111&GENDER=F&YEAR=2006&QUERY=Count&GEOMETRY=SA2%20Vic&VIEWMETHOD=Box%20Plot";
 		String datasetId = findDataset(di.href);
 		String url = "http://"
 				+ epiphanyHost
@@ -192,10 +196,11 @@ public class WorkExecutor extends UntypedActor {
 				+ datasetId
 				+ "?LAYERS="
 				+ datasetId
-				+ "&FORMAT=application%2Fx-netCDF&SERVICE=WCS&VERSION=1.1.1&REQUEST=GetMap&STYLES=&YEAR=none&QUERY=none&GEOMETRY=none&VIEWMETHOD=none&COLOURSCHEME=ColourBrewer%20Blues&LEGENDEXTENT=STATIC&NUMBERFILTERS=none&VISTYPE=none&SRS=EPSG%3A3577&BBOX="
+				+ "&FORMAT=application%2Fx-netCDF&SERVICE=WCS&VERSION=1.1.1&REQUEST=GetMap&STYLES=&YEAR=none&QUERY=none&GEOMETRY=none&VIEWMETHOD=none&COLOURSCHEME=ColourBrewer%20Blues&LEGENDEXTENT=STATIC&NUMBERFILTERS=none&VISTYPE=none&SRS=EPSG%3A3111&BBOX="
 				+ w.bound.getMin().getX() + "," + w.bound.getMin().getY()
 				+ "," + w.bound.getMax().getX() + ","
-				+ w.bound.getMax().getY() + "&WIDTH=5000&HEIGHT=5000";
+				+ w.bound.getMax().getY() 
+				+ "&WIDTH=5000&HEIGHT=5000";
 		URL connectionUrl = new URL(url);
 		HttpURLConnection connection = (HttpURLConnection) connectionUrl
 				.openConnection();

@@ -66,7 +66,6 @@ public class Main {
 		}
 		joinAddress = startBackend(joinAddress);
 		Thread.sleep(5000);
-		// startBackend(joinAddress, "backend");
 		startWorker(joinAddress);
 	}
 
@@ -74,10 +73,6 @@ public class Main {
 		Main main = new Main();
 		main.initBeans();
 		main.startService();
-
-		// startWorker(joinAddress);
-		// Thread.sleep(5000);
-		// startFrontend(joinAddress);
 	}
 
 	private static String systemName = "Workers";
