@@ -20,6 +20,10 @@
 package org.vpac.ndg.query.sampling;
 
 
+/**
+ * @see Prototype
+ * @author Alex Fraser
+ */
 public interface HasPrototype {
 	/**
 	 * @return A prototypical element for this object. This can be used by

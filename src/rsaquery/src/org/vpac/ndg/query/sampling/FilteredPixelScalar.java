@@ -28,7 +28,7 @@ import org.vpac.ndg.query.math.ScalarElement;
 import org.vpac.ndg.query.math.VectorReal;
 
 /**
- * A pixel source that retries data from a filter.
+ * A pixel source that retrieves data from a filter.
  * @author Alex Fraser
  */
 public class FilteredPixelScalar implements PixelSourceScalar {
