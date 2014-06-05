@@ -19,13 +19,23 @@
 
 package org.vpac.ndg.query.math;
 
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.MethodRule;
 import org.junit.runner.RunWith;
 import org.junit.runners.BlockJUnit4ClassRunner;
+
+import com.carrotsearch.junitbenchmarks.BenchmarkOptions;
+import com.carrotsearch.junitbenchmarks.BenchmarkRule;
+
 import static org.junit.Assert.*;
 
+@BenchmarkOptions(benchmarkRounds = 5, warmupRounds = 2)
 @RunWith(BlockJUnit4ClassRunner.class)
 public class SwizzleTest {
+
+	@Rule
+	public MethodRule benchmarkRun = new BenchmarkRule();
 
 	@Test
 	public void test_int() throws Exception {
@@ -71,6 +81,35 @@ public class SwizzleTest {
 
 		sw.swizzle(from, to);
 		assertEquals(expected, to);
+	}
+
+	static final int ITERATIONS = 10000000;
+
+	// Microbenchmark for specialised swizzle classes. If you're curious, try
+	// commenting out all but SwizzleN from
+	// org.vpac.ndg.query.math.SwizzleFactory.collate
+	@Test
+	public void test_speed() throws Exception {
+		for (int i = 1; i <= 4; i++) {
+			VectorReal sum = _test_speed_n(i);
+			System.out.println(sum);
+		}
+	}
+
+	private VectorReal _test_speed_n(int n) {
+		VectorReal from = VectorReal.createEmpty(n);
+		VectorReal to = VectorReal.createEmpty(4);
+		VectorReal sum = VectorReal.createEmpty(4);
+		Swizzle sw = SwizzleFactory.resize(n, to.size());
+		for (int i = 0; i < ITERATIONS; i++) {
+			for (int j = 0; j < n; j++) {
+				from.set(j, Math.random());
+			}
+			sw.swizzle(from, to);
+			// Make sure this doesn't get optimised out by keeping a sum.
+			sum.add(to);
+		}
+		return sum;
 	}
 
 }
