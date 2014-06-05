@@ -239,30 +239,6 @@ public class VectorElement implements Element<VectorElement> {
 		return this;
 	}
 
-	/**
-	 * @return The component that represents time. This is always the first
-	 * element.
-	 */
-	public ScalarElement getT() {
-		return components[0];
-	}
-	/**
-	 * Set the time component (first).
-	 * @param value The value to assign to the component. Note that this does
-	 *        not retain a reference to the value; it will be assigned as with
-	 *        the {@link ScalarElement#set(Element)} method.
-	 */
-	public void setT(ScalarElement value) {
-		components[0].set(value);
-	}
-	/**
-	 * Set the time component (first).
-	 * @param value The value to assign to the component.
-	 */
-	public void setT(Number value) {
-		components[0].set(value);
-	}
-
 	@Override
 	public VectorElement set(byte value) {
 		for (ScalarElement c : components)
@@ -353,12 +329,11 @@ public class VectorElement implements Element<VectorElement> {
 		return res;
 	}
 
-	private final static int OFFSET_X = 0 + 1;
 	/**
 	 * @return The X component (last; synonym for a).
 	 */
 	public ScalarElement getX() {
-		return components[components.length - OFFSET_X];
+		return components[ComponentLUT.getX(components.length)];
 	}
 	/**
 	 * Set the X component (last; synonym for a).
@@ -367,22 +342,21 @@ public class VectorElement implements Element<VectorElement> {
 	 *        the {@link ScalarElement#set(Element)} method.
 	 */
 	public void setX(ScalarElement value) {
-		components[components.length - OFFSET_X].set(value);
+		components[ComponentLUT.getX(components.length)].set(value);
 	}
 	/**
 	 * Set the X component (last; synonym for a).
 	 * @param value The value to assign to the component.
 	 */
 	public void setX(Number value) {
-		components[components.length - OFFSET_X].set(value);
+		components[ComponentLUT.getX(components.length)].set(value);
 	}
 
-	private final static int OFFSET_Y = 1 + 1;
 	/**
 	 * @return The Y component (second last; synonym for b).
 	 */
 	public ScalarElement getY() {
-		return components[components.length - OFFSET_Y];
+		return components[ComponentLUT.getY(components.length)];
 	}
 	/**
 	 * Set the Y component (second last; synonym for b).
@@ -391,22 +365,21 @@ public class VectorElement implements Element<VectorElement> {
 	 *        the {@link ScalarElement#set(Element)} method.
 	 */
 	public void setY(ScalarElement value) {
-		components[components.length - OFFSET_Y].set(value);
+		components[ComponentLUT.getY(components.length)].set(value);
 	}
 	/**
 	 * Set the Y component (second last; synonym for b).
 	 * @param value The value to assign to the component.
 	 */
 	public void setY(Number value) {
-		components[components.length - OFFSET_Y].set(value);
+		components[ComponentLUT.getY(components.length)].set(value);
 	}
 
-	private final static int OFFSET_Z = 2 + 1;
 	/**
 	 * @return The Z component (third last; synonym for c).
 	 */
 	public ScalarElement getZ() {
-		return components[components.length - OFFSET_Z];
+		return components[ComponentLUT.getZ(components.length)];
 	}
 	/**
 	 * Set the Z component (third last; synonym for c).
@@ -415,22 +388,21 @@ public class VectorElement implements Element<VectorElement> {
 	 *        the {@link ScalarElement#set(Element)} method.
 	 */
 	public void setZ(ScalarElement value) {
-		components[components.length - OFFSET_Z].set(value);
+		components[ComponentLUT.getZ(components.length)].set(value);
 	}
 	/**
 	 * Set the Z component (third last; synonym for c).
 	 * @param value The value to assign to the component.
 	 */
 	public void setZ(Number value) {
-		components[components.length - OFFSET_Z].set(value);
+		components[ComponentLUT.getZ(components.length)].set(value);
 	}
 
-	private final static int OFFSET_W = 3 + 1;
 	/**
 	 * @return The W component (fourth last; synonym for d).
 	 */
 	public ScalarElement getW() {
-		return components[components.length - OFFSET_W];
+		return components[ComponentLUT.getW(components.length)];
 	}
 	/**
 	 * Set the W component (fourth last; synonym for d).
@@ -439,22 +411,21 @@ public class VectorElement implements Element<VectorElement> {
 	 *        the {@link ScalarElement#set(Element)} method.
 	 */
 	public void setW(ScalarElement value) {
-		components[components.length - OFFSET_W].set(value);
+		components[ComponentLUT.getW(components.length)].set(value);
 	}
 	/**
 	 * Set the W component (fourth last; synonym for d).
 	 * @param value The value to assign to the component.
 	 */
 	public void setW(Number value) {
-		components[components.length - OFFSET_W].set(value);
+		components[ComponentLUT.getW(components.length)].set(value);
 	}
 
-	private final static int OFFSET_A = 0 + 1;
 	/**
 	 * @return The A component (last; synonym for x).
 	 */
 	public ScalarElement getA() {
-		return components[components.length - OFFSET_A];
+		return components[ComponentLUT.getA(components.length)];
 	}
 	/**
 	 * Set the A component (last; synonym for x).
@@ -463,22 +434,21 @@ public class VectorElement implements Element<VectorElement> {
 	 *        the {@link ScalarElement#set(Element)} method.
 	 */
 	public void setA(ScalarElement value) {
-		components[components.length - OFFSET_A].set(value);
+		components[ComponentLUT.getA(components.length)].set(value);
 	}
 	/**
 	 * Set the A component (last; synonym for x).
 	 * @param value The value to assign to the component.
 	 */
 	public void setA(Number value) {
-		components[components.length - OFFSET_A].set(value);
+		components[ComponentLUT.getA(components.length)].set(value);
 	}
 
-	private final static int OFFSET_B = 1 + 1;
 	/**
 	 * @return The B component (second last; synonym for y).
 	 */
 	public ScalarElement getB() {
-		return components[components.length - OFFSET_B];
+		return components[ComponentLUT.getB(components.length)];
 	}
 	/**
 	 * Set the B component (second last; synonym for y).
@@ -487,22 +457,21 @@ public class VectorElement implements Element<VectorElement> {
 	 *        the {@link ScalarElement#set(Element)} method.
 	 */
 	public void setB(ScalarElement value) {
-		components[components.length - OFFSET_B].set(value);
+		components[ComponentLUT.getB(components.length)].set(value);
 	}
 	/**
 	 * Set the B component (second last; synonym for y).
 	 * @param value The value to assign to the component.
 	 */
 	public void setB(Number value) {
-		components[components.length - OFFSET_B].set(value);
+		components[ComponentLUT.getB(components.length)].set(value);
 	}
 
-	private final static int OFFSET_C = 2 + 1;
 	/**
 	 * @return The C component (third last; synonym for z).
 	 */
 	public ScalarElement getC() {
-		return components[components.length - OFFSET_C];
+		return components[ComponentLUT.getC(components.length)];
 	}
 	/**
 	 * Set the C component (third last; synonym for z).
@@ -511,22 +480,21 @@ public class VectorElement implements Element<VectorElement> {
 	 *        the {@link ScalarElement#set(Element)} method.
 	 */
 	public void setC(ScalarElement value) {
-		components[components.length - OFFSET_C].set(value);
+		components[ComponentLUT.getC(components.length)].set(value);
 	}
 	/**
 	 * Set the C component (third last; synonym for z).
 	 * @param value The value to assign to the component.
 	 */
 	public void setC(Number value) {
-		components[components.length - OFFSET_C].set(value);
+		components[ComponentLUT.getC(components.length)].set(value);
 	}
 
-	private final static int OFFSET_D = 3 + 1;
 	/**
 	 * @return The D component (fourth last; synonym for w).
 	 */
 	public ScalarElement getD() {
-		return components[components.length - OFFSET_D];
+		return components[ComponentLUT.getD(components.length)];
 	}
 	/**
 	 * Set the D component (fourth last; synonym for w).
@@ -535,22 +503,21 @@ public class VectorElement implements Element<VectorElement> {
 	 *        the {@link ScalarElement#set(Element)} method.
 	 */
 	public void setD(ScalarElement value) {
-		components[components.length - OFFSET_D].set(value);
+		components[ComponentLUT.getD(components.length)].set(value);
 	}
 	/**
 	 * Set the D component (fourth last; synonym for w).
 	 * @param value The value to assign to the component.
 	 */
 	public void setD(Number value) {
-		components[components.length - OFFSET_D].set(value);
+		components[ComponentLUT.getD(components.length)].set(value);
 	}
 
-	private final static int OFFSET_E = 4 + 1;
 	/**
 	 * @return The E component (fifth last; synonym for None).
 	 */
 	public ScalarElement getE() {
-		return components[components.length - OFFSET_E];
+		return components[ComponentLUT.getE(components.length)];
 	}
 	/**
 	 * Set the E component (fifth last; synonym for None).
@@ -559,22 +526,21 @@ public class VectorElement implements Element<VectorElement> {
 	 *        the {@link ScalarElement#set(Element)} method.
 	 */
 	public void setE(ScalarElement value) {
-		components[components.length - OFFSET_E].set(value);
+		components[ComponentLUT.getE(components.length)].set(value);
 	}
 	/**
 	 * Set the E component (fifth last; synonym for None).
 	 * @param value The value to assign to the component.
 	 */
 	public void setE(Number value) {
-		components[components.length - OFFSET_E].set(value);
+		components[ComponentLUT.getE(components.length)].set(value);
 	}
 
-	private final static int OFFSET_F = 5 + 1;
 	/**
 	 * @return The F component (sixth last; synonym for None).
 	 */
 	public ScalarElement getF() {
-		return components[components.length - OFFSET_F];
+		return components[ComponentLUT.getF(components.length)];
 	}
 	/**
 	 * Set the F component (sixth last; synonym for None).
@@ -583,22 +549,21 @@ public class VectorElement implements Element<VectorElement> {
 	 *        the {@link ScalarElement#set(Element)} method.
 	 */
 	public void setF(ScalarElement value) {
-		components[components.length - OFFSET_F].set(value);
+		components[ComponentLUT.getF(components.length)].set(value);
 	}
 	/**
 	 * Set the F component (sixth last; synonym for None).
 	 * @param value The value to assign to the component.
 	 */
 	public void setF(Number value) {
-		components[components.length - OFFSET_F].set(value);
+		components[ComponentLUT.getF(components.length)].set(value);
 	}
 
-	private final static int OFFSET_G = 6 + 1;
 	/**
 	 * @return The G component (seventh last; synonym for None).
 	 */
 	public ScalarElement getG() {
-		return components[components.length - OFFSET_G];
+		return components[ComponentLUT.getG(components.length)];
 	}
 	/**
 	 * Set the G component (seventh last; synonym for None).
@@ -607,22 +572,21 @@ public class VectorElement implements Element<VectorElement> {
 	 *        the {@link ScalarElement#set(Element)} method.
 	 */
 	public void setG(ScalarElement value) {
-		components[components.length - OFFSET_G].set(value);
+		components[ComponentLUT.getG(components.length)].set(value);
 	}
 	/**
 	 * Set the G component (seventh last; synonym for None).
 	 * @param value The value to assign to the component.
 	 */
 	public void setG(Number value) {
-		components[components.length - OFFSET_G].set(value);
+		components[ComponentLUT.getG(components.length)].set(value);
 	}
 
-	private final static int OFFSET_H = 7 + 1;
 	/**
 	 * @return The H component (eighth last; synonym for None).
 	 */
 	public ScalarElement getH() {
-		return components[components.length - OFFSET_H];
+		return components[ComponentLUT.getH(components.length)];
 	}
 	/**
 	 * Set the H component (eighth last; synonym for None).
@@ -631,22 +595,21 @@ public class VectorElement implements Element<VectorElement> {
 	 *        the {@link ScalarElement#set(Element)} method.
 	 */
 	public void setH(ScalarElement value) {
-		components[components.length - OFFSET_H].set(value);
+		components[ComponentLUT.getH(components.length)].set(value);
 	}
 	/**
 	 * Set the H component (eighth last; synonym for None).
 	 * @param value The value to assign to the component.
 	 */
 	public void setH(Number value) {
-		components[components.length - OFFSET_H].set(value);
+		components[ComponentLUT.getH(components.length)].set(value);
 	}
 
-	private final static int OFFSET_I = 8 + 1;
 	/**
 	 * @return The I component (ninth last; synonym for None).
 	 */
 	public ScalarElement getI() {
-		return components[components.length - OFFSET_I];
+		return components[ComponentLUT.getI(components.length)];
 	}
 	/**
 	 * Set the I component (ninth last; synonym for None).
@@ -655,22 +618,21 @@ public class VectorElement implements Element<VectorElement> {
 	 *        the {@link ScalarElement#set(Element)} method.
 	 */
 	public void setI(ScalarElement value) {
-		components[components.length - OFFSET_I].set(value);
+		components[ComponentLUT.getI(components.length)].set(value);
 	}
 	/**
 	 * Set the I component (ninth last; synonym for None).
 	 * @param value The value to assign to the component.
 	 */
 	public void setI(Number value) {
-		components[components.length - OFFSET_I].set(value);
+		components[ComponentLUT.getI(components.length)].set(value);
 	}
 
-	private final static int OFFSET_J = 9 + 1;
 	/**
 	 * @return The J component (tenth last; synonym for None).
 	 */
 	public ScalarElement getJ() {
-		return components[components.length - OFFSET_J];
+		return components[ComponentLUT.getJ(components.length)];
 	}
 	/**
 	 * Set the J component (tenth last; synonym for None).
@@ -679,14 +641,37 @@ public class VectorElement implements Element<VectorElement> {
 	 *        the {@link ScalarElement#set(Element)} method.
 	 */
 	public void setJ(ScalarElement value) {
-		components[components.length - OFFSET_J].set(value);
+		components[ComponentLUT.getJ(components.length)].set(value);
 	}
 	/**
 	 * Set the J component (tenth last; synonym for None).
 	 * @param value The value to assign to the component.
 	 */
 	public void setJ(Number value) {
-		components[components.length - OFFSET_J].set(value);
+		components[ComponentLUT.getJ(components.length)].set(value);
+	}
+
+	/**
+	 * @return The T component (first; synonym for None).
+	 */
+	public ScalarElement getT() {
+		return components[ComponentLUT.getT(components.length)];
+	}
+	/**
+	 * Set the T component (first; synonym for None).
+	 * @param value The value to assign to the component. Note that this does
+	 *        not retain a reference to the value; it will be assigned as with
+	 *        the {@link ScalarElement#set(Element)} method.
+	 */
+	public void setT(ScalarElement value) {
+		components[ComponentLUT.getT(components.length)].set(value);
+	}
+	/**
+	 * Set the T component (first; synonym for None).
+	 * @param value The value to assign to the component.
+	 */
+	public void setT(Number value) {
+		components[ComponentLUT.getT(components.length)].set(value);
 	}
 
 	// ARITHMETIC

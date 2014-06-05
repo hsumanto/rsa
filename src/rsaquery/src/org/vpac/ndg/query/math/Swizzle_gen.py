@@ -123,13 +123,23 @@ public abstract class Swizzle {
 		swizzle(in.getMax(), out.getMax());
 	}
 
-    /**
-     * Create a new swizzle that does the opposite of this one: from and to are
-     * reversed.
-     *
-     * @return The new swizzle object. 
-     */
-    abstract public Swizzle invert();
+	/**
+	 * Reorganise the components of an array.
+	 *
+	 * @param in The array to use as the source.
+	 * @param out The array to write to. It must have the same number of
+	 *            components as was specified when creating this swizzle
+	 *            instance.
+	 */
+	public abstract <T> void swizzle(T[] in, T[] out);
+
+	/**
+	 * Create a new swizzle that does the opposite of this one: from and to are
+	 * reversed.
+	 * 
+	 * @return The new swizzle object.
+	 */
+	public abstract Swizzle invert();
 
 
 	/**
@@ -140,10 +150,12 @@ public abstract class Swizzle {
 		public long get(VectorInt from);
 		public double get(VectorReal from);
 		public ScalarElement get(VectorElement from);
+		public Object get(Object[] from);
 
 		public void set(VectorInt to, long value);
 		public void set(VectorReal to, double value);
 		public void set(VectorElement to, ScalarElement value);
+		public void set(Object[] to, Object value);
 	}
 
 	static class SwizzleOp0 implements SwizzleOp {
@@ -166,6 +178,11 @@ public abstract class Swizzle {
 		}
 
 		@Override
+		public Object get(Object[] from) {
+			return null;
+		}
+
+		@Override
 		public String toString() {
 			return "0";
 		}
@@ -182,6 +199,11 @@ public abstract class Swizzle {
 
 		@Override
 		public void set(VectorElement to, ScalarElement value) {
+			// Nothing to do for this virtual component.
+		}
+
+		@Override
+		public void set(Object[] to, Object value) {
 			// Nothing to do for this virtual component.
 		}
 	}
@@ -206,6 +228,12 @@ public abstract class Swizzle {
 		}
 
 		@Override
+		public Object get(Object[] from) {
+			// There is "1" Object, so behave like "0" (null)   
+			return null;
+		}
+
+		@Override
 		public String toString() {
 			return "1";
 		}
@@ -222,6 +250,11 @@ public abstract class Swizzle {
 
 		@Override
 		public void set(VectorElement to, ScalarElement value) {
+			// Nothing to do for this virtual component.
+		}
+
+		@Override
+		public void set(Object[] to, Object value) {
 			// Nothing to do for this virtual component.
 		}
 	}
@@ -294,6 +327,11 @@ ${apply}
 
 		@Override
 		public void swizzle(VectorElement in, VectorElement out) {
+${apply}
+		}
+
+		@Override
+		public <T> void swizzle(T[] in, T[] out) {
 ${apply}
 		}
 
@@ -372,6 +410,11 @@ OPERATION_TEMPLATE = Template("""
 		}
 
 		@Override
+		public Object get(Object[] from) {
+			return from[ComponentLUT.getX(from.length)];
+		}
+
+		@Override
 		public String toString() {
 			return "${opchar}";
 		}
@@ -389,6 +432,11 @@ OPERATION_TEMPLATE = Template("""
 		@Override
 		public void set(VectorElement from, ScalarElement value) {
 			from.set${opcharupper}(value);
+		}
+
+		@Override
+		public void set(Object[] to, Object value) {
+			to[ComponentLUT.get${opcharupper}(to.length)] = value;
 		}
 	}
 """)
@@ -467,9 +515,8 @@ def write_class(output):
     output.write(CLASS_HEADER_TEMPLATE.substitute({}))
 
     components = []
-    for name, _, _, _ in Element_types.ELEMENT_NAMES:
+    for name, _, _ in Element_types.ELEMENT_NAMES:
         components.append(name)
-    components.append("t")
 
     write_op_factory_method(output, components)
     write_operations(output, components)
