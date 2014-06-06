@@ -272,7 +272,10 @@ public class FilterFactory {
 				// it may be scalar or vector. Otherwise, combine components
 				// into new vector source.
 				if (sources.size() == 1) {
-					log.debug("Assigning generic sampler to generic socket {}", sd.name);
+					if (isScalar)
+						log.debug("Assigning scalar sampler to generic socket {}", sd.name);
+					else
+						log.debug("Assigning vector sampler to generic socket {}", sd.name);
 					source = sources.get(0);
 				} else {
 					log.debug("Creating vector sampler for generic socket {}", sd.name);

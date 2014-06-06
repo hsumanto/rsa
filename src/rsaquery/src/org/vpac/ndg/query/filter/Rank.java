@@ -17,16 +17,25 @@
  * http://www.crcsi.com.au/
  */
 
-package org.vpac.ndg.query;
+package org.vpac.ndg.query.filter;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+/**
+ * Constrain the rank of a public field. If this constraint is not satisfied,an
+ * exception will be thrown before the query runs.
+ *
+ * @author Alex Fraser
+ */
 @Retention(RetentionPolicy.RUNTIME)
-@Target( { ElementType.TYPE })
-public @interface InheritDimensions {
-	String from();
-	int reduceBy() default 0;
+@Target({ ElementType.FIELD })
+public @interface Rank {
+	/**
+	 * @return The field must have exactly this rank. Set to -1 to disable this
+	 *         check.
+	 */
+	int is() default -1;
 }

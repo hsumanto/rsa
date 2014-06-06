@@ -21,6 +21,9 @@ package org.vpac.ndg.query;
 
 import java.io.IOException;
 
+import org.vpac.ndg.query.filter.CellType;
+import org.vpac.ndg.query.filter.InheritDimensions;
+import org.vpac.ndg.query.filter.Rank;
 import org.vpac.ndg.query.iteration.Reduction;
 import org.vpac.ndg.query.math.BoxReal;
 import org.vpac.ndg.query.math.ScalarElement;
@@ -28,7 +31,6 @@ import org.vpac.ndg.query.math.Swizzle;
 import org.vpac.ndg.query.math.SwizzleFactory;
 import org.vpac.ndg.query.math.VectorReal;
 import org.vpac.ndg.query.sampling.Cell;
-import org.vpac.ndg.query.sampling.CellType;
 import org.vpac.ndg.query.sampling.PixelSource;
 import org.vpac.ndg.query.sampling.PixelSourceScalar;
 
@@ -48,7 +50,7 @@ public class MinimiseForTime implements Filter {
 	 */
 	public int threshold = Integer.MIN_VALUE;
 
-	@Constraint(dimensions=1)
+	@Rank(is = 1)
 	public PixelSource intime;
 
 	/**

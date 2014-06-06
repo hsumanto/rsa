@@ -21,6 +21,8 @@ package org.vpac.ndg.query;
 
 import java.io.IOException;
 
+import org.vpac.ndg.query.filter.CellType;
+import org.vpac.ndg.query.filter.InheritDimensions;
 import org.vpac.ndg.query.iteration.CoordinatePair;
 import org.vpac.ndg.query.iteration.Rectangle;
 import org.vpac.ndg.query.iteration.Reduction;
@@ -31,7 +33,6 @@ import org.vpac.ndg.query.math.SwizzleFactory;
 import org.vpac.ndg.query.math.VectorInt;
 import org.vpac.ndg.query.math.VectorReal;
 import org.vpac.ndg.query.sampling.Cell;
-import org.vpac.ndg.query.sampling.CellType;
 import org.vpac.ndg.query.sampling.PixelSource;
 import org.vpac.ndg.query.sampling.PixelSourceScalar;
 

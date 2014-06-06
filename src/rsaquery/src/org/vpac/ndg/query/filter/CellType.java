@@ -17,7 +17,7 @@
  * http://www.crcsi.com.au/
  */
 
-package org.vpac.ndg.query.sampling;
+package org.vpac.ndg.query.filter;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -26,6 +26,8 @@ import java.lang.annotation.Target;
 
 import org.vpac.ndg.query.Filter;
 import org.vpac.ndg.query.math.Element;
+import org.vpac.ndg.query.sampling.Cell;
+import org.vpac.ndg.query.sampling.PixelSource;
 
 import ucar.ma2.DataType;
 

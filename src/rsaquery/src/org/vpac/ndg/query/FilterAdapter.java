@@ -31,6 +31,9 @@ import org.slf4j.LoggerFactory;
 import org.vpac.ndg.query.QueryDefinition.AttributeDefinition;
 import org.vpac.ndg.query.coordinates.HasBounds;
 import org.vpac.ndg.query.coordinates.HasRank;
+import org.vpac.ndg.query.filter.CellType;
+import org.vpac.ndg.query.filter.InheritDimensions;
+import org.vpac.ndg.query.filter.Rank;
 import org.vpac.ndg.query.math.BoxReal;
 import org.vpac.ndg.query.math.Swizzle;
 import org.vpac.ndg.query.math.SwizzleFactory;
@@ -38,7 +41,6 @@ import org.vpac.ndg.query.math.Type;
 import org.vpac.ndg.query.math.VectorReal;
 import org.vpac.ndg.query.sampling.Cell;
 import org.vpac.ndg.query.sampling.CellFactory;
-import org.vpac.ndg.query.sampling.CellType;
 import org.vpac.ndg.query.sampling.HasPrototype;
 import org.vpac.ndg.query.sampling.NodataNullStrategy;
 import org.vpac.ndg.query.sampling.NodataStrategy;
@@ -370,7 +372,7 @@ public class FilterAdapter implements HasBounds, HasRank, Diagnostics {
 					name));
 		}
 
-		Constraint con = f.getAnnotation(Constraint.class);
+		Rank con = f.getAnnotation(Rank.class);
 		checkConstraints(con, name, value);
 
 		// Assign.
@@ -385,23 +387,23 @@ public class FilterAdapter implements HasBounds, HasRank, Diagnostics {
 				String.format("%s.%s", this.name, f.getName()));
 	}
 
-	void checkConstraints(Constraint con, String name, Object value)
+	void checkConstraints(Rank con, String name, Object value)
 			throws QueryConfigurationException {
 
 		if (con == null)
 			return;
 
-		if (con.dimensions() >= 0) {
+		if (con.is() >= 0) {
 			if (!HasRank.class.isAssignableFrom(value.getClass()))
 				throw new QueryConfigurationException(String.format(
 						"Parameter %s.%s is has no dimensions; should be %dD.",
-						getName(), name, con.dimensions()));
+						getName(), name, con.is()));
 			HasRank shaped = (HasRank) value;
-			if (shaped.getRank() != con.dimensions()) {
+			if (shaped.getRank() != con.is()) {
 				throw new QueryConfigurationException(String.format(
 						"Parameter %s.%s is %dD; should be %dD.",
 						getName(), name, shaped.getRank(),
-						con.dimensions()));
+						con.is()));
 			}
 		}
 	}
