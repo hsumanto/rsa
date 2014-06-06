@@ -22,6 +22,8 @@ package org.vpac.ndg.query;
 import java.io.IOException;
 
 import org.vpac.ndg.query.filter.CellType;
+import org.vpac.ndg.query.filter.Description;
+import org.vpac.ndg.query.filter.Filter;
 import org.vpac.ndg.query.filter.InheritDimensions;
 import org.vpac.ndg.query.iteration.Kernel;
 import org.vpac.ndg.query.iteration.KernelPair;

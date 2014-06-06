@@ -34,8 +34,39 @@ import java.lang.annotation.Target;
 @Target({ ElementType.FIELD })
 public @interface Rank {
 	/**
+	 * @return The name of this group. Grouped fields must have the same number
+	 *         of dimensions. If the empty string is used, then the name is the
+	 *         same as the field name.
+	 */
+	String group() default "";
+
+	/**
+	 * @return Whether the rank of this field can be increased to match others
+	 *         in the group.
+	 */
+	boolean promote() default false;
+
+	/**
+	 * @return Whether the rank of this field can be reduced to match others in
+	 *         the group.
+	 */
+	boolean demote() default false;
+
+	/**
 	 * @return The field must have exactly this rank. Set to -1 to disable this
 	 *         check.
 	 */
 	int is() default -1;
+
+	/**
+	 * @return The rank of the field must be greater than or equal to this. Set
+	 *         to -1 to disable this check.
+	 */
+	int lowerBound() default -1;
+
+	/**
+	 * @return The rank of the field must be less than or equal to this. Set to
+	 *         -1 to disable this check.
+	 */
+	int upperBound() default -1;
 }

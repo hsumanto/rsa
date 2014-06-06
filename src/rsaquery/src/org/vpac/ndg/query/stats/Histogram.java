@@ -20,11 +20,11 @@ package org.vpac.ndg.query.stats;
 
 import java.io.IOException;
 
-import org.vpac.ndg.query.Description;
-import org.vpac.ndg.query.Filter;
 import org.vpac.ndg.query.QueryConfigurationException;
 import org.vpac.ndg.query.filter.Accumulator;
 import org.vpac.ndg.query.filter.CellType;
+import org.vpac.ndg.query.filter.Description;
+import org.vpac.ndg.query.filter.Filter;
 import org.vpac.ndg.query.filter.InheritDimensions;
 import org.vpac.ndg.query.math.BoxReal;
 import org.vpac.ndg.query.math.Element;

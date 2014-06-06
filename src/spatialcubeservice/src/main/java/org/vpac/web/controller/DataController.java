@@ -70,7 +70,6 @@ import org.vpac.ndg.lock.ProcessUpdateTimer;
 import org.vpac.ndg.query.Query;
 import org.vpac.ndg.query.QueryConfigurationException;
 import org.vpac.ndg.query.QueryDefinition;
-import org.vpac.ndg.query.filter.FilterUtils;
 import org.vpac.ndg.query.math.BoxReal;
 import org.vpac.ndg.query.math.ScalarElement;
 import org.vpac.ndg.query.math.Type;
@@ -105,6 +104,7 @@ import org.vpac.web.model.response.QueryResponse;
 import org.vpac.web.model.response.TaskCollectionResponse;
 import org.vpac.web.model.response.TaskResponse;
 import org.vpac.web.util.ControllerHelper;
+import org.vpac.web.util.FilterUtils;
 import org.vpac.web.util.Pager;
 
 import ucar.ma2.Array;

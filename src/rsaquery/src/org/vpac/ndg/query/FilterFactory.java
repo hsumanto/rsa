@@ -32,6 +32,7 @@ import org.vpac.ndg.query.QueryDefinition.LiteralDefinition;
 import org.vpac.ndg.query.QueryDefinition.SamplerDefinition;
 import org.vpac.ndg.query.coordinates.QueryCoordinateSystem;
 import org.vpac.ndg.query.coordinates.Warp;
+import org.vpac.ndg.query.filter.Filter;
 import org.vpac.ndg.query.sampling.PixelSource;
 import org.vpac.ndg.query.sampling.PixelSourceCombined;
 import org.vpac.ndg.query.sampling.PixelSourceScalar;

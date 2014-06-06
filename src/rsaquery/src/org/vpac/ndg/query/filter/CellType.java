@@ -24,7 +24,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import org.vpac.ndg.query.Filter;
 import org.vpac.ndg.query.math.Element;
 import org.vpac.ndg.query.sampling.Cell;
 import org.vpac.ndg.query.sampling.PixelSource;

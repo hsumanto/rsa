@@ -32,6 +32,7 @@ import org.vpac.ndg.query.QueryDefinition.AttributeDefinition;
 import org.vpac.ndg.query.coordinates.HasBounds;
 import org.vpac.ndg.query.coordinates.HasRank;
 import org.vpac.ndg.query.filter.CellType;
+import org.vpac.ndg.query.filter.Filter;
 import org.vpac.ndg.query.filter.InheritDimensions;
 import org.vpac.ndg.query.filter.Rank;
 import org.vpac.ndg.query.math.BoxReal;

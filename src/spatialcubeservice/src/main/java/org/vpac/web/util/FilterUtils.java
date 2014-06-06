@@ -17,7 +17,7 @@
  * http://www.crcsi.com.au/
  */
 
-package org.vpac.ndg.query.filter;
+package org.vpac.web.util;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -27,8 +27,8 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vpac.ndg.query.Filter;
 import org.vpac.ndg.query.VariableAdapter;
+import org.vpac.ndg.query.filter.Filter;
 import org.vpac.ndg.query.math.ElementFloat;
 import org.vpac.ndg.query.math.Type;
 import org.vpac.ndg.query.sampling.NodataStrategy;

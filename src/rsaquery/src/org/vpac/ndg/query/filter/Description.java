@@ -17,7 +17,7 @@
  * http://www.crcsi.com.au/
  */
 
-package org.vpac.ndg.query;
+package org.vpac.ndg.query.filter;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

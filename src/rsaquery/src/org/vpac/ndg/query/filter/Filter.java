@@ -17,10 +17,11 @@
  * http://www.crcsi.com.au/
  */
 
-package org.vpac.ndg.query;
+package org.vpac.ndg.query.filter;
 
 import java.io.IOException;
 
+import org.vpac.ndg.query.QueryConfigurationException;
 import org.vpac.ndg.query.math.BoxReal;
 import org.vpac.ndg.query.math.Element;
 import org.vpac.ndg.query.math.VectorReal;
