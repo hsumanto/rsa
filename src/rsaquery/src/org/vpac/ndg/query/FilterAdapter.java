@@ -253,7 +253,8 @@ public class FilterAdapter implements HasBounds, HasRank, Diagnostics {
 		} catch (IndexOutOfBoundsException e) {
 			throw new QueryRuntimeException(String.format(
 					"Failed to set coordinates of filter \"%s\". Check "
-							+ "dimensionality.", name), e);
+							+ "dimensionality. Class is %s", name,
+							innerFilter.getClass().getSimpleName()), e);
 		}
 		innerFilter.kernel(internalCo);
 		lastCo.set(co);

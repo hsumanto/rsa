@@ -136,27 +136,30 @@ public class GroupImpl implements HasRank, HasDimensions, HasBounds {
 	private void foldInstanceConstraints(Field field, PixelSource source,
 			Rank rank) throws QueryConfigurationException {
 
-		if (source.getRank() < rankLower) {
-			throw new QueryConfigurationException(String.format(
-					"Field %s can't have fewer dimensions than %s. Path is"
-					+ " %s.",
-					d.memberStr(field), d.memberStr(rankLowerField),
-					d.pathStr(field)));
+		if (!rank.promote()) {
+			if (source.getRank() < rankLower) {
+				throw new QueryConfigurationException(String.format(
+						"Field %s can't have fewer dimensions than %s. Path is %s.",
+						d.memberStr(field), d.memberStr(rankLowerField),
+						d.pathStr(field)));
+			}
+			if (source.getRank() < rankUpper) {
+				rankUpper = source.getRank();
+				rankUpperField = field;
+			}
 		}
-		if (source.getRank() > rankUpper) {
-			throw new QueryConfigurationException(String.format(
-					"Field %s can't have more dimensions than %s. Path is"
-					+ " %s",
-					d.memberStr(field), d.memberStr(rankUpperField),
-					d.pathStr(field)));
-		}
-		if (!rank.demote() && source.getRank() > rankLower) {
-			rankLower = source.getRank();
-			rankLowerField = field;
-		}
-		if (!rank.promote() && source.getRank() < rankUpper) {
-			rankUpper = source.getRank();
-			rankUpperField = field;
+		if (!rank.demote()) {
+			if (source.getRank() > rankUpper) {
+				throw new QueryConfigurationException(String.format(
+						"Field %s can't have more dimensions than %s. Path is"
+						+ " %s",
+						d.memberStr(field), d.memberStr(rankUpperField),
+						d.pathStr(field)));
+			}
+			if (source.getRank() > rankLower) {
+				rankLower = source.getRank();
+				rankLowerField = field;
+			}
 		}
 
 		// Soft constraints.
@@ -183,6 +186,32 @@ public class GroupImpl implements HasRank, HasDimensions, HasBounds {
 	void coerce() throws QueryConfigurationException {
 		int targetRank = getRank();
 
+		// Reorder dimensions first.
+		dimensions = null;
+		Field dimsField = null;
+		for (Field field : members) {
+			PixelSource source = getValue(field);
+			Swizzle swizzle = SwizzleFactory.resize(source.getRank(),
+					targetRank);
+			if (source.getRank() >= targetRank) {
+				// Use this source for the dimension names.
+				String[] dims = new String[targetRank];
+				swizzle.swizzle(source.getPrototype().getDimensions(), dims);
+				if (dimensions == null) {
+					dimensions = dims;
+					dimsField = field;
+				} else if (!Arrays.equals(dimensions, dims)) {
+					throw new QueryConfigurationException(String.format(
+							"Could not determine dimensions of group %s:"
+							+ " can't decide between candidates %s"
+							+ " specified by %s and %s specified by %s.",
+							this.name, dimensions, dimsField,
+							dims, field));
+				}
+			}
+		}
+
+		// Adjust rank, and wrap
 		for (Field field : members) {
 			PixelSource source = getValue(field);
 			if (source.getRank() == targetRank)
@@ -213,30 +242,8 @@ public class GroupImpl implements HasRank, HasDimensions, HasBounds {
 			}
 		}
 
-		dimensions = null;
-		Field dimsField = null;
-		for (Field field : members) {
-			PixelSource source = getValue(field);
-			Swizzle swizzle = SwizzleFactory.resize(source.getRank(),
-					targetRank);
-			if (source.getRank() >= targetRank) {
-				// Use this source for the dimension names.
-				String[] dims = new String[targetRank];
-				swizzle.swizzle(source.getPrototype().getDimensions(), dims);
-				if (dimensions == null) {
-					dimensions = dims;
-					dimsField = field;
-				} else if (!Arrays.equals(dimensions, dims)) {
-					throw new QueryConfigurationException(String.format(
-							"Could not determine dimensions of group %s:"
-							+ " can't decide between candidates %s"
-							+ " specified by %s and %s specified by %s.",
-							this.name, dimensions, dimsField,
-							dims, field));
-				}
-			}
-		}
-
+		// Union bounds of all members. Note that any virtual dimensions (due
+		// to promotion) will be ignored, because they will have zero length.
 		bounds = new BoxReal(targetRank);
 		for (Field field : members) {
 			PixelSource source = getValue(field);
