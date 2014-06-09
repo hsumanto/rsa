@@ -72,6 +72,11 @@ public class FilteredPixelVector implements PixelSourceVector {
 	}
 
 	@Override
+	public String[] getDimensions() {
+		return source.getDimensions();
+	}
+
+	@Override
 	public String toString() {
 		return String.format("FilteredPixel(%s.%s)", filter.getName(), source);
 	}

@@ -80,4 +80,9 @@ public class CellScalar implements Cell {
 		return prototype;
 	}
 
+	@Override
+	public String[] getDimensions() {
+		return prototype.getDimensions();
+	}
+
 }

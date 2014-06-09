@@ -22,9 +22,7 @@ package org.vpac.ndg.query;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -50,11 +48,7 @@ import org.vpac.ndg.query.sampling.NodataNullStrategy;
 import org.vpac.ndg.query.sampling.NodataStrategy;
 import org.vpac.ndg.query.sampling.PixelSource;
 import org.vpac.ndg.query.sampling.PixelSourceFactory;
-import org.vpac.ndg.query.sampling.PixelSourceScalar;
-import org.vpac.ndg.query.sampling.PixelSourceVector;
 import org.vpac.ndg.query.sampling.Prototype;
-import org.vpac.ndg.query.sampling.SwizzledPixelScalar;
-import org.vpac.ndg.query.sampling.SwizzledPixelVector;
 
 /**
  * A node in a query graph. This class wraps {@link Filter Filters}, providing
@@ -73,17 +67,19 @@ public class FilterAdapter implements HasBounds, HasRank, Diagnostics {
 	private Filter innerFilter;
 	private VectorReal internalCo;
 	private VectorReal lastCo;
+	Map<String, GroupImpl> inputGroups;
 	private Map<String, PixelSource> outputSockets;
 
 	CellFactory cellFactory;
 	PixelSourceFactory pixelSourceFactory;
 
-	public FilterAdapter(String name, Filter innerFilter) throws
-			QueryConfigurationException {
+	public FilterAdapter(String name, Filter innerFilter)
+			throws QueryConfigurationException {
 
 		this.name = name;
 		this.innerFilter = innerFilter;
 		d = new FilterDebug(this);
+		inputGroups = new HashMap<String, GroupImpl>();
 		outputSockets = new HashMap<String, PixelSource>();
 		cellFactory = new CellFactory();
 		pixelSourceFactory = new PixelSourceFactory();
@@ -99,16 +95,16 @@ public class FilterAdapter implements HasBounds, HasRank, Diagnostics {
 			f = innerFilter.getClass().getField(name);
 		} catch (NoSuchFieldException e) {
 			throw new QueryConfigurationException(String.format(
-					"Could not create output socket %s in filter %s",
-					name, innerFilter.getClass()), e);
+					"Could not create output socket %s in filter %s", name,
+					innerFilter.getClass()), e);
 		}
 
 		CellType cellType = f.getAnnotation(CellType.class);
 		if (cellType == null) {
 			throw new QueryConfigurationException(String.format(
-					"Could not create output socket %s in filter %s: no type " +
-					"defined (missing @CellType annotation).",
-					name, innerFilter.getClass()));
+					"Could not create output socket %s in filter %s: no type "
+							+ "defined (missing @CellType annotation).", name,
+					innerFilter.getClass()));
 		}
 
 		Prototype prototype;
@@ -198,11 +194,12 @@ public class FilterAdapter implements HasBounds, HasRank, Diagnostics {
 	/**
 	 * Get an output socket. Note that this must be called after the shape of
 	 * the filter has been set.
-	 *
-	 * @param name The name of the output socket.
+	 * 
+	 * @param name
+	 *            The name of the output socket.
 	 * @return A sampler that fetches filtered values from this filter.
-	 * @throws QueryConfigurationException if the field does not exist, or if it
-	 *             is inaccessible.
+	 * @throws QueryConfigurationException
+	 *             if the field does not exist, or if it is inaccessible.
 	 */
 	public PixelSource getOutputSocket(String name)
 			throws QueryConfigurationException {
@@ -221,15 +218,15 @@ public class FilterAdapter implements HasBounds, HasRank, Diagnostics {
 			f = innerFilter.getClass().getField(name);
 		} catch (NoSuchFieldException e) {
 			throw new QueryConfigurationException(String.format(
-					"Could not create output socket %s in filter %s",
-					name, innerFilter.getClass()), e);
+					"Could not create output socket %s in filter %s", name,
+					innerFilter.getClass()), e);
 		}
 		try {
 			f.set(innerFilter, cell);
 		} catch (IllegalAccessException e) {
 			throw new QueryConfigurationException(String.format(
-					"Could not assign output socket %s in filter %s",
-					name, innerFilter.getClass()), e);
+					"Could not assign output socket %s in filter %s", name,
+					innerFilter.getClass()), e);
 		}
 
 		outputSockets.put(name, socket);
@@ -242,8 +239,11 @@ public class FilterAdapter implements HasBounds, HasRank, Diagnostics {
 	 * given coordinate. If the filter has already been run for those
 	 * coordinates, cached values may be used for the outputs, in which case the
 	 * kernel will not be called.
-	 * @param co The coordinates in the output image being written to.
-	 * @throws IOException If the filter's source fields could not be read from.
+	 * 
+	 * @param co
+	 *            The coordinates in the output image being written to.
+	 * @throws IOException
+	 *             If the filter's source fields could not be read from.
 	 */
 	public void invoke(VectorReal co) throws IOException {
 		try {
@@ -252,8 +252,8 @@ public class FilterAdapter implements HasBounds, HasRank, Diagnostics {
 			internalCo.set(co);
 		} catch (IndexOutOfBoundsException e) {
 			throw new QueryRuntimeException(String.format(
-					"Failed to set coordinates of filter \"%s\". Check " +
-					"dimensionality.", name), e);
+					"Failed to set coordinates of filter \"%s\". Check "
+							+ "dimensionality.", name), e);
 		}
 		innerFilter.kernel(internalCo);
 		lastCo.set(co);
@@ -264,270 +264,10 @@ public class FilterAdapter implements HasBounds, HasRank, Diagnostics {
 		return bounds;
 	}
 
-	/**
-	 * Helper class for processing grouped constraints (where fields are
-	 * co-dependent).
-	 * @author Alex Fraser
-	 */
-	private static class GroupImpl implements HasRank, HasDimensions, HasBounds {
-		static final Logger log = LoggerFactory.getLogger(GroupImpl.class);
-
-		String name;
-		Filter filter;
-		FilterDebug d;
-
-		Collection<Field> members;
-		// Lower and upper bounds of the members in the group.
-		int rankLower;
-		int rankUpper;
-		Field rankLowerField;
-		Field rankUpperField;
-
-		int intrinsicMax;
-		String[] dimensions;
-		BoxReal bounds;
-
-		GroupImpl(String name, FilterAdapter context) {
-			this.name = name;
-			this.filter = context.getInnerFilter();
-			d = new FilterDebug(context);
-
-			members = new ArrayList<Field>();
-			// Lower and upper bounds of the members in the group.
-			rankLower = Integer.MIN_VALUE;
-			rankUpper = Integer.MAX_VALUE;
-			rankLowerField = null;
-			rankUpperField = null;
-
-			intrinsicMax = Integer.MIN_VALUE;
-
-			dimensions = null;
-		}
-
-		void add(Field field) throws QueryConfigurationException {
-			Rank rank = field.getAnnotation(Rank.class);
-			if (rank == null)
-				rank = getDefaultRankConstraint();
-
-			foldClassConstraints(field, rank);
-
-			PixelSource source = getValue(field);
-			foldInstanceConstraints(field, source, rank);
-			members.add(field);
-		}
-
-		private PixelSource getValue(Field field)
-				throws QueryConfigurationException {
-			PixelSource source;
-			try {
-				source = (PixelSource) field.get(filter);
-			} catch (IllegalAccessException e) {
-				throw new QueryConfigurationException(String.format(
-						"Could not access reduction field %s.",
-						d.memberStr(field)), e);
-			}
-			if (source == null) {
-				throw new QueryConfigurationException(String.format(
-						"Field %s has not been attached to an input.",
-						d.pathStr(field)));
-			}
-			return source;
-		}
-
-		private void foldClassConstraints(Field field, Rank rank)
-				throws QueryConfigurationException {
-
-			// Lower-bound starts very small, and grows as each new constraint
-			// is considered. Vice-versa for upper bound.
-			if (rank.lowerBound() >= 0 && rank.lowerBound() > rankLower) {
-				rankLower = rank.lowerBound();
-				rankLowerField = field;
-			}
-			if (rank.upperBound() >= 0 && rank.upperBound() < rankUpper) {
-				rankUpper = rank.upperBound();
-				rankUpperField = field;
-			}
-			if (rank.is() >= 0) {
-				if (rankLower > rank.is()) {
-					throw new QueryConfigurationException(String.format(
-							"Rank constraints on %s can't be met: `is`"
-							+ " parameter is less than group \"%s\" lower"
-							+ " bound. The lower bound was set by %s.",
-							d.memberStr(field), this.name,
-							d.memberStr(rankUpperField)));
-				}
-				if (rankUpper < rank.is()) {
-					throw new QueryConfigurationException(String.format(
-							"Rank constraints on %s can't be met: `is`"
-							+ " parameter is greater than group \"%s\" upper"
-							+ " bound. The upper bound was set by %s.",
-							d.memberStr(field), this.name,
-							d.memberStr(rankUpperField)));
-				}
-				rankLower = rankUpper = rank.is();
-				rankLowerField = rankUpperField = field;
-			}
-			if (rankUpper < rankLower) {
-				throw new QueryConfigurationException(String.format(
-						"Rank constraints on %s (group %s) can't be met: lower"
-						+ " bound is greater than upper bound in group %s.",
-						d.memberStr(field), this.name));
-			}
-		}
-
-		private void foldInstanceConstraints(Field field, PixelSource source,
-				Rank rank) throws QueryConfigurationException {
-
-			if (source.getRank() < rankLower) {
-				throw new QueryConfigurationException(String.format(
-						"Field %s can't have fewer dimensions than %s. Path is"
-						+ " %s.",
-						d.memberStr(field), d.memberStr(rankLowerField),
-						d.pathStr(field)));
-			}
-			if (source.getRank() > rankUpper) {
-				throw new QueryConfigurationException(String.format(
-						"Field %s can't have more dimensions than %s. Path is"
-						+ " %s",
-						d.memberStr(field), d.memberStr(rankUpperField),
-						d.pathStr(field)));
-			}
-			if (!rank.demote() && source.getRank() > rankLower) {
-				rankLower = source.getRank();
-				rankLowerField = field;
-			}
-			if (!rank.promote() && source.getRank() < rankUpper) {
-				rankUpper = source.getRank();
-				rankUpperField = field;
-			}
-
-			// Soft constraints.
-			if (source.getRank() > intrinsicMax)
-				intrinsicMax = source.getRank();
-		}
-
-		/**
-		 * Provide defaults for annotations :/
-		 */
-		@Rank
-		public PixelSource _dummyField;
-		private Rank getDefaultRankConstraint() {
-			Field field;
-			try {
-				field = GroupImpl.class.getField("_dummyField");
-			} catch (NoSuchFieldException e) {
-				throw new RuntimeException(
-						"Failed to access dummy field. Should be here!", e);
-			}
-			return field.getAnnotation(Rank.class);
-		}
-
-		void coerce() throws QueryConfigurationException {
-			int targetRank = getRank();
-
-			String[] effectiveDims = null;
-			Swizzle swizzle = SwizzleFactory.resize(targetRank, targetRank);
-			for (Field field : members) {
-				PixelSource source = getValue(field);
-				if (source.getRank() >= targetRank) {
-					String[] dims = new String[targetRank];
-					swizzle.swizzle(source.getPrototype().getDimensions(), dims);
-					if (effectiveDims == null)
-						effectiveDims = dims;
-					else if (!Arrays.equals(effectiveDims, dims));
-						
-				}
-			}
-
-			for (Field field : members) {
-				PixelSource source = getValue(field);
-				if (source.getRank() == targetRank)
-					continue;
-
-				String message;
-				if (source.getRank() > targetRank)
-					message = "Demoting dimensionality of {} to rank {}.";
-				else
-					message = "Promoting dimensionality of {} to rank {}.";
-				log.info(message, d.pathStr(field), targetRank);
-
-				swizzle = SwizzleFactory.resize(
-						source.getRank(), targetRank);
-				PixelSource wrap;
-				if (PixelSourceScalar.class.isAssignableFrom(source.getClass())) {
-					wrap = new SwizzledPixelScalar((PixelSourceScalar) source,
-							swizzle, source.getRank(), targetRank);
-				} else {
-					wrap = new SwizzledPixelVector((PixelSourceVector) source,
-							swizzle, source.getRank(), targetRank);
-				}
-				try {
-					field.set(filter, wrap);
-				} catch (IllegalAccessException e) {
-					throw new QueryConfigurationException(String.format(
-							"Could not set field %s.", d.memberStr(field)), e);
-				}
-			}
-
-			dimensions = null;
-			Field dimsField = null;
-			for (Field field : members) {
-				PixelSource source = getValue(field);
-				swizzle = SwizzleFactory.resize(source.getRank(), targetRank);
-				if (source.getRank() >= targetRank) {
-					// Use this source for the dimension names.
-					String[] dims = new String[targetRank];
-					swizzle.swizzle(source.getPrototype().getDimensions(), dims);
-					if (effectiveDims == null) {
-						effectiveDims = dims;
-						dimsField = field;
-					} else if (!Arrays.equals(effectiveDims, dims)) {
-						throw new QueryConfigurationException(String.format(
-								"Could not determine dimensions of group %s:"
-								+ " can't decide between candidates %s"
-								+ " specified by %s and %s specified by %s.",
-								this.name, effectiveDims, dimsField,
-								dims, field));
-					}
-				}
-			}
-
-			bounds = new BoxReal(targetRank);
-			for (Field field : members) {
-				PixelSource source = getValue(field);
-				bounds.unionIfPositive(source.getBounds());
-			}
-		}
-
-		/**
-		 * @return The effective rank of this group. If there is a choice then
-		 *         the rank will be promoted up to the maximum rank of all
-		 *         members of the group.
-		 */
-		@Override
-		public int getRank() {
-			return Math.min(intrinsicMax, rankUpper);
-		}
-
-		@Override
-		public String[] getDimensions() {
-			return dimensions;
-		}
-
-		@Override
-		public BoxReal getBounds() {
-			return bounds;
-		}
-
-	}
-
-	public void applyInputConstraints() throws QueryConfigurationException {
-
-		Map<String, GroupImpl> groups = new HashMap<String, GroupImpl>();
-
+	public void gatherInputConstraints() throws QueryConfigurationException {
 		// This is a two-step process:
 		// 1. Gather all constraints for each group. This means iterating over
-		//    all public fields.
+		// all public fields.
 		// 2. <See below>
 		for (Field field : innerFilter.getClass().getFields()) {
 			if ((field.getModifiers() | Modifier.PUBLIC) == 0)
@@ -543,18 +283,20 @@ public class FilterAdapter implements HasBounds, HasRank, Diagnostics {
 			if ("".equals(groupName))
 				groupName = field.getName();
 
-			GroupImpl group = groups.get(groupName);
+			GroupImpl group = inputGroups.get(groupName);
 			if (group == null) {
 				group = new GroupImpl(groupName, this);
-				groups.put(groupName, group);
+				inputGroups.put(groupName, group);
 			}
 			group.add(field);
 		}
+	}
 
+	public void applyInputConstraints() throws QueryConfigurationException {
 		// 1. <See above>
 		// 2. Coerce inputs to fit constraints, where the constraints are
-		//    lenient (e.g. where dimensional promotion is allowed).
-		for (GroupImpl group : groups.values()) {
+		// lenient (e.g. where dimensional promotion is allowed).
+		for (GroupImpl group : inputGroups.values()) {
 			group.coerce();
 		}
 	}
@@ -570,27 +312,33 @@ public class FilterAdapter implements HasBounds, HasRank, Diagnostics {
 		if (reduces == null) {
 			throw new QueryConfigurationException(String.format(
 					"Could not determine dimensionality of filter %s. Class "
-					+ "should be annotated with @InheritDimensions.",
+							+ "should be annotated with @InheritDimensions.",
 					innerFilter.getClass().getName()));
 		}
 
-		Field field;
-		try {
-			field = innerFilter.getClass().getField(reduces.from());
-		} catch (NoSuchFieldException e) {
-			throw new QueryConfigurationException(String.format(
-					"Could not find reduction field %s.",
-					d.memberStr(reduces.from())));
-		}
+		String inputName = reduces.from();
 
 		Object value;
-		try {
-			value = field.get(innerFilter);
-		} catch (IllegalAccessException e) {
-			throw new QueryConfigurationException(String.format(
-					"Could not access reduction field %s.",
-					d.memberStr(reduces.from())));
+
+		value = inputGroups.get(inputName);
+
+		if (value == null) {
+			Field field = null;
+			try {
+				field = innerFilter.getClass().getField(reduces.from());
+				value = field.get(innerFilter);
+			} catch (NoSuchFieldException e) {
+				// Try group instead.
+				throw new QueryConfigurationException(String.format(
+						"Could not find reduction field or group %s.",
+						d.memberStr(reduces.from())));
+			} catch (IllegalAccessException e) {
+				throw new QueryConfigurationException(String.format(
+						"Could not access reduction field %s.",
+						d.memberStr(reduces.from())));
+			}
 		}
+
 		if (value == null) {
 			throw new QueryConfigurationException(String.format(
 					"Reduction field %s is null. Path is %s.",
@@ -601,14 +349,14 @@ public class FilterAdapter implements HasBounds, HasRank, Diagnostics {
 					"Reduction field %s has no bounds. Path is %s.",
 					d.memberStr(reduces.from()), d.pathStr(reduces.from())));
 		}
-		if (!HasPrototype.class.isAssignableFrom(value.getClass())) {
+		if (!HasDimensions.class.isAssignableFrom(value.getClass())) {
 			throw new QueryConfigurationException(String.format(
 					"Reduction field %s has no prototype. Path is %s.",
 					d.memberStr(reduces.from()), d.pathStr(reduces.from())));
 		}
 
 		BoxReal inputBounds = ((HasBounds) value).getBounds();
-		Prototype pt = ((HasPrototype) value).getPrototype();
+		String[] dims = ((HasDimensions) value).getDimensions();
 
 		// Inherit dimensionality
 		int inputDims = inputBounds.getRank();
@@ -616,8 +364,7 @@ public class FilterAdapter implements HasBounds, HasRank, Diagnostics {
 		Swizzle resizer = SwizzleFactory.resize(inputDims, outputDims);
 		BoxReal bounds = new BoxReal(outputDims);
 		resizer.swizzle(inputBounds, bounds);
-		dimensions = Arrays.copyOfRange(pt.getDimensions(), reduces.reduceBy(),
-				pt.getDimensions().length);
+		dimensions = Arrays.copyOfRange(dims, reduces.reduceBy(), dims.length);
 		log.debug("Dimensions of filter {} are \"{}\"", name, dimensions);
 		log.debug("Bounds of filter {} inferred to be {}", name, bounds);
 		setBounds(bounds);
@@ -650,12 +397,15 @@ public class FilterAdapter implements HasBounds, HasRank, Diagnostics {
 
 	/**
 	 * Assign a uniform field by name.
-	 *
-	 * @param name The name of the field.
-	 * @param value The value to set it to.
-	 * @throws QueryConfigurationException If the value is the wrong type, if it
-	 *         doesn't meet its constraints, or if the field can not be set to
-	 *         the given value.
+	 * 
+	 * @param name
+	 *            The name of the field.
+	 * @param value
+	 *            The value to set it to.
+	 * @throws QueryConfigurationException
+	 *             If the value is the wrong type, if it doesn't meet its
+	 *             constraints, or if the field can not be set to the given
+	 *             value.
 	 */
 	// Package scope: allows Query to access.
 	void setParameter(String name, Object value)
@@ -667,14 +417,14 @@ public class FilterAdapter implements HasBounds, HasRank, Diagnostics {
 			f = innerFilter.getClass().getField(name);
 		} catch (NoSuchFieldException e) {
 			throw new QueryConfigurationException(String.format(
-				"Parameter %s#%s is not defined.", innerFilter.getClass(),
-				name), e);
+					"Parameter %s#%s is not defined.", innerFilter.getClass(),
+					name), e);
 		}
 
 		if (value == null) {
 			throw new QueryConfigurationException(String.format(
-					"Parameter %s#%s should not be null.", innerFilter.getClass(),
-					name));
+					"Parameter %s#%s should not be null.",
+					innerFilter.getClass(), name));
 		}
 
 		Rank con = f.getAnnotation(Rank.class);
@@ -685,8 +435,8 @@ public class FilterAdapter implements HasBounds, HasRank, Diagnostics {
 			f.set(innerFilter, value);
 		} catch (IllegalAccessException e) {
 			throw new QueryConfigurationException(String.format(
-					"Parameter %s#%s can not be assigned.", innerFilter.getClass(),
-					name), e);
+					"Parameter %s#%s can not be assigned.",
+					innerFilter.getClass(), name), e);
 		}
 		log.info("Bound {} to {}", value,
 				String.format("%s.%s", this.name, f.getName()));
@@ -706,9 +456,8 @@ public class FilterAdapter implements HasBounds, HasRank, Diagnostics {
 			HasRank shaped = (HasRank) value;
 			if (shaped.getRank() != con.is()) {
 				throw new QueryConfigurationException(String.format(
-						"Parameter %s.%s is %dD; should be %dD.",
-						getName(), name, shaped.getRank(),
-						con.is()));
+						"Parameter %s.%s is %dD; should be %dD.", getName(),
+						name, shaped.getRank(), con.is()));
 			}
 		}
 	}
@@ -745,8 +494,8 @@ public class FilterAdapter implements HasBounds, HasRank, Diagnostics {
 					}
 				} else {
 					throw new QueryConfigurationException(String.format(
-							"Public filter field %s.%s is unbound.",
-							getName(), f.getName()));
+							"Public filter field %s.%s is unbound.", getName(),
+							f.getName()));
 				}
 			}
 		}
@@ -755,14 +504,14 @@ public class FilterAdapter implements HasBounds, HasRank, Diagnostics {
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		sb.append(String.format("Filter(%s) {\n",
-				innerFilter.getClass().getName()));
+		sb.append(String.format("Filter(%s) {\n", innerFilter.getClass()
+				.getName()));
 
 		for (Field f : innerFilter.getClass().getFields()) {
 			if ((f.getModifiers() | Modifier.PUBLIC) == 0)
 				continue;
-			if (!PixelSource.class.isAssignableFrom(f.getType()) &&
-					!Cell.class.isAssignableFrom(f.getType())) {
+			if (!PixelSource.class.isAssignableFrom(f.getType())
+					&& !Cell.class.isAssignableFrom(f.getType())) {
 				continue;
 			}
 			try {

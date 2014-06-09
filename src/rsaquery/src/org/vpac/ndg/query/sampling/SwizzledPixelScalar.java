@@ -84,6 +84,11 @@ public class SwizzledPixelScalar implements PixelSourceScalar {
 	}
 
 	@Override
+	public String[] getDimensions() {
+		return prototype.getDimensions();
+	}
+
+	@Override
 	public String toString() {
 		return String.format("SwizzledPixel(%s)", source);
 	}

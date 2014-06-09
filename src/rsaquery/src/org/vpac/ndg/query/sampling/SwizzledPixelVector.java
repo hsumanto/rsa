@@ -84,6 +84,11 @@ public class SwizzledPixelVector implements PixelSourceVector {
 	}
 
 	@Override
+	public String[] getDimensions() {
+		return prototype.getDimensions();
+	}
+
+	@Override
 	public String toString() {
 		return String.format("SwizzledPixel(%s)", source);
 	}
