@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<query xmlns="http://www.vpac.org/namespaces/rsaquery-0.2">
+
+	<input id="in2d" href="../input/2d_dataset.nc" />
+	<input id="in3d" href="../input/colour.nc" />
+
+	<output id="outfile" >
+		<grid ref="#in2d" />
+
+		<variable name="Band1" ref="#combine/output">
+			<attribute name="_FillValue" value="0" />
+		</variable>
+	</output>
+
+	<!-- Before we can multiply the two bands together, they need to be
+	     mapped to the 0-1 range. -->
+	<filter id="normaliseA" cls="org.vpac.ndg.query.NormaliseRange">
+		<sampler name="input" ref="#in2d/time" />
+	</filter>
+
+	<!-- Take a slice through the 3D dataset to convert it to 2D -->
+	<filter id="normaliseB" cls="org.vpac.ndg.query.NormaliseRange">
+		<sampler name="input" ref="#in3d/Quality">
+			<slice dimension="time" value="0"/>
+		</sampler>
+	</filter>
+
+	<filter id="combine" cls="org.vpac.ndg.query.MulBinary">
+		<sampler name="inputA" ref="#normaliseA/output" />
+		<sampler name="inputB" ref="#normaliseB/output" />
+	</filter>
+</query>
+

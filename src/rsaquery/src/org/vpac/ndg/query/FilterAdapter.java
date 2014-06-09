@@ -22,7 +22,9 @@ package org.vpac.ndg.query;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -47,7 +49,11 @@ import org.vpac.ndg.query.sampling.NodataNullStrategy;
 import org.vpac.ndg.query.sampling.NodataStrategy;
 import org.vpac.ndg.query.sampling.PixelSource;
 import org.vpac.ndg.query.sampling.PixelSourceFactory;
+import org.vpac.ndg.query.sampling.PixelSourceScalar;
+import org.vpac.ndg.query.sampling.PixelSourceVector;
 import org.vpac.ndg.query.sampling.Prototype;
+import org.vpac.ndg.query.sampling.SwizzledPixelScalar;
+import org.vpac.ndg.query.sampling.SwizzledPixelVector;
 
 /**
  * A node in a query graph. This class wraps {@link Filter Filters}, providing
@@ -254,6 +260,257 @@ public class FilterAdapter implements HasBounds, HasRank, Diagnostics {
 	@Override
 	public BoxReal getBounds() {
 		return bounds;
+	}
+
+	/**
+	 * @param fieldName The name of the field.
+	 * @return The name of the member, qualified by the name of the inner filter
+	 *         (e.g. Foo.bar). This should be used for messages that relate to
+	 *         the <em>class</em>, e.g. bugs, rather than the instance.
+	 * @see #pathStr(String)
+	 */
+	public String memberStr(String fieldName){
+		String className = innerFilter.getClass().getSimpleName();
+		return String.format("%s.%s", className, fieldName);
+	}
+
+	/**
+	 * @see #pathStr(String)
+	 */
+	public Object memberStr(Field field) {
+		String className = field.getDeclaringClass().getSimpleName();
+		return String.format("%s.%s", className, field.getName());
+	}
+
+	/**
+	 * @param fieldName The name of the field.
+	 * @return The path of the member, qualified by the ID of the node it is
+	 *         being used in (e.g. #foo/bar). (e.g. Foo.bar). This should be
+	 *         used for messages that relate to the <em>instance</em>, e.g.
+	 *         configuration errors, rather than the class.
+	 * @see #memberStr(String)
+	 */
+	public String pathStr(String fieldName){
+		return String.format("#%s/%s", getName(), fieldName);
+	}
+
+	/**
+	 * @see #pathStr(String)
+	 */
+	public Object pathStr(Field field) {
+		return pathStr(field.getName());
+	}
+
+	/**
+	 * Helper class for processing grouped constraints (where fields are
+	 * co-dependent).
+	 * @author Alex Fraser
+	 */
+	private class Group {
+		String name;
+		Collection<Field> members = new ArrayList<Field>();
+		// Lower and upper bounds of the members in the group.
+		int rankLower = Integer.MIN_VALUE;
+		int rankUpper = Integer.MAX_VALUE;
+		Field rankLowerField = null;
+		Field rankUpperField = null;
+
+		int intrinsicMax = Integer.MIN_VALUE;
+
+		Group(String name) {
+			this.name = name;
+		}
+
+		void add(Field field) throws QueryConfigurationException {
+			Rank rank = field.getAnnotation(Rank.class);
+			if (rank == null)
+				rank = getDefaultRankConstraint();
+
+			foldClassConstraints(field, rank);
+
+			PixelSource source = getValue(field);
+			foldInstanceConstraints(field, source, rank);
+			members.add(field);
+		}
+
+		private PixelSource getValue(Field field)
+				throws QueryConfigurationException {
+			PixelSource source;
+			try {
+				source = (PixelSource) field.get(innerFilter);
+			} catch (IllegalAccessException e) {
+				throw new QueryConfigurationException(String.format(
+						"Could not access reduction field %s.",
+						memberStr(field)), e);
+			}
+			if (source == null) {
+				throw new QueryConfigurationException(String.format(
+						"Field %s has not been attached to an input.",
+						pathStr(field)));
+			}
+			return source;
+		}
+
+		private void foldClassConstraints(Field field, Rank rank)
+				throws QueryConfigurationException {
+
+			// Lower-bound starts very small, and grows as each new constraint
+			// is considered. Vice-versa for upper bound.
+			if (rank.lowerBound() >= 0 && rank.lowerBound() > rankLower) {
+				rankLower = rank.lowerBound();
+				rankLowerField = field;
+			}
+			if (rank.upperBound() >= 0 && rank.upperBound() < rankUpper) {
+				rankUpper = rank.upperBound();
+				rankUpperField = field;
+			}
+			if (rank.is() >= 0) {
+				if (rankLower > rank.is()) {
+					throw new QueryConfigurationException(String.format(
+							"Rank constraints on %s can't be met: `is`"
+							+ " parameter is less than group \"%s\" lower"
+							+ " bound. The lower bound was set by %s.",
+							memberStr(field), this.name,
+							memberStr(rankUpperField)));
+				}
+				if (rankUpper < rank.is()) {
+					throw new QueryConfigurationException(String.format(
+							"Rank constraints on %s can't be met: `is`"
+							+ " parameter is greater than group \"%s\" upper"
+							+ " bound. The upper bound was set by %s.",
+							memberStr(field), this.name,
+							memberStr(rankUpperField)));
+				}
+				rankLower = rankUpper = rank.is();
+				rankLowerField = rankUpperField = field;
+			}
+			if (rankUpper < rankLower) {
+				throw new QueryConfigurationException(String.format(
+						"Rank constraints on %s (group %s) can't be met: lower"
+						+ " bound is greater than upper bound in group %s.",
+						memberStr(field), this.name));
+			}
+		}
+
+		private void foldInstanceConstraints(Field field, PixelSource source,
+				Rank rank) throws QueryConfigurationException {
+
+			if (source.getRank() < rankLower) {
+				throw new QueryConfigurationException(String.format(
+						"Field %s can't have fewer dimensions than %s. Path is"
+						+ " %s.",
+						memberStr(field), memberStr(rankLowerField),
+						pathStr(field)));
+			}
+			if (source.getRank() > rankUpper) {
+				throw new QueryConfigurationException(String.format(
+						"Field %s can't have more dimensions than %s. Path is"
+						+ " %s",
+						memberStr(field), memberStr(rankUpperField),
+						pathStr(field)));
+			}
+			if (!rank.demote() && source.getRank() > rankLower) {
+				rankLower = source.getRank();
+				rankLowerField = field;
+			}
+			if (!rank.promote() && source.getRank() < rankUpper) {
+				rankUpper = source.getRank();
+				rankUpperField = field;
+			}
+
+			// Soft constraints.
+			if (source.getRank() > intrinsicMax)
+				intrinsicMax = source.getRank();
+		}
+
+		/**
+		 * Provide defaults for annotations :/
+		 */
+		@Rank
+		public PixelSource _dummyField;
+		private Rank getDefaultRankConstraint() {
+			Field field;
+			try {
+				field = Group.class.getField("_dummyField");
+			} catch (NoSuchFieldException e) {
+				throw new RuntimeException(
+						"Failed to access dummy field. Should be here!", e);
+			}
+			return field.getAnnotation(Rank.class);
+		}
+
+		public void coerce() throws QueryConfigurationException {
+			// If there is a choice, promote.
+			int targetRank = Math.min(intrinsicMax, rankUpper);
+			for (Field field : members) {
+				PixelSource source = getValue(field);
+				if (source.getRank() == targetRank)
+					continue;
+
+				String message;
+				if (source.getRank() > targetRank)
+					message = "Promoting dimensionality of {} to rank {}.";
+				else
+					message = "Demoting dimensionality of {} to rank {}.";
+				log.info(message, pathStr(field), targetRank);
+
+				Swizzle swizzle = SwizzleFactory.resize(
+						source.getRank(), targetRank);
+				PixelSource wrap;
+				if (PixelSourceScalar.class.isAssignableFrom(source.getClass())) {
+					wrap = new SwizzledPixelScalar((PixelSourceScalar) source,
+							swizzle, source.getRank(), targetRank);
+				} else {
+					wrap = new SwizzledPixelVector((PixelSourceVector) source,
+							swizzle, source.getRank(), targetRank);
+				}
+				try {
+					field.set(innerFilter, wrap);
+				} catch (IllegalAccessException e) {
+					throw new QueryConfigurationException(String.format(
+							"Could not set field %s.", memberStr(field)), e);
+				}
+			}
+		}
+
+	}
+
+	public void applyInputConstraints() throws QueryConfigurationException {
+
+		Map<String, Group> groups = new HashMap<String, Group>();
+
+		// This is a two-step process:
+		// 1. Gather all constraints for each group. This means iterating over
+		//    all public fields.
+		// 2. <See below>
+		for (Field field : innerFilter.getClass().getFields()) {
+			if ((field.getModifiers() | Modifier.PUBLIC) == 0)
+				continue;
+
+			if (!PixelSource.class.isAssignableFrom(field.getType()))
+				continue;
+
+			String groupName = "";
+			Rank rankConstraint = field.getAnnotation(Rank.class);
+			if (rankConstraint != null)
+				groupName = field.getAnnotation(Rank.class).group();
+			if ("".equals(groupName))
+				groupName = field.getName();
+
+			Group group = groups.get(groupName);
+			if (group == null) {
+				group = new Group(groupName);
+				groups.put(groupName, group);
+			}
+			group.add(field);
+		}
+
+		// 1. <See above>
+		// 2. Coerce inputs to fit constraints, where the constraints are
+		//    lenient (e.g. where dimensional promotion is allowed).
+		for (Group group : groups.values()) {
+			group.coerce();
+		}
 	}
 
 	/**

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<query xmlns="http://www.vpac.org/namespaces/rsaquery-0.2">
+
+	<input id="2d" href="../input/2d_dataset.nc" />
+	<input id="3d" href="../input/abstract.nc" />
+
+	<output id="outfile" >
+		<grid ref="#2d" />
+
+		<variable name="Band1" ref="#combine/output">
+			<attribute name="_FillValue" value="0" />
+		</variable>
+	</output>
+
+	<filter id="combine" cls="org.vpac.ndg.query.AddBinary">
+		<sampler name="inputA" ref="#2d/temp" />
+		<sampler name="inputB" ref="#3d/Band1" />
+	</filter>
+</query>
+

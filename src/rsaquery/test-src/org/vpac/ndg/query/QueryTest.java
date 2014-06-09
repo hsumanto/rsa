@@ -390,10 +390,10 @@ public class QueryTest extends TestCase {
 	}
 
 	@Test
-	public void test_2D() throws Exception {
-		File config = new File("data/config/multiply_2_2d.xml");
-		File outputFile = new File("data/output/multiply_2_2d.nc");
-		File expectedFile = new File("data/expected/multiply_2_2d.nc");
+	public void test_2D_2D() throws Exception {
+		File config = new File("data/config/multiply_2d_2d.xml");
+		File outputFile = new File("data/output/multiply_2d_2d.nc");
+		File expectedFile = new File("data/expected/multiply_2d_2d.nc");
 
 		QueryRunner.run(config, outputFile);
 
@@ -413,6 +413,58 @@ public class QueryTest extends TestCase {
 			if (expected != null)
 				expected.close();
 		}
+	}
+
+	@Test
+	public void test_3D_2D_reduce() throws Exception {
+		File config = new File("data/config/multiply_3d_2d_reduce.xml");
+		File outputFile = new File("data/output/multiply_3d_2d_reduce.nc");
+		File expectedFile = new File("data/expected/multiply_3d_2d_reduce.nc");
+
+		QueryRunner.run(config, outputFile);
+
+		NetcdfFile dataset = null;
+		NetcdfFile expected = null;
+		try {
+			dataset = NetcdfFile.open(outputFile.getPath());
+			expected = NetcdfFile.open(expectedFile.getPath());
+			Variable vex;
+			Variable vac;
+			vex = expected.findVariable("Band1");
+			vac = dataset.findVariable("Band1");
+			assertArray(vex.getDataType(), vex.read(), vac.read());
+		} finally {
+			if (dataset != null)
+				dataset.close();
+			if (expected != null)
+				expected.close();
+		}
+	}
+
+	@Test
+	public void test_2D3D() throws Exception {
+		File config = new File("data/config/2d3d.xml");
+		File outputFile = new File("data/output/2d3d.nc");
+//		File expectedFile = new File("data/expected/2d3d.nc");
+
+		QueryRunner.run(config, outputFile);
+
+//		NetcdfFile dataset = null;
+//		NetcdfFile expected = null;
+//		try {
+//			dataset = NetcdfFile.open(outputFile.getPath());
+//			expected = NetcdfFile.open(expectedFile.getPath());
+//			Variable vex;
+//			Variable vac;
+//			vex = expected.findVariable("Band1");
+//			vac = dataset.findVariable("Band1");
+//			assertArray(vex.getDataType(), vex.read(), vac.read());
+//		} finally {
+//			if (dataset != null)
+//				dataset.close();
+//			if (expected != null)
+//				expected.close();
+//		}
 	}
 
 	@Test

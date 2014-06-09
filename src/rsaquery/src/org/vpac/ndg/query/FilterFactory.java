@@ -111,6 +111,8 @@ public class FilterFactory {
 		setLiterals(adapter, fd.literals);
 		setSamplers(adapter, fd.samplers);
 
+		adapter.applyInputConstraints();
+
 		// Try to infer the actual shape from the inputs.
 		adapter.inferShapeFromInputs();
 
