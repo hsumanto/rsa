@@ -44,6 +44,7 @@ import org.vpac.ndg.query.math.Type;
 import org.vpac.ndg.query.math.VectorReal;
 import org.vpac.ndg.query.sampling.Cell;
 import org.vpac.ndg.query.sampling.CellFactory;
+import org.vpac.ndg.query.sampling.HasDimensions;
 import org.vpac.ndg.query.sampling.HasPrototype;
 import org.vpac.ndg.query.sampling.NodataNullStrategy;
 import org.vpac.ndg.query.sampling.NodataStrategy;
@@ -65,6 +66,7 @@ public class FilterAdapter implements HasBounds, HasRank, Diagnostics {
 
 	private final Logger log = LoggerFactory.getLogger(FilterAdapter.class);
 
+	private FilterDebug d;
 	private BoxReal bounds;
 	private String[] dimensions;
 	private String name;
@@ -76,12 +78,12 @@ public class FilterAdapter implements HasBounds, HasRank, Diagnostics {
 	CellFactory cellFactory;
 	PixelSourceFactory pixelSourceFactory;
 
-
 	public FilterAdapter(String name, Filter innerFilter) throws
 			QueryConfigurationException {
 
 		this.name = name;
 		this.innerFilter = innerFilter;
+		d = new FilterDebug(this);
 		outputSockets = new HashMap<String, PixelSource>();
 		cellFactory = new CellFactory();
 		pixelSourceFactory = new PixelSourceFactory();
@@ -263,62 +265,43 @@ public class FilterAdapter implements HasBounds, HasRank, Diagnostics {
 	}
 
 	/**
-	 * @param fieldName The name of the field.
-	 * @return The name of the member, qualified by the name of the inner filter
-	 *         (e.g. Foo.bar). This should be used for messages that relate to
-	 *         the <em>class</em>, e.g. bugs, rather than the instance.
-	 * @see #pathStr(String)
-	 */
-	public String memberStr(String fieldName){
-		String className = innerFilter.getClass().getSimpleName();
-		return String.format("%s.%s", className, fieldName);
-	}
-
-	/**
-	 * @see #pathStr(String)
-	 */
-	public Object memberStr(Field field) {
-		String className = field.getDeclaringClass().getSimpleName();
-		return String.format("%s.%s", className, field.getName());
-	}
-
-	/**
-	 * @param fieldName The name of the field.
-	 * @return The path of the member, qualified by the ID of the node it is
-	 *         being used in (e.g. #foo/bar). (e.g. Foo.bar). This should be
-	 *         used for messages that relate to the <em>instance</em>, e.g.
-	 *         configuration errors, rather than the class.
-	 * @see #memberStr(String)
-	 */
-	public String pathStr(String fieldName){
-		return String.format("#%s/%s", getName(), fieldName);
-	}
-
-	/**
-	 * @see #pathStr(String)
-	 */
-	public Object pathStr(Field field) {
-		return pathStr(field.getName());
-	}
-
-	/**
 	 * Helper class for processing grouped constraints (where fields are
 	 * co-dependent).
 	 * @author Alex Fraser
 	 */
-	private class Group {
+	private static class GroupImpl implements HasRank, HasDimensions, HasBounds {
+		static final Logger log = LoggerFactory.getLogger(GroupImpl.class);
+
 		String name;
-		Collection<Field> members = new ArrayList<Field>();
+		Filter filter;
+		FilterDebug d;
+
+		Collection<Field> members;
 		// Lower and upper bounds of the members in the group.
-		int rankLower = Integer.MIN_VALUE;
-		int rankUpper = Integer.MAX_VALUE;
-		Field rankLowerField = null;
-		Field rankUpperField = null;
+		int rankLower;
+		int rankUpper;
+		Field rankLowerField;
+		Field rankUpperField;
 
-		int intrinsicMax = Integer.MIN_VALUE;
+		int intrinsicMax;
+		String[] dimensions;
+		BoxReal bounds;
 
-		Group(String name) {
+		GroupImpl(String name, FilterAdapter context) {
 			this.name = name;
+			this.filter = context.getInnerFilter();
+			d = new FilterDebug(context);
+
+			members = new ArrayList<Field>();
+			// Lower and upper bounds of the members in the group.
+			rankLower = Integer.MIN_VALUE;
+			rankUpper = Integer.MAX_VALUE;
+			rankLowerField = null;
+			rankUpperField = null;
+
+			intrinsicMax = Integer.MIN_VALUE;
+
+			dimensions = null;
 		}
 
 		void add(Field field) throws QueryConfigurationException {
@@ -337,16 +320,16 @@ public class FilterAdapter implements HasBounds, HasRank, Diagnostics {
 				throws QueryConfigurationException {
 			PixelSource source;
 			try {
-				source = (PixelSource) field.get(innerFilter);
+				source = (PixelSource) field.get(filter);
 			} catch (IllegalAccessException e) {
 				throw new QueryConfigurationException(String.format(
 						"Could not access reduction field %s.",
-						memberStr(field)), e);
+						d.memberStr(field)), e);
 			}
 			if (source == null) {
 				throw new QueryConfigurationException(String.format(
 						"Field %s has not been attached to an input.",
-						pathStr(field)));
+						d.pathStr(field)));
 			}
 			return source;
 		}
@@ -370,16 +353,16 @@ public class FilterAdapter implements HasBounds, HasRank, Diagnostics {
 							"Rank constraints on %s can't be met: `is`"
 							+ " parameter is less than group \"%s\" lower"
 							+ " bound. The lower bound was set by %s.",
-							memberStr(field), this.name,
-							memberStr(rankUpperField)));
+							d.memberStr(field), this.name,
+							d.memberStr(rankUpperField)));
 				}
 				if (rankUpper < rank.is()) {
 					throw new QueryConfigurationException(String.format(
 							"Rank constraints on %s can't be met: `is`"
 							+ " parameter is greater than group \"%s\" upper"
 							+ " bound. The upper bound was set by %s.",
-							memberStr(field), this.name,
-							memberStr(rankUpperField)));
+							d.memberStr(field), this.name,
+							d.memberStr(rankUpperField)));
 				}
 				rankLower = rankUpper = rank.is();
 				rankLowerField = rankUpperField = field;
@@ -388,7 +371,7 @@ public class FilterAdapter implements HasBounds, HasRank, Diagnostics {
 				throw new QueryConfigurationException(String.format(
 						"Rank constraints on %s (group %s) can't be met: lower"
 						+ " bound is greater than upper bound in group %s.",
-						memberStr(field), this.name));
+						d.memberStr(field), this.name));
 			}
 		}
 
@@ -399,15 +382,15 @@ public class FilterAdapter implements HasBounds, HasRank, Diagnostics {
 				throw new QueryConfigurationException(String.format(
 						"Field %s can't have fewer dimensions than %s. Path is"
 						+ " %s.",
-						memberStr(field), memberStr(rankLowerField),
-						pathStr(field)));
+						d.memberStr(field), d.memberStr(rankLowerField),
+						d.pathStr(field)));
 			}
 			if (source.getRank() > rankUpper) {
 				throw new QueryConfigurationException(String.format(
 						"Field %s can't have more dimensions than %s. Path is"
 						+ " %s",
-						memberStr(field), memberStr(rankUpperField),
-						pathStr(field)));
+						d.memberStr(field), d.memberStr(rankUpperField),
+						d.pathStr(field)));
 			}
 			if (!rank.demote() && source.getRank() > rankLower) {
 				rankLower = source.getRank();
@@ -431,7 +414,7 @@ public class FilterAdapter implements HasBounds, HasRank, Diagnostics {
 		private Rank getDefaultRankConstraint() {
 			Field field;
 			try {
-				field = Group.class.getField("_dummyField");
+				field = GroupImpl.class.getField("_dummyField");
 			} catch (NoSuchFieldException e) {
 				throw new RuntimeException(
 						"Failed to access dummy field. Should be here!", e);
@@ -439,9 +422,23 @@ public class FilterAdapter implements HasBounds, HasRank, Diagnostics {
 			return field.getAnnotation(Rank.class);
 		}
 
-		public void coerce() throws QueryConfigurationException {
-			// If there is a choice, promote.
-			int targetRank = Math.min(intrinsicMax, rankUpper);
+		void coerce() throws QueryConfigurationException {
+			int targetRank = getRank();
+
+			String[] effectiveDims = null;
+			Swizzle swizzle = SwizzleFactory.resize(targetRank, targetRank);
+			for (Field field : members) {
+				PixelSource source = getValue(field);
+				if (source.getRank() >= targetRank) {
+					String[] dims = new String[targetRank];
+					swizzle.swizzle(source.getPrototype().getDimensions(), dims);
+					if (effectiveDims == null)
+						effectiveDims = dims;
+					else if (!Arrays.equals(effectiveDims, dims));
+						
+				}
+			}
+
 			for (Field field : members) {
 				PixelSource source = getValue(field);
 				if (source.getRank() == targetRank)
@@ -449,12 +446,12 @@ public class FilterAdapter implements HasBounds, HasRank, Diagnostics {
 
 				String message;
 				if (source.getRank() > targetRank)
-					message = "Promoting dimensionality of {} to rank {}.";
-				else
 					message = "Demoting dimensionality of {} to rank {}.";
-				log.info(message, pathStr(field), targetRank);
+				else
+					message = "Promoting dimensionality of {} to rank {}.";
+				log.info(message, d.pathStr(field), targetRank);
 
-				Swizzle swizzle = SwizzleFactory.resize(
+				swizzle = SwizzleFactory.resize(
 						source.getRank(), targetRank);
 				PixelSource wrap;
 				if (PixelSourceScalar.class.isAssignableFrom(source.getClass())) {
@@ -465,19 +462,68 @@ public class FilterAdapter implements HasBounds, HasRank, Diagnostics {
 							swizzle, source.getRank(), targetRank);
 				}
 				try {
-					field.set(innerFilter, wrap);
+					field.set(filter, wrap);
 				} catch (IllegalAccessException e) {
 					throw new QueryConfigurationException(String.format(
-							"Could not set field %s.", memberStr(field)), e);
+							"Could not set field %s.", d.memberStr(field)), e);
 				}
 			}
+
+			dimensions = null;
+			Field dimsField = null;
+			for (Field field : members) {
+				PixelSource source = getValue(field);
+				swizzle = SwizzleFactory.resize(source.getRank(), targetRank);
+				if (source.getRank() >= targetRank) {
+					// Use this source for the dimension names.
+					String[] dims = new String[targetRank];
+					swizzle.swizzle(source.getPrototype().getDimensions(), dims);
+					if (effectiveDims == null) {
+						effectiveDims = dims;
+						dimsField = field;
+					} else if (!Arrays.equals(effectiveDims, dims)) {
+						throw new QueryConfigurationException(String.format(
+								"Could not determine dimensions of group %s:"
+								+ " can't decide between candidates %s"
+								+ " specified by %s and %s specified by %s.",
+								this.name, effectiveDims, dimsField,
+								dims, field));
+					}
+				}
+			}
+
+			bounds = new BoxReal(targetRank);
+			for (Field field : members) {
+				PixelSource source = getValue(field);
+				bounds.unionIfPositive(source.getBounds());
+			}
+		}
+
+		/**
+		 * @return The effective rank of this group. If there is a choice then
+		 *         the rank will be promoted up to the maximum rank of all
+		 *         members of the group.
+		 */
+		@Override
+		public int getRank() {
+			return Math.min(intrinsicMax, rankUpper);
+		}
+
+		@Override
+		public String[] getDimensions() {
+			return dimensions;
+		}
+
+		@Override
+		public BoxReal getBounds() {
+			return bounds;
 		}
 
 	}
 
 	public void applyInputConstraints() throws QueryConfigurationException {
 
-		Map<String, Group> groups = new HashMap<String, Group>();
+		Map<String, GroupImpl> groups = new HashMap<String, GroupImpl>();
 
 		// This is a two-step process:
 		// 1. Gather all constraints for each group. This means iterating over
@@ -497,9 +543,9 @@ public class FilterAdapter implements HasBounds, HasRank, Diagnostics {
 			if ("".equals(groupName))
 				groupName = field.getName();
 
-			Group group = groups.get(groupName);
+			GroupImpl group = groups.get(groupName);
 			if (group == null) {
-				group = new Group(groupName);
+				group = new GroupImpl(groupName, this);
 				groups.put(groupName, group);
 			}
 			group.add(field);
@@ -508,7 +554,7 @@ public class FilterAdapter implements HasBounds, HasRank, Diagnostics {
 		// 1. <See above>
 		// 2. Coerce inputs to fit constraints, where the constraints are
 		//    lenient (e.g. where dimensional promotion is allowed).
-		for (Group group : groups.values()) {
+		for (GroupImpl group : groups.values()) {
 			group.coerce();
 		}
 	}
@@ -533,31 +579,32 @@ public class FilterAdapter implements HasBounds, HasRank, Diagnostics {
 			field = innerFilter.getClass().getField(reduces.from());
 		} catch (NoSuchFieldException e) {
 			throw new QueryConfigurationException(String.format(
-					"Could not find reduction field %s in filter %s.",
-					reduces.from(), innerFilter.getClass().getName()));
+					"Could not find reduction field %s.",
+					d.memberStr(reduces.from())));
 		}
+
 		Object value;
 		try {
 			value = field.get(innerFilter);
 		} catch (IllegalAccessException e) {
 			throw new QueryConfigurationException(String.format(
-					"Could not access reduction field %s in filter %s.",
-					reduces.from(), innerFilter.getClass().getName()));
+					"Could not access reduction field %s.",
+					d.memberStr(reduces.from())));
 		}
 		if (value == null) {
 			throw new QueryConfigurationException(String.format(
-					"Reduction field %s in filter %s is null.",
-					reduces.from(), innerFilter.getClass().getName()));
+					"Reduction field %s is null. Path is %s.",
+					d.memberStr(reduces.from()), d.pathStr(reduces.from())));
 		}
 		if (!HasBounds.class.isAssignableFrom(value.getClass())) {
 			throw new QueryConfigurationException(String.format(
-					"Reduction field %s in filter %s has no bounds.",
-					reduces.from(), innerFilter.getClass().getName()));
+					"Reduction field %s has no bounds. Path is %s.",
+					d.memberStr(reduces.from()), d.pathStr(reduces.from())));
 		}
 		if (!HasPrototype.class.isAssignableFrom(value.getClass())) {
 			throw new QueryConfigurationException(String.format(
-					"Reduction field %s in filter %s has no prototype.",
-					reduces.from(), innerFilter.getClass().getName()));
+					"Reduction field %s has no prototype. Path is %s.",
+					d.memberStr(reduces.from()), d.pathStr(reduces.from())));
 		}
 
 		BoxReal inputBounds = ((HasBounds) value).getBounds();

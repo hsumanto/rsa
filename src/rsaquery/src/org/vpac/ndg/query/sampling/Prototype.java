@@ -36,7 +36,7 @@ import org.vpac.ndg.query.math.VectorElement;
  * Metatdata for connections between filters.
  * @author Alex Fraser
  */
-public class Prototype {
+public class Prototype implements HasDimensions {
 
 	// There is one nodata strategy for each prototypical element.
 	private Type[] types;
@@ -176,6 +176,7 @@ public class Prototype {
 		return types;
 	}
 
+	@Override
 	public String[] getDimensions() {
 		return dimensions;
 	}
