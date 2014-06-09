@@ -411,7 +411,7 @@ OPERATION_TEMPLATE = Template("""
 
 		@Override
 		public Object get(Object[] from) {
-			return from[ComponentLUT.getX(from.length)];
+			return from[ComponentLUT.get${opcharupper}(from.length)];
 		}
 
 		@Override

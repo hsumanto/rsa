@@ -410,7 +410,7 @@ public abstract class Swizzle {
 
 		@Override
 		public Object get(Object[] from) {
-			return from[ComponentLUT.getX(from.length)];
+			return from[ComponentLUT.getY(from.length)];
 		}
 
 		@Override
@@ -458,7 +458,7 @@ public abstract class Swizzle {
 
 		@Override
 		public Object get(Object[] from) {
-			return from[ComponentLUT.getX(from.length)];
+			return from[ComponentLUT.getZ(from.length)];
 		}
 
 		@Override
@@ -506,7 +506,7 @@ public abstract class Swizzle {
 
 		@Override
 		public Object get(Object[] from) {
-			return from[ComponentLUT.getX(from.length)];
+			return from[ComponentLUT.getW(from.length)];
 		}
 
 		@Override
@@ -554,7 +554,7 @@ public abstract class Swizzle {
 
 		@Override
 		public Object get(Object[] from) {
-			return from[ComponentLUT.getX(from.length)];
+			return from[ComponentLUT.getA(from.length)];
 		}
 
 		@Override
@@ -602,7 +602,7 @@ public abstract class Swizzle {
 
 		@Override
 		public Object get(Object[] from) {
-			return from[ComponentLUT.getX(from.length)];
+			return from[ComponentLUT.getB(from.length)];
 		}
 
 		@Override
@@ -650,7 +650,7 @@ public abstract class Swizzle {
 
 		@Override
 		public Object get(Object[] from) {
-			return from[ComponentLUT.getX(from.length)];
+			return from[ComponentLUT.getC(from.length)];
 		}
 
 		@Override
@@ -698,7 +698,7 @@ public abstract class Swizzle {
 
 		@Override
 		public Object get(Object[] from) {
-			return from[ComponentLUT.getX(from.length)];
+			return from[ComponentLUT.getD(from.length)];
 		}
 
 		@Override
@@ -746,7 +746,7 @@ public abstract class Swizzle {
 
 		@Override
 		public Object get(Object[] from) {
-			return from[ComponentLUT.getX(from.length)];
+			return from[ComponentLUT.getE(from.length)];
 		}
 
 		@Override
@@ -794,7 +794,7 @@ public abstract class Swizzle {
 
 		@Override
 		public Object get(Object[] from) {
-			return from[ComponentLUT.getX(from.length)];
+			return from[ComponentLUT.getF(from.length)];
 		}
 
 		@Override
@@ -842,7 +842,7 @@ public abstract class Swizzle {
 
 		@Override
 		public Object get(Object[] from) {
-			return from[ComponentLUT.getX(from.length)];
+			return from[ComponentLUT.getG(from.length)];
 		}
 
 		@Override
@@ -890,7 +890,7 @@ public abstract class Swizzle {
 
 		@Override
 		public Object get(Object[] from) {
-			return from[ComponentLUT.getX(from.length)];
+			return from[ComponentLUT.getH(from.length)];
 		}
 
 		@Override
@@ -938,7 +938,7 @@ public abstract class Swizzle {
 
 		@Override
 		public Object get(Object[] from) {
-			return from[ComponentLUT.getX(from.length)];
+			return from[ComponentLUT.getI(from.length)];
 		}
 
 		@Override
@@ -986,7 +986,7 @@ public abstract class Swizzle {
 
 		@Override
 		public Object get(Object[] from) {
-			return from[ComponentLUT.getX(from.length)];
+			return from[ComponentLUT.getJ(from.length)];
 		}
 
 		@Override
@@ -1034,7 +1034,7 @@ public abstract class Swizzle {
 
 		@Override
 		public Object get(Object[] from) {
-			return from[ComponentLUT.getX(from.length)];
+			return from[ComponentLUT.getT(from.length)];
 		}
 
 		@Override
