@@ -654,7 +654,7 @@ public class DataController {
 		return "Success";
 	}
 
-	@RequestMapping(value = "/Query", method = RequestMethod.GET)
+	@RequestMapping(value = "/Query", method = RequestMethod.POST)
 	public String query(@RequestParam(required = false) MultipartFile file,
 			@RequestParam(required = false) String threads,
 			@RequestParam(required = false) Double minX,
@@ -704,10 +704,17 @@ public class DataController {
 		}
 
 		List<Tile> tiles = tileManager.getTiles(extent, baseRsaDatasetResolution);
-		
-		final Version ver = Version.valueOf(netcdfVersion);
+
+		Version ver;
+		if (netcdfVersion == null)
+			ver = Version.netcdf4_classic;
+		else
+			ver = Version.valueOf(netcdfVersion);
 		ActorRef frontend = ActorCreator.getFrontend();
-		
+
+		JobProgress job = new JobProgress("Query (distributed)");
+		jobProgressDao.save(job);
+
 		for(Tile t : tiles) {
 			Box bound = tileManager.getNngGrid().getBounds(t.getIndex(), baseRsaDatasetResolution);
 			bound.intersect(extent);
@@ -717,8 +724,11 @@ public class DataController {
 			bb.getMax().setX(bound.getXMax());
 			bb.getMax().setY(bound.getYMax());
 			log.info("message" + bb);
-			frontend.tell(new org.vpac.worker.Job.Work(UUID.randomUUID().toString(), qd1.toXML(), ver, bb, "1"),  ActorRef.noSender());
+			frontend.tell(new org.vpac.worker.Job.Work(
+					UUID.randomUUID().toString(), qd1.toXML(), ver, bb,
+					job.getId()), ActorRef.noSender());
 		}
+		model.addAttribute(ControllerHelper.RESPONSE_ROOT, new QueryResponse(job.getId()));
 		return "Success";
 	}
 	
