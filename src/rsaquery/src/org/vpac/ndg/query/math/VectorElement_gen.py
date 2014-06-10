@@ -271,39 +271,14 @@ SPECIAL_CAST_TEMPLATE = Template("""
 			c.set(value);
 		return this;
 	}
-
-	/**
-	 * @return The component that represents time. This is always the first
-	 * element.
-	 */
-	public ScalarElement getT() {
-		return components[0];
-	}
-	/**
-	 * Set the time component (first).
-	 * @param value The value to assign to the component. Note that this does
-	 *        not retain a reference to the value; it will be assigned as with
-	 *        the {@link ScalarElement#set(Element)} method.
-	 */
-	public void setT(ScalarElement value) {
-		components[0].set(value);
-	}
-	/**
-	 * Set the time component (first).
-	 * @param value The value to assign to the component.
-	 */
-	public void setT(Number value) {
-		components[0].set(value);
-	}
 """)
 
 ELEMENT_ACCESSOR_TEMPLATE = Template("""
-	private final static int OFFSET_${characterUpper} = $index + 1;
 	/**
 	 * @return The ${characterUpper} component (${placement}${synonym}).
 	 */
 	public ScalarElement get${characterUpper}() {
-		return components[components.length - OFFSET_${characterUpper}];
+		return components[ComponentLUT.get${characterUpper}(components.length)];
 	}
 	/**
 	 * Set the ${characterUpper} component (${placement}${synonym}).
@@ -312,14 +287,14 @@ ELEMENT_ACCESSOR_TEMPLATE = Template("""
 	 *        the {@link ScalarElement#set(Element)} method.
 	 */
 	public void set${characterUpper}(ScalarElement value) {
-		components[components.length - OFFSET_${characterUpper}].set(value);
+		components[ComponentLUT.get${characterUpper}(components.length)].set(value);
 	}
 	/**
 	 * Set the ${characterUpper} component (${placement}${synonym}).
 	 * @param value The value to assign to the component.
 	 */
 	public void set${characterUpper}(Number value) {
-		components[components.length - OFFSET_${characterUpper}].set(value);
+		components[ComponentLUT.get${characterUpper}(components.length)].set(value);
 	}
 """)
 
@@ -1165,10 +1140,9 @@ def write_class(output):
 				}
 		output.write(CAST_TEMPLATE.substitute(local_mapping))
 
-	for character, index, placement, syn in Element_types.ELEMENT_NAMES:
+	for character,  placement, syn in Element_types.ELEMENT_NAMES:
 		local_mapping = {
 				"characterUpper": character.upper(),
-				"index": index,
 				"placement": placement,
 				"synonym": "; synonym for %s" % syn,
 				}

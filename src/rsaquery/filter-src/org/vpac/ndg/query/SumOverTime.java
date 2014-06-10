@@ -21,12 +21,16 @@ package org.vpac.ndg.query;
 
 import java.io.IOException;
 
+import org.vpac.ndg.query.filter.CellType;
+import org.vpac.ndg.query.filter.Description;
+import org.vpac.ndg.query.filter.Filter;
+import org.vpac.ndg.query.filter.InheritDimensions;
+import org.vpac.ndg.query.filter.Rank;
 import org.vpac.ndg.query.iteration.Reduction;
 import org.vpac.ndg.query.math.BoxReal;
 import org.vpac.ndg.query.math.Element;
 import org.vpac.ndg.query.math.VectorReal;
 import org.vpac.ndg.query.sampling.Cell;
-import org.vpac.ndg.query.sampling.CellType;
 import org.vpac.ndg.query.sampling.PixelSource;
 
 /**
@@ -38,6 +42,7 @@ import org.vpac.ndg.query.sampling.PixelSource;
 @InheritDimensions(from = "input", reduceBy = 1)
 public class SumOverTime implements Filter {
 
+	@Rank(lowerBound = 2)
 	public PixelSource input;
 
 	@CellType("input")

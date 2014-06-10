@@ -21,6 +21,8 @@
 
 package org.vpac.ndg.query.math;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -90,6 +92,24 @@ public abstract class Swizzle {
 		swizzle(in.getMax(), out.getMax());
 	}
 
+	/**
+	 * Reorganise the components of an array.
+	 *
+	 * @param in The array to use as the source.
+	 * @param out The array to write to. It must have the same number of
+	 *            components as was specified when creating this swizzle
+	 *            instance.
+	 */
+	public abstract <T> void swizzle(T[] in, T[] out);
+
+	/**
+	 * Create a new swizzle that does the opposite of this one: from and to are
+	 * reversed.
+	 * 
+	 * @return The new swizzle object.
+	 */
+	public abstract Swizzle invert();
+
 
 	/**
 	 * Abstracts component access from a vector.
@@ -99,10 +119,12 @@ public abstract class Swizzle {
 		public long get(VectorInt from);
 		public double get(VectorReal from);
 		public ScalarElement get(VectorElement from);
+		public Object get(Object[] from);
 
 		public void set(VectorInt to, long value);
 		public void set(VectorReal to, double value);
 		public void set(VectorElement to, ScalarElement value);
+		public void set(Object[] to, Object value);
 	}
 
 	static class SwizzleOp0 implements SwizzleOp {
@@ -125,6 +147,11 @@ public abstract class Swizzle {
 		}
 
 		@Override
+		public Object get(Object[] from) {
+			return null;
+		}
+
+		@Override
 		public String toString() {
 			return "0";
 		}
@@ -141,6 +168,11 @@ public abstract class Swizzle {
 
 		@Override
 		public void set(VectorElement to, ScalarElement value) {
+			// Nothing to do for this virtual component.
+		}
+
+		@Override
+		public void set(Object[] to, Object value) {
 			// Nothing to do for this virtual component.
 		}
 	}
@@ -165,6 +197,12 @@ public abstract class Swizzle {
 		}
 
 		@Override
+		public Object get(Object[] from) {
+			// There is "1" Object, so behave like "0" (null)   
+			return null;
+		}
+
+		@Override
 		public String toString() {
 			return "1";
 		}
@@ -181,6 +219,11 @@ public abstract class Swizzle {
 
 		@Override
 		public void set(VectorElement to, ScalarElement value) {
+			// Nothing to do for this virtual component.
+		}
+
+		@Override
+		public void set(Object[] to, Object value) {
 			// Nothing to do for this virtual component.
 		}
 	}
@@ -318,6 +361,11 @@ public abstract class Swizzle {
 		}
 
 		@Override
+		public Object get(Object[] from) {
+			return from[ComponentLUT.getX(from.length)];
+		}
+
+		@Override
 		public String toString() {
 			return "x";
 		}
@@ -335,6 +383,11 @@ public abstract class Swizzle {
 		@Override
 		public void set(VectorElement from, ScalarElement value) {
 			from.setX(value);
+		}
+
+		@Override
+		public void set(Object[] to, Object value) {
+			to[ComponentLUT.getX(to.length)] = value;
 		}
 	}
 
@@ -356,6 +409,11 @@ public abstract class Swizzle {
 		}
 
 		@Override
+		public Object get(Object[] from) {
+			return from[ComponentLUT.getY(from.length)];
+		}
+
+		@Override
 		public String toString() {
 			return "y";
 		}
@@ -373,6 +431,11 @@ public abstract class Swizzle {
 		@Override
 		public void set(VectorElement from, ScalarElement value) {
 			from.setY(value);
+		}
+
+		@Override
+		public void set(Object[] to, Object value) {
+			to[ComponentLUT.getY(to.length)] = value;
 		}
 	}
 
@@ -394,6 +457,11 @@ public abstract class Swizzle {
 		}
 
 		@Override
+		public Object get(Object[] from) {
+			return from[ComponentLUT.getZ(from.length)];
+		}
+
+		@Override
 		public String toString() {
 			return "z";
 		}
@@ -411,6 +479,11 @@ public abstract class Swizzle {
 		@Override
 		public void set(VectorElement from, ScalarElement value) {
 			from.setZ(value);
+		}
+
+		@Override
+		public void set(Object[] to, Object value) {
+			to[ComponentLUT.getZ(to.length)] = value;
 		}
 	}
 
@@ -432,6 +505,11 @@ public abstract class Swizzle {
 		}
 
 		@Override
+		public Object get(Object[] from) {
+			return from[ComponentLUT.getW(from.length)];
+		}
+
+		@Override
 		public String toString() {
 			return "w";
 		}
@@ -449,6 +527,11 @@ public abstract class Swizzle {
 		@Override
 		public void set(VectorElement from, ScalarElement value) {
 			from.setW(value);
+		}
+
+		@Override
+		public void set(Object[] to, Object value) {
+			to[ComponentLUT.getW(to.length)] = value;
 		}
 	}
 
@@ -470,6 +553,11 @@ public abstract class Swizzle {
 		}
 
 		@Override
+		public Object get(Object[] from) {
+			return from[ComponentLUT.getA(from.length)];
+		}
+
+		@Override
 		public String toString() {
 			return "a";
 		}
@@ -487,6 +575,11 @@ public abstract class Swizzle {
 		@Override
 		public void set(VectorElement from, ScalarElement value) {
 			from.setA(value);
+		}
+
+		@Override
+		public void set(Object[] to, Object value) {
+			to[ComponentLUT.getA(to.length)] = value;
 		}
 	}
 
@@ -508,6 +601,11 @@ public abstract class Swizzle {
 		}
 
 		@Override
+		public Object get(Object[] from) {
+			return from[ComponentLUT.getB(from.length)];
+		}
+
+		@Override
 		public String toString() {
 			return "b";
 		}
@@ -525,6 +623,11 @@ public abstract class Swizzle {
 		@Override
 		public void set(VectorElement from, ScalarElement value) {
 			from.setB(value);
+		}
+
+		@Override
+		public void set(Object[] to, Object value) {
+			to[ComponentLUT.getB(to.length)] = value;
 		}
 	}
 
@@ -546,6 +649,11 @@ public abstract class Swizzle {
 		}
 
 		@Override
+		public Object get(Object[] from) {
+			return from[ComponentLUT.getC(from.length)];
+		}
+
+		@Override
 		public String toString() {
 			return "c";
 		}
@@ -563,6 +671,11 @@ public abstract class Swizzle {
 		@Override
 		public void set(VectorElement from, ScalarElement value) {
 			from.setC(value);
+		}
+
+		@Override
+		public void set(Object[] to, Object value) {
+			to[ComponentLUT.getC(to.length)] = value;
 		}
 	}
 
@@ -584,6 +697,11 @@ public abstract class Swizzle {
 		}
 
 		@Override
+		public Object get(Object[] from) {
+			return from[ComponentLUT.getD(from.length)];
+		}
+
+		@Override
 		public String toString() {
 			return "d";
 		}
@@ -601,6 +719,11 @@ public abstract class Swizzle {
 		@Override
 		public void set(VectorElement from, ScalarElement value) {
 			from.setD(value);
+		}
+
+		@Override
+		public void set(Object[] to, Object value) {
+			to[ComponentLUT.getD(to.length)] = value;
 		}
 	}
 
@@ -622,6 +745,11 @@ public abstract class Swizzle {
 		}
 
 		@Override
+		public Object get(Object[] from) {
+			return from[ComponentLUT.getE(from.length)];
+		}
+
+		@Override
 		public String toString() {
 			return "e";
 		}
@@ -639,6 +767,11 @@ public abstract class Swizzle {
 		@Override
 		public void set(VectorElement from, ScalarElement value) {
 			from.setE(value);
+		}
+
+		@Override
+		public void set(Object[] to, Object value) {
+			to[ComponentLUT.getE(to.length)] = value;
 		}
 	}
 
@@ -660,6 +793,11 @@ public abstract class Swizzle {
 		}
 
 		@Override
+		public Object get(Object[] from) {
+			return from[ComponentLUT.getF(from.length)];
+		}
+
+		@Override
 		public String toString() {
 			return "f";
 		}
@@ -677,6 +815,11 @@ public abstract class Swizzle {
 		@Override
 		public void set(VectorElement from, ScalarElement value) {
 			from.setF(value);
+		}
+
+		@Override
+		public void set(Object[] to, Object value) {
+			to[ComponentLUT.getF(to.length)] = value;
 		}
 	}
 
@@ -698,6 +841,11 @@ public abstract class Swizzle {
 		}
 
 		@Override
+		public Object get(Object[] from) {
+			return from[ComponentLUT.getG(from.length)];
+		}
+
+		@Override
 		public String toString() {
 			return "g";
 		}
@@ -715,6 +863,11 @@ public abstract class Swizzle {
 		@Override
 		public void set(VectorElement from, ScalarElement value) {
 			from.setG(value);
+		}
+
+		@Override
+		public void set(Object[] to, Object value) {
+			to[ComponentLUT.getG(to.length)] = value;
 		}
 	}
 
@@ -736,6 +889,11 @@ public abstract class Swizzle {
 		}
 
 		@Override
+		public Object get(Object[] from) {
+			return from[ComponentLUT.getH(from.length)];
+		}
+
+		@Override
 		public String toString() {
 			return "h";
 		}
@@ -753,6 +911,11 @@ public abstract class Swizzle {
 		@Override
 		public void set(VectorElement from, ScalarElement value) {
 			from.setH(value);
+		}
+
+		@Override
+		public void set(Object[] to, Object value) {
+			to[ComponentLUT.getH(to.length)] = value;
 		}
 	}
 
@@ -774,6 +937,11 @@ public abstract class Swizzle {
 		}
 
 		@Override
+		public Object get(Object[] from) {
+			return from[ComponentLUT.getI(from.length)];
+		}
+
+		@Override
 		public String toString() {
 			return "i";
 		}
@@ -791,6 +959,11 @@ public abstract class Swizzle {
 		@Override
 		public void set(VectorElement from, ScalarElement value) {
 			from.setI(value);
+		}
+
+		@Override
+		public void set(Object[] to, Object value) {
+			to[ComponentLUT.getI(to.length)] = value;
 		}
 	}
 
@@ -812,6 +985,11 @@ public abstract class Swizzle {
 		}
 
 		@Override
+		public Object get(Object[] from) {
+			return from[ComponentLUT.getJ(from.length)];
+		}
+
+		@Override
 		public String toString() {
 			return "j";
 		}
@@ -829,6 +1007,11 @@ public abstract class Swizzle {
 		@Override
 		public void set(VectorElement from, ScalarElement value) {
 			from.setJ(value);
+		}
+
+		@Override
+		public void set(Object[] to, Object value) {
+			to[ComponentLUT.getJ(to.length)] = value;
 		}
 	}
 
@@ -850,6 +1033,11 @@ public abstract class Swizzle {
 		}
 
 		@Override
+		public Object get(Object[] from) {
+			return from[ComponentLUT.getT(from.length)];
+		}
+
+		@Override
 		public String toString() {
 			return "t";
 		}
@@ -867,6 +1055,11 @@ public abstract class Swizzle {
 		@Override
 		public void set(VectorElement from, ScalarElement value) {
 			from.setT(value);
+		}
+
+		@Override
+		public void set(Object[] to, Object value) {
+			to[ComponentLUT.getT(to.length)] = value;
 		}
 	}
 
@@ -890,6 +1083,19 @@ public abstract class Swizzle {
 		@Override
 		public void swizzle(VectorElement in, VectorElement out) {
 
+		}
+
+		@Override
+		public <T> void swizzle(T[] in, T[] out) {
+
+		}
+
+		@Override
+		public Swizzle0 invert() {
+			List<SwizzleOp> from = new ArrayList<SwizzleOp>();
+			List<SwizzleOp> to = new ArrayList<SwizzleOp>();
+
+			return new Swizzle0(to, from);
 		}
 
 		@Override
@@ -928,6 +1134,22 @@ public abstract class Swizzle {
 		public void swizzle(VectorElement in, VectorElement out) {
 
 			to0.set(out, from0.get(in));
+		}
+
+		@Override
+		public <T> void swizzle(T[] in, T[] out) {
+
+			to0.set(out, from0.get(in));
+		}
+
+		@Override
+		public Swizzle1 invert() {
+			List<SwizzleOp> from = new ArrayList<SwizzleOp>();
+			List<SwizzleOp> to = new ArrayList<SwizzleOp>();
+
+			to.add(to0);
+			from.add(from0);
+			return new Swizzle1(to, from);
 		}
 
 		@Override
@@ -975,6 +1197,25 @@ public abstract class Swizzle {
 
 			to0.set(out, from0.get(in));
 			to1.set(out, from1.get(in));
+		}
+
+		@Override
+		public <T> void swizzle(T[] in, T[] out) {
+
+			to0.set(out, from0.get(in));
+			to1.set(out, from1.get(in));
+		}
+
+		@Override
+		public Swizzle2 invert() {
+			List<SwizzleOp> from = new ArrayList<SwizzleOp>();
+			List<SwizzleOp> to = new ArrayList<SwizzleOp>();
+
+			to.add(to0);
+			from.add(from0);
+			to.add(to1);
+			from.add(from1);
+			return new Swizzle2(to, from);
 		}
 
 		@Override
@@ -1031,6 +1272,28 @@ public abstract class Swizzle {
 			to0.set(out, from0.get(in));
 			to1.set(out, from1.get(in));
 			to2.set(out, from2.get(in));
+		}
+
+		@Override
+		public <T> void swizzle(T[] in, T[] out) {
+
+			to0.set(out, from0.get(in));
+			to1.set(out, from1.get(in));
+			to2.set(out, from2.get(in));
+		}
+
+		@Override
+		public Swizzle3 invert() {
+			List<SwizzleOp> from = new ArrayList<SwizzleOp>();
+			List<SwizzleOp> to = new ArrayList<SwizzleOp>();
+
+			to.add(to0);
+			from.add(from0);
+			to.add(to1);
+			from.add(from1);
+			to.add(to2);
+			from.add(from2);
+			return new Swizzle3(to, from);
 		}
 
 		@Override
@@ -1099,6 +1362,31 @@ public abstract class Swizzle {
 		}
 
 		@Override
+		public <T> void swizzle(T[] in, T[] out) {
+
+			to0.set(out, from0.get(in));
+			to1.set(out, from1.get(in));
+			to2.set(out, from2.get(in));
+			to3.set(out, from3.get(in));
+		}
+
+		@Override
+		public Swizzle4 invert() {
+			List<SwizzleOp> from = new ArrayList<SwizzleOp>();
+			List<SwizzleOp> to = new ArrayList<SwizzleOp>();
+
+			to.add(to0);
+			from.add(from0);
+			to.add(to1);
+			from.add(from1);
+			to.add(to2);
+			from.add(from2);
+			to.add(to3);
+			from.add(from3);
+			return new Swizzle4(to, from);
+		}
+
+		@Override
 		public String toString() {
 			String fromstr = "";
 			String tostr = "";
@@ -1152,6 +1440,24 @@ public abstract class Swizzle {
 			for (int i = 0; i < from.length; i++) {
 				to[i].set(out, from[i].get(in));
 			}
+		}
+
+		@Override
+		public <T> void swizzle(T[] in, T[] out) {
+
+			for (int i = 0; i < from.length; i++) {
+				to[i].set(out, from[i].get(in));
+			}
+		}
+
+		@Override
+		public SwizzleN invert() {
+			List<SwizzleOp> from = new ArrayList<SwizzleOp>();
+			List<SwizzleOp> to = new ArrayList<SwizzleOp>();
+
+			to.addAll(Arrays.asList(this.to));
+			from.addAll(Arrays.asList(this.from));
+			return new SwizzleN(to, from);
 		}
 
 		@Override

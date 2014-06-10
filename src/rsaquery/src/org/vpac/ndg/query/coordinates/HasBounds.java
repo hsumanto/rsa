@@ -21,6 +21,12 @@ package org.vpac.ndg.query.coordinates;
 
 import org.vpac.ndg.query.math.BoxReal;
 
+
+/**
+ * Indicates that an object has spatial extents.
+ * @see BoxReal
+ * @author Alex Fraser
+ */
 public interface HasBounds {
 
 	BoxReal getBounds();

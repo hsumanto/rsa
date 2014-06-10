@@ -31,6 +31,10 @@ import org.slf4j.LoggerFactory;
 import org.vpac.ndg.query.QueryDefinition.AttributeDefinition;
 import org.vpac.ndg.query.coordinates.HasBounds;
 import org.vpac.ndg.query.coordinates.HasRank;
+import org.vpac.ndg.query.filter.CellType;
+import org.vpac.ndg.query.filter.Filter;
+import org.vpac.ndg.query.filter.InheritDimensions;
+import org.vpac.ndg.query.filter.Rank;
 import org.vpac.ndg.query.math.BoxReal;
 import org.vpac.ndg.query.math.Swizzle;
 import org.vpac.ndg.query.math.SwizzleFactory;
@@ -38,7 +42,7 @@ import org.vpac.ndg.query.math.Type;
 import org.vpac.ndg.query.math.VectorReal;
 import org.vpac.ndg.query.sampling.Cell;
 import org.vpac.ndg.query.sampling.CellFactory;
-import org.vpac.ndg.query.sampling.CellType;
+import org.vpac.ndg.query.sampling.HasDimensions;
 import org.vpac.ndg.query.sampling.HasPrototype;
 import org.vpac.ndg.query.sampling.NodataNullStrategy;
 import org.vpac.ndg.query.sampling.NodataStrategy;
@@ -56,23 +60,26 @@ public class FilterAdapter implements HasBounds, HasRank, Diagnostics {
 
 	private final Logger log = LoggerFactory.getLogger(FilterAdapter.class);
 
+	private FilterDebug d;
 	private BoxReal bounds;
 	private String[] dimensions;
 	private String name;
 	private Filter innerFilter;
 	private VectorReal internalCo;
 	private VectorReal lastCo;
+	Map<String, GroupImpl> inputGroups;
 	private Map<String, PixelSource> outputSockets;
 
 	CellFactory cellFactory;
 	PixelSourceFactory pixelSourceFactory;
 
-
-	public FilterAdapter(String name, Filter innerFilter) throws
-			QueryConfigurationException {
+	public FilterAdapter(String name, Filter innerFilter)
+			throws QueryConfigurationException {
 
 		this.name = name;
 		this.innerFilter = innerFilter;
+		d = new FilterDebug(this);
+		inputGroups = new HashMap<String, GroupImpl>();
 		outputSockets = new HashMap<String, PixelSource>();
 		cellFactory = new CellFactory();
 		pixelSourceFactory = new PixelSourceFactory();
@@ -88,16 +95,16 @@ public class FilterAdapter implements HasBounds, HasRank, Diagnostics {
 			f = innerFilter.getClass().getField(name);
 		} catch (NoSuchFieldException e) {
 			throw new QueryConfigurationException(String.format(
-					"Could not create output socket %s in filter %s",
-					name, innerFilter.getClass()), e);
+					"Could not create output socket %s in filter %s", name,
+					innerFilter.getClass()), e);
 		}
 
 		CellType cellType = f.getAnnotation(CellType.class);
 		if (cellType == null) {
 			throw new QueryConfigurationException(String.format(
-					"Could not create output socket %s in filter %s: no type " +
-					"defined (missing @CellType annotation).",
-					name, innerFilter.getClass()));
+					"Could not create output socket %s in filter %s: no type "
+							+ "defined (missing @CellType annotation).", name,
+					innerFilter.getClass()));
 		}
 
 		Prototype prototype;
@@ -187,11 +194,12 @@ public class FilterAdapter implements HasBounds, HasRank, Diagnostics {
 	/**
 	 * Get an output socket. Note that this must be called after the shape of
 	 * the filter has been set.
-	 *
-	 * @param name The name of the output socket.
+	 * 
+	 * @param name
+	 *            The name of the output socket.
 	 * @return A sampler that fetches filtered values from this filter.
-	 * @throws QueryConfigurationException if the field does not exist, or if it
-	 *             is inaccessible.
+	 * @throws QueryConfigurationException
+	 *             if the field does not exist, or if it is inaccessible.
 	 */
 	public PixelSource getOutputSocket(String name)
 			throws QueryConfigurationException {
@@ -210,15 +218,15 @@ public class FilterAdapter implements HasBounds, HasRank, Diagnostics {
 			f = innerFilter.getClass().getField(name);
 		} catch (NoSuchFieldException e) {
 			throw new QueryConfigurationException(String.format(
-					"Could not create output socket %s in filter %s",
-					name, innerFilter.getClass()), e);
+					"Could not create output socket %s in filter %s", name,
+					innerFilter.getClass()), e);
 		}
 		try {
 			f.set(innerFilter, cell);
 		} catch (IllegalAccessException e) {
 			throw new QueryConfigurationException(String.format(
-					"Could not assign output socket %s in filter %s",
-					name, innerFilter.getClass()), e);
+					"Could not assign output socket %s in filter %s", name,
+					innerFilter.getClass()), e);
 		}
 
 		outputSockets.put(name, socket);
@@ -231,8 +239,11 @@ public class FilterAdapter implements HasBounds, HasRank, Diagnostics {
 	 * given coordinate. If the filter has already been run for those
 	 * coordinates, cached values may be used for the outputs, in which case the
 	 * kernel will not be called.
-	 * @param co The coordinates in the output image being written to.
-	 * @throws IOException If the filter's source fields could not be read from.
+	 * 
+	 * @param co
+	 *            The coordinates in the output image being written to.
+	 * @throws IOException
+	 *             If the filter's source fields could not be read from.
 	 */
 	public void invoke(VectorReal co) throws IOException {
 		try {
@@ -241,8 +252,9 @@ public class FilterAdapter implements HasBounds, HasRank, Diagnostics {
 			internalCo.set(co);
 		} catch (IndexOutOfBoundsException e) {
 			throw new QueryRuntimeException(String.format(
-					"Failed to set coordinates of filter \"%s\". Check " +
-					"dimensionality.", name), e);
+					"Failed to set coordinates of filter \"%s\". Check "
+							+ "dimensionality. Class is %s", name,
+							innerFilter.getClass().getSimpleName()), e);
 		}
 		innerFilter.kernel(internalCo);
 		lastCo.set(co);
@@ -251,6 +263,43 @@ public class FilterAdapter implements HasBounds, HasRank, Diagnostics {
 	@Override
 	public BoxReal getBounds() {
 		return bounds;
+	}
+
+	public void gatherInputConstraints() throws QueryConfigurationException {
+		// This is a two-step process:
+		// 1. Gather all constraints for each group. This means iterating over
+		// all public fields.
+		// 2. <See below>
+		for (Field field : innerFilter.getClass().getFields()) {
+			if ((field.getModifiers() | Modifier.PUBLIC) == 0)
+				continue;
+
+			if (!PixelSource.class.isAssignableFrom(field.getType()))
+				continue;
+
+			String groupName = "";
+			Rank rankConstraint = field.getAnnotation(Rank.class);
+			if (rankConstraint != null)
+				groupName = field.getAnnotation(Rank.class).group();
+			if ("".equals(groupName))
+				groupName = field.getName();
+
+			GroupImpl group = inputGroups.get(groupName);
+			if (group == null) {
+				group = new GroupImpl(groupName, this);
+				inputGroups.put(groupName, group);
+			}
+			group.add(field);
+		}
+	}
+
+	public void applyInputConstraints() throws QueryConfigurationException {
+		// 1. <See above>
+		// 2. Coerce inputs to fit constraints, where the constraints are
+		// lenient (e.g. where dimensional promotion is allowed).
+		for (GroupImpl group : inputGroups.values()) {
+			group.coerce();
+		}
 	}
 
 	/**
@@ -264,44 +313,51 @@ public class FilterAdapter implements HasBounds, HasRank, Diagnostics {
 		if (reduces == null) {
 			throw new QueryConfigurationException(String.format(
 					"Could not determine dimensionality of filter %s. Class "
-					+ "should be annotated with @InheritDimensions.",
+							+ "should be annotated with @InheritDimensions.",
 					innerFilter.getClass().getName()));
 		}
 
-		Field field;
-		try {
-			field = innerFilter.getClass().getField(reduces.from());
-		} catch (NoSuchFieldException e) {
-			throw new QueryConfigurationException(String.format(
-					"Could not find reduction field %s in filter %s.",
-					reduces.from(), innerFilter.getClass().getName()));
-		}
+		String inputName = reduces.from();
+
 		Object value;
-		try {
-			value = field.get(innerFilter);
-		} catch (IllegalAccessException e) {
-			throw new QueryConfigurationException(String.format(
-					"Could not access reduction field %s in filter %s.",
-					reduces.from(), innerFilter.getClass().getName()));
+
+		value = inputGroups.get(inputName);
+
+		if (value == null) {
+			Field field = null;
+			try {
+				field = innerFilter.getClass().getField(reduces.from());
+				value = field.get(innerFilter);
+			} catch (NoSuchFieldException e) {
+				// Try group instead.
+				throw new QueryConfigurationException(String.format(
+						"Could not find reduction field or group %s.",
+						d.memberStr(reduces.from())));
+			} catch (IllegalAccessException e) {
+				throw new QueryConfigurationException(String.format(
+						"Could not access reduction field %s.",
+						d.memberStr(reduces.from())));
+			}
 		}
+
 		if (value == null) {
 			throw new QueryConfigurationException(String.format(
-					"Reduction field %s in filter %s is null.",
-					reduces.from(), innerFilter.getClass().getName()));
+					"Reduction field %s is null. Path is %s.",
+					d.memberStr(reduces.from()), d.pathStr(reduces.from())));
 		}
 		if (!HasBounds.class.isAssignableFrom(value.getClass())) {
 			throw new QueryConfigurationException(String.format(
-					"Reduction field %s in filter %s has no bounds.",
-					reduces.from(), innerFilter.getClass().getName()));
+					"Reduction field %s has no bounds. Path is %s.",
+					d.memberStr(reduces.from()), d.pathStr(reduces.from())));
 		}
-		if (!HasPrototype.class.isAssignableFrom(value.getClass())) {
+		if (!HasDimensions.class.isAssignableFrom(value.getClass())) {
 			throw new QueryConfigurationException(String.format(
-					"Reduction field %s in filter %s has no prototype.",
-					reduces.from(), innerFilter.getClass().getName()));
+					"Reduction field %s has no prototype. Path is %s.",
+					d.memberStr(reduces.from()), d.pathStr(reduces.from())));
 		}
 
 		BoxReal inputBounds = ((HasBounds) value).getBounds();
-		Prototype pt = ((HasPrototype) value).getPrototype();
+		String[] dims = ((HasDimensions) value).getDimensions();
 
 		// Inherit dimensionality
 		int inputDims = inputBounds.getRank();
@@ -309,8 +365,7 @@ public class FilterAdapter implements HasBounds, HasRank, Diagnostics {
 		Swizzle resizer = SwizzleFactory.resize(inputDims, outputDims);
 		BoxReal bounds = new BoxReal(outputDims);
 		resizer.swizzle(inputBounds, bounds);
-		dimensions = Arrays.copyOfRange(pt.getDimensions(), reduces.reduceBy(),
-				pt.getDimensions().length);
+		dimensions = Arrays.copyOfRange(dims, reduces.reduceBy(), dims.length);
 		log.debug("Dimensions of filter {} are \"{}\"", name, dimensions);
 		log.debug("Bounds of filter {} inferred to be {}", name, bounds);
 		setBounds(bounds);
@@ -343,12 +398,15 @@ public class FilterAdapter implements HasBounds, HasRank, Diagnostics {
 
 	/**
 	 * Assign a uniform field by name.
-	 *
-	 * @param name The name of the field.
-	 * @param value The value to set it to.
-	 * @throws QueryConfigurationException If the value is the wrong type, if it
-	 *         doesn't meet its constraints, or if the field can not be set to
-	 *         the given value.
+	 * 
+	 * @param name
+	 *            The name of the field.
+	 * @param value
+	 *            The value to set it to.
+	 * @throws QueryConfigurationException
+	 *             If the value is the wrong type, if it doesn't meet its
+	 *             constraints, or if the field can not be set to the given
+	 *             value.
 	 */
 	// Package scope: allows Query to access.
 	void setParameter(String name, Object value)
@@ -360,17 +418,17 @@ public class FilterAdapter implements HasBounds, HasRank, Diagnostics {
 			f = innerFilter.getClass().getField(name);
 		} catch (NoSuchFieldException e) {
 			throw new QueryConfigurationException(String.format(
-				"Parameter %s#%s is not defined.", innerFilter.getClass(),
-				name), e);
+					"Parameter %s#%s is not defined.", innerFilter.getClass(),
+					name), e);
 		}
 
 		if (value == null) {
 			throw new QueryConfigurationException(String.format(
-					"Parameter %s#%s should not be null.", innerFilter.getClass(),
-					name));
+					"Parameter %s#%s should not be null.",
+					innerFilter.getClass(), name));
 		}
 
-		Constraint con = f.getAnnotation(Constraint.class);
+		Rank con = f.getAnnotation(Rank.class);
 		checkConstraints(con, name, value);
 
 		// Assign.
@@ -378,30 +436,29 @@ public class FilterAdapter implements HasBounds, HasRank, Diagnostics {
 			f.set(innerFilter, value);
 		} catch (IllegalAccessException e) {
 			throw new QueryConfigurationException(String.format(
-					"Parameter %s#%s can not be assigned.", innerFilter.getClass(),
-					name), e);
+					"Parameter %s#%s can not be assigned.",
+					innerFilter.getClass(), name), e);
 		}
 		log.info("Bound {} to {}", value,
 				String.format("%s.%s", this.name, f.getName()));
 	}
 
-	void checkConstraints(Constraint con, String name, Object value)
+	void checkConstraints(Rank con, String name, Object value)
 			throws QueryConfigurationException {
 
 		if (con == null)
 			return;
 
-		if (con.dimensions() >= 0) {
+		if (con.is() >= 0) {
 			if (!HasRank.class.isAssignableFrom(value.getClass()))
 				throw new QueryConfigurationException(String.format(
 						"Parameter %s.%s is has no dimensions; should be %dD.",
-						getName(), name, con.dimensions()));
+						getName(), name, con.is()));
 			HasRank shaped = (HasRank) value;
-			if (shaped.getRank() != con.dimensions()) {
+			if (shaped.getRank() != con.is()) {
 				throw new QueryConfigurationException(String.format(
-						"Parameter %s.%s is %dD; should be %dD.",
-						getName(), name, shaped.getRank(),
-						con.dimensions()));
+						"Parameter %s.%s is %dD; should be %dD.", getName(),
+						name, shaped.getRank(), con.is()));
 			}
 		}
 	}
@@ -438,8 +495,8 @@ public class FilterAdapter implements HasBounds, HasRank, Diagnostics {
 					}
 				} else {
 					throw new QueryConfigurationException(String.format(
-							"Public filter field %s.%s is unbound.",
-							getName(), f.getName()));
+							"Public filter field %s.%s is unbound.", getName(),
+							f.getName()));
 				}
 			}
 		}
@@ -448,14 +505,14 @@ public class FilterAdapter implements HasBounds, HasRank, Diagnostics {
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		sb.append(String.format("Filter(%s) {\n",
-				innerFilter.getClass().getName()));
+		sb.append(String.format("Filter(%s) {\n", innerFilter.getClass()
+				.getName()));
 
 		for (Field f : innerFilter.getClass().getFields()) {
 			if ((f.getModifiers() | Modifier.PUBLIC) == 0)
 				continue;
-			if (!PixelSource.class.isAssignableFrom(f.getType()) &&
-					!Cell.class.isAssignableFrom(f.getType())) {
+			if (!PixelSource.class.isAssignableFrom(f.getType())
+					&& !Cell.class.isAssignableFrom(f.getType())) {
 				continue;
 			}
 			try {

@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ServiceLoader;
 
-import org.vpac.ndg.query.Filter;
+import org.vpac.ndg.query.filter.Filter;
 
 /**
  * This class is intended to load all filter implementation specified in

@@ -17,21 +17,16 @@
  * http://www.crcsi.com.au/
  */
 
-package org.vpac.ndg.query;
+package org.vpac.ndg.query.filter;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-/**
- * Public fields in filters may be configured using a config file. This
- * annotation may be applied to set constraints on those fields.
- *
- * @author Alex Fraser
- */
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ ElementType.FIELD })
-public @interface Constraint {
-	int dimensions() default 0;
+@Target( { ElementType.TYPE })
+public @interface InheritDimensions {
+	String from();
+	int reduceBy() default 0;
 }

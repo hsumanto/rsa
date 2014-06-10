@@ -24,11 +24,11 @@ import java.util.ArrayList;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vpac.ndg.query.Description;
-import org.vpac.ndg.query.Filter;
-import org.vpac.ndg.query.filter.FilterUtils;
+import org.vpac.ndg.query.filter.Description;
+import org.vpac.ndg.query.filter.Filter;
 import org.vpac.ndg.query.sampling.Cell;
 import org.vpac.ndg.query.sampling.PixelSource;
+import org.vpac.web.util.FilterUtils;
 
 /**
  * This class is intended for a single query filter response.

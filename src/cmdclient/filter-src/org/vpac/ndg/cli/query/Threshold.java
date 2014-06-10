@@ -21,10 +21,11 @@ package org.vpac.ndg.cli.query;
 
 import java.io.IOException;
 
-import org.vpac.ndg.query.Constraint;
-import org.vpac.ndg.query.Filter;
-import org.vpac.ndg.query.InheritDimensions;
 import org.vpac.ndg.query.QueryConfigurationException;
+import org.vpac.ndg.query.filter.CellType;
+import org.vpac.ndg.query.filter.Filter;
+import org.vpac.ndg.query.filter.InheritDimensions;
+import org.vpac.ndg.query.filter.Rank;
 import org.vpac.ndg.query.iteration.Reduction;
 import org.vpac.ndg.query.math.BoxReal;
 import org.vpac.ndg.query.math.Element;
@@ -34,7 +35,6 @@ import org.vpac.ndg.query.math.Swizzle;
 import org.vpac.ndg.query.math.SwizzleFactory;
 import org.vpac.ndg.query.math.VectorReal;
 import org.vpac.ndg.query.sampling.Cell;
-import org.vpac.ndg.query.sampling.CellType;
 import org.vpac.ndg.query.sampling.PixelSource;
 import org.vpac.ndg.query.sampling.PixelSourceScalar;
 
@@ -44,10 +44,11 @@ public class Threshold implements Filter {
 	// Parameters.
 	public int threshold;
 
-	@Constraint(dimensions=1)
+	@Rank(is = 1)
 	public PixelSource intime;
 
 	// Input fields.
+	@Rank(lowerBound = 2)
 	public PixelSourceScalar input;
 
 	// Output fields.

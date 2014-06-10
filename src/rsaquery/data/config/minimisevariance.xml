@@ -11,7 +11,7 @@
 		<variable name="time" ref="#MinVariance/outtime" />
 	</output>
 
-	<filter id="MinVariance" cls="org.vpac.ndg.query.MinimiseVariance">
+	<filter id="MinVariance" cls="org.vpac.ndg.query.testfilters.MinimiseVariance">
 		<literal name="windowSize" value="3" />
 		<sampler name="input" ref="#infile/Band1"  />
 		<sampler name="intime" ref="#infile/time"  />

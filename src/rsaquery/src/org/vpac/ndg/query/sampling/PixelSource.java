@@ -36,7 +36,8 @@ import org.vpac.ndg.query.math.VectorReal;
  * @see Cell
  * @author Alex Fraser
  */
-public interface PixelSource extends HasBounds, HasRank, HasPrototype {
+public interface PixelSource extends HasBounds, HasRank, HasPrototype,
+		HasDimensions {
 
 	/**
 	 * @param co The coordinates to retrieve the value of, in the global

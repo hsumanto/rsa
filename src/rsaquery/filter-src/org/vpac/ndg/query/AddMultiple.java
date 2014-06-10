@@ -21,12 +21,15 @@ package org.vpac.ndg.query;
 
 import java.io.IOException;
 
+import org.vpac.ndg.query.filter.CellType;
+import org.vpac.ndg.query.filter.Description;
+import org.vpac.ndg.query.filter.Filter;
+import org.vpac.ndg.query.filter.InheritDimensions;
 import org.vpac.ndg.query.math.BoxReal;
 import org.vpac.ndg.query.math.Element;
 import org.vpac.ndg.query.math.ScalarElement;
 import org.vpac.ndg.query.math.VectorReal;
 import org.vpac.ndg.query.sampling.CellScalar;
-import org.vpac.ndg.query.sampling.CellType;
 import org.vpac.ndg.query.sampling.PixelSource;
 
 

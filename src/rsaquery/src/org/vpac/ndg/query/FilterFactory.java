@@ -32,6 +32,7 @@ import org.vpac.ndg.query.QueryDefinition.LiteralDefinition;
 import org.vpac.ndg.query.QueryDefinition.SamplerDefinition;
 import org.vpac.ndg.query.coordinates.QueryCoordinateSystem;
 import org.vpac.ndg.query.coordinates.Warp;
+import org.vpac.ndg.query.filter.Filter;
 import org.vpac.ndg.query.sampling.PixelSource;
 import org.vpac.ndg.query.sampling.PixelSourceCombined;
 import org.vpac.ndg.query.sampling.PixelSourceScalar;
@@ -109,6 +110,9 @@ public class FilterFactory {
 
 		setLiterals(adapter, fd.literals);
 		setSamplers(adapter, fd.samplers);
+
+		adapter.gatherInputConstraints();
+		adapter.applyInputConstraints();
 
 		// Try to infer the actual shape from the inputs.
 		adapter.inferShapeFromInputs();
@@ -272,7 +276,10 @@ public class FilterFactory {
 				// it may be scalar or vector. Otherwise, combine components
 				// into new vector source.
 				if (sources.size() == 1) {
-					log.debug("Assigning generic sampler to generic socket {}", sd.name);
+					if (isScalar)
+						log.debug("Assigning scalar sampler to generic socket {}", sd.name);
+					else
+						log.debug("Assigning vector sampler to generic socket {}", sd.name);
 					source = sources.get(0);
 				} else {
 					log.debug("Creating vector sampler for generic socket {}", sd.name);

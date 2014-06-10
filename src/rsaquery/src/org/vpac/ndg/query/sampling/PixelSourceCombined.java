@@ -66,6 +66,11 @@ public class PixelSourceCombined implements PixelSourceVector {
 	}
 
 	@Override
+	public String[] getDimensions() {
+		return prototype.getDimensions();
+	}
+
+	@Override
 	public VectorElement getVectorPixel(VectorReal co) throws IOException {
 		int i = 0;
 		for (PixelSource child : children) {

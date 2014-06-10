@@ -139,6 +139,11 @@ public class SamplerScalar implements PixelSourceScalar, Diagnostics {
 		return prototype;
 	}
 
+	@Override
+	public String[] getDimensions() {
+		return prototype.getDimensions();
+	}
+
 	public Warp getWarp() {
 		return warp;
 	}

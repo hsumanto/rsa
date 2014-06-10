@@ -31,13 +31,11 @@ over NetCDF data. The system provides ways for users to define:</p>
 
 <img src="doc-files/Query_class.png" />
 
-<p>{@link org.vpac.ndg.query.Filter Filters} are implemented as Java classes.
+<p>{@link org.vpac.ndg.query.filter.filter.Filter Filters} are implemented as Java classes.
 {@link org.vpac.ndg.query.Query Queries} are defined using the
 {@link org.vpac.ndg.query.QueryDefinition} class and its internal classes.
 Usually, a QueryDefinition will be read from XML, although it's possible to
-create one programmatically.</p>
-
-@see org.vpac.ndg.query.Filter
+create one programmatically.</p>org.vpac.ndg.query.filter..query.filter.Filter
 @see org.vpac.ndg.query.QueryDefinition
 @see org.vpac.ndg.query.QueryRunner
  */

@@ -29,7 +29,7 @@ import org.vpac.ndg.query.math.Element;
  * @see PixelSource
  * @author Alex Fraser
  */
-public interface Cell extends HasPrototype {
+public interface Cell extends HasPrototype, HasDimensions {
 	/**
 	 * @return The value of the cell in the dataset.
 	 */

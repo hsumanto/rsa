@@ -157,7 +157,7 @@ public class SwizzleFactory {
 	 */
 	public static Swizzle resize(int originalSize, int newSize, char defaultAxis) {
 		// Note: this string is reversed before compilation.
-		final String inputDims = "xyzw";
+		final String inputDims = "abcdefghij";
 		StringBuilder def = new StringBuilder(5);
 		for (int i = 0; i < newSize; i++) {
 			if (i < originalSize)

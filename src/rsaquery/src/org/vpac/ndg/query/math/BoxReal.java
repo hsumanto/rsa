@@ -38,11 +38,19 @@ public class BoxReal implements HasRank, Serializable {
 	protected BoxReal() {
 	}
 
+	/**
+	 * Creates a new box of zero volume. All components are set to zero.
+	 * @param dimensions The number of dimensions.
+	 */
 	public BoxReal(int dimensions) {
 		this.min = new VectorReal(dimensions);
 		this.max = new VectorReal(dimensions);
 	}
 
+	/**
+	 * Creates a new box of zero volume, centered on a point.
+	 * @param point The point to centre the box on.
+	 */
 	public BoxReal(VectorReal point) {
 		this(point.size());
 		this.min.set(point);
@@ -76,7 +84,7 @@ public class BoxReal implements HasRank, Serializable {
 
 	/**
 	 * Grow this box so that it includes <em>other</em>.
-	 * @param other The box to engulf.
+	 * @param other The box to expand to.
 	 */
 	public void union(BoxReal other) {
 		this.min.min(other.getMin());
@@ -84,8 +92,33 @@ public class BoxReal implements HasRank, Serializable {
 	}
 
 	/**
+	 * Grow this box so that it includes <em>other</em>, but ignore axes on
+	 * which the other box has zero size.
+	 * @param other The box to expand to.
+	 */
+	public void unionIfPositive(BoxReal other) {
+		VectorReal size = getSize();
+		VectorReal otherSize = other.getSize();
+		for (int i = 0; i < size.size(); i++) {
+			if (otherSize.get(i) <= 0)
+				continue;
+			double componentMin;
+			double componentMax;
+			if (size.get(i) <= 0) {
+				componentMin = other.min.get(i);
+				componentMax = other.max.get(i);
+			} else {
+				componentMin = Math.min(min.get(i), other.min.get(i));
+				componentMax = Math.max(max.get(i), other.max.get(i));
+			}
+			min.set(i, componentMin);
+			max.set(i, componentMax);
+		}
+	}
+
+	/**
 	 * Grow this box so that it includes the point <em>other</em>.
-	 * @param other The point to engulf.
+	 * @param other The point to expand to.
 	 */
 	public void union(VectorReal other) {
 		this.min.min(other);

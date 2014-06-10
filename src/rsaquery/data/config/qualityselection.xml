@@ -12,7 +12,7 @@
 	</output>
 
 
-	<filter id="Quality" cls="org.vpac.ndg.query.QualitySelection">
+	<filter id="Quality" cls="org.vpac.ndg.query.testfilters.QualitySelection">
 		<literal name="qualityThreshold" value="127" />
 
 		<sampler name="input">

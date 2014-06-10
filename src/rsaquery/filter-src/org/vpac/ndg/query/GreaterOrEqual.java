@@ -21,12 +21,15 @@ package org.vpac.ndg.query;
 
 import java.io.IOException;
 
+import org.vpac.ndg.query.filter.CellType;
+import org.vpac.ndg.query.filter.Description;
+import org.vpac.ndg.query.filter.Filter;
+import org.vpac.ndg.query.filter.InheritDimensions;
 import org.vpac.ndg.query.math.BoxReal;
 import org.vpac.ndg.query.math.ElementByte;
 import org.vpac.ndg.query.math.ScalarElement;
 import org.vpac.ndg.query.math.VectorReal;
 import org.vpac.ndg.query.sampling.Cell;
-import org.vpac.ndg.query.sampling.CellType;
 import org.vpac.ndg.query.sampling.PixelSourceScalar;
 
 @Description(name = "Greater or Equal", description = "Generates a mask\nmask = input >= value")

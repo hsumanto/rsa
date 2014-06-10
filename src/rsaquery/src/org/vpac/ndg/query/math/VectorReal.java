@@ -81,6 +81,13 @@ public class VectorReal implements Serializable {
 		return res;
 	}
 
+	/**
+	 * @return The index of an axis, or -1 if the axis is not present.
+	 */
+	public int indexOf(String axis) {
+		return ComponentLUT.indexOf(components.length, axis);
+	}
+
 	// CASTING
 
 	@Override
@@ -135,21 +142,6 @@ public class VectorReal implements Serializable {
 	}
 
 	/**
-	 * @return The component that represents time. This is always the first
-	 * element.
-	 */
-	public double getT() {
-		return components[0];
-	}
-	/**
-	 * Set the time component (first).
-	 * @param value The value to assign to the component.
-	 */
-	public void setT(double value) {
-		components[0] = value;
-	}
-
-	/**
 	 * Finds the index pointed to by this vector in an image.
 	 * 
 	 * @param shape The shape of the image.
@@ -168,272 +160,214 @@ public class VectorReal implements Serializable {
 		return idx;
 	}
 
-	private final static int OFFSET_X = 0 + 1;
 	/**
 	 * @return The X component (last; synonym for a).
 	 */
 	public double getX() {
-		return components[components.length - OFFSET_X];
+		return components[ComponentLUT.getX(components.length)];
 	}
 	/**
 	 * Set the X component (last; synonym for a).
 	 * @param value The value to assign to the component.
 	 */
 	public void setX(double value) {
-		components[components.length - OFFSET_X] = value;
+		components[ComponentLUT.getX(components.length)] = value;
 	}
 
-	private final static int OFFSET_Y = 1 + 1;
 	/**
 	 * @return The Y component (second last; synonym for b).
 	 */
 	public double getY() {
-		return components[components.length - OFFSET_Y];
+		return components[ComponentLUT.getY(components.length)];
 	}
 	/**
 	 * Set the Y component (second last; synonym for b).
 	 * @param value The value to assign to the component.
 	 */
 	public void setY(double value) {
-		components[components.length - OFFSET_Y] = value;
+		components[ComponentLUT.getY(components.length)] = value;
 	}
 
-	private final static int OFFSET_Z = 2 + 1;
 	/**
 	 * @return The Z component (third last; synonym for c).
 	 */
 	public double getZ() {
-		return components[components.length - OFFSET_Z];
+		return components[ComponentLUT.getZ(components.length)];
 	}
 	/**
 	 * Set the Z component (third last; synonym for c).
 	 * @param value The value to assign to the component.
 	 */
 	public void setZ(double value) {
-		components[components.length - OFFSET_Z] = value;
+		components[ComponentLUT.getZ(components.length)] = value;
 	}
 
-	private final static int OFFSET_W = 3 + 1;
 	/**
 	 * @return The W component (fourth last; synonym for d).
 	 */
 	public double getW() {
-		return components[components.length - OFFSET_W];
+		return components[ComponentLUT.getW(components.length)];
 	}
 	/**
 	 * Set the W component (fourth last; synonym for d).
 	 * @param value The value to assign to the component.
 	 */
 	public void setW(double value) {
-		components[components.length - OFFSET_W] = value;
+		components[ComponentLUT.getW(components.length)] = value;
 	}
 
-	private final static int OFFSET_A = 0 + 1;
 	/**
 	 * @return The A component (last; synonym for x).
 	 */
 	public double getA() {
-		return components[components.length - OFFSET_A];
+		return components[ComponentLUT.getA(components.length)];
 	}
 	/**
 	 * Set the A component (last; synonym for x).
 	 * @param value The value to assign to the component.
 	 */
 	public void setA(double value) {
-		components[components.length - OFFSET_A] = value;
+		components[ComponentLUT.getA(components.length)] = value;
 	}
 
-	private final static int OFFSET_B = 1 + 1;
 	/**
 	 * @return The B component (second last; synonym for y).
 	 */
 	public double getB() {
-		return components[components.length - OFFSET_B];
+		return components[ComponentLUT.getB(components.length)];
 	}
 	/**
 	 * Set the B component (second last; synonym for y).
 	 * @param value The value to assign to the component.
 	 */
 	public void setB(double value) {
-		components[components.length - OFFSET_B] = value;
+		components[ComponentLUT.getB(components.length)] = value;
 	}
 
-	private final static int OFFSET_C = 2 + 1;
 	/**
 	 * @return The C component (third last; synonym for z).
 	 */
 	public double getC() {
-		return components[components.length - OFFSET_C];
+		return components[ComponentLUT.getC(components.length)];
 	}
 	/**
 	 * Set the C component (third last; synonym for z).
 	 * @param value The value to assign to the component.
 	 */
 	public void setC(double value) {
-		components[components.length - OFFSET_C] = value;
+		components[ComponentLUT.getC(components.length)] = value;
 	}
 
-	private final static int OFFSET_D = 3 + 1;
 	/**
 	 * @return The D component (fourth last; synonym for w).
 	 */
 	public double getD() {
-		return components[components.length - OFFSET_D];
+		return components[ComponentLUT.getD(components.length)];
 	}
 	/**
 	 * Set the D component (fourth last; synonym for w).
 	 * @param value The value to assign to the component.
 	 */
 	public void setD(double value) {
-		components[components.length - OFFSET_D] = value;
+		components[ComponentLUT.getD(components.length)] = value;
 	}
 
-	private final static int OFFSET_E = 4 + 1;
 	/**
 	 * @return The E component (fifth last; synonym for None).
 	 */
 	public double getE() {
-		return components[components.length - OFFSET_E];
+		return components[ComponentLUT.getE(components.length)];
 	}
 	/**
 	 * Set the E component (fifth last; synonym for None).
 	 * @param value The value to assign to the component.
 	 */
 	public void setE(double value) {
-		components[components.length - OFFSET_E] = value;
+		components[ComponentLUT.getE(components.length)] = value;
 	}
 
-	private final static int OFFSET_F = 5 + 1;
 	/**
 	 * @return The F component (sixth last; synonym for None).
 	 */
 	public double getF() {
-		return components[components.length - OFFSET_F];
+		return components[ComponentLUT.getF(components.length)];
 	}
 	/**
 	 * Set the F component (sixth last; synonym for None).
 	 * @param value The value to assign to the component.
 	 */
 	public void setF(double value) {
-		components[components.length - OFFSET_F] = value;
+		components[ComponentLUT.getF(components.length)] = value;
 	}
 
-	private final static int OFFSET_G = 6 + 1;
 	/**
 	 * @return The G component (seventh last; synonym for None).
 	 */
 	public double getG() {
-		return components[components.length - OFFSET_G];
+		return components[ComponentLUT.getG(components.length)];
 	}
 	/**
 	 * Set the G component (seventh last; synonym for None).
 	 * @param value The value to assign to the component.
 	 */
 	public void setG(double value) {
-		components[components.length - OFFSET_G] = value;
+		components[ComponentLUT.getG(components.length)] = value;
 	}
 
-	private final static int OFFSET_H = 7 + 1;
 	/**
 	 * @return The H component (eighth last; synonym for None).
 	 */
 	public double getH() {
-		return components[components.length - OFFSET_H];
+		return components[ComponentLUT.getH(components.length)];
 	}
 	/**
 	 * Set the H component (eighth last; synonym for None).
 	 * @param value The value to assign to the component.
 	 */
 	public void setH(double value) {
-		components[components.length - OFFSET_H] = value;
+		components[ComponentLUT.getH(components.length)] = value;
 	}
 
-	private final static int OFFSET_I = 8 + 1;
 	/**
 	 * @return The I component (ninth last; synonym for None).
 	 */
 	public double getI() {
-		return components[components.length - OFFSET_I];
+		return components[ComponentLUT.getI(components.length)];
 	}
 	/**
 	 * Set the I component (ninth last; synonym for None).
 	 * @param value The value to assign to the component.
 	 */
 	public void setI(double value) {
-		components[components.length - OFFSET_I] = value;
+		components[ComponentLUT.getI(components.length)] = value;
 	}
 
-	private final static int OFFSET_J = 9 + 1;
 	/**
 	 * @return The J component (tenth last; synonym for None).
 	 */
 	public double getJ() {
-		return components[components.length - OFFSET_J];
+		return components[ComponentLUT.getJ(components.length)];
 	}
 	/**
 	 * Set the J component (tenth last; synonym for None).
 	 * @param value The value to assign to the component.
 	 */
 	public void setJ(double value) {
-		components[components.length - OFFSET_J] = value;
+		components[ComponentLUT.getJ(components.length)] = value;
 	}
 
 	/**
-	 * @return The index of an axis, or -1 if the axis is not present.
+	 * @return The T component (first; synonym for None).
 	 */
-	public int indexOf(String axis) {
-		int i = -1;
-
-		if (axis.equals("time"))
-			i = 0;
-
-		else if (axis.equals("x"))
-			i = components.length - OFFSET_X;
-
-		else if (axis.equals("y"))
-			i = components.length - OFFSET_Y;
-
-		else if (axis.equals("z"))
-			i = components.length - OFFSET_Z;
-
-		else if (axis.equals("w"))
-			i = components.length - OFFSET_W;
-
-		else if (axis.equals("a"))
-			i = components.length - OFFSET_A;
-
-		else if (axis.equals("b"))
-			i = components.length - OFFSET_B;
-
-		else if (axis.equals("c"))
-			i = components.length - OFFSET_C;
-
-		else if (axis.equals("d"))
-			i = components.length - OFFSET_D;
-
-		else if (axis.equals("e"))
-			i = components.length - OFFSET_E;
-
-		else if (axis.equals("f"))
-			i = components.length - OFFSET_F;
-
-		else if (axis.equals("g"))
-			i = components.length - OFFSET_G;
-
-		else if (axis.equals("h"))
-			i = components.length - OFFSET_H;
-
-		else if (axis.equals("i"))
-			i = components.length - OFFSET_I;
-
-		else if (axis.equals("j"))
-			i = components.length - OFFSET_J;
-
-
-		if (i >= components.length)
-			return -1;
-		else
-			return i;
+	public double getT() {
+		return components[ComponentLUT.getT(components.length)];
+	}
+	/**
+	 * Set the T component (first; synonym for None).
+	 * @param value The value to assign to the component.
+	 */
+	public void setT(double value) {
+		components[ComponentLUT.getT(components.length)] = value;
 	}
 
 	public VectorInt toInt() {

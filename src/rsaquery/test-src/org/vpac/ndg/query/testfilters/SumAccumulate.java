@@ -16,17 +16,21 @@
  * Copyright 2014 VPAC Innovations
  */
 
-package org.vpac.ndg.query;
+package org.vpac.ndg.query.testfilters;
 
 import java.io.IOException;
 
+import org.vpac.ndg.query.QueryConfigurationException;
 import org.vpac.ndg.query.filter.Accumulator;
+import org.vpac.ndg.query.filter.CellType;
+import org.vpac.ndg.query.filter.Description;
+import org.vpac.ndg.query.filter.Filter;
 import org.vpac.ndg.query.filter.Foldable;
+import org.vpac.ndg.query.filter.InheritDimensions;
 import org.vpac.ndg.query.math.BoxReal;
 import org.vpac.ndg.query.math.ScalarElement;
 import org.vpac.ndg.query.math.VectorReal;
 import org.vpac.ndg.query.sampling.Cell;
-import org.vpac.ndg.query.sampling.CellType;
 import org.vpac.ndg.query.sampling.PixelSourceScalar;
 
 /**
