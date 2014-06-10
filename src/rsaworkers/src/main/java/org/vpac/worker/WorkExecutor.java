@@ -133,7 +133,7 @@ public class WorkExecutor extends UntypedActor {
 
 	private Path getOutputPath(Work work) throws IOException {
 
-		Path outputDir = Paths.get(ndgConfigManager.getConfig().getDefaultPickupLocation());
+		Path outputDir = Paths.get(ndgConfigManager.getConfig().getDefaultPickupLocation() + "/" + work.jobProgressId);
 		Path queryPath = outputDir.resolve(work.workId + "_out.nc");
 
 		if (!Files.exists(outputDir))

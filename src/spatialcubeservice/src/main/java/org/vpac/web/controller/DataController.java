@@ -649,7 +649,7 @@ public class DataController {
 			bb.getMax().setX(bound.getXMax());
 			bb.getMax().setY(bound.getYMax());
 			log.info("message" + bb);
-			frontend.tell(new org.vpac.worker.Job.Work(UUID.randomUUID().toString(), query, ver, bb),  ActorRef.noSender());
+			frontend.tell(new org.vpac.worker.Job.Work(UUID.randomUUID().toString(), query, ver, bb, "1"),  ActorRef.noSender());
 		}
 		return "Success";
 	}
@@ -672,31 +672,44 @@ public class DataController {
 		String baseRsaDatasetName = "";
 		CellSize baseRsaDatasetResolution = null;		
 		
+		DatasetInputDefinition diGrid = null;
 		for (DatasetInputDefinition di : qd1.inputs) {
-			if (di.href.startsWith("rsa") && di.id.equals(baseRsaDatasetRef)) {
-				String[] baseRsaDataset = di.href.replace("rsa:", "").split("/");
-				baseRsaDatasetName = baseRsaDataset[0];
-				baseRsaDatasetResolution = CellSize.fromHumanString(baseRsaDataset[1]);
+			if (di.id.equals(baseRsaDatasetRef)) {
+				diGrid = di;
+				break;
 			}
 		}
 		
-		if(baseRsaDatasetName == "" || baseRsaDatasetResolution == null)
+		Box extent = null;
+		if(diGrid == null)
 			throw new IllegalArgumentException("No input reference of output grid");
 
-		String datasetId = datasetDao.findDatasetByName(baseRsaDatasetName, baseRsaDatasetResolution).getId();
-		List<TimeSlice> tsList = datasetDao.getTimeSlices(datasetId);
-		Dataset ds = datasetDao.retrieve(datasetId);
-		if(ds == null || tsList == null)
-			throw new IllegalAccessException("No dataset or timeslice");
+		if (diGrid.href.startsWith("rsa")) {
+			String[] baseRsaDataset = diGrid.href.replace("rsa:", "").split("/");
+			baseRsaDatasetName = baseRsaDataset[0];
+			baseRsaDatasetResolution = CellSize.fromHumanString(baseRsaDataset[1]);
+
+			String datasetId = datasetDao.findDatasetByName(baseRsaDatasetName, baseRsaDatasetResolution).getId();
+			List<TimeSlice> tsList = datasetDao.getTimeSlices(datasetId);
+			Dataset ds = datasetDao.retrieve(datasetId);
+			if(ds == null || tsList == null)
+				throw new IllegalAccessException("No dataset or timeslice");
+			
+			extent = timeSliceUtil.aggregateBounds(tsList);
+		} else if (diGrid.href.startsWith("epiphany")) {
+			baseRsaDatasetResolution = CellSize.m25;
+			extent = new Box(0,0,0,0);
+		} else {
+			throw new IllegalArgumentException("Output grid reference should be rsa or epiphany");
+		}
+
+		List<Tile> tiles = tileManager.getTiles(extent, baseRsaDatasetResolution);
 		
-		Box extent = timeSliceUtil.aggregateBounds(tsList);
-		List<Tile> tiles = tileManager.getTiles(extent, ds.getResolution());
-		
-		final Version ver = Version.netcdf4;
+		final Version ver = Version.valueOf(netcdfVersion);
 		ActorRef frontend = ActorCreator.getFrontend();
 		
 		for(Tile t : tiles) {
-			Box bound = tileManager.getNngGrid().getBounds(t.getIndex(), ds.getResolution());
+			Box bound = tileManager.getNngGrid().getBounds(t.getIndex(), baseRsaDatasetResolution);
 			bound.intersect(extent);
 			BoxReal bb = new BoxReal(2);
 			bb.getMin().setX(bound.getXMin());
@@ -704,7 +717,7 @@ public class DataController {
 			bb.getMax().setX(bound.getXMax());
 			bb.getMax().setY(bound.getYMax());
 			log.info("message" + bb);
-			frontend.tell(new org.vpac.worker.Job.Work(UUID.randomUUID().toString(), qd1.toXML(), ver, bb),  ActorRef.noSender());
+			frontend.tell(new org.vpac.worker.Job.Work(UUID.randomUUID().toString(), qd1.toXML(), ver, bb, "1"),  ActorRef.noSender());
 		}
 		return "Success";
 	}
