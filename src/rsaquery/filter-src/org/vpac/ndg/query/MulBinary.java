@@ -40,10 +40,10 @@ import org.vpac.ndg.query.sampling.PixelSource;
 @InheritDimensions(from = "in")
 public class MulBinary implements Filter {
 
-	@Rank(group = "in", demote = true)
+	@Rank(group = "in", promote = true)
 	public PixelSource inputA;
 
-	@Rank(group = "in", demote = true)
+	@Rank(group = "in", promote = true)
 	public PixelSource inputB;
 
 	@CellType("inputA")

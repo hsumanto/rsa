@@ -58,10 +58,12 @@ public class MinimiseForTime implements Filter {
 	/**
 	 * The field to find the minimum value of.
 	 */
+	@Rank(promote = true, lowerBound = 2)
 	public PixelSourceScalar toMinimise;
 	/**
 	 * The field to write to the output.
 	 */
+	@Rank(group = "toMinimise", promote = true)
 	public PixelSource toKeep;
 
 	// Output fields.

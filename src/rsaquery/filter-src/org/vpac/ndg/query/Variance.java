@@ -25,6 +25,7 @@ import org.vpac.ndg.query.filter.CellType;
 import org.vpac.ndg.query.filter.Description;
 import org.vpac.ndg.query.filter.Filter;
 import org.vpac.ndg.query.filter.InheritDimensions;
+import org.vpac.ndg.query.filter.Rank;
 import org.vpac.ndg.query.iteration.CoordinatePair;
 import org.vpac.ndg.query.iteration.Rectangle;
 import org.vpac.ndg.query.math.BoxReal;
@@ -46,6 +47,8 @@ public class Variance implements Filter {
 
 	// Input fields.
 	public int windowSize = 3;
+
+	@Rank(lowerBound = 2)
 	public PixelSource input;
 
 	// Output fields.

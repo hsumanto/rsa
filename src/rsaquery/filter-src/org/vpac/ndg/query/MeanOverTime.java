@@ -25,6 +25,7 @@ import org.vpac.ndg.query.filter.CellType;
 import org.vpac.ndg.query.filter.Description;
 import org.vpac.ndg.query.filter.Filter;
 import org.vpac.ndg.query.filter.InheritDimensions;
+import org.vpac.ndg.query.filter.Rank;
 import org.vpac.ndg.query.iteration.Reduction;
 import org.vpac.ndg.query.math.BoxReal;
 import org.vpac.ndg.query.math.Element;
@@ -42,6 +43,7 @@ import org.vpac.ndg.query.sampling.PixelSource;
 public class MeanOverTime implements Filter {
 
 	// Input fields.
+	@Rank(lowerBound = 2)
 	public PixelSource input;
 
 	// Output fields.

@@ -25,6 +25,7 @@ import org.vpac.ndg.query.filter.CellType;
 import org.vpac.ndg.query.filter.Description;
 import org.vpac.ndg.query.filter.Filter;
 import org.vpac.ndg.query.filter.InheritDimensions;
+import org.vpac.ndg.query.filter.Rank;
 import org.vpac.ndg.query.iteration.Kernel;
 import org.vpac.ndg.query.iteration.KernelPair;
 import org.vpac.ndg.query.math.BoxReal;
@@ -45,6 +46,7 @@ import org.vpac.ndg.query.sampling.PixelSource;
 @InheritDimensions(from = "input")
 public class Blur implements Filter {
 
+	@Rank(lowerBound = 2)
 	public PixelSource input;
 
 	@CellType("input")

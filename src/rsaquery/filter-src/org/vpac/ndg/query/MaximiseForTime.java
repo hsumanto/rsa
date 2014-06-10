@@ -56,10 +56,14 @@ public class MaximiseForTime implements Filter {
 	/**
 	 * The field to find the maximum value of.
 	 */
+	// It doesn't really make sense to promote these fields, but allow it just
+	// to be nice. Might be useful when testing.
+	@Rank(promote = true, lowerBound = 2)
 	public PixelSourceScalar toMaximise;
 	/**
 	 * The field to write to the output.
 	 */
+	@Rank(group = "toMaximise", promote = true)
 	public PixelSource toKeep;
 
 	// Output fields.
