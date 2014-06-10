@@ -29,7 +29,10 @@ import junit.framework.TestCase;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.BlockJUnit4ClassRunner;
+import org.vpac.ndg.query.filter.Filter;
 import org.vpac.ndg.query.filter.Foldable;
+import org.vpac.ndg.query.math.BoxReal;
+import org.vpac.ndg.query.math.VectorReal;
 import org.vpac.ndg.query.stats.Bucket;
 import org.vpac.ndg.query.stats.Cats;
 import org.vpac.ndg.query.stats.Hist;
@@ -416,55 +419,61 @@ public class QueryTest extends TestCase {
 	}
 
 	@Test
-	public void test_3D_2D_reduce() throws Exception {
-		File config = new File("data/config/multiply_3d_2d_reduce.xml");
-		File outputFile = new File("data/output/multiply_3d_2d_reduce.nc");
-		File expectedFile = new File("data/expected/multiply_3d_2d_reduce.nc");
+	public void test_2D3D_demote() throws Exception {
+		File config = new File("data/config/2d3d_demote.xml");
+		File outputFile = new File("data/output/2d3d_demote.nc");
+		File expectedFile = new File("data/expected/2d3d_demote.nc");
 
 		QueryRunner.run(config, outputFile);
 
-//		NetcdfFile dataset = null;
-//		NetcdfFile expected = null;
-//		try {
-//			dataset = NetcdfFile.open(outputFile.getPath());
-//			expected = NetcdfFile.open(expectedFile.getPath());
-//			Variable vex;
-//			Variable vac;
-//			vex = expected.findVariable("Band1");
-//			vac = dataset.findVariable("Band1");
-//			assertArray(vex.getDataType(), vex.read(), vac.read());
-//		} finally {
-//			if (dataset != null)
-//				dataset.close();
-//			if (expected != null)
-//				expected.close();
-//		}
+		NetcdfFile dataset = null;
+		NetcdfFile expected = null;
+		try {
+			dataset = NetcdfFile.open(outputFile.getPath());
+			expected = NetcdfFile.open(expectedFile.getPath());
+			Variable vex;
+			Variable vac;
+			vex = expected.findVariable("2dFirst");
+			vac = dataset.findVariable("2dFirst");
+			assertArray(vex.getDataType(), vex.read(), vac.read());
+			vex = expected.findVariable("2dSecond");
+			vac = dataset.findVariable("2dSecond");
+			assertArray(vex.getDataType(), vex.read(), vac.read());
+		} finally {
+			if (dataset != null)
+				dataset.close();
+			if (expected != null)
+				expected.close();
+		}
 	}
 
 	@Test
-	public void test_2D3D() throws Exception {
-		File config = new File("data/config/2d3d.xml");
-		File outputFile = new File("data/output/2d3d.nc");
-		File expectedFile = new File("data/expected/2d3d.nc");
+	public void test_2D3D_promote() throws Exception {
+		File config = new File("data/config/2d3d_promote.xml");
+		File outputFile = new File("data/output/2d3d_promote.nc");
+		File expectedFile = new File("data/expected/2d3d_promote.nc");
 
 		QueryRunner.run(config, outputFile);
 
-//		NetcdfFile dataset = null;
-//		NetcdfFile expected = null;
-//		try {
-//			dataset = NetcdfFile.open(outputFile.getPath());
-//			expected = NetcdfFile.open(expectedFile.getPath());
-//			Variable vex;
-//			Variable vac;
-//			vex = expected.findVariable("Band1");
-//			vac = dataset.findVariable("Band1");
-//			assertArray(vex.getDataType(), vex.read(), vac.read());
-//		} finally {
-//			if (dataset != null)
-//				dataset.close();
-//			if (expected != null)
-//				expected.close();
-//		}
+		NetcdfFile dataset = null;
+		NetcdfFile expected = null;
+		try {
+			dataset = NetcdfFile.open(outputFile.getPath());
+			expected = NetcdfFile.open(expectedFile.getPath());
+			Variable vex;
+			Variable vac;
+			vex = expected.findVariable("2dFirst");
+			vac = dataset.findVariable("2dFirst");
+			assertArray(vex.getDataType(), vex.read(), vac.read());
+			vex = expected.findVariable("2dSecond");
+			vac = dataset.findVariable("2dSecond");
+			assertArray(vex.getDataType(), vex.read(), vac.read());
+		} finally {
+			if (dataset != null)
+				dataset.close();
+			if (expected != null)
+				expected.close();
+		}
 	}
 
 	@Test

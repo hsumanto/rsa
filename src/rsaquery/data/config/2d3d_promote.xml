@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<query xmlns="http://www.vpac.org/namespaces/rsaquery-0.2">
+
+	<input id="in2d" href="../input/2d_dataset.nc" />
+	<input id="in3d" href="../input/colour.nc" />
+
+	<output id="outfile" >
+		<grid ref="#in2d" />
+
+		<variable name="2dFirst" ref="#combine1/output" />
+		<variable name="2dSecond" ref="#combine2/output" />
+	</output>
+
+	<filter id="combine1" cls="org.vpac.ndg.query.testfilters.AddPromote">
+		<sampler name="inputA" ref="#in2d/temp" />
+		<sampler name="inputB" ref="#in3d/Quality" />
+	</filter>
+
+	<filter id="combine2" cls="org.vpac.ndg.query.testfilters.AddPromote">
+		<sampler name="inputA" ref="#in3d/Quality" />
+		<sampler name="inputB" ref="#in2d/temp" />
+	</filter>
+</query>
