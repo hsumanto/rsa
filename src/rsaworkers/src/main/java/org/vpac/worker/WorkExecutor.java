@@ -63,7 +63,8 @@ public class WorkExecutor extends UntypedActor {
 	public WorkExecutor() {
 		ApplicationContext appContext = AppContextSingleton.INSTANCE.appContext;
 		statisticsDao = (StatisticsDao) appContext.getBean("statisticsDao");
-		ndgConfigManager = (NdgConfigManager) appContext.getBean("ndgConfigManager");
+		ndgConfigManager = (NdgConfigManager) appContext
+				.getBean("ndgConfigManager");
 	}
 
 	private StatisticsDao statisticsDao;
@@ -114,8 +115,11 @@ public class WorkExecutor extends UntypedActor {
 
 	private QueryDefinition preprocessQueryDef(Work work,
 			Collection<Path> tempFiles) throws IOException {
-		final QueryDefinition qd1 = QueryDefinition.fromString(work.queryDefinitionString);
-		qd1.output.grid.bounds = String.format("%f %f %f %f", work.bound.getMin().getX(), work.bound.getMin().getY(), work.bound.getMax().getX(), work.bound.getMax().getY());
+		final QueryDefinition qd1 = QueryDefinition
+				.fromString(work.queryDefinitionString);
+		qd1.output.grid.bounds = String.format("%f %f %f %f", work.bound
+				.getMin().getX(), work.bound.getMin().getY(), work.bound
+				.getMax().getX(), work.bound.getMax().getY());
 
 		// Fetch external data and store in local files before executing query.
 		// This is required because the query engine needs to know some metadata
@@ -133,7 +137,8 @@ public class WorkExecutor extends UntypedActor {
 
 	private Path getOutputPath(Work work) throws IOException {
 
-		Path outputDir = Paths.get(ndgConfigManager.getConfig().getDefaultPickupLocation() + "/" + work.jobProgressId);
+		Path outputDir = Paths.get(ndgConfigManager.getConfig()
+				.getDefaultPickupLocation() + "/" + work.jobProgressId);
 		Path queryPath = outputDir.resolve(work.workId + "_out.nc");
 
 		if (!Files.exists(outputDir))
@@ -149,15 +154,15 @@ public class WorkExecutor extends UntypedActor {
 
 	private Map<String, Foldable<?>> executeQuery(QueryDefinition qd,
 			WorkProgress wp, Path outputPath, Version netcdfVersion)
-					throws IOException, QueryConfigurationException {
+			throws IOException, QueryConfigurationException {
 
-/*		NetcdfFileWriter outputDataset = NetcdfFileWriter.createNew(
-				netcdfVersion, outputPath.toString());
-*/
+		/*
+		 * NetcdfFileWriter outputDataset = NetcdfFileWriter.createNew(
+		 * netcdfVersion, outputPath.toString());
+		 */
 		NetcdfFileWriter outputDataset = NetcdfFileWriter.createNew(
-				Version.netcdf3, outputPath.toString());
+				netcdfVersion, outputPath.toString());
 
-		
 		Map<String, Foldable<?>> output = null;
 
 		try {
@@ -169,7 +174,7 @@ public class WorkExecutor extends UntypedActor {
 				q.run();
 				output = q.getAccumulatedOutput();
 				VectorHist vh = (VectorHist) output.get("hist");
-				if(vh != null)
+				if (vh != null)
 					statisticsDao.saveHist(vh.getComponents()[0]);
 			} finally {
 				q.close();
@@ -184,11 +189,13 @@ public class WorkExecutor extends UntypedActor {
 		return output;
 	}
 
-	private Path fetchEpiphanyData(DatasetInputDefinition di, Work w) throws IOException {
+	private Path fetchEpiphanyData(DatasetInputDefinition di, Work w)
+			throws IOException {
 		String epiphanyHost = ndgConfigManager.getConfig().getEpiphanyIp();
 		String epiphanyPort = ndgConfigManager.getConfig().getEpiphanyPort();
 		String query = "AGELOWER=35";
-		//String query = "AGELOWER=1&AGEUPPER=111&GENDER=F&YEAR=2006&QUERY=Count&GEOMETRY=SA2%20Vic&VIEWMETHOD=Box%20Plot";
+		// String query =
+		// "AGELOWER=1&AGEUPPER=111&GENDER=F&YEAR=2006&QUERY=Count&GEOMETRY=SA2%20Vic&VIEWMETHOD=Box%20Plot";
 		String datasetId = findDataset(di.href);
 		String url = "http://"
 				+ epiphanyHost
@@ -199,9 +206,8 @@ public class WorkExecutor extends UntypedActor {
 				+ "?LAYERS="
 				+ datasetId
 				+ "&FORMAT=application%2Fx-netCDF&SERVICE=WCS&VERSION=1.1.1&REQUEST=GetMap&STYLES=&YEAR=none&QUERY=none&GEOMETRY=none&VIEWMETHOD=none&COLOURSCHEME=ColourBrewer%20Blues&LEGENDEXTENT=STATIC&NUMBERFILTERS=none&VISTYPE=none&SRS=EPSG%3A3111&BBOX="
-				+ w.bound.getMin().getX() + "," + w.bound.getMin().getY()
-				+ "," + w.bound.getMax().getX() + ","
-				+ w.bound.getMax().getY() 
+				+ w.bound.getMin().getX() + "," + w.bound.getMin().getY() + ","
+				+ w.bound.getMax().getX() + "," + w.bound.getMax().getY()
 				+ "&WIDTH=5000&HEIGHT=5000";
 		URL connectionUrl = new URL(url);
 		HttpURLConnection connection = (HttpURLConnection) connectionUrl
@@ -212,10 +218,8 @@ public class WorkExecutor extends UntypedActor {
 		// TODO : file doesn't need to be stored. -JP
 		// It's probably good practice to store it, though: otherwise we might
 		// fill our RAM. rsaquery will only read a small amount at a time. -AF
-		try (
-				InputStream in = connection.getInputStream();
-				OutputStream out = new FileOutputStream(path.toFile());
-				) {
+		try (InputStream in = connection.getInputStream();
+				OutputStream out = new FileOutputStream(path.toFile());) {
 			byte[] buffer = new byte[4096];
 			int bytesRead;
 			while ((bytesRead = in.read(buffer)) != -1) {
