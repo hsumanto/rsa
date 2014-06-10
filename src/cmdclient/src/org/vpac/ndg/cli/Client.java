@@ -141,23 +141,28 @@ public class Client {
 	private static enum AppContextSingleton {
 		INSTANCE;
 
-		public ApplicationContext appContext;
+		public ApplicationContext localAppContext;
+		public ApplicationContext remoteAppContext;
 
 		private AppContextSingleton() {
-			appContext = new ClassPathXmlApplicationContext(
+			localAppContext = new ClassPathXmlApplicationContext(
 					new String[] {"spring/beans/CmdClientBean.xml"});
+			remoteAppContext = new ClassPathXmlApplicationContext(
+					new String[] {"spring/beans/CmdClientBeanForRemote.xml"});
 		}
 	}
 
 	public void initBeans() {
 		log.debug("initialising Spring and storage manager connectors");
-		ApplicationContext appContext = AppContextSingleton.INSTANCE.appContext;
-		log.trace("retrieved app context");
 
-		if(cmd.hasOption("remote"))
+		ApplicationContext appContext;
+		if(cmd.hasOption("remote")) {
+			appContext = AppContextSingleton.INSTANCE.remoteAppContext;
 			sm = Factory.create(cmd.getOptionValue("remote"), appContext);
-		else
+		} else {
+			appContext = AppContextSingleton.INSTANCE.localAppContext;
 			sm = Factory.create("", appContext);
+		}
 		log.trace("connector initialised");
 
 
