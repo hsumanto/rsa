@@ -519,7 +519,7 @@ public class DataController {
 		}
 	}
 
-	@RequestMapping(value = "/Query", method = RequestMethod.POST)
+/*	@RequestMapping(value = "/Query", method = RequestMethod.POST)
 	public String query(@RequestParam(required = false) MultipartFile file,
 			@RequestParam(required = false) String threads,
 			@RequestParam(required = false) Double minX,
@@ -580,7 +580,8 @@ public class DataController {
 		model.addAttribute(ControllerHelper.RESPONSE_ROOT, new QueryResponse(taskId));
 		return "Success";
 	}
-
+*/
+	
 	@RequestMapping(value = "/DQuery-test", method = RequestMethod.GET)
 	public String distributedQueryTest() throws IllegalAccessException {
 		
@@ -637,7 +638,6 @@ public class DataController {
 		List<Tile> tiles = tileManager.getTiles(extent, ds.getResolution());
 		
 		final Version ver = Version.netcdf4;
-		final String path = "";
 		
 		ActorRef frontend = ActorCreator.getFrontend();
 		
@@ -650,13 +650,13 @@ public class DataController {
 			bb.getMax().setX(bound.getXMax());
 			bb.getMax().setY(bound.getYMax());
 			log.info("message" + bb);
-			frontend.tell(new org.vpac.worker.Job.Work(UUID.randomUUID().toString(), query, path, ver, bb),  ActorRef.noSender());
+			frontend.tell(new org.vpac.worker.Job.Work(UUID.randomUUID().toString(), query, ver, bb),  ActorRef.noSender());
 		}
 		return "Success";
 	}
 
-	@RequestMapping(value = "/DQuery", method = RequestMethod.GET)
-	public String distributedQuery(@RequestParam(required = false) MultipartFile file,
+	@RequestMapping(value = "/Query", method = RequestMethod.GET)
+	public String query(@RequestParam(required = false) MultipartFile file,
 			@RequestParam(required = false) String threads,
 			@RequestParam(required = false) Double minX,
 			@RequestParam(required = false) Double minY,
@@ -694,8 +694,6 @@ public class DataController {
 		List<Tile> tiles = tileManager.getTiles(extent, ds.getResolution());
 		
 		final Version ver = Version.netcdf4;
-		final String path = "";
-		
 		ActorRef frontend = ActorCreator.getFrontend();
 		
 		for(Tile t : tiles) {
@@ -707,7 +705,7 @@ public class DataController {
 			bb.getMax().setX(bound.getXMax());
 			bb.getMax().setY(bound.getYMax());
 			log.info("message" + bb);
-			frontend.tell(new org.vpac.worker.Job.Work(UUID.randomUUID().toString(), qd1.toXML(), path, ver, bb),  ActorRef.noSender());
+			frontend.tell(new org.vpac.worker.Job.Work(UUID.randomUUID().toString(), qd1.toXML(), ver, bb),  ActorRef.noSender());
 		}
 		return "Success";
 	}
