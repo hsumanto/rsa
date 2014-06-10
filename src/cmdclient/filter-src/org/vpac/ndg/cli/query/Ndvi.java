@@ -25,6 +25,7 @@ import org.vpac.ndg.query.QueryConfigurationException;
 import org.vpac.ndg.query.filter.CellType;
 import org.vpac.ndg.query.filter.Filter;
 import org.vpac.ndg.query.filter.InheritDimensions;
+import org.vpac.ndg.query.filter.Rank;
 import org.vpac.ndg.query.math.BoxReal;
 import org.vpac.ndg.query.math.Element;
 import org.vpac.ndg.query.math.VectorReal;
@@ -41,11 +42,13 @@ import org.vpac.ndg.query.sampling.PixelSource;
  * 
  * @author Alex Faser
  */
-@InheritDimensions(from = "band3")
+@InheritDimensions(from = "in")
 public class Ndvi implements Filter {
 
 	// Input fields.
+	@Rank(group = "in", promote = true)
 	public PixelSource band3;
+	@Rank(group = "in", promote = true)
 	public PixelSource band4;
 
 	// Use the same number of components as band3 for the output, but convert it

@@ -48,6 +48,7 @@ public class Threshold implements Filter {
 	public PixelSource intime;
 
 	// Input fields.
+	@Rank(lowerBound = 2)
 	public PixelSourceScalar input;
 
 	// Output fields.
