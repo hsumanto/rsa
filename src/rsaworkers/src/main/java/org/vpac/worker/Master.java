@@ -142,10 +142,10 @@ public class Master extends UntypedActor {
 			}
 			System.out.println("Progress:" + progress);
 			System.out.println("noOfWork:" + noOfWork);
-			System.out.println("calc:" + progress / (noOfWork * 10000) + "%");
+			System.out.println("calc:" + progress / (noOfWork) + "%");
 			JobProgress job = jobProgressDao.retrieve(currentWork.jobProgressId);
-			job.setCurrentStepProgress(progress / (noOfWork * 10000));
-			if(progress / (noOfWork * 100) == 1)
+			job.setCurrentStepProgress(progress / (noOfWork));
+			if(progress == (noOfWork * 100))
 				job.setCompleted();
 			jobProgressDao.save(job);
 			WorkerState state = workers.get(workerId);
