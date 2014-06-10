@@ -21,15 +21,16 @@ package org.vpac.ndg.cli.query;
 
 import java.io.IOException;
 
-import org.vpac.ndg.query.Filter;
-import org.vpac.ndg.query.InheritDimensions;
 import org.vpac.ndg.query.QueryConfigurationException;
+import org.vpac.ndg.query.filter.CellType;
+import org.vpac.ndg.query.filter.Filter;
+import org.vpac.ndg.query.filter.InheritDimensions;
+import org.vpac.ndg.query.filter.Rank;
 import org.vpac.ndg.query.math.BoxReal;
 import org.vpac.ndg.query.math.ElementByte;
 import org.vpac.ndg.query.math.ScalarElement;
 import org.vpac.ndg.query.math.VectorReal;
 import org.vpac.ndg.query.sampling.Cell;
-import org.vpac.ndg.query.sampling.CellType;
 import org.vpac.ndg.query.sampling.PixelSourceScalar;
 
 /**
@@ -50,7 +51,9 @@ public class WetByNdvi implements Filter {
 	public double ndviThreshold = 0.08;
 
 	// Input fields. Must be scalar to allow comparison.
+	@Rank(group = "in", promote = true)
 	public PixelSourceScalar ndvi;
+	@Rank(group = "in", promote = true)
 	public PixelSourceScalar band5;
 
 	// Output fields.

@@ -111,6 +111,13 @@ public class $cname implements Serializable {
 		res.components = this.components.clone();
 		return res;
 	}
+
+	/**
+	 * @return The index of an axis, or -1 if the axis is not present.
+	 */
+	public int indexOf(String axis) {
+		return ComponentLUT.indexOf(components.length, axis);
+	}
 """)
 
 CLASS_FOOTER_TEMPLATE = Template("""
@@ -167,21 +174,6 @@ SPECIAL_CAST_TEMPLATE = Template("""
 	}
 	public void set(int i, $ptype other) {
 		components[i] = other;
-	}
-
-	/**
-	 * @return The component that represents time. This is always the first
-	 * element.
-	 */
-	public $ptype getT() {
-		return components[0];
-	}
-	/**
-	 * Set the time component (first).
-	 * @param value The value to assign to the component.
-	 */
-	public void setT($ptype value) {
-		components[0] = value;
 	}
 
 	/**
@@ -294,43 +286,19 @@ SPECIAL_REAL_TEMPLATE = Template("""
 	}
 """)
 
-ELEMENT_INDEX_OF_HEADER = Template("""
-	/**
-	 * @return The index of an axis, or -1 if the axis is not present.
-	 */
-	public int indexOf(String axis) {
-		int i = -1;
-
-		if (axis.equals("time"))
-			i = 0;
-""")
-ELEMENT_INDEX_OF_TEMPLATE = Template("""
-		else if (axis.equals("${character}"))
-			i = components.length - OFFSET_${characterUpper};
-""")
-ELEMENT_INDEX_OF_FOOTER = Template("""
-
-		if (i >= components.length)
-			return -1;
-		else
-			return i;
-	}
-""")
-
 ELEMENT_ACCESSOR_TEMPLATE = Template("""
-	private final static int OFFSET_${characterUpper} = $index + 1;
 	/**
 	 * @return The ${characterUpper} component (${placement}${synonym}).
 	 */
 	public $ptype get${characterUpper}() {
-		return components[components.length - OFFSET_${characterUpper}];
+		return components[ComponentLUT.get${characterUpper}(components.length)];
 	}
 	/**
 	 * Set the ${characterUpper} component (${placement}${synonym}).
 	 * @param value The value to assign to the component.
 	 */
 	public void set${characterUpper}($ptype value) {
-		components[components.length - OFFSET_${characterUpper}] = value;
+		components[ComponentLUT.get${characterUpper}(components.length)] = value;
 	}
 """)
 
@@ -781,29 +749,15 @@ def write_class(output, t):
 	output.write("\n	// CASTING\n")
 	output.write(SPECIAL_CAST_TEMPLATE.substitute(mapping))
 
-	for character, index, placement, syn in Element_types.ELEMENT_NAMES:
+	for character, placement, syn in Element_types.ELEMENT_NAMES:
 		local_mapping = {
 				"character": character,
 				"characterUpper": character.upper(),
-				"index": index,
 				"placement": placement,
 				"synonym": "; synonym for %s" % syn,
 				}
 		local_mapping.update(mapping)
 		output.write(ELEMENT_ACCESSOR_TEMPLATE.substitute(local_mapping))
-
-	output.write(ELEMENT_INDEX_OF_HEADER.substitute(mapping))
-	for character, index, placement, syn in Element_types.ELEMENT_NAMES:
-		local_mapping = {
-				"character": character,
-				"characterUpper": character.upper(),
-				"index": index,
-				"placement": placement,
-				"synonym": "; synonym for %s" % syn,
-				}
-		local_mapping.update(mapping)
-		output.write(ELEMENT_INDEX_OF_TEMPLATE.substitute(local_mapping))
-	output.write(ELEMENT_INDEX_OF_FOOTER.substitute(mapping))
 
 	output.write(t.specials.substitute(mapping))
 

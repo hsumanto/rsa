@@ -21,39 +21,51 @@ package org.vpac.ndg.query.sampling;
 
 import java.io.IOException;
 
-import org.vpac.ndg.query.FilterAdapter;
 import org.vpac.ndg.query.math.BoxReal;
 import org.vpac.ndg.query.math.Element;
-import org.vpac.ndg.query.math.VectorElement;
+import org.vpac.ndg.query.math.ScalarElement;
+import org.vpac.ndg.query.math.Swizzle;
 import org.vpac.ndg.query.math.VectorReal;
 
 /**
- * A pixel source that retrieves data from a filter.
+ * A scalar pixel source that reorders the dimensions of its parent.
  * @author Alex Fraser
  */
-public class FilteredPixelVector implements PixelSourceVector {
+public class SwizzledPixelScalar implements PixelSourceScalar {
 
-	FilterAdapter filter;
-	CellVector source;
+	PixelSourceScalar source;
 	BoxReal bounds;
+	Swizzle swizzle;
+	VectorReal swizzledCo;
+	Prototype prototype;
 
-	public FilteredPixelVector(FilterAdapter filter, CellVector source,
-			BoxReal bounds) {
+	public SwizzledPixelScalar(PixelSourceScalar source, Swizzle swizzle,
+			int sourceRank, int rank) {
 
-		this.filter = filter;
+		swizzledCo = VectorReal.createEmpty(sourceRank);
 		this.source = source;
-		this.bounds = bounds;
+		this.swizzle = swizzle;
+
+		prototype = source.getPrototype().copy();
+		// Swizzle dimensions. When promoting (rank > sourceRank), this may
+		// result in some null dimensions (see Swizzle.SwizzleOp0).
+		String[] dims = new String[rank];
+		swizzle.invert().swizzle(source.getPrototype().getDimensions(),
+				prototype.getDimensions());
+		prototype.setDimensions(dims);
+		bounds = new BoxReal(rank);
+		swizzle.invert().swizzle(source.getBounds(), bounds);
 	}
 
 	@Override
-	public VectorElement getVectorPixel(VectorReal co) throws IOException {
-		filter.invoke(co);
-		return source.getVector();
+	public ScalarElement getScalarPixel(VectorReal co) throws IOException {
+		swizzle.swizzle(co, swizzledCo);
+		return source.getScalarPixel(swizzledCo);
 	}
 
 	@Override
 	public Element<?> getPixel(VectorReal co) throws IOException {
-		return getVectorPixel(co);
+		return getScalarPixel(co);
 	}
 
 	@Override
@@ -73,11 +85,11 @@ public class FilteredPixelVector implements PixelSourceVector {
 
 	@Override
 	public String[] getDimensions() {
-		return source.getDimensions();
+		return prototype.getDimensions();
 	}
 
 	@Override
 	public String toString() {
-		return String.format("FilteredPixel(%s.%s)", filter.getName(), source);
+		return String.format("SwizzledPixel(%s)", source);
 	}
 }

@@ -17,10 +17,15 @@
  * http://www.crcsi.com.au/
  */
 
-package org.vpac.ndg.query;
+package org.vpac.ndg.query.testfilters;
 
 import java.io.IOException;
 
+import org.vpac.ndg.query.QueryConfigurationException;
+import org.vpac.ndg.query.filter.CellType;
+import org.vpac.ndg.query.filter.Filter;
+import org.vpac.ndg.query.filter.InheritDimensions;
+import org.vpac.ndg.query.filter.Rank;
 import org.vpac.ndg.query.iteration.Reduction;
 import org.vpac.ndg.query.math.BoxReal;
 import org.vpac.ndg.query.math.ElementInt;
@@ -29,7 +34,6 @@ import org.vpac.ndg.query.math.Swizzle;
 import org.vpac.ndg.query.math.SwizzleFactory;
 import org.vpac.ndg.query.math.VectorReal;
 import org.vpac.ndg.query.sampling.Cell;
-import org.vpac.ndg.query.sampling.CellType;
 import org.vpac.ndg.query.sampling.PixelSource;
 import org.vpac.ndg.query.sampling.PixelSourceScalar;
 
@@ -49,7 +53,7 @@ public class WettingExtents implements Filter {
 	public int dryThreshold;
 
 	// Input fields.
-	@Constraint(dimensions=1)
+	@Rank(is = 1)
 	public PixelSource intime;
 
 	public PixelSourceScalar input;

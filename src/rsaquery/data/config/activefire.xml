@@ -11,7 +11,7 @@
 		<variable name="time" ref="#Fire/outtime" />
 	</output>
 
-	<filter id="Fire" cls="org.vpac.ndg.query.ActiveFire">
+	<filter id="Fire" cls="org.vpac.ndg.query.testfilters.ActiveFire">
 		<literal name="temperatureThreshold" value="196" />
 		<sampler name="input" ref="#infile/Band1"  />
 		<sampler name="intime" ref="#infile/time"  />

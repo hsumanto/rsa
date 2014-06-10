@@ -165,7 +165,7 @@ public class Client {
 		tileManager = (TileManager)appContext.getBean("tileManager");
 
 		DatasetProvider dataProvider = (DatasetProvider)appContext.getBean("dataProvider");
-		ProviderRegistry.getInstance().clearProivders();
+//		ProviderRegistry.getInstance().clearProivders();
 		ProviderRegistry.getInstance().addProvider(dataProvider);
 		log.debug("initialisation complete");
 	}

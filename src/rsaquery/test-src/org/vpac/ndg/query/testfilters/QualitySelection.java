@@ -17,51 +17,54 @@
  * http://www.crcsi.com.au/
  */
 
-package org.vpac.ndg.query;
+package org.vpac.ndg.query.testfilters;
 
 import java.io.IOException;
 
+import org.vpac.ndg.query.QueryConfigurationException;
+import org.vpac.ndg.query.filter.CellType;
+import org.vpac.ndg.query.filter.Filter;
+import org.vpac.ndg.query.filter.InheritDimensions;
 import org.vpac.ndg.query.iteration.Reduction;
 import org.vpac.ndg.query.math.BoxReal;
-import org.vpac.ndg.query.math.Element;
-import org.vpac.ndg.query.math.ElementInt;
 import org.vpac.ndg.query.math.ScalarElement;
 import org.vpac.ndg.query.math.Swizzle;
 import org.vpac.ndg.query.math.SwizzleFactory;
 import org.vpac.ndg.query.math.VectorReal;
 import org.vpac.ndg.query.sampling.Cell;
-import org.vpac.ndg.query.sampling.CellType;
 import org.vpac.ndg.query.sampling.PixelSource;
 import org.vpac.ndg.query.sampling.PixelSourceScalar;
 
 /**
- * ACTIVE FIRE ( Query returns temperature, metadata enables identification of
- * date of fire per pixel) - For a period between date A and date B, display the
- * greatest pixel temperature for Top of Atmosphere temperature with a value >
- * 360K. The pixel level metadata for the result should provide capture date
- * information.
- * 
+ * THE MOST RECENT CLOUD FREE PIXELS BEFORE A GIVEN DATE (Query returns a RGB
+ * colour image for a selection of bands) - Display the latest quality assured
+ * pixels.
+ *
+ * This fitler constructs a multi-band 2D image (y,x) from a multi-band 3D image
+ * (t,y,x). The pixel with the highest value in the Quality band is kept from
+ * each time slice.
+ *
  * @author Alex Fraser
- * 
+ *
  */
 @InheritDimensions(from = "input", reduceBy = 1)
-public class ActiveFire implements Filter {
+public class QualitySelection implements Filter {
 
-	// Parameters.
-	public int temperatureThreshold;
+	// Parameters
+	public int qualityThreshold;
 
-	// Input fields. It's better practice to not specify the dimensions, but we
-	// do so here to test the API.
-	@Constraint(dimensions=1)
+	// Input fields.
 	public PixelSource intime;
-	@Constraint(dimensions=3)
-	public PixelSourceScalar input;
+	public PixelSource input;
+	public PixelSourceScalar inquality;
 
 	// Output fields.
 	@CellType("intime")
 	public Cell outtime;
 	@CellType("input")
 	public Cell output;
+	@CellType("inquality")
+	public Cell outquality;
 
 	Reduction reduction;
 	VectorReal tco = VectorReal.createEmpty(1);
@@ -74,27 +77,31 @@ public class ActiveFire implements Filter {
 
 	@Override
 	public void kernel(VectorReal coords) throws IOException {
-
-		// Search over all times at the specified coordinates.
-		ScalarElement maxTemp = null;
-		Element<?> timeval = null;
+		// Search over all times at the specified coordinates, looking for the
+		// highest-quality pixel.
+		double bestt = -1;
+		ScalarElement bestq = null;
 		for (VectorReal varcoords : reduction.getIterator(coords)) {
-			ScalarElement temp = input.getScalarPixel(varcoords);
-			if ((maxTemp == null || temp.compareTo(maxTemp) > 0) &&
-					temp.compareTo(temperatureThreshold) > 0) {
+			ScalarElement quality = inquality.getScalarPixel(varcoords);
+			if ((bestq == null || quality.compareTo(bestq) > 0) &&
+					quality.compareTo(qualityThreshold) > 0) {
 
-				maxTemp = temp;
-				tcs.swizzle(varcoords, tco);
-				timeval = intime.getPixel(tco);
+				bestq = quality;
+				bestt = varcoords.getT();
 			}
 		}
 
-		if (maxTemp != null) {
-			output.set(maxTemp);
-			outtime.set(timeval);
+		// Transfer data for good quality pixels.
+		if (bestq != null) {
+			VectorReal varcoords = reduction.getSingle(coords, bestt);
+			output.set(input.getPixel(varcoords));
+			outquality.set(bestq);
+			tcs.swizzle(varcoords, tco);
+			outtime.set(intime.getPixel(tco));
 		} else {
-			output.set(new ElementInt(0));
+			output.unset();
 			outtime.unset();
+			outquality.unset();
 		}
 	}
 }

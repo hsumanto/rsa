@@ -21,12 +21,16 @@ package org.vpac.ndg.query;
 
 import java.io.IOException;
 
+import org.vpac.ndg.query.filter.CellType;
+import org.vpac.ndg.query.filter.Description;
+import org.vpac.ndg.query.filter.Filter;
+import org.vpac.ndg.query.filter.InheritDimensions;
+import org.vpac.ndg.query.filter.Rank;
 import org.vpac.ndg.query.iteration.Reduction;
 import org.vpac.ndg.query.math.BoxReal;
 import org.vpac.ndg.query.math.ScalarElement;
 import org.vpac.ndg.query.math.VectorReal;
 import org.vpac.ndg.query.sampling.Cell;
-import org.vpac.ndg.query.sampling.CellType;
 import org.vpac.ndg.query.sampling.PixelSource;
 import org.vpac.ndg.query.sampling.PixelSourceScalar;
 
@@ -46,16 +50,20 @@ public class MaximiseForTime implements Filter {
 	 */
 	public int threshold = Integer.MAX_VALUE;
 
-	@Constraint(dimensions=1)
+	@Rank(is = 1)
 	public PixelSource intime;
 
 	/**
 	 * The field to find the maximum value of.
 	 */
+	// It doesn't really make sense to promote these fields, but allow it just
+	// to be nice. Might be useful when testing.
+	@Rank(promote = true, lowerBound = 2)
 	public PixelSourceScalar toMaximise;
 	/**
 	 * The field to write to the output.
 	 */
+	@Rank(group = "toMaximise", promote = true)
 	public PixelSource toKeep;
 
 	// Output fields.

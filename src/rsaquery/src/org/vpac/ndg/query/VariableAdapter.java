@@ -77,7 +77,7 @@ public class VariableAdapter implements HasShape, HasRank, HasPrototype {
 	public VariableAdapter(Variable variable, String name, DatasetMeta owner)
 			throws QueryConfigurationException {
 
-		log.debug("Wrapping variable {}", variable);
+		log.debug("Wrapping variable #{}.{}", owner.getName(), variable.getFullName());
 
 		this.variable = variable;
 		this.name = name;

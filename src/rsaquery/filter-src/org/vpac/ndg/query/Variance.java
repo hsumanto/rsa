@@ -21,6 +21,11 @@ package org.vpac.ndg.query;
 
 import java.io.IOException;
 
+import org.vpac.ndg.query.filter.CellType;
+import org.vpac.ndg.query.filter.Description;
+import org.vpac.ndg.query.filter.Filter;
+import org.vpac.ndg.query.filter.InheritDimensions;
+import org.vpac.ndg.query.filter.Rank;
 import org.vpac.ndg.query.iteration.CoordinatePair;
 import org.vpac.ndg.query.iteration.Rectangle;
 import org.vpac.ndg.query.math.BoxReal;
@@ -28,7 +33,6 @@ import org.vpac.ndg.query.math.Element;
 import org.vpac.ndg.query.math.VectorInt;
 import org.vpac.ndg.query.math.VectorReal;
 import org.vpac.ndg.query.sampling.Cell;
-import org.vpac.ndg.query.sampling.CellType;
 import org.vpac.ndg.query.sampling.PixelSource;
 
 /**
@@ -43,6 +47,8 @@ public class Variance implements Filter {
 
 	// Input fields.
 	public int windowSize = 3;
+
+	@Rank(lowerBound = 2)
 	public PixelSource input;
 
 	// Output fields.

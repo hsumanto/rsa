@@ -52,6 +52,8 @@ CLASS_HEADER_TEMPLATE = Template("""/*
 
 package org.vpac.ndg.query.math;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -121,6 +123,24 @@ public abstract class Swizzle {
 		swizzle(in.getMax(), out.getMax());
 	}
 
+	/**
+	 * Reorganise the components of an array.
+	 *
+	 * @param in The array to use as the source.
+	 * @param out The array to write to. It must have the same number of
+	 *            components as was specified when creating this swizzle
+	 *            instance.
+	 */
+	public abstract <T> void swizzle(T[] in, T[] out);
+
+	/**
+	 * Create a new swizzle that does the opposite of this one: from and to are
+	 * reversed.
+	 * 
+	 * @return The new swizzle object.
+	 */
+	public abstract Swizzle invert();
+
 
 	/**
 	 * Abstracts component access from a vector.
@@ -130,10 +150,12 @@ public abstract class Swizzle {
 		public long get(VectorInt from);
 		public double get(VectorReal from);
 		public ScalarElement get(VectorElement from);
+		public Object get(Object[] from);
 
 		public void set(VectorInt to, long value);
 		public void set(VectorReal to, double value);
 		public void set(VectorElement to, ScalarElement value);
+		public void set(Object[] to, Object value);
 	}
 
 	static class SwizzleOp0 implements SwizzleOp {
@@ -156,6 +178,11 @@ public abstract class Swizzle {
 		}
 
 		@Override
+		public Object get(Object[] from) {
+			return null;
+		}
+
+		@Override
 		public String toString() {
 			return "0";
 		}
@@ -172,6 +199,11 @@ public abstract class Swizzle {
 
 		@Override
 		public void set(VectorElement to, ScalarElement value) {
+			// Nothing to do for this virtual component.
+		}
+
+		@Override
+		public void set(Object[] to, Object value) {
 			// Nothing to do for this virtual component.
 		}
 	}
@@ -196,6 +228,12 @@ public abstract class Swizzle {
 		}
 
 		@Override
+		public Object get(Object[] from) {
+			// There is "1" Object, so behave like "0" (null)   
+			return null;
+		}
+
+		@Override
 		public String toString() {
 			return "1";
 		}
@@ -212,6 +250,11 @@ public abstract class Swizzle {
 
 		@Override
 		public void set(VectorElement to, ScalarElement value) {
+			// Nothing to do for this virtual component.
+		}
+
+		@Override
+		public void set(Object[] to, Object value) {
 			// Nothing to do for this virtual component.
 		}
 	}
@@ -288,6 +331,19 @@ ${apply}
 		}
 
 		@Override
+		public <T> void swizzle(T[] in, T[] out) {
+${apply}
+		}
+
+		@Override
+		public Swizzle${rank} invert() {
+			List<SwizzleOp> from = new ArrayList<SwizzleOp>();
+			List<SwizzleOp> to = new ArrayList<SwizzleOp>();
+${invert}
+			return new Swizzle${rank}(to, from);
+		}
+
+		@Override
 		public String toString() {
 			String fromstr = "";
 			String tostr = "";
@@ -318,6 +374,12 @@ SWIZZLE_APPLY_GENERIC = """
 			for (int i = 0; i < from.length; i++) {
 				to[i].set(out, from[i].get(in));
 			}"""
+SWIZZLE_INVERT_TEMPLATE = Template("""
+			to.add(to${opnum});
+			from.add(from${opnum});""")
+SWIZZLE_INVERT_GENERIC = """
+			to.addAll(Arrays.asList(this.to));
+			from.addAll(Arrays.asList(this.from));"""
 SWIZZLE_STR_TEMPLATE = Template("""
 			fromstr += from${opnum};
 			tostr += to${opnum};""")
@@ -348,6 +410,11 @@ OPERATION_TEMPLATE = Template("""
 		}
 
 		@Override
+		public Object get(Object[] from) {
+			return from[ComponentLUT.get${opcharupper}(from.length)];
+		}
+
+		@Override
 		public String toString() {
 			return "${opchar}";
 		}
@@ -365,6 +432,11 @@ OPERATION_TEMPLATE = Template("""
 		@Override
 		public void set(VectorElement from, ScalarElement value) {
 			from.set${opcharupper}(value);
+		}
+
+		@Override
+		public void set(Object[] to, Object value) {
+			to[ComponentLUT.get${opcharupper}(to.length)] = value;
 		}
 	}
 """)
@@ -406,6 +478,7 @@ def write_swizzles(output, ranks):
         declaration = ""
         construction = ""
         application = ""
+        inversion = ""
         formatbuilder = ""
         for j in xrange(i):
             mapping = {
@@ -414,12 +487,14 @@ def write_swizzles(output, ranks):
             declaration += SWIZZLE_DECL_TEMPLATE.substitute(mapping)
             construction += SWIZZLE_CTOR_TEMPLATE.substitute(mapping)
             application += SWIZZLE_APPLY_TEMPLATE.substitute(mapping)
+            inversion += SWIZZLE_INVERT_TEMPLATE.substitute(mapping)
             formatbuilder += SWIZZLE_STR_TEMPLATE.substitute(mapping)
         mapping = {
                    "rank" : str(i),
                    "declarations" : declaration,
                    "constructor" : construction,
                    "apply" : application,
+                   "invert" : inversion,
                    "formatbuilder" : formatbuilder
                    }
         output.write(SWIZZLE_TEMPLATE.substitute(mapping))
@@ -429,6 +504,7 @@ def write_swizzles(output, ranks):
                "declarations" : SWIZZLE_DECL_GENERIC,
                "constructor" : SWIZZLE_CTOR_GENERIC,
                "apply" : SWIZZLE_APPLY_GENERIC,
+               "invert" : SWIZZLE_INVERT_GENERIC,
                "formatbuilder" : SWIZZLE_STR_GENERIC
                }
     output.write(SWIZZLE_TEMPLATE.substitute(mapping))
@@ -439,9 +515,8 @@ def write_class(output):
     output.write(CLASS_HEADER_TEMPLATE.substitute({}))
 
     components = []
-    for name, _, _, _ in Element_types.ELEMENT_NAMES:
+    for name, _, _ in Element_types.ELEMENT_NAMES:
         components.append(name)
-    components.append("t")
 
     write_op_factory_method(output, components)
     write_operations(output, components)

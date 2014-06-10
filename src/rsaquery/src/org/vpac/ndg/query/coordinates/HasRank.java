@@ -20,8 +20,15 @@
 package org.vpac.ndg.query.coordinates;
 
 
+/**
+ * Indicates that an object has some number of components or dimensions.
+ * @author Alex Fraser
+ */
 public interface HasRank {
 
+	/**
+	 * @return The number of components.
+	 */
 	int getRank();
 
 }

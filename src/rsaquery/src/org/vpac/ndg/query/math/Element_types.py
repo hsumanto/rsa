@@ -93,22 +93,22 @@ TYPES = [
 
 
 ELEMENT_NAMES = [
-		("x", 0, "last", "a"),
-		("y", 1, "second last", "b"),
-		("z", 2, "third last", "c"),
-		("w", 3, "fourth last", "d"),
+		("x", "last", "a"),
+		("y", "second last", "b"),
+		("z", "third last", "c"),
+		("w", "fourth last", "d"),
 
-		("a", 0, "last", "x"),
-		("b", 1, "second last", "y"),
-		("c", 2, "third last", "z"),
-		("d", 3, "fourth last", "w"),
-		("e", 4, "fifth last", None),
-		("f", 5, "sixth last", None),
-		("g", 6, "seventh last", None),
-		("h", 7, "eighth last", None),
-		("i", 8, "ninth last", None),
-		("j", 9, "tenth last", None),
+		("a", "last", "x"),
+		("b", "second last", "y"),
+		("c", "third last", "z"),
+		("d", "fourth last", "w"),
+		("e", "fifth last", None),
+		("f", "sixth last", None),
+		("g", "seventh last", None),
+		("h", "eighth last", None),
+		("i", "ninth last", None),
+		("j", "tenth last", None),
 
-		# t is special (always first). Don't specify it here.
+		("t", "first", None),
 
 		]

@@ -21,10 +21,14 @@ package org.vpac.ndg.query;
 
 import java.io.IOException;
 
+import org.vpac.ndg.query.filter.CellType;
+import org.vpac.ndg.query.filter.Description;
+import org.vpac.ndg.query.filter.Filter;
+import org.vpac.ndg.query.filter.InheritDimensions;
+import org.vpac.ndg.query.filter.Rank;
 import org.vpac.ndg.query.math.BoxReal;
 import org.vpac.ndg.query.math.VectorReal;
 import org.vpac.ndg.query.sampling.Cell;
-import org.vpac.ndg.query.sampling.CellType;
 import org.vpac.ndg.query.sampling.PixelSource;
 
 /**
@@ -33,11 +37,13 @@ import org.vpac.ndg.query.sampling.PixelSource;
  * @author Alex Fraser
  */
 @Description(name = "Subtract", description = "Subtract two pixels together")
-@InheritDimensions(from = "inputA")
+@InheritDimensions(from = "in")
 public class SubBinary implements Filter {
 
+	@Rank(group = "in", promote = true)
 	public PixelSource inputA;
 
+	@Rank(group = "in", promote = true)
 	public PixelSource inputB;
 
 	@CellType("inputA")
