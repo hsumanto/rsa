@@ -16,10 +16,11 @@
  * Copyright 2014 VPAC Innovations
  */
 
-package org.vpac.ndg.query;
+package org.vpac.ndg.query.testfilters;
 
 import java.io.IOException;
 
+import org.vpac.ndg.query.QueryConfigurationException;
 import org.vpac.ndg.query.filter.Accumulator;
 import org.vpac.ndg.query.filter.CellType;
 import org.vpac.ndg.query.filter.Description;

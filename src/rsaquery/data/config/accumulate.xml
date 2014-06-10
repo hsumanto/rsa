@@ -9,7 +9,7 @@
 		<variable name="Band1" ref="#sum/output" />
 	</output>
 
-	<filter id="sum" cls="org.vpac.ndg.query.SumAccumulate">
+	<filter id="sum" cls="org.vpac.ndg.query.testfilters.SumAccumulate">
 		<sampler name="input" ref="#infile/temp" />
 	</filter>
 </query>

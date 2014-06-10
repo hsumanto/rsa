@@ -17,7 +17,7 @@
 	</output>
 
 	<!-- Declare a filter to transform #infile into #outfile. -->
-	<filter id="Wet" cls="org.vpac.ndg.query.WettingExtents">
+	<filter id="Wet" cls="org.vpac.ndg.query.testfilters.WettingExtents">
 		<!-- A literal uniform (effectively a constant). -->
 		<literal name="dryThreshold" value="64" />
 

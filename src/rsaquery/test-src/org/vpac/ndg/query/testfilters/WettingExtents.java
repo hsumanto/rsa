@@ -17,15 +17,18 @@
  * http://www.crcsi.com.au/
  */
 
-package org.vpac.ndg.query;
+package org.vpac.ndg.query.testfilters;
 
 import java.io.IOException;
 
+import org.vpac.ndg.query.QueryConfigurationException;
 import org.vpac.ndg.query.filter.CellType;
 import org.vpac.ndg.query.filter.Filter;
 import org.vpac.ndg.query.filter.InheritDimensions;
+import org.vpac.ndg.query.filter.Rank;
 import org.vpac.ndg.query.iteration.Reduction;
 import org.vpac.ndg.query.math.BoxReal;
+import org.vpac.ndg.query.math.ElementInt;
 import org.vpac.ndg.query.math.ScalarElement;
 import org.vpac.ndg.query.math.Swizzle;
 import org.vpac.ndg.query.math.SwizzleFactory;
@@ -35,35 +38,31 @@ import org.vpac.ndg.query.sampling.PixelSource;
 import org.vpac.ndg.query.sampling.PixelSourceScalar;
 
 /**
- * THE MOST RECENT CLOUD FREE PIXELS BEFORE A GIVEN DATE (Query returns a RGB
- * colour image for a selection of bands) - Display the latest quality assured
- * pixels.
- *
- * This fitler constructs a multi-band 2D image (y,x) from a multi-band 3D image
- * (t,y,x). The pixel with the highest value in the Quality band is kept from
- * each time slice.
- *
+ * WATER ( Query returns 0 or 1 ) - For a period between date A and date B,
+ * display pixels with a value of NBAR Landsat band 5 value of less than 1000
+ * (reflectance scaled by 10000) - true = 1 false = 0. The pixel level metadata
+ * for positive results should provide capture date information.
+ * 
  * @author Alex Fraser
- *
+ * 
  */
 @InheritDimensions(from = "input", reduceBy = 1)
-public class QualitySelection implements Filter {
+public class WettingExtents implements Filter {
 
-	// Parameters
-	public int qualityThreshold;
+	// Parameters.
+	public int dryThreshold;
 
 	// Input fields.
+	@Rank(is = 1)
 	public PixelSource intime;
-	public PixelSource input;
-	public PixelSourceScalar inquality;
+
+	public PixelSourceScalar input;
 
 	// Output fields.
 	@CellType("intime")
 	public Cell outtime;
 	@CellType("input")
 	public Cell output;
-	@CellType("inquality")
-	public Cell outquality;
 
 	Reduction reduction;
 	VectorReal tco = VectorReal.createEmpty(1);
@@ -76,31 +75,20 @@ public class QualitySelection implements Filter {
 
 	@Override
 	public void kernel(VectorReal coords) throws IOException {
-		// Search over all times at the specified coordinates, looking for the
-		// highest-quality pixel.
-		double bestt = -1;
-		ScalarElement bestq = null;
+		// Search over all times at the specified coordinates.
+		outtime.unset();
 		for (VectorReal varcoords : reduction.getIterator(coords)) {
-			ScalarElement quality = inquality.getScalarPixel(varcoords);
-			if ((bestq == null || quality.compareTo(bestq) > 0) &&
-					quality.compareTo(qualityThreshold) > 0) {
-
-				bestq = quality;
-				bestt = varcoords.getT();
+			ScalarElement val = input.getScalarPixel(varcoords);
+			if (val.compareTo(dryThreshold) < 0) {
+				val.set(1);
+				output.set(val);
+				tcs.swizzle(varcoords, tco);
+				outtime.set(intime.getPixel(tco));
+				return;
 			}
 		}
 
-		// Transfer data for good quality pixels.
-		if (bestq != null) {
-			VectorReal varcoords = reduction.getSingle(coords, bestt);
-			output.set(input.getPixel(varcoords));
-			outquality.set(bestq);
-			tcs.swizzle(varcoords, tco);
-			outtime.set(intime.getPixel(tco));
-		} else {
-			output.unset();
-			outtime.unset();
-			outquality.unset();
-		}
+		output.set(new ElementInt(0));
 	}
+
 }
