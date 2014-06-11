@@ -1,5 +1,6 @@
 package org.vpac.worker;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -71,7 +72,7 @@ public class Master extends UntypedActor {
 	private HashMap<String, WorkerState> workers = new HashMap<String, WorkerState>();
 	private Queue<Work> pendingWork = new LinkedList<Work>();
 	private Set<String> workIds = new LinkedHashSet<String>();
-	private Map<Work, Double> workProgress = new HashMap<Work, Double>();
+	private Map<String, WorkInfo> workProgress = new HashMap<String, WorkInfo>();
 	private JobProgressDao jobProgressDao;
 
 	public Master(FiniteDuration workTimeout) {
@@ -124,26 +125,22 @@ public class Master extends UntypedActor {
 			WorkIsDone msg = (WorkIsDone) message;
 			String workerId = msg.workerId;
 			String workId = msg.workId;
-			Work currentWork = null;
-			for(Work w : workProgress.keySet()) {
-				if (w.workId.equals(workId)) {
-					currentWork = w;
-					workProgress.put(w, 100.0);
-					break;
-				}
-			}
+			WorkInfo currentWorkInfo = workProgress.get(workId);
+			currentWorkInfo.progressRatio = 100.0;
+			workProgress.put(workId, currentWorkInfo);
+
 			double progress = 0.0;
 			int noOfWork = 0;
-			for(Work w : workProgress.keySet()) {
-				if (w.jobProgressId.equals(currentWork.jobProgressId)) {
-					progress += workProgress.get(w).doubleValue();
+			for(WorkInfo w : workProgress.values()) {
+				if (w.jobProgressId.equals(currentWorkInfo.jobProgressId)) {
+					progress += w.progressRatio.doubleValue();
+					noOfWork++;
 				}
-				noOfWork++;
 			}
 			System.out.println("Progress:" + progress);
 			System.out.println("noOfWork:" + noOfWork);
 			System.out.println("calc:" + progress / (noOfWork) + "%");
-			JobProgress job = jobProgressDao.retrieve(currentWork.jobProgressId);
+			JobProgress job = jobProgressDao.retrieve(currentWorkInfo.jobProgressId);
 			job.setCurrentStepProgress(progress / (noOfWork));
 			if(progress == (noOfWork * 100))
 				job.setCompleted();
@@ -194,7 +191,8 @@ public class Master extends UntypedActor {
 				// TODO store in Eventsourced
 				pendingWork.add(work);
 				workIds.add(work.workId);
-				workProgress.put(work, 0.0);
+				WorkInfo workInfo = new WorkInfo(work, work.jobProgressId, 0.0, null);
+				workProgress.put(work.workId, workInfo);
 				getSender().tell(new Ack(work.workId), getSelf());
 				notifyWorkers();
 			}
@@ -354,6 +352,20 @@ public class Master extends UntypedActor {
 			return "CleanupTick";
 		}
 	};
+	
+	private class WorkInfo {
+		public Work work;
+		public String jobProgressId;
+		public Double progressRatio;
+		public Object result;
+		
+		public WorkInfo(Work work, String jobProgressId, Double progressRatio, Object result) {
+			this.work = work;
+			this.jobProgressId = jobProgressId;
+			this.progressRatio = progressRatio;
+			this.result = result;
+		}
+	}
 
 	// TODO cleanup old workers
 	// TODO cleanup old workIds
