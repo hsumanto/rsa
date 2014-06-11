@@ -76,14 +76,7 @@ public class WorkExecutor extends UntypedActor {
 
 	@Override
 	public void onReceive(Object message) throws Exception {
-		if (message instanceof Integer) {
-			Integer n = (Integer) message;
-			int n2 = n.intValue() * n.intValue();
-			String result = n + " * " + n + " = " + n2;
-			log.debug("Produced result {}", result);
-			getSender().tell(new Job.WorkComplete(result), getSelf());
-
-		} else if (message instanceof Work) {
+		if (message instanceof Work) {
 			Work work = (Work) message;
 			WorkProgress wp = new WorkProgress(work.workId);
 			String result = null;

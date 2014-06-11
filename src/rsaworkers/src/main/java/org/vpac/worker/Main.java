@@ -76,7 +76,7 @@ public class Main {
 	}
 
 	private static String systemName = "Workers";
-	private static FiniteDuration workTimeout = Duration.create(100, "seconds");
+	private static FiniteDuration workTimeout = Duration.create(100, "minutes");
 
 	public static Address startBackend(Address joinAddress) {
 		Config conf = ConfigFactory.parseString("akka.cluster.roles=[backend]")
