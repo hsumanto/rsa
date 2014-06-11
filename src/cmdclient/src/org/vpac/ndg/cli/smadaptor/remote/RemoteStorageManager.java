@@ -28,6 +28,7 @@ import org.vpac.ndg.cli.smadaptor.DataImport;
 import org.vpac.ndg.cli.smadaptor.DataQuery;
 import org.vpac.ndg.cli.smadaptor.DataUpload;
 import org.vpac.ndg.cli.smadaptor.DatasetConnector;
+import org.vpac.ndg.cli.smadaptor.FilterConnector;
 import org.vpac.ndg.cli.smadaptor.StorageManager;
 import org.vpac.ndg.cli.smadaptor.TaskConnector;
 import org.vpac.ndg.cli.smadaptor.TimesliceConnector;
@@ -102,6 +103,13 @@ public class RemoteStorageManager implements StorageManager {
 		RemoteTaskConnector taskConnector  = (RemoteTaskConnector) appContext.getBean("taskConnector");
 		taskConnector.setBaseUri(this.baseUri);
 		return taskConnector;
+	}
+
+	@Override
+	public FilterConnector getFilterConnector() {
+		RemoteFilterConnector filterConnector  = (RemoteFilterConnector) appContext.getBean("filterConnector");
+		filterConnector.setBaseUri(this.baseUri);
+		return filterConnector;
 	}
 
 	@Override

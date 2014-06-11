@@ -17,18 +17,31 @@
  * http://www.crcsi.com.au/
  */
 
-package org.vpac.ndg.cli.smadaptor;
+package org.vpac.ndg.cli.smadaptor.remote;
 
-public interface StorageManager {
-	public DatasetConnector getDatasetConnector();
-	public DataUpload getDataUploader();
-	public DataImport getDataImporter();
-	public DataExport getDataExporter();
-	public DataQuery getDataQuery();
-	public DataCleanup getDataCleanup();
-	public TimesliceConnector getTimesliceConnector();
-	public BandConnector getBandConnector();
-	public TaskConnector getTaskConnector();
-	public FilterConnector getFilterConnector();
-	public DataDownloader getDataDownloader();
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.client.RestTemplate;
+import org.vpac.ndg.cli.smadaptor.FilterConnector;
+import org.vpac.web.model.response.QueryNodeCollectionResponse;
+
+public class RemoteFilterConnector implements FilterConnector {
+	public static String GET_ALL_FILTER_URL = "/SpatialCubeService/QueryFilter.xml";
+
+	private String baseUri;
+	
+	@Autowired
+	protected RestTemplate restTemplate;
+	
+	@Override
+	public QueryNodeCollectionResponse list() {
+		return restTemplate.getForObject(baseUri + GET_ALL_FILTER_URL, QueryNodeCollectionResponse.class);
+	}
+
+	public String getBaseUri() {
+		return baseUri;
+	}
+
+	public void setBaseUri(String baseUri) {
+		this.baseUri = baseUri;
+	}
 }

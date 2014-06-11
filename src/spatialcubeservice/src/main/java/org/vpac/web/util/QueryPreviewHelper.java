@@ -44,57 +44,16 @@ import ucar.nc2.NetcdfFileWriter.Version;
 import ucar.nc2.Variable;
 
 /**
- * Added some static methods to deal with Filter field.
- * 
  * @author hsumanto
- * 
  */
-public class FilterUtils {
+public class QueryPreviewHelper {
 
-	final static Logger log = LoggerFactory.getLogger(FilterUtils.class);
+	final static Logger log = LoggerFactory.getLogger(QueryPreviewHelper.class);
 	final static int SECTION_SIZE = 128;
 	final static String DEFAULT_PREVIEW_VAR_NAME = "multipreview";
 	final static float FILL_VALUE = -999f;
 
 	final static NodataStrategyFactory nodataStrategyFactory = new NodataStrategyFactory();
-
-	public static Field[] getFields(Filter filter) {
-		return filter.getClass().getFields();
-	}
-
-	/**
-	 * Get the filter primitive fields.
-	 * 
-	 * @param filter
-	 *            The specified filter.
-	 * @return Returns the filter primitive fields.
-	 */
-	public static List<Field> getPrimitiveFields(Filter filter) {
-		List<Field> result = new ArrayList<Field>();
-		for (Field f : getFields(filter)) {
-			if (f.getType().isPrimitive()) {
-				result.add(f);
-			}
-		}
-		return result;
-	}
-
-	/**
-	 * Get the filter non-primitive fields.
-	 * 
-	 * @param filter
-	 *            The specified filter.
-	 * @return Returns the filter non-primitive fields.
-	 */
-	public static List<Field> getNonPrimitiveFields(Filter filter) {
-		List<Field> result = new ArrayList<Field>();
-		for (Field f : getFields(filter)) {
-			if (!f.getType().isPrimitive()) {
-				result.add(f);
-			}
-		}
-		return result;
-	}
 
 	/**
 	 * Generate multiple preview for the specified source file on the specified destination.

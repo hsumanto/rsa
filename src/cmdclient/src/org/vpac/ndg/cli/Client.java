@@ -82,6 +82,10 @@ import org.vpac.ndg.storage.model.TileBand;
 import org.vpac.ndg.storage.model.TimeSlice;
 import org.vpac.ndg.storage.model.TimeSliceLock;
 import org.vpac.ndg.storage.util.TimeSliceUtil;
+import org.vpac.web.model.response.QueryInputResponse;
+import org.vpac.web.model.response.QueryNodeCollectionResponse;
+import org.vpac.web.model.response.QueryNodeResponse;
+import org.vpac.web.model.response.QueryOutputResponse;
 
 import com.martiansoftware.nailgun.NGContext;
 
@@ -112,7 +116,8 @@ public class Client {
 			"rsa data query [options] [-obet] [--of] [--async] <QUERY_DEF_FILE>\n" +
 			"rsa data download [options] [o] <TASK_ID>\n" +
 			"rsa data task [options] [--monitor] [TASK_ID]\n" +
-			"rsa data cleanup [options] [--purge]";
+			"rsa data cleanup [options] [--purge]\n" +
+			"rsa filter list [options]";
 //			"rsa help <CATEGORY>\n";
 
 	public final static String HEADER =
@@ -152,11 +157,11 @@ public class Client {
 		}
 	}
 
-	public void initBeans() {
+	public void initBeans(boolean remote) {
 		log.debug("initialising Spring and storage manager connectors");
 
 		ApplicationContext appContext;
-		if(cmd.hasOption("remote")) {
+		if (remote) {
 			appContext = AppContextSingleton.INSTANCE.remoteAppContext;
 			sm = Factory.create(cmd.getOptionValue("remote"), appContext);
 		} else {
@@ -1317,7 +1322,22 @@ public class Client {
 			System.out.println(String.format("\t%s", task.getState()));
 		}
 	}
-	
+
+	private void listFilters(List<String> remainingArgs) {
+		QueryNodeCollectionResponse list = sm.getFilterConnector().list();
+		for (QueryNodeResponse filter : list.getItems()) {
+			System.out.format("%s (\"%s\")\n", filter.getQualname(), filter.getName());
+			System.out.format("\t%s\n", filter.getDescription());
+			for (QueryInputResponse input : filter.getInputs()) {
+				System.out.format("\t%-20s %s (in)\n", input.getType(), input.getName());
+			}
+			for (QueryOutputResponse output : filter.getOutputs()) {
+				System.out.format("\t%-20s %s (out)\n", output.getType(), output.getName());
+			}
+		}
+	}
+
+
 	@SuppressWarnings("static-access")
 	public void processArgs(String... args) {
 		Options options;
@@ -1403,7 +1423,7 @@ public class Client {
 			return;
 		}
 		else {
-			initBeans();
+			initBeans(cmd.hasOption("remote"));
 		}
 	}
 
@@ -1508,6 +1528,13 @@ public class Client {
 					listTasks(remainingArgs);
 				} else if (action.equals("cleanup")) {
 					cleanup(remainingArgs);
+				} else {
+					throw new IllegalArgumentException(String.format("%s is not a recognised action.", action));
+				}
+
+			} else if (category.equals("filter")) {
+				if (action.equals("list")) {
+					listFilters(remainingArgs);
 				} else {
 					throw new IllegalArgumentException(String.format("%s is not a recognised action.", action));
 				}

@@ -17,31 +17,44 @@
  * http://www.crcsi.com.au/
  */
 
-package org.vpac.web.util;
+package org.vpac.web.model.response;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.ServiceLoader;
-
-import org.vpac.ndg.query.filter.Filter;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- * This class is intended to load all filter implementation specified in
- * /META-INF/services/org.vpac.ndg.query.Filter service provider configuration.
+ * This class is intended for query element response.
+ * This is the base class for QueryInputResponse and QueryOutputResponse.
  * 
  * @author hsumanto
  * 
  */
-public class ServiceHelper {
+@XmlRootElement(name = "QueryElement")
+public class QueryElementResponse {
 
-	private static ServiceLoader<Filter> filterSetLoader = ServiceLoader
-			.load(Filter.class);
+	private String name;
+	private String type;
 
-	public static List<Filter> getFilters() {
-		List<Filter> filters = new ArrayList<>();
-		for (Filter f : filterSetLoader) {
-			filters.add(f);
-		}
-		return filters;
+	public QueryElementResponse() {
+	}
+
+	public QueryElementResponse(String name, String type) {
+		setName(name);
+		setType(type);
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getType() {
+		return type;
+	}
+
+	public void setType(String type) {
+		this.type = type;
 	}
 }
