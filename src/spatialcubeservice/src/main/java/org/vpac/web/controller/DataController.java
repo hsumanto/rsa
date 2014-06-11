@@ -24,6 +24,8 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -582,12 +584,12 @@ public class DataController {
 */
 	
 	@RequestMapping(value = "/DQuery-test", method = RequestMethod.GET)
-	public String distributedQueryTest() throws IllegalAccessException {
+	public String distributedQueryTest() throws IllegalAccessException, UnsupportedEncodingException {
 		
 		String query = "<?xml version='1.0' encoding='UTF-8'?>" +
 		"<query xmlns='http://www.vpac.org/namespaces/rsaquery-0.2'>" +
 //	    "<input id='ep' href='epiphany:1064?AGELOWER=35'/>" +
-		    "<input id='ep' href='epiphany:1064'/>" +
+		    "<input id='ep' href='epiphany:1064?" + URLEncoder.encode("AGELOWER=1&AGEUPPER=111&GENDER=F&YEAR=2006&QUERY=Count&GEOMETRY=SA2%20Vic&VIEWMETHOD=Box%20Plot", "UTF-8")+ "'/>" +
 		    "<input id='dem' href='rsa:vic/25m'/>" +
 		    "<input id='cat' href='rsa:vic_region/25m'/>" +
 		    "<filter id='Maximise' cls='org.vpac.ndg.query.MaximiseForTime'>" +
