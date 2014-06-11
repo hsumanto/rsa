@@ -21,6 +21,7 @@
 	<bean id="dataImport" class="org.vpac.ndg.cli.smadaptor.remote.RemoteDataImport" scope="prototype" lazy-init="true" />
 	<bean id="dataExport" class="org.vpac.ndg.cli.smadaptor.remote.RemoteDataExport" scope="prototype" lazy-init="true" />
  	<bean id="dataQuery" class="org.vpac.ndg.cli.smadaptor.remote.RemoteDataQuery" scope="prototype" lazy-init="true" />
+ 	<bean id="filterConnector" class="org.vpac.ndg.cli.smadaptor.remote.RemoteFilterConnector" scope="prototype" lazy-init="true" />
  	<bean id="dataCleanup" class="org.vpac.ndg.cli.smadaptor.remote.RemoteDataCleanup" scope="prototype" lazy-init="true" />
 	<bean id="dataDownloader" class="org.vpac.ndg.cli.smadaptor.remote.RemoteDataDownloader" scope="prototype" lazy-init="true" />
 	<bean id="dataProvider" class="org.vpac.ndg.datamodel.RsaDatasetProvider" lazy-init="true" />

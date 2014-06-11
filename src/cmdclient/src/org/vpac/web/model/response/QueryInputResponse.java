@@ -17,18 +17,23 @@
  * http://www.crcsi.com.au/
  */
 
-package org.vpac.ndg.cli.smadaptor;
+package org.vpac.web.model.response;
 
-public interface StorageManager {
-	public DatasetConnector getDatasetConnector();
-	public DataUpload getDataUploader();
-	public DataImport getDataImporter();
-	public DataExport getDataExporter();
-	public DataQuery getDataQuery();
-	public DataCleanup getDataCleanup();
-	public TimesliceConnector getTimesliceConnector();
-	public BandConnector getBandConnector();
-	public TaskConnector getTaskConnector();
-	public FilterConnector getFilterConnector();
-	public DataDownloader getDataDownloader();
+import javax.xml.bind.annotation.XmlRootElement;
+
+/**
+ * This class is intended for a query input response.
+ * 
+ * @author hsumanto
+ * 
+ */
+@XmlRootElement(name = "QueryInput")
+public class QueryInputResponse extends QueryElementResponse {
+
+	public QueryInputResponse() {
+	}
+
+	public QueryInputResponse(String name, String type) {
+		super(name, type);
+	}
 }

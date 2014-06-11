@@ -17,18 +17,23 @@
  * http://www.crcsi.com.au/
  */
 
-package org.vpac.ndg.cli.smadaptor;
+package org.vpac.ndg.cli;
 
-public interface StorageManager {
-	public DatasetConnector getDatasetConnector();
-	public DataUpload getDataUploader();
-	public DataImport getDataImporter();
-	public DataExport getDataExporter();
-	public DataQuery getDataQuery();
-	public DataCleanup getDataCleanup();
-	public TimesliceConnector getTimesliceConnector();
-	public BandConnector getBandConnector();
-	public TaskConnector getTaskConnector();
-	public FilterConnector getFilterConnector();
-	public DataDownloader getDataDownloader();
+import java.io.IOException;
+
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.test.context.ContextConfiguration;
+
+@ContextConfiguration({ "file:resources/spring/beans/CmdClientBean.xml" })
+public class ReflectionTest extends ConsoleTest {
+
+	final Logger log = LoggerFactory.getLogger(ReflectionTest.class);
+
+	@Test
+	public void testFilterList() throws IOException {
+		client.execute("filter", "list");
+
+	}
 }

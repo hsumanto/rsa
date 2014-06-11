@@ -28,6 +28,7 @@ import org.vpac.ndg.cli.smadaptor.DataImport;
 import org.vpac.ndg.cli.smadaptor.DataQuery;
 import org.vpac.ndg.cli.smadaptor.DataUpload;
 import org.vpac.ndg.cli.smadaptor.DatasetConnector;
+import org.vpac.ndg.cli.smadaptor.FilterConnector;
 import org.vpac.ndg.cli.smadaptor.StorageManager;
 import org.vpac.ndg.cli.smadaptor.TaskConnector;
 import org.vpac.ndg.cli.smadaptor.TimesliceConnector;
@@ -83,6 +84,11 @@ public class LocalStorageManager implements StorageManager {
 	@Override
 	public TaskConnector getTaskConnector() {
 		return (TaskConnector) appContext.getBean("taskConnector");		
+	}
+
+	@Override
+	public FilterConnector getFilterConnector() {
+		return (FilterConnector) appContext.getBean("filterConnector");		
 	}
 
 	@Override
