@@ -127,10 +127,11 @@ public class Master extends UntypedActor {
 			String workId = msg.workId;
 			WorkInfo currentWorkInfo = workProgress.get(workId);
 			currentWorkInfo.progressRatio = 100.0;
+			currentWorkInfo.result = msg.result;
 			workProgress.put(workId, currentWorkInfo);
 
 			double progress = 0.0;
-			int noOfWork = 0;
+			int noOfWork = 0;			
 			for(WorkInfo w : workProgress.values()) {
 				if (w.jobProgressId.equals(currentWorkInfo.jobProgressId)) {
 					progress += w.progressRatio.doubleValue();
@@ -146,7 +147,6 @@ public class Master extends UntypedActor {
 				job.setCompleted();
 			jobProgressDao.save(job);
 			WorkerState state = workers.get(workerId);
-
 			
 			if (state != null && state.status.isBusy()
 					&& state.status.getWork().workId.equals(workId)) {
