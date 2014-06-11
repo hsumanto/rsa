@@ -152,11 +152,11 @@ public class Client {
 		}
 	}
 
-	public void initBeans() {
+	public void initBeans(boolean remote) {
 		log.debug("initialising Spring and storage manager connectors");
 
 		ApplicationContext appContext;
-		if(cmd.hasOption("remote")) {
+		if (remote) {
 			appContext = AppContextSingleton.INSTANCE.remoteAppContext;
 			sm = Factory.create(cmd.getOptionValue("remote"), appContext);
 		} else {
@@ -1403,7 +1403,7 @@ public class Client {
 			return;
 		}
 		else {
-			initBeans();
+			initBeans(cmd.hasOption("remote"));
 		}
 	}
 
