@@ -22,13 +22,8 @@ package org.vpac.web.model.response;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.vpac.ndg.query.filter.Description;
+import org.vpac.ndg.query.FilterUtils;
 import org.vpac.ndg.query.filter.Filter;
-import org.vpac.ndg.query.sampling.Cell;
-import org.vpac.ndg.query.sampling.PixelSource;
-import org.vpac.web.util.FilterUtils;
 
 /**
  * This class is intended for a single query filter response.
@@ -38,54 +33,35 @@ import org.vpac.web.util.FilterUtils;
  */
 public class QueryFilterResponse extends QueryNodeResponse {
 
-	final private Logger log = LoggerFactory
-			.getLogger(QueryFilterResponse.class);
-
 	public QueryFilterResponse() {
 	}
 
-	public QueryFilterResponse(Filter filter) {
-		if (filter != null) {
-			Description annotation = filter.getClass().getAnnotation(
-					Description.class);
-			String name;
-			String desc;
-			if (annotation != null) {
-				name = annotation.name();
-				desc = annotation.description();
-			} else {
-				name = filter.getClass().getSimpleName();
-				desc = "";
-			}
+	public QueryFilterResponse(Class<? extends Filter> f) {
+		if (f == null)
+			return;
 
-			setName(name);
-			setDescription(desc);
-			setType("filter");
-			setQualname(filter.getClass().getCanonicalName());
-			setInputs(new ArrayList<QueryInputResponse>());
-			setOutputs(new ArrayList<QueryOutputResponse>());
-			for (Field field : FilterUtils.getPrimitiveFields(filter)) {
-				getInputs().add(
-						new QueryInputResponse(field.getName(), field.getType()
-								.getSimpleName()));
-			}
-			for (Field field : FilterUtils.getNonPrimitiveFields(filter)) {
-				if (PixelSource.class.isAssignableFrom(field.getType())) {
-					getInputs().add(
-							new QueryInputResponse(field.getName(), field
-									.getType().getSimpleName()));
+		FilterUtils utils = new FilterUtils();
+		setName(utils.getName(f));
+		setDescription(utils.getDescription(f));
+		setType("filter");
+		setQualname(f.getCanonicalName());
+		setInputs(new ArrayList<QueryInputResponse>());
+		setOutputs(new ArrayList<QueryOutputResponse>());
 
-				} else if (Cell.class.isAssignableFrom(field.getType())) {
-					getOutputs().add(
-							new QueryOutputResponse(field.getName(), field
-									.getType().getSimpleName()));
-
-				} else {
-					log.warn(
-							"Non primitive type detected:\n<name>{}</name>\n<type>{}</type>",
-							field.getName(), field.getType().getSimpleName());
-				}
-			}
+		for (Field field : utils.getLiterals(f)) {
+			getInputs().add(
+					new QueryInputResponse(field.getName(), field.getType()
+							.getSimpleName()));
+		}
+		for (Field field : utils.getSources(f)) {
+			getInputs().add(
+					new QueryInputResponse(field.getName(), field.getType()
+							.getSimpleName()));
+		}
+		for (Field field : utils.getCells(f)) {
+			getOutputs().add(
+					new QueryOutputResponse(field.getName(), field.getType()
+							.getSimpleName()));
 		}
 	}
 }

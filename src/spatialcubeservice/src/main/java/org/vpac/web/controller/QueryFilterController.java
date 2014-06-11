@@ -21,6 +21,7 @@ package org.vpac.web.controller;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import javax.validation.Valid;
@@ -33,14 +34,12 @@ import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.vpac.ndg.query.FilterUtils;
 import org.vpac.ndg.query.filter.Filter;
-import org.vpac.ndg.storage.dao.DatasetDao;
-import org.vpac.ndg.storage.util.DatasetUtil;
 import org.vpac.web.model.request.PagingRequest;
 import org.vpac.web.model.response.QueryFilterResponse;
 import org.vpac.web.model.response.QueryNodeCollectionResponse;
 import org.vpac.web.util.ControllerHelper;
-import org.vpac.web.util.ServiceHelper;
 
 /**
  * This class is intended as controller for QueryFilter related web services.
@@ -55,11 +54,7 @@ public class QueryFilterController {
 	@Autowired
 	ControllerHelper helper;
 
-	@Autowired
-	DatasetDao datasetDao;
-
-	@Autowired
-	DatasetUtil datasetUtil;
+	private Collection<Class<? extends Filter>> filters;
 
 	@InitBinder
 	public void binder(WebDataBinder binder) {
@@ -71,14 +66,20 @@ public class QueryFilterController {
 	public String getAllQueryFilter(
 			@RequestParam(required = false) String name,
 			@Valid PagingRequest page, ModelMap model) throws IOException {
-
-		List<Filter> filters = ServiceHelper.getFilters();
+ 
 		List<QueryFilterResponse> items = new ArrayList<>();
-		for (Filter f : filters) {
+		for (Class<? extends Filter> f : getFilters()) {
 			items.add(new QueryFilterResponse(f));
 		}
 		model.addAttribute(ControllerHelper.RESPONSE_ROOT,
 				new QueryNodeCollectionResponse("Filters", items));
 		return "List";
 	}
+
+	private Collection<Class<? extends Filter>> getFilters() {
+		if (filters == null)
+			filters = new FilterUtils().getFilters().values();
+		return filters;
+	}
+
 }

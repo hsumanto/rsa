@@ -15,6 +15,7 @@ import org.reflections.scanners.ResourcesScanner;
 import org.reflections.util.ClasspathHelper;
 import org.reflections.util.ConfigurationBuilder;
 import org.reflections.util.FilterBuilder;
+import org.vpac.ndg.query.filter.Description;
 import org.vpac.ndg.query.filter.Filter;
 import org.vpac.ndg.query.sampling.Cell;
 import org.vpac.ndg.query.sampling.PixelSource;
@@ -62,6 +63,22 @@ public class FilterUtils {
 			}
 		}
 		return filters;
+	}
+
+	public String getName(Class<? extends Filter> clazz) {
+		Description annotation = clazz.getAnnotation(Description.class);
+		if (annotation != null)
+			return annotation.name();
+		else
+			return clazz.getSimpleName();
+	}
+
+	public String getDescription(Class<? extends Filter> clazz) {
+		Description annotation = clazz.getAnnotation(Description.class);
+		if (annotation != null)
+			return annotation.description();
+		else
+			return "";
 	}
 
 	/**
