@@ -19,7 +19,6 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.lang.StringUtils;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.vpac.ndg.AppContext;
@@ -187,9 +186,8 @@ public class WorkExecutor extends UntypedActor {
 			throws IOException {
 		String epiphanyHost = ndgConfigManager.getConfig().getEpiphanyIp();
 		String epiphanyPort = ndgConfigManager.getConfig().getEpiphanyPort();
-		String query = di.href.contains("?") ? di.href.substring(di.href.indexOf("?") + 1) : "";
-		// String query =
-		// "AGELOWER=1&AGEUPPER=111&GENDER=F&YEAR=2006&QUERY=Count&GEOMETRY=SA2%20Vic&VIEWMETHOD=Box%20Plot";
+		String query = di.href.contains("?") ? di.href.substring(di.href
+				.indexOf("?") + 1) : "";
 		String datasetId = findDataset(di.href);
 		String url = "http://"
 				+ epiphanyHost
@@ -201,9 +199,8 @@ public class WorkExecutor extends UntypedActor {
 				+ datasetId
 				+ "&FORMAT=application%2Fx-netCDF&SERVICE=WCS&VERSION=1.1.1&REQUEST=GetMap&STYLES=&YEAR=none&QUERY=none&GEOMETRY=none&VIEWMETHOD=none&COLOURSCHEME=ColourBrewer%20Blues&LEGENDEXTENT=STATIC&NUMBERFILTERS=none&VISTYPE=none&SRS=EPSG%3A3111&BBOX="
 				+ w.bound.getMin().getX() + "," + w.bound.getMin().getY() + ","
-				+ w.bound.getMax().getX() + "," + w.bound.getMax().getY()
-				+ "&" + query
-				+ "&WIDTH=5000&HEIGHT=5000";
+				+ w.bound.getMax().getX() + "," + w.bound.getMax().getY() + "&"
+				+ query + "&WIDTH=5000&HEIGHT=5000";
 		URL connectionUrl = new URL(url);
 		HttpURLConnection connection = (HttpURLConnection) connectionUrl
 				.openConnection();
