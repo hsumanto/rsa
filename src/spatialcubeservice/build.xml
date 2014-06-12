@@ -3,7 +3,7 @@
 	<description>Build file for the rsa spatialcubeservice</description>
 
 	<!-- Project directories, referenced below -->
-	<property name="src" location="src" />
+	<property name="src" location="src/main/java" />
 	<property name="build" location="build" />
 	<property name="dist" location="dist" />
 	<property name="doc" location="doc" />
@@ -98,10 +98,24 @@
 	<!-- Copies dependencies from SpatialCubeService (html, js code) 
 	     and the storagemanager (lots of jar files) -->
 	<target name="copy-resources">
+		<!-- Non-configuration resources -->
 		<copy todir="${build}">
-			<!-- Non-configuration resources -->
 			<fileset dir="${storagemanagerResources}">
 				<include name="**/*.xml" />
+			</fileset>
+		</copy>
+		<copy todir="${build}">
+			<fileset dir="${src}">
+				<include name="**/filter-pack.cfg" />
+			</fileset>
+			<fileset dir="${storagemanagerSrc}">
+				<include name="**/filter-pack.cfg" />
+			</fileset>
+			<fileset dir="${rsaquerySrc}">
+				<include name="**/filter-pack.cfg" />
+			</fileset>
+			<fileset dir="${rsaqueryFilterSrc}">
+				<include name="**/filter-pack.cfg" />
 			</fileset>
 		</copy>
 
@@ -137,15 +151,6 @@
 		<copy todir="${webRoot}/WEB-INF/lib" flatten="true" verbose="true">
 			<path refid="storageManager-classpath" />
 		</copy>
-
-		<!-- Copy service provider configuration file into classpath -->
-<!--
-		<copy todir="${build}/META-INF" flatten="false" verbose="true" failonerror="false">
-			<fileset dir="src/main/java/META-INF">
-				<include name="**/*" />
-			</fileset>
-		</copy>
--->
 	</target>
 
 	<!-- Compile the java code -->
@@ -169,7 +174,7 @@
 		<!-- Package up WAR file. If there are duplicate files this task will
 		     fail, because it indicates a bug! Avoid duplicates by explicitely
 		     excluding them. -->
-		<war destfile="${dist}/${warfile}" webxml="src/main/webapp/WEB-INF/web.xml" update="true" duplicate="fail">
+		<war destfile="${dist}/${warfile}" webxml="${webRoot}/WEB-INF/web.xml" update="true" duplicate="fail">
 			<classes dir="${build}" />
 			<fileset dir="${webRoot}">
 				<exclude name="WEB-INF/classes/**" />
@@ -197,7 +202,7 @@
 	<!-- Create souce code compilation for the SpatialCubeService project -->
 	<target name="source">
 		<!-- Zip source into a zipped file -->
-		<zip destfile="${dist}/${app.name}_SOURCE.zip" basedir="${src}" />
+		<zip destfile="${dist}/${app.name}_SOURCE.zip" basedir="src" />
 
 		<!-- Zip source into a zipped file -->
 		<ant antfile="${storagemanagerAntFile}" target="source" dir="${storagemanager}" inheritall="false" />

@@ -1,2 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- Note: this file is ignored by Tomcat if deployOnStartup is used; the .war
+     file basename is used instead.
+     http://tomcat.apache.org/tomcat-6.0-doc/config/context.html -->
 <Context path="/rsa" />
