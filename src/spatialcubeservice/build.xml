@@ -11,9 +11,14 @@
 	<property name="config" location="config" />
 	<property name="bin" location="bin" />
 
-	<!--  Application definitions -->
-	<property name="app.name" value="spatialcubeservice" />
-	<property name="app.path" value="/spatialcubeservice" />
+	<!--  Web application context. ${app.name} will be the name of the .war
+	      file, and therefore the name of the context root.
+	      NOTE: When using deployOnStartup, "the context path *may not* be
+	      defined in a META-INF/context.xml embedded in the application."
+	      http://tomcat.apache.org/tomcat-6.0-doc/config/context.html -->
+	<property name="app.name" value="rsa" />
+	<property name="app.path" value="/${app.name}" />
+
 	<!-- Versions numbers are populated by master build file; see ../build.xml. -->
 	<property name="version.number" value="local" />
 	<property name="svn.info.lastRev" value="rN"/>
@@ -71,6 +76,8 @@
 			<include name="**/*.jar"/>
 		</fileset>
 	</path>
+
+	<target name="dist" depends="war" />
 
 	<!-- Initialisation -->
 	<target name="init">
@@ -130,12 +137,15 @@
 		<copy todir="${webRoot}/WEB-INF/lib" flatten="true" verbose="true">
 			<path refid="storageManager-classpath" />
 		</copy>
+
 		<!-- Copy service provider configuration file into classpath -->
-		<copy todir="${build}/META-INF" flatten="false" verbose="true">
+<!--
+		<copy todir="${build}/META-INF" flatten="false" verbose="true" failonerror="false">
 			<fileset dir="src/main/java/META-INF">
 				<include name="**/*" />
 			</fileset>
 		</copy>
+-->
 	</target>
 
 	<!-- Compile the java code -->
@@ -166,13 +176,7 @@
 				<exclude name="WEB-INF/lib/**" />
 			</fileset>
 			<lib dir="${webRoot}/WEB-INF/lib" />
-<!--
-			<metainf>
-				<fileset dir="${webRoot}/META-INF">
-					<include name="**/*.*"/>
-				</fileset>
-			</metainf>
--->
+			<!-- Contents of META-INF are included automatically. -->
 		</war>
 	</target>
 
