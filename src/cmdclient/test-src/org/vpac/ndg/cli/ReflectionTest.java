@@ -19,7 +19,6 @@
 
 package org.vpac.ndg.cli;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
@@ -36,8 +35,7 @@ public class ReflectionTest extends ConsoleTest {
 
 	@Test
 	public void testFilterList() throws IOException {
-		client.execute("filter", "list");
-		assertEquals("Failed to list filters.", 0, errcode);
+		execute("filter", "list");
 		assertTrue(output.toString().contains("org.vpac.ndg.query.stats.Statistics"));
 	}
 }

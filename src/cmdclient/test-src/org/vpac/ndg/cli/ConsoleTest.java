@@ -42,6 +42,36 @@ public class ConsoleTest {
 	protected Client client;
 	protected int errcode;
 
+	public static class ClientExitException extends RuntimeException {
+		private static final long serialVersionUID = 1L;
+		private int errorCode;
+
+		public ClientExitException() {
+			super();
+		}
+
+		public ClientExitException(int errorCode, Throwable cause) {
+			super(String.format("Command exited with error code %d",
+					errorCode), cause);
+			this.errorCode = errorCode;
+		}
+
+		public ClientExitException(int errorCode) {
+			super(String.format("Command exited with error code %d",
+					errorCode));
+			this.errorCode = errorCode;
+		}
+
+		public ClientExitException(Throwable cause) {
+			super(cause);
+		}
+
+		public int getErrorCode() {
+			return errorCode;
+		}
+
+	}
+
 	@Before
 	public void setUp() {
 		// Redirect stdout and stderr.
@@ -55,9 +85,45 @@ public class ConsoleTest {
 		// Capture error code.
 		client = new Client(Paths.get(".")) {
 			protected void exit(int err) {
-				errcode = err;
+				throw new ClientExitException(err);
 			};
 		};
+	}
+
+	/**
+	 * Executes the command, and expects it to succeed. This swallows the exit
+	 * exception only if the exit code is 0.
+	 * @param args The arguments to execute in the command line client.
+	 */
+	protected void execute(String... args) throws ClientExitException {
+		try {
+			errcode = 0;
+			client.execute(args);
+			throw new AssertionError("Command should have exited.", null);
+		} catch (ClientExitException e) {
+			errcode = e.getErrorCode();
+			if (errcode != 0) {
+				throw new AssertionError("Expected error code of zero.", e);
+			}
+		}
+	}
+
+	/**
+	 * Executes the command, and expects it to fail. This swallows the exit
+	 * exception if the exit code is non-zero.
+	 * @param args The arguments to execute in the command line client.
+	 */
+	protected void executeWithDoom(String... args) throws ClientExitException {
+		try {
+			errcode = 0;
+			client.execute(args);
+			throw new AssertionError("Command should have exited.", null);
+		} catch (ClientExitException e) {
+			errcode = e.getErrorCode();
+			if (errcode == 0) {
+				throw new AssertionError("Expected non-zero error code.", e);
+			}
+		}
 	}
 
 	@After

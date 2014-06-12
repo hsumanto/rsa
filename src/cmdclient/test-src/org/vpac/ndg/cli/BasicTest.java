@@ -31,14 +31,14 @@ public class BasicTest extends ConsoleTest {
 
 	@Test
 	public void testUsage() {
-		client.execute();
+		executeWithDoom();
 		String err = errput.toString();
 		assertTrue(err.contains("Missing category"));
 	}
 
 	@Test
 	public void testHelp() {
-		client.execute("-h");
+		execute("-h");
 		String out = output.toString();
 		assertTrue(out.contains("Show this help text."));
 	}
