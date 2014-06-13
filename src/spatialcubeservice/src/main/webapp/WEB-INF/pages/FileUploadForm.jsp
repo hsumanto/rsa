@@ -4,7 +4,7 @@
 </head>
 <body>
 <h1>Please upload a file</h1>
-<form method="POST" action="<%=request.getContextPath()%>/Data/Upload.xml" enctype="multipart/form-data">
+<form method="POST" action="${pageContext.request.contextPath}/Data/Upload.xml" enctype="multipart/form-data">
 Time Slice Id : <input type="text" name="timeSliceId"/><BR />
 File Id : <input type="text" name="taskId"/><BR />
 Files : <input type="file" name="files"/><BR />

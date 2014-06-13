@@ -4,7 +4,7 @@
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.3/jquery.min.js" type="text/javascript"></script>
 <script type="text/javascript">
 //var SubmitJsonTest = function() {
-//	$.post("/SpatialCubeService/RSA/Order", { OrderId: 1, Description: 'Test Desc', Location:'Test Location', Created : '01/02/2012' });
+//	$.post("${pageContext.request.contextPath}/RSA/Order", { OrderId: 1, Description: 'Test Desc', Location:'Test Location', Created : '01/02/2012' });
 //};
 
 var SubmitJsonTest = function () {
@@ -12,7 +12,7 @@ var SubmitJsonTest = function () {
 	({
 	    type: "POST",
 	    //the url where you want to sent the userName and password to
-	    url: '<%=request.getContextPath()%>/Band.xml',
+	    url: '${pageContext.request.contextPath}/Band.xml',
 	    dataType: 'json',
 	    async: false,
 	    //json object to sent to the authentication url
@@ -27,7 +27,7 @@ var SubmitJsonTest = function () {
 </head>
 <body>
 <h1>Band</h1>
-<form method="POST" action="<%=request.getContextPath()%>/Band.xml">
+<form method="POST" action="${pageContext.request.contextPath}/Band.xml">
 	DatasetId : <input type="text" name="datasetId"/> <BR />
 	Name : <input type="text" name="name"/> <BR />
 	IsMetadata : <input type="text" name="metadata" value="false"/> <BR />	
