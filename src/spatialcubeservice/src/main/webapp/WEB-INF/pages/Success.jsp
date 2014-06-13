@@ -1,5 +1,5 @@
 <html>
 <body>
-	<h2>The operation is success</h2>
+	<h2>The operation succeeded.</h2>
 </body>
 </html>

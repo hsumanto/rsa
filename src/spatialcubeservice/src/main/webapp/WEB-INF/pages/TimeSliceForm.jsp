@@ -12,7 +12,7 @@ var SubmitJsonTest = function () {
 	({
 	    type: "POST",
 	    //the url where you want to sent the userName and password to
-	    url: '/SpatialCubeService/TimeSlice.xml',
+	    url: '<%=request.getContextPath()%>/TimeSlice.xml',
 	    async: false,
 	    //json object to sent to the authentication url
 	    data: {datasetId : 'dataset'},
@@ -26,7 +26,7 @@ var SubmitJsonTest = function () {
 </head>
 <body>
 <h1>TimeSlice</h1>
-<form method="POST" action="/SpatialCubeService/TimeSlice.xml">
+<form method="POST" action="<%=request.getContextPath()%>/TimeSlice.xml">
 	DatasetId : <input type="text" name="datasetId"/> <BR />
 	CreationDate : <input type="text" name="creationDate"/> <BR />
 	Comment : <input type="text" name="comment"/> <BR />
