@@ -38,9 +38,9 @@ import org.vpac.web.model.response.ExportResponse;
 
 public class RemoteDataExport implements DataExport {
 	
-//	public static String DATA_EXPORT_URL = "/SpatialCubeService/Data/Export.xml?datasetId={datasetId}&bandId={bandId}&searchStartDate={searchStartDate}" +
+//	public static String DATA_EXPORT_URL = "/Data/Export.xml?datasetId={datasetId}&bandId={bandId}&searchStartDate={searchStartDate}" +
 //											"&searchEndDate={searchEndDate&projection={projection}&topLeft.x={topleftX}&topLeft.y={topleftY}&bottomRight.x={bottomRightX}&bottomRight.y={bottomRightY}";
-	public static String DATA_EXPORT_URL = "/SpatialCubeService/Data/Export.xml?datasetId={datasetId}";
+	public static String DATA_EXPORT_URL = "/Data/Export.xml?datasetId={datasetId}";
 
 	final Logger log = LoggerFactory.getLogger(RemoteDataExport.class);
 

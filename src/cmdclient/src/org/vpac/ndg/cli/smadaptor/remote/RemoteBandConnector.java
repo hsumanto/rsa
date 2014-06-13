@@ -30,10 +30,10 @@ import org.vpac.web.model.response.BandCollectionResponse;
 import org.vpac.web.model.response.BandResponse;
 
 public class RemoteBandConnector implements BandConnector {
-	public static String GET_ALL_BANDS_URL = "/SpatialCubeService/Band.xml?datasetId={datasetId}";
-	public static String GET_BAND_BY_ID_URL = "/SpatialCubeService/Band/{id}.xml";
-	public static String DELETE_BAND_BY_ID_URL = "/SpatialCubeService/Band/Delete/{id}.xml";
-	public static String CREATE_OR_UPDATE_BAND_URL = "/SpatialCubeService/Band.xml?id={id}&datasetId={datasetId}&name={name}&dataType={dataType}&nodata={nodata}&continuous={continuous}&metadata={metadata}";
+	public static String GET_ALL_BANDS_URL = "/Band.xml?datasetId={datasetId}";
+	public static String GET_BAND_BY_ID_URL = "/Band/{id}.xml";
+	public static String DELETE_BAND_BY_ID_URL = "/Band/Delete/{id}.xml";
+	public static String CREATE_OR_UPDATE_BAND_URL = "/Band.xml?id={id}&datasetId={datasetId}&name={name}&dataType={dataType}&nodata={nodata}&continuous={continuous}&metadata={metadata}";
 
 	private String baseUri;
 	@Autowired

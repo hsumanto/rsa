@@ -37,6 +37,8 @@ import org.vpac.web.model.response.DatasetResponse;
 @RunWith(SpringJUnit4ClassRunner.class)  
 @ContextConfiguration("file:src/main/webapp/WEB-INF/applicationContext.xml")
 public class DatasetTest extends TestCase {
+	final String BASE_URL = "http://localhost:8080/rsa";
+
 	private static String TestDatasetName = "DatasetTest";
 	private String testDatasetId;
 	
@@ -49,7 +51,7 @@ public class DatasetTest extends TestCase {
 		String resolution = "500m";
 		String dataAbstract = "testAbs";
 
-		String checkUrl = "http://localhost:8080/SpatialCubeService/Dataset.xml?name={name}&resolution={resolution}";
+		String checkUrl = BASE_URL + "/Dataset.xml?name={name}&resolution={resolution}";
 		DatasetCollectionResponse getResponse = restTemplate.getForObject(checkUrl, DatasetCollectionResponse.class, name, resolution);
 
 		if(getResponse.getItems().size() == 0) {
@@ -64,11 +66,11 @@ public class DatasetTest extends TestCase {
 	public void testGetAllDataset() {
 		DatasetCollectionResponse response;
 		String testURL;
-		testURL = "http://localhost:8080/SpatialCubeService/Dataset.xml";
+		testURL = BASE_URL + "/Dataset.xml";
 		response = restTemplate.getForObject(testURL, DatasetCollectionResponse.class);
 		assertNotSame(response.getItems().size(), is(0));
 		
-		testURL = "http://localhost:8080/SpatialCubeService/Dataset.xml?page=0&pageSize=2";
+		testURL = BASE_URL + "/Dataset.xml?page=0&pageSize=2";
 		response = restTemplate.getForObject(testURL, DatasetCollectionResponse.class);
 		assertThat(response.getItems().size(), lessThanOrEqualTo(2));
 	}
@@ -77,7 +79,7 @@ public class DatasetTest extends TestCase {
 	public void testPageParameterValidatingPage() {
 		DatasetCollectionResponse response;
 		String testURL;
-		testURL = "http://localhost:8080/SpatialCubeService/Dataset.xml?page=-1&pageSize=2";
+		testURL = BASE_URL + "/Dataset.xml?page=-1&pageSize=2";
 		response = restTemplate.getForObject(testURL, DatasetCollectionResponse.class);
 		assertThat(response.getItems().size(), is(0));
 		// Should be resulted in 500 (Internal Server Error) because page is rejected.
@@ -87,7 +89,7 @@ public class DatasetTest extends TestCase {
 	public void testPageParameterValidatingPageSize() {
 		DatasetCollectionResponse response;
 		String testURL;
-		testURL = "http://localhost:8080/SpatialCubeService/Dataset.xml?page=1&pageSize=-2";
+		testURL = BASE_URL + "/Dataset.xml?page=1&pageSize=-2";
 		response = restTemplate.getForObject(testURL, DatasetCollectionResponse.class);
 		assertThat(response.getItems().size(), is(2));
 		// Should be resulted in 500 (Internal Server Error) because pageSize is rejected.
@@ -95,14 +97,14 @@ public class DatasetTest extends TestCase {
 	
 	@Test
 	public void testGetDatasetById() {
-		String testURL = "http://localhost:8080/SpatialCubeService/Dataset/{id}.xml";
+		String testURL = BASE_URL + "/Dataset/{id}.xml";
 		DatasetResponse response = restTemplate.getForObject(testURL, DatasetResponse.class, testDatasetId); 
 		assertEquals(response.getId(), testDatasetId);
 	}
 	
 /*	@Test
 	public void testGetDatasetToDummyResponse() {
-		String testURL = "http://localhost:8080/SpatialCubeService/Dataset/{id}.xml";
+		String testURL = BASE_URL + "/Dataset/{id}.xml";
 		DummyResponse response = restTemplate.getForObject(testURL, DummyResponse.class, testDateasetId); 
 		assertThat(response.getId(), is(testDateasetId));
 	}
@@ -112,16 +114,16 @@ public class DatasetTest extends TestCase {
 		String searchString = "11";
 		String testURL;
 		DatasetCollectionResponse response;
-		testURL = "http://localhost:8080/SpatialCubeService/Dataset.xml?name=" + searchString;
+		testURL = BASE_URL + "/Dataset.xml?name=" + searchString;
 		response = restTemplate.getForObject(testURL, DatasetCollectionResponse.class);
 		for(DatasetResponse dr : response.getItems())
 			assertTrue(dr.getName().contains(searchString));
 		
-		testURL = "http://localhost:8080/SpatialCubeService/Dataset.xml?name=11&page=0&pageSize=1";
+		testURL = BASE_URL + "/Dataset.xml?name=11&page=0&pageSize=1";
 		response = restTemplate.getForObject(testURL, DatasetCollectionResponse.class);
 		assertThat(response.getItems().size(), is(0));
 
-		testURL = "http://localhost:8080/SpatialCubeService/Dataset.xml?name=sdfafasdfsfsdafa&page=0&pageSize=1";
+		testURL = BASE_URL + "/Dataset.xml?name=sdfafasdfsfsdafa&page=0&pageSize=1";
 		response = restTemplate.getForObject(testURL, DatasetCollectionResponse.class);
 		assertThat(response.getItems().size(), is(0));
 	}
@@ -132,7 +134,7 @@ public class DatasetTest extends TestCase {
 		String resolution = "10m";
 		String dataAbstract = "testAbs";
 
-		String checkUrl = "http://localhost:8080/SpatialCubeService/Dataset.xml?name={name}&resolution={resolution}";
+		String checkUrl = BASE_URL + "/Dataset.xml?name={name}&resolution={resolution}";
 		DatasetCollectionResponse getResponse = restTemplate.getForObject(checkUrl, DatasetCollectionResponse.class, name, resolution);
 
 		if(getResponse.getItems().size() == 0) {
@@ -157,7 +159,7 @@ Field error in object 'datasetRequest' on field 'resolution': rejected value [nu
 		String resolution = "m500";
 		String dataAbstract = "testAbs";
 
-		String checkUrl = "http://localhost:8080/SpatialCubeService/Dataset.xml?name={name}&resolution={resolution}";
+		String checkUrl = BASE_URL + "/Dataset.xml?name={name}&resolution={resolution}";
 		DatasetCollectionResponse getResponse = restTemplate.getForObject(checkUrl, DatasetCollectionResponse.class, name, resolution);
 
 		if(getResponse.getItems().size() == 0) {
@@ -168,7 +170,7 @@ Field error in object 'datasetRequest' on field 'resolution': rejected value [nu
 			headers.setAccept(mediaTypes);
 			String requestJson = String.format("{name : \'%s\', resolution: \'%s\', dataAbstract : \'%s\', precision : \'1\'}", name, resolution, dataAbstract);
 			HttpEntity<String> entity = new HttpEntity<String>(requestJson, headers);
-			String testURL = "http://localhost:8080/SpatialCubeService/Dataset.xml";
+			String testURL = BASE_URL + "/Dataset.xml";
 			DatasetResponse response = restTemplate.postForObject(testURL, entity, DatasetResponse.class);
 			assertThat(response.getName(), is("test"));
 		}
@@ -186,7 +188,7 @@ Field error in object 'datasetRequest' on field 'resolution': rejected value [nu
 	}
 
 	private DatasetResponse testCreateDataset(String name, String resolution, String dataAbstract) {
-		String testURL = "http://localhost:8080/SpatialCubeService/Dataset.xml?name={name}&resolution={resolution}&dataAbstract={dataAbstract}&precision=1";
+		String testURL = BASE_URL + "/Dataset.xml?name={name}&resolution={resolution}&dataAbstract={dataAbstract}&precision=1";
 		return restTemplate.postForObject(testURL, null, DatasetResponse.class, name, resolution, dataAbstract);
 	}
 }

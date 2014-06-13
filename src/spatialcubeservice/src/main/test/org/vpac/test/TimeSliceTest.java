@@ -37,6 +37,8 @@ import org.vpac.web.model.response.TimeSliceResponse;
 @RunWith(SpringJUnit4ClassRunner.class)  
 @ContextConfiguration("file:src/main/webapp/WEB-INF/applicationContext.xml")
 public class TimeSliceTest extends TestCase {
+	final String BASE_URL = "http://localhost:8080/rsa";
+
 	private static String TestDatasetName = "BandTest";
 	private String testDatasetId;
 
@@ -48,7 +50,7 @@ public class TimeSliceTest extends TestCase {
 		String name = TestDatasetName;
 		String resolution = "500m";
 		String dataAbstract = "testAbs";
-		String testURL = "http://localhost:8080/SpatialCubeService/Dataset.xml?name={name}&resolution={resolution}";
+		String testURL = BASE_URL + "/Dataset.xml?name={name}&resolution={resolution}";
 		DatasetCollectionResponse getResponse = restTemplate.getForObject(testURL, DatasetCollectionResponse.class, name, resolution);
 		if(getResponse.getItems().size() == 0) {
 			DatasetResponse response = testCreateDataset(name, resolution, dataAbstract);
@@ -60,7 +62,7 @@ public class TimeSliceTest extends TestCase {
 
 	@Test
 	public void testGetAllTimeSlice() {
-		String testURL = "http://localhost:8080/SpatialCubeService/TimeSlice.xml?datasetId={1}";
+		String testURL = BASE_URL + "/TimeSlice.xml?datasetId={1}";
 		TimeSliceCollectionResponse getTimeslicesResponse = restTemplate.getForObject(testURL, TimeSliceCollectionResponse.class, testDatasetId);
 		if(getTimeslicesResponse.getItems().size() == 0) {
 			String datasetId = testDatasetId;
@@ -75,7 +77,7 @@ public class TimeSliceTest extends TestCase {
 	@Test
 	public void testGetAllTimeSliceLock() {
 		String testTimeSliceId = "1234";
-		String testURL = "http://localhost:8080/SpatialCubeService/TimeSlice/Lock/{timesliceId}.xml";
+		String testURL = BASE_URL + "/TimeSlice/Lock/{timesliceId}.xml";
 		TimeSliceLockCollectionResponse response = restTemplate.getForObject(testURL, TimeSliceLockCollectionResponse.class, testTimeSliceId);
 		assertNotNull(response);
 	}
@@ -85,7 +87,7 @@ public class TimeSliceTest extends TestCase {
 	public void testNoDatasetId() {
 		TimeSliceCollectionResponse response;
 		String testURL;
-		testURL = "http://localhost:8080/SpatialCubeService/TimeSlice.xml";
+		testURL = BASE_URL + "/TimeSlice.xml";
 		response = restTemplate.getForObject(testURL, TimeSliceCollectionResponse.class);
 		assertNotSame(response.getItems().size(), 0);
 	}
@@ -95,7 +97,7 @@ public class TimeSliceTest extends TestCase {
 	public void testPageParameterValidatingPage() {
 		TimeSliceCollectionResponse response;
 		String testURL;
-		testURL = "http://localhost:8080/SpatialCubeService/TimeSlice.xml?datasetId=2c9f85243827bc64013827bc67b20006&page=-1&pageSize=2";
+		testURL = BASE_URL + "/TimeSlice.xml?datasetId=2c9f85243827bc64013827bc67b20006&page=-1&pageSize=2";
 		response = restTemplate.getForObject(testURL, TimeSliceCollectionResponse.class);
 		assertNotSame(response.getItems().size(), 0);
 	}
@@ -104,7 +106,7 @@ public class TimeSliceTest extends TestCase {
 	public void testPageParameterValidatingPageSize() {
 		TimeSliceCollectionResponse response;
 		String testURL;
-		testURL = "http://localhost:8080/SpatialCubeService/TimeSlice.xml?datasetId=2c9f85243827bc64013827bc67b20006&page=1&pageSize=-2";
+		testURL = BASE_URL + "/TimeSlice.xml?datasetId=2c9f85243827bc64013827bc67b20006&page=1&pageSize=-2";
 		response = restTemplate.getForObject(testURL, TimeSliceCollectionResponse.class);
 		assertNotSame(response.getItems().size(), 0);
 	}
@@ -112,18 +114,18 @@ public class TimeSliceTest extends TestCase {
 	@Test(expected=Exception.class)
 	public void testGetDatasetById() {
 		TimeSliceResponse response;
-		String testURL = "http://localhost:8080/SpatialCubeService/TimeSlice/NOTEXISTINGID2c9f85243827bc64013827bc67bd0008.xml"; // id doesn't exist
+		String testURL = BASE_URL + "/TimeSlice/NOTEXISTINGID2c9f85243827bc64013827bc67bd0008.xml"; // id doesn't exist
 		response = restTemplate.getForObject(testURL, TimeSliceResponse.class);
 		assertNull(response.getId());
 	}
 
 	private TimeSliceResponse testCreateTimeSlice(String datasetId, String creationDate) {
-		String testURL = "http://localhost:8080/SpatialCubeService/TimeSlice.xml?datasetId={datadsetId}&creationDate={creationDate}";
+		String testURL = BASE_URL + "/TimeSlice.xml?datasetId={datadsetId}&creationDate={creationDate}";
 		return restTemplate.postForObject(testURL, null, TimeSliceResponse.class, datasetId, creationDate);
 	}
 
 	private DatasetResponse testCreateDataset(String name, String resolution, String dataAbstract) {
-		String testURL = "http://localhost:8080/SpatialCubeService/Dataset.xml?name={name}&resolution={resolution}&dataAbstract={dataAbstract}&precision=1";
+		String testURL = BASE_URL + "/Dataset.xml?name={name}&resolution={resolution}&dataAbstract={dataAbstract}&precision=1";
 		return restTemplate.postForObject(testURL, null, DatasetResponse.class, name, resolution, dataAbstract);
 	}
 }

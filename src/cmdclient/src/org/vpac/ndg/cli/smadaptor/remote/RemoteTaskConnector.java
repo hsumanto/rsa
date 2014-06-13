@@ -29,8 +29,8 @@ import org.vpac.web.model.response.TaskCollectionResponse;
 import org.vpac.web.model.response.TaskResponse;
 
 public class RemoteTaskConnector implements TaskConnector {
-	public static String GET_ALL_TASKS_URL = "/SpatialCubeService/Data/Task.xml";
-	public static String GET_TASK_BY_ID_URL = "/SpatialCubeService/Data/Task/{id}.xml";
+	public static String GET_ALL_TASKS_URL = "/Data/Task.xml";
+	public static String GET_TASK_BY_ID_URL = "/Data/Task/{id}.xml";
 
 	private String baseUri;
 	

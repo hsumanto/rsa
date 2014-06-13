@@ -25,7 +25,7 @@ import org.vpac.ndg.cli.smadaptor.FilterConnector;
 import org.vpac.web.model.response.QueryNodeCollectionResponse;
 
 public class RemoteFilterConnector implements FilterConnector {
-	public static String GET_ALL_FILTER_URL = "/SpatialCubeService/QueryFilter.xml";
+	public static String GET_ALL_FILTER_URL = "/QueryFilter.xml";
 
 	private String baseUri;
 	

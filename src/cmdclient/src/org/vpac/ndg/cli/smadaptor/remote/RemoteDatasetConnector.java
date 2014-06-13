@@ -33,11 +33,11 @@ import org.vpac.web.model.response.DatasetCollectionResponse;
 import org.vpac.web.model.response.DatasetResponse;
 
 public class RemoteDatasetConnector implements DatasetConnector {
-	public static String GET_ALL_DATASET_URL = "/SpatialCubeService/Dataset.xml";
-	public static String GET_DATASET_BY_ID_URL = "/SpatialCubeService/Dataset/{id}.xml";
-	public static String GET_DATASET_BY_NAME_RESOLUTION_URL = "/SpatialCubeService/Dataset/Search.xml?name={name}&resolution={resolution}";
-	public static String DELETE_DATASET_BY_ID_URL = "/SpatialCubeService/Dataset/Delete/{id}.xml";
-	public static String CREATE_OR_UPDATE_DATASET_URL = "/SpatialCubeService/Dataset.xml?id={id}&name={name}&resolution={resolution}&dataAbstract={abstract}&precision={precision}";
+	public static String GET_ALL_DATASET_URL = "/Dataset.xml";
+	public static String GET_DATASET_BY_ID_URL = "/Dataset/{id}.xml";
+	public static String GET_DATASET_BY_NAME_RESOLUTION_URL = "/Dataset/Search.xml?name={name}&resolution={resolution}";
+	public static String DELETE_DATASET_BY_ID_URL = "/Dataset/Delete/{id}.xml";
+	public static String CREATE_OR_UPDATE_DATASET_URL = "/Dataset.xml?id={id}&name={name}&resolution={resolution}&dataAbstract={abstract}&precision={precision}";
 
 	private String baseUri;
 	

@@ -30,7 +30,7 @@ import org.springframework.web.client.RestTemplate;
 import org.vpac.ndg.cli.smadaptor.DataDownloader;
 
 public class RemoteDataDownloader implements DataDownloader {
-	public static String DATA_DOWNLOAD_URL = "/SpatialCubeService/Data/Download/{taskId}.xml";
+	public static String DATA_DOWNLOAD_URL = "/Data/Download/{taskId}.xml";
 	private String baseUri;
 	
 	@Autowired
@@ -47,7 +47,7 @@ public class RemoteDataDownloader implements DataDownloader {
 	@Override
 	public void Download(String taskId, Path output) {
 		try {
-			URL httpUrl = new URL(baseUri + "/SpatialCubeService/Data/Download/" + taskId + ".xml");
+			URL httpUrl = new URL(baseUri + "/Data/Download/" + taskId + ".xml");
 			FileUtils.copyURLToFile(httpUrl, output.toFile());
 		} catch (MalformedURLException e) {
 			e.printStackTrace();
