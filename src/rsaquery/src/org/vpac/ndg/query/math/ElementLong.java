@@ -60,6 +60,10 @@ public class ElementLong implements ScalarElement {
 	public ElementLong[] getComponents() {
 		return components;
 	}
+	@Override
+	public int size() {
+		return components.length;
+	}
 
 	@Override
 	public boolean isValid() {

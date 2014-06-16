@@ -12,13 +12,10 @@ import org.vpac.ndg.query.math.ScalarElement;
  */
 public class VectorHist implements Foldable<VectorHist> {
 
-	private Element<?> prototype;
 	private Hist[] components;
 
-	public VectorHist(Element<?> prototype) {
-		this.prototype = prototype;
-		ScalarElement[] es = prototype.getComponents();
-		components = new Hist[es.length];
+	public VectorHist(int nComponents) {
+		components = new Hist[nComponents];
 		for (int i = 0; i < components.length; i++) {
 			components[i] = new Hist();
 		}
@@ -32,7 +29,7 @@ public class VectorHist implements Foldable<VectorHist> {
 
 	@Override
 	public VectorHist fold(VectorHist other) {
-		VectorHist res = new VectorHist(prototype);
+		VectorHist res = new VectorHist(components.length);
 
 		for (int i = 0; i < components.length; i++) {
 			res.components[i] = components[i].fold(other.components[i]);

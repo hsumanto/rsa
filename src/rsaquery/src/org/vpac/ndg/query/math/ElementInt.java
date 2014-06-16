@@ -60,6 +60,10 @@ public class ElementInt implements ScalarElement {
 	public ElementInt[] getComponents() {
 		return components;
 	}
+	@Override
+	public int size() {
+		return components.length;
+	}
 
 	@Override
 	public boolean isValid() {

@@ -12,13 +12,10 @@ import org.vpac.ndg.query.math.ScalarElement;
  */
 public class VectorCats implements Foldable<VectorCats> {
 
-	private Element<?> prototype;
 	private Cats[] components;
 
-	public VectorCats(Element<?> prototype) {
-		this.prototype = prototype;
-		ScalarElement[] es = prototype.getComponents();
-		components = new Cats[es.length];
+	public VectorCats(int nComponents) {
+		components = new Cats[nComponents];
 		for (int i = 0; i < components.length; i++) {
 			components[i] = new Cats();
 		}
@@ -32,7 +29,7 @@ public class VectorCats implements Foldable<VectorCats> {
 
 	@Override
 	public VectorCats fold(VectorCats other) {
-		VectorCats res = new VectorCats(prototype);
+		VectorCats res = new VectorCats(components.length);
 
 		for (int i = 0; i < components.length; i++) {
 			res.components[i] = components[i].fold(other.components[i]);

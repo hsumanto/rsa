@@ -60,6 +60,10 @@ public class ElementDouble implements ScalarElement {
 	public ElementDouble[] getComponents() {
 		return components;
 	}
+	@Override
+	public int size() {
+		return components.length;
+	}
 
 	@Override
 	public boolean isValid() {

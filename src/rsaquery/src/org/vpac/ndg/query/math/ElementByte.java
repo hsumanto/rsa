@@ -60,6 +60,10 @@ public class ElementByte implements ScalarElement {
 	public ElementByte[] getComponents() {
 		return components;
 	}
+	@Override
+	public int size() {
+		return components.length;
+	}
 
 	@Override
 	public boolean isValid() {
