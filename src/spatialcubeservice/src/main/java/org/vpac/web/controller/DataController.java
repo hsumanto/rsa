@@ -60,6 +60,7 @@ import org.vpac.ndg.FileUtils;
 import org.vpac.ndg.common.datamodel.CellSize;
 import org.vpac.ndg.common.datamodel.Format;
 import org.vpac.ndg.common.datamodel.GdalFormat;
+import org.vpac.ndg.common.datamodel.TaskType;
 import org.vpac.ndg.datamodel.AggregationDefinition;
 import org.vpac.ndg.datamodel.AggregationOpener;
 import org.vpac.ndg.datamodel.RsaAggregationFactory;
@@ -735,6 +736,7 @@ public class DataController {
 		ActorRef frontend = ActorCreator.getFrontend();
 
 		JobProgress job = new JobProgress("Query (distributed)");
+		job.setTaskType(TaskType.Query);
 		jobProgressDao.save(job);
 
 		for(Tile t : tiles) {
