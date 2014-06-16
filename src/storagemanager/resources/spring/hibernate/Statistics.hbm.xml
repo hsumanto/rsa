@@ -4,6 +4,13 @@
         "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping>
+	<class name="org.vpac.ndg.query.stats.TaskCats" table="TASKCATS" lazy="true">
+		<id name="id" type="string" column="ID">
+			<generator class="uuid" />
+		</id>
+		<property name="taskId" type="string" column="TASKID" />
+		<property name="cats" type="org.vpac.ndg.query.stats.Cats" column="CATS" />
+	</class>
 	<class name="org.vpac.ndg.query.stats.Cats" table="CATS" lazy="true">
 		<id name="id" type="string" column="ID">
 			<generator class="uuid" />

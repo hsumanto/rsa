@@ -1,5 +1,6 @@
 package org.vpac.worker;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -7,10 +8,15 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
+import java.util.Map.Entry;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.vpac.ndg.AppContext;
+import org.vpac.ndg.query.filter.Foldable;
+import org.vpac.ndg.query.stats.TaskCats;
+import org.vpac.ndg.query.stats.VectorHist;
+import org.vpac.ndg.query.stats.dao.StatisticsDao;
 import org.vpac.ndg.storage.dao.JobProgressDao;
 import org.vpac.ndg.storage.model.JobProgress;
 import org.vpac.worker.Job.Work;
@@ -73,7 +79,8 @@ public class Master extends UntypedActor {
 	private Set<String> workIds = new LinkedHashSet<String>();
 	private Map<String, WorkInfo> workProgress = new HashMap<String, WorkInfo>();
 	private JobProgressDao jobProgressDao;
-
+	private StatisticsDao statisticsDao;
+	
 	public Master(FiniteDuration workTimeout) {
 		this.workTimeout = workTimeout;
 		mediator.tell(new Put(getSelf()), getSelf());
@@ -83,6 +90,7 @@ public class Master extends UntypedActor {
 				.schedule(workTimeout.div(2), workTimeout.div(2), getSelf(),
 						CleanupTick, getContext().dispatcher(), getSelf());
 		ApplicationContext appContext = AppContextSingleton.INSTANCE.appContext;
+		statisticsDao = (StatisticsDao) appContext.getBean("statisticsDao");
 		jobProgressDao = (JobProgressDao) appContext.getBean("jobProgressDao");
 	}
 
@@ -91,6 +99,7 @@ public class Master extends UntypedActor {
 		cleanupTask.cancel();
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public void onReceive(Object message) {
 		if (message instanceof RegisterWorker) {
@@ -125,25 +134,48 @@ public class Master extends UntypedActor {
 			String workerId = msg.workerId;
 			String workId = msg.workId;
 			WorkInfo currentWorkInfo = workProgress.get(workId);
-			currentWorkInfo.progressRatio = 100.0;
 			currentWorkInfo.result = msg.result;
 			workProgress.put(workId, currentWorkInfo);
 
-			double progress = 0.0;
-			int noOfWork = 0;			
+			int workCompleted = 0;
+			int noOfWork = 0;
 			for(WorkInfo w : workProgress.values()) {
-				if (w.jobProgressId.equals(currentWorkInfo.jobProgressId)) {
-					progress += w.progressRatio.doubleValue();
+				if (w.work.jobProgressId.equals(currentWorkInfo.work.jobProgressId)) {
+					if(w.result != null)
+						workCompleted++;
 					noOfWork++;
 				}
 			}
-			System.out.println("Progress:" + progress);
 			System.out.println("noOfWork:" + noOfWork);
-			System.out.println("calc:" + progress / (noOfWork) + "%");
-			JobProgress job = jobProgressDao.retrieve(currentWorkInfo.jobProgressId);
-			job.setCurrentStepProgress(progress / (noOfWork));
-			if(progress == (noOfWork * 100))
+			System.out.println("calc:" + (workCompleted / (noOfWork) * 100) + "%");
+			JobProgress job = jobProgressDao.retrieve(currentWorkInfo.work.jobProgressId);
+			job.setCurrentStepProgress(100* workCompleted / (noOfWork));
+			if(workCompleted == noOfWork) {
 				job.setCompleted();
+				// TODO : fold
+				HashMap<String, Foldable> resultMap = null;
+				for(WorkInfo w : workProgress.values()) {
+					if (w.work.jobProgressId.equals(currentWorkInfo.work.jobProgressId)) {
+						if(resultMap == null) {
+							resultMap = new java.util.HashMap<>();
+							for(Entry<String, ?> v : ((Map<String, Foldable>)(w.result)).entrySet()) {
+								if(Serializable.class.isAssignableFrom(v.getValue().getClass()))
+									resultMap.put(v.getKey(), (Foldable) v.getValue());
+							}
+						} else {
+							for(Entry<String, ?> v : ((Map<String, Foldable>)(w.result)).entrySet()) {
+								Foldable baseResult = resultMap.get(v.getKey());
+								Foldable currentResult = (Foldable) v.getValue();
+								resultMap.put(v.getKey(), baseResult.fold(currentResult));
+							}
+						}
+					}
+				}
+				for(Entry<String, ?> v : resultMap.entrySet()) {
+					VectorHist vh = (VectorHist) (resultMap.get(v));
+					statisticsDao.saveCats(new TaskCats(currentWorkInfo.work.jobProgressId, vh.getComponents()[0]));
+				}
+			}
 			jobProgressDao.save(job);
 			WorkerState state = workers.get(workerId);
 			
@@ -190,7 +222,7 @@ public class Master extends UntypedActor {
 				// TODO store in Eventsourced
 				pendingWork.add(work);
 				workIds.add(work.workId);
-				WorkInfo workInfo = new WorkInfo(work, work.jobProgressId, 0.0, null);
+				WorkInfo workInfo = new WorkInfo(work, null);
 				workProgress.put(work.workId, workInfo);
 				getSender().tell(new Ack(work.workId), getSelf());
 				notifyWorkers();
@@ -354,14 +386,10 @@ public class Master extends UntypedActor {
 	
 	private class WorkInfo {
 		public Work work;
-		public String jobProgressId;
-		public Double progressRatio;
 		public Object result;
 		
-		public WorkInfo(Work work, String jobProgressId, Double progressRatio, Object result) {
+		public WorkInfo(Work work, Object result) {
 			this.work = work;
-			this.jobProgressId = jobProgressId;
-			this.progressRatio = progressRatio;
 			this.result = result;
 		}
 	}

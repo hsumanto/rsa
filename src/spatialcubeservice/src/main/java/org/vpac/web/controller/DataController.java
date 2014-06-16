@@ -315,6 +315,33 @@ public class DataController {
 		return "List";
 	}
 
+	@RequestMapping(value="/Task/{id}/hist", method = RequestMethod.GET)
+	public String getHistogramByTaskId(@PathVariable String id, @RequestParam(required = false) String categories, ModelMap model ) throws ResourceNotFoundException {
+
+		log.info("Data getTaskById");
+		log.debug("Task ID: {}", id);
+
+		JobProgress j = jobProgressDao.retrieve(id);
+		if(j != null)
+			model.addAttribute(ControllerHelper.RESPONSE_ROOT, new TaskResponse(j));
+		else
+			throw new ResourceNotFoundException("This task id not found.");
+		return "List";
+	}
+
+	@RequestMapping(value="/Task/{id}/cats/{catType}", method = RequestMethod.GET)
+	public String getCategoryByTaskId(@PathVariable String id, @PathVariable String catType, @RequestParam(required = false) double lower, @RequestParam(required = false) double upper, ModelMap model ) throws ResourceNotFoundException {
+
+		log.info("Data getTaskById");
+		log.debug("Task ID: {}", id);
+
+		JobProgress j = jobProgressDao.retrieve(id);
+		if(j != null)
+			model.addAttribute(ControllerHelper.RESPONSE_ROOT, new TaskResponse(j));
+		else
+			throw new ResourceNotFoundException("This task id not found.");
+		return "List";
+	}
 	
 	@RequestMapping(value = "/Download/{taskId}", method = RequestMethod.GET)
 	public void downloadFile(@PathVariable("taskId") String taskId, HttpServletResponse response) throws TaskException, FileNotFoundException {

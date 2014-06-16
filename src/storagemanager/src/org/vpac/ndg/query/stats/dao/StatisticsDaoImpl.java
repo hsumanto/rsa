@@ -1,23 +1,20 @@
 package org.vpac.ndg.query.stats.dao;
 
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
-import org.vpac.ndg.query.stats.Cats;
-import org.vpac.ndg.query.stats.Hist;
+import org.vpac.ndg.query.stats.TaskCats;
 import org.vpac.ndg.storage.util.CustomHibernateDaoSupport;
 
 public class StatisticsDaoImpl extends CustomHibernateDaoSupport implements StatisticsDao {
 
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
-	public void saveHist(Hist h){
-		getHibernateTemplate().save(h);
-	}
+//	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
+//	public void saveHist(Hist h){
+//		getHibernateTemplate().save(h);
+//	}
 
 	@Override
-	public void saveCats(Cats c) {
+	public void saveCats(TaskCats c) {
 		getHibernateTemplate().save(c);
 	}
-	
+
 //	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 //	public void update(Dataset ds){
 //		getHibernateTemplate().update(ds);
