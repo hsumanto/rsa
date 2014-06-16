@@ -25,7 +25,7 @@ import org.vpac.ndg.cli.smadaptor.DataCleanup;
 import org.vpac.web.model.response.CleanUpResponse;
 
 public class RemoteDataCleanup implements DataCleanup {
-	public static String CLEAN_UP_LOCKS_URL = "/SpatialCubeService/Data/CleanUp.xml?force={force}";
+	public static String CLEAN_UP_LOCKS_URL = "/Data/CleanUp.xml?force={force}";
 	private String baseUri;
 	
 	@Autowired

@@ -3,7 +3,7 @@
 	<description>Build file for the rsa spatialcubeservice</description>
 
 	<!-- Project directories, referenced below -->
-	<property name="src" location="src" />
+	<property name="src" location="src/main/java" />
 	<property name="build" location="build" />
 	<property name="dist" location="dist" />
 	<property name="doc" location="doc" />
@@ -11,9 +11,14 @@
 	<property name="config" location="config" />
 	<property name="bin" location="bin" />
 
-	<!--  Application definitions -->
-	<property name="app.name" value="spatialcubeservice" />
-	<property name="app.path" value="/spatialcubeservice" />
+	<!--  Web application context. ${app.name} will be the name of the .war
+	      file, and therefore the name of the context root.
+	      NOTE: When using deployOnStartup, "the context path *may not* be
+	      defined in a META-INF/context.xml embedded in the application."
+	      http://tomcat.apache.org/tomcat-6.0-doc/config/context.html -->
+	<property name="app.name" value="rsa" />
+	<property name="app.path" value="/${app.name}" />
+
 	<!-- Versions numbers are populated by master build file; see ../build.xml. -->
 	<property name="version.number" value="local" />
 	<property name="svn.info.lastRev" value="rN"/>
@@ -72,6 +77,8 @@
 		</fileset>
 	</path>
 
+	<target name="dist" depends="war" />
+
 	<!-- Initialisation -->
 	<target name="init">
 		<!-- Create the time stamp -->
@@ -91,10 +98,24 @@
 	<!-- Copies dependencies from SpatialCubeService (html, js code) 
 	     and the storagemanager (lots of jar files) -->
 	<target name="copy-resources">
+		<!-- Non-configuration resources -->
 		<copy todir="${build}">
-			<!-- Non-configuration resources -->
 			<fileset dir="${storagemanagerResources}">
 				<include name="**/*.xml" />
+			</fileset>
+		</copy>
+		<copy todir="${build}">
+			<fileset dir="${src}">
+				<include name="**/filter-pack.cfg" />
+			</fileset>
+			<fileset dir="${storagemanagerSrc}">
+				<include name="**/filter-pack.cfg" />
+			</fileset>
+			<fileset dir="${rsaquerySrc}">
+				<include name="**/filter-pack.cfg" />
+			</fileset>
+			<fileset dir="${rsaqueryFilterSrc}">
+				<include name="**/filter-pack.cfg" />
 			</fileset>
 		</copy>
 
@@ -130,12 +151,6 @@
 		<copy todir="${webRoot}/WEB-INF/lib" flatten="true" verbose="true">
 			<path refid="storageManager-classpath" />
 		</copy>
-		<!-- Copy service provider configuration file into classpath -->
-		<copy todir="${build}/META-INF" flatten="false" verbose="true">
-			<fileset dir="src/main/java/META-INF">
-				<include name="**/*" />
-			</fileset>
-		</copy>
 	</target>
 
 	<!-- Compile the java code -->
@@ -159,20 +174,14 @@
 		<!-- Package up WAR file. If there are duplicate files this task will
 		     fail, because it indicates a bug! Avoid duplicates by explicitely
 		     excluding them. -->
-		<war destfile="${dist}/${warfile}" webxml="src/main/webapp/WEB-INF/web.xml" update="true" duplicate="fail">
+		<war destfile="${dist}/${warfile}" webxml="${webRoot}/WEB-INF/web.xml" update="true" duplicate="fail">
 			<classes dir="${build}" />
 			<fileset dir="${webRoot}">
 				<exclude name="WEB-INF/classes/**" />
 				<exclude name="WEB-INF/lib/**" />
 			</fileset>
 			<lib dir="${webRoot}/WEB-INF/lib" />
-<!--
-			<metainf>
-				<fileset dir="${webRoot}/META-INF">
-					<include name="**/*.*"/>
-				</fileset>
-			</metainf>
--->
+			<!-- Contents of META-INF are included automatically. -->
 		</war>
 	</target>
 
@@ -193,7 +202,7 @@
 	<!-- Create souce code compilation for the SpatialCubeService project -->
 	<target name="source">
 		<!-- Zip source into a zipped file -->
-		<zip destfile="${dist}/${app.name}_SOURCE.zip" basedir="${src}" />
+		<zip destfile="${dist}/${app.name}_SOURCE.zip" basedir="src" />
 
 		<!-- Zip source into a zipped file -->
 		<ant antfile="${storagemanagerAntFile}" target="source" dir="${storagemanager}" inheritall="false" />

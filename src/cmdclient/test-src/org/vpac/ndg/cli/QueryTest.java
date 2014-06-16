@@ -61,8 +61,7 @@ public class QueryTest extends ConsoleTest {
 		String queryFile = "../../data/query/threshold_rsa.xml";
 		String outputFile = String.format("%s.nc", queryFile);
 		Files.deleteIfExists(Paths.get(outputFile));
-		client.execute("data", "query", queryFile, "-o", outputFile);
-		assertEquals(0, errcode);
+		execute("data", "query", queryFile, "-o", outputFile);
 	}
 
 	@Test
@@ -71,8 +70,7 @@ public class QueryTest extends ConsoleTest {
 		String outputFile = String.format("%s.nc", queryFile);
 		String expectedFile = "../../data/query/wetting_ndvi_reduced_expected.nc";
 		Files.deleteIfExists(Paths.get(outputFile));
-		client.execute("data", "query", queryFile, "-o", outputFile);
-		assertEquals(0, errcode);
+		execute("data", "query", queryFile, "-o", outputFile);
 
 		// Use small excerpt from dataset to compare with known values.
 		NetcdfFile expectedds = null;
@@ -125,8 +123,7 @@ public class QueryTest extends ConsoleTest {
 		String queryFile = "../../data/query/wetting_ndvi.xml";
 		String outputFile = String.format("%s.nc", queryFile);
 		Files.deleteIfExists(Paths.get(outputFile));
-		client.execute("data", "query", queryFile, "-o", outputFile);
-		assertEquals(0, errcode);
+		execute("data", "query", queryFile, "-o", outputFile);
 	}
 
 	@Test
@@ -134,8 +131,7 @@ public class QueryTest extends ConsoleTest {
 		String queryFile = "../../data/query/add_unary_rsa.xml";
 		String outputFile = String.format("%s.nc", queryFile);
 		Files.deleteIfExists(Paths.get(outputFile));
-		client.execute("data", "query", queryFile, "-o", outputFile);
-		assertEquals(0, errcode);
+		execute("data", "query", queryFile, "-o", outputFile);
 	}
 
 	@Test
@@ -143,8 +139,7 @@ public class QueryTest extends ConsoleTest {
 		String queryFile = "../../data/query/add_binary_rsa.xml";
 		String outputFile = String.format("%s.nc", queryFile);
 		Files.deleteIfExists(Paths.get(outputFile));
-		client.execute("data", "query", queryFile, "-o", outputFile);
-		assertEquals(0, errcode);
+		execute("data", "query", queryFile, "-o", outputFile);
 	}
 
 	private void assertArray(DataType type, Array expected, Array actual) {

@@ -82,6 +82,10 @@ import org.vpac.ndg.storage.model.TileBand;
 import org.vpac.ndg.storage.model.TimeSlice;
 import org.vpac.ndg.storage.model.TimeSliceLock;
 import org.vpac.ndg.storage.util.TimeSliceUtil;
+import org.vpac.web.model.response.QueryInputResponse;
+import org.vpac.web.model.response.QueryNodeCollectionResponse;
+import org.vpac.web.model.response.QueryNodeResponse;
+import org.vpac.web.model.response.QueryOutputResponse;
 
 import com.martiansoftware.nailgun.NGContext;
 
@@ -112,7 +116,8 @@ public class Client {
 			"rsa data query [options] [-obet] [--of] [--async] <QUERY_DEF_FILE>\n" +
 			"rsa data download [options] [o] <TASK_ID>\n" +
 			"rsa data task [options] [--monitor] [TASK_ID]\n" +
-			"rsa data cleanup [options] [--purge]";
+			"rsa data cleanup [options] [--purge]\n" +
+			"rsa filter list [options]";
 //			"rsa help <CATEGORY>\n";
 
 	public final static String HEADER =
@@ -152,11 +157,11 @@ public class Client {
 		}
 	}
 
-	public void initBeans() {
+	public void initBeans(boolean remote) {
 		log.debug("initialising Spring and storage manager connectors");
 
 		ApplicationContext appContext;
-		if(cmd.hasOption("remote")) {
+		if (remote) {
 			appContext = AppContextSingleton.INSTANCE.remoteAppContext;
 			sm = Factory.create(cmd.getOptionValue("remote"), appContext);
 		} else {
@@ -180,6 +185,7 @@ public class Client {
 		log.trace("aguments processed");
 		run();
 		log.debug("client finished");
+		exit(0);
 	}
 
 	/**
@@ -1317,14 +1323,28 @@ public class Client {
 			System.out.println(String.format("\t%s", task.getState()));
 		}
 	}
-	
+
+	private void listFilters(List<String> remainingArgs) {
+		QueryNodeCollectionResponse list = sm.getFilterConnector().list();
+		for (QueryNodeResponse filter : list.getItems()) {
+			System.out.format("%s (\"%s\")\n", filter.getQualname(), filter.getName());
+			System.out.format("\t%s\n", filter.getDescription());
+			for (QueryInputResponse input : filter.getInputs()) {
+				System.out.format("\t%-20s %s (in)\n", input.getType(), input.getName());
+			}
+			for (QueryOutputResponse output : filter.getOutputs()) {
+				System.out.format("\t%-20s %s (out)\n", output.getType(), output.getName());
+			}
+		}
+	}
+
+
 	@SuppressWarnings("static-access")
 	public void processArgs(String... args) {
 		Options options;
 
 		options = new Options();
 		//options.addOption("p", "page", true, "List page number (default 1)");
-		//options.addOption("e", "express", false, "Export and download synchronously (may fail for large extents)");
 		options.addOption("a", "abstract", true, "Abstract (free-form text).");
 		options.addOption("c", "continuous", false, "Indicates that the " +
 				"domain is continuous, i.e. not discrete.");
@@ -1338,8 +1358,6 @@ public class Client {
 				"Indicates that a band contains metadata.");
 		options.addOption("d", "datatype", true,
 				"The type of data (default: BYTE).");
-		options.addOption("x", "express", false,
-				"Wait for export to finish, and download data immediately.");
 		options.addOption("b", "band", true,
 				"Set the bands to export (comma-separated list of band names).");
 		options.addOption(OptionBuilder.withLongOpt("extents").hasArgs(4).
@@ -1350,7 +1368,9 @@ public class Client {
 				create("t"));
 		options.addOption("p", "precision", true,
 				"The temporal precision (default: \"1 day\").");
-		options.addOption("o", "output", true, "The output file to write to.");
+		options.addOption("o", "output", true, "The output file to write to. If"
+				+ " not specified, a file will be created in the current"
+				+ " directory. It will be named after the input.");
 		options.addOption(null, "threads", true,
 				"The number of threads to use (default: 1).");
 		options.addOption("y", "task-type", true,
@@ -1359,7 +1379,8 @@ public class Client {
 				"The task status to filter by (default: RUNNING).");
 		options.addOption(null, "nodata", true, "The band nodata value.");
 		options.addOption(null, "type", true, "The band data type.");
-		options.addOption(null, "acquisitiontime", true, "The timeslice created time.");
+		options.addOption(null, "acquisitiontime", true,
+				"The timeslice creation time.");
 		
 		options.addOption(null, "xmin", true, "The timeslice xmin value for updating.");
 		options.addOption(null, "xmax", true, "The timeslice xmax value for updating.");
@@ -1367,11 +1388,12 @@ public class Client {
 		options.addOption(null, "ymax", true, "The timeslice ymax value for updating.");
 		options.addOption(null, "tiles", false, "Display tile informations of dataset or timeslice.");
 
-		options.addOption(null, "monitor", false, "Continuously monitoring jobprogress.");
+		options.addOption(null, "monitor", false, "Continuously monitor task."
+				+ " Use with `data task` command.");
 		options.addOption(null, "srcnodata", true,
 				"The input file nodata value.");
 		options.addOption(null, "name", true,
-				"The name of the object which can be dataset or band.");
+				"The new name of the object. Use with the `update` action.");
 		options.addOption(null, "cdl", false,
 				"Output information in CDL format.");
 		options.addOption(null, "ncml", false,
@@ -1380,9 +1402,13 @@ public class Client {
 				"Output format for query: nc3 or nc4 (default: nc4).");
 		options.addOption("h", "help", false, "Show this help text.");
 		options.addOption(null, "remote", true,
-				"The remote option used for remote storage source task.");
+				"The base URL of the RSA web services to use, e.g."
+				+ " http://vpac:8080/rsa. If not provided, no web services are"
+				+ " used and the rsa operates locally.");
 		options.addOption(null, "async", true,
-				"The async option used for asynchronous data task.");
+				"Run the task in the background and return immediately. The"
+				+ " task can be monitored using the return task ID. Only works"
+				+ " with --remote or when using Nailgun.");
 
 		
 		try {
@@ -1403,7 +1429,7 @@ public class Client {
 			return;
 		}
 		else {
-			initBeans();
+			initBeans(cmd.hasOption("remote"));
 		}
 	}
 
@@ -1508,6 +1534,13 @@ public class Client {
 					listTasks(remainingArgs);
 				} else if (action.equals("cleanup")) {
 					cleanup(remainingArgs);
+				} else {
+					throw new IllegalArgumentException(String.format("%s is not a recognised action.", action));
+				}
+
+			} else if (category.equals("filter")) {
+				if (action.equals("list")) {
+					listFilters(remainingArgs);
 				} else {
 					throw new IllegalArgumentException(String.format("%s is not a recognised action.", action));
 				}

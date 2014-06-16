@@ -49,6 +49,7 @@ import org.vpac.web.model.response.QueryResponse;
 @RunWith(SpringJUnit4ClassRunner.class)  
 @ContextConfiguration("file:src/main/webapp/WEB-INF/applicationContext.xml")
 public class DataTest extends TestCase {
+	final String BASE_URL = "http://localhost:8080/rsa";
 	
 	@Autowired
 	protected RestTemplate restTemplate;
@@ -62,13 +63,13 @@ public class DataTest extends TestCase {
 	public void testGetTasks() {
 		String testURL;
 		TaskCollectionResponse response;
-		testURL = "http://localhost:8080/SpatialCubeService/Data/Task.xml";
+		testURL = BASE_URL + "/Data/Task.xml";
 		response = restTemplate.getForObject(testURL, TaskCollectionResponse.class);
 		assertNotSame(response.getItems().size(), is(0));
-		testURL = "http://localhost:8080/SpatialCubeService/Data/Task.xml?searchType=Import&state=EXECUTION_ERROR";
+		testURL = BASE_URL + "/Data/Task.xml?searchType=Import&state=EXECUTION_ERROR";
 		response = restTemplate.getForObject(testURL, TaskCollectionResponse.class);
 		assertNotSame(response.getItems().size(), is(0));
-		testURL = "http://localhost:8080/SpatialCubeService/Data/Task.xml?searchType=Import&state=EXECUTION_ERROR&pageSize=2";
+		testURL = BASE_URL + "/Data/Task.xml?searchType=Import&state=EXECUTION_ERROR&pageSize=2";
 		response = restTemplate.getForObject(testURL, TaskCollectionResponse.class);
 		assertThat(response.getItems().size(), is(0));
 	}
@@ -78,7 +79,7 @@ public class DataTest extends TestCase {
 		String testURL;
 		TaskResponse response;
 		String id= "2c9f852437961c9f0137961ce0200005";
-		testURL = "http://localhost:8080/SpatialCubeService/Data/Task/{id}.xml";
+		testURL = BASE_URL + "/Data/Task/{id}.xml";
 		response = restTemplate.getForObject(testURL, TaskResponse.class, id);
 		assertNotSame(response.getId(), is(id));
 	}
@@ -87,7 +88,7 @@ public class DataTest extends TestCase {
 	public void testErrorInStateRequest() {
 		String testURL;
 		TaskCollectionResponse response;
-		testURL = "http://localhost:8080/SpatialCubeService/Data/Task.xml?searchType=Import&state=NOTEXISTSTATE";
+		testURL = BASE_URL + "/Data/Task.xml?searchType=Import&state=NOTEXISTSTATE";
 		response = restTemplate.getForObject(testURL, TaskCollectionResponse.class);
 		assertThat(response.getItems().size(), is(0));
 	}
@@ -97,7 +98,7 @@ public class DataTest extends TestCase {
 	public void testErrorInSearchType() {
 		String testURL;
 		TaskCollectionResponse response;
-		testURL = "http://localhost:8080/SpatialCubeService/Data/Task.xml?searchType=NOTImportOrExport&state=EXECUTION_ERROR";
+		testURL = BASE_URL + "/Data/Task.xml?searchType=NOTImportOrExport&state=EXECUTION_ERROR";
 		response = restTemplate.getForObject(testURL, TaskCollectionResponse.class);
 		assertThat(response.getItems().size(), is(0));
 	}
@@ -108,7 +109,7 @@ public class DataTest extends TestCase {
 		String testURL;
 		ImportResponse response;
 		String fileId = "test";
-		testURL = "http://localhost:8080/SpatialCubeService/Data/Import.xml?fileId={fileId}";
+		testURL = BASE_URL + "/Data/Import.xml?fileId={fileId}";
 		response = restTemplate.postForObject(testURL, null, ImportResponse.class, fileId);
 		assertNotNull(response.getTaskId());
 	}
@@ -117,7 +118,7 @@ public class DataTest extends TestCase {
 	public void testImportWithoutFileId() {
 		String testURL;
 		ImportResponse response;
-		testURL = "http://localhost:8080/SpatialCubeService/Data/Import.xml";
+		testURL = BASE_URL + "/Data/Import.xml";
 		response = restTemplate.postForObject(testURL, null, ImportResponse.class);
 		assertNotNull(response.getTaskId());
 	}
@@ -134,7 +135,7 @@ public class DataTest extends TestCase {
 		String topY = "10";
 		String bottomX = "100";
 		String bottomY = "100";
-		testURL = "http://localhost:8080/SpatialCubeService/Data/Export.xml?datasetId={datasetId}&searchStartDate={startDate}&searchEndDate={endDate}&projection={projection}&topLeft.x={topX}&topLeft.y={topX}&bottomRight.x={bottomX}&bottomRight.y={bottomY}";
+		testURL = BASE_URL + "/Data/Export.xml?datasetId={datasetId}&searchStartDate={startDate}&searchEndDate={endDate}&projection={projection}&topLeft.x={topX}&topLeft.y={topX}&bottomRight.x={bottomX}&bottomRight.y={bottomY}";
 		response = restTemplate.postForObject(testURL, null, ExportResponse.class, datasetId, startDate, endDate, projection, topX, topY, bottomX, bottomY);
 		assertNotNull(response.getTaskId());
 	}
@@ -151,7 +152,7 @@ public class DataTest extends TestCase {
 		String topY = "10.01";
 		String bottomX = "100.22";
 		String bottomY = "100.93";
-		testURL = "http://localhost:8080/SpatialCubeService/Data/Export.xml?datasetId={datasetId}&searchStartDate={startDate}&searchEndDate={endDate}&projection={projection}&topLeft.x={topX}&topLeft.y={topX}&bottomRight.x={bottomX}&bottomRight.y={bottomY}";
+		testURL = BASE_URL + "/Data/Export.xml?datasetId={datasetId}&searchStartDate={startDate}&searchEndDate={endDate}&projection={projection}&topLeft.x={topX}&topLeft.y={topX}&bottomRight.x={bottomX}&bottomRight.y={bottomY}";
 		response = restTemplate.postForObject(testURL, null, ExportResponse.class, datasetId, startDate, endDate, projection, topX, topY, bottomX, bottomY);
 		assertNotNull(response.getTaskId());
 	}
@@ -168,7 +169,7 @@ public class DataTest extends TestCase {
 		String topY = "10.01";
 		String bottomX = "100.22";
 		String bottomY = "100.93";
-		testURL = "http://localhost:8080/SpatialCubeService/Data/Export.json?datasetId={datasetId}&searchStartDate={startDate}&searchEndDate={endDate}&projection={projection}&topLeft.x={topX}&topLeft.y={topX}&bottomRight.x={bottomX}&bottomRight.y={bottomY}";
+		testURL = BASE_URL + "/Data/Export.json?datasetId={datasetId}&searchStartDate={startDate}&searchEndDate={endDate}&projection={projection}&topLeft.x={topX}&topLeft.y={topX}&bottomRight.x={bottomX}&bottomRight.y={bottomY}";
 		response = restTemplate.postForObject(testURL, null, String.class, datasetId, startDate, endDate, projection, topX, topY, bottomX, bottomY);
 		System.out.println(response);
 		assertNotNull(response);
@@ -178,7 +179,7 @@ public class DataTest extends TestCase {
 	public void testFileUpload() {
 		String testURL;
 		FileInfoResponse response;
-		testURL = "http://localhost:8080/SpatialCubeService/Data/Upload.xml";
+		testURL = BASE_URL + "/Data/Upload.xml";
 		
 		MultiValueMap<String, Object> mvm = new LinkedMultiValueMap<String, Object>();
 	    mvm.add("datasetId", "TestParameter");
@@ -193,17 +194,17 @@ public class DataTest extends TestCase {
 	
 	@Test
 	public void testCleanUp() {
-		String testURL = "http://localhost:8080/SpatialCubeService/Data/CleanUp.xml?force={force}";
+		String testURL = BASE_URL + "/Data/CleanUp.xml?force={force}";
 		CleanUpResponse response = restTemplate.postForObject(testURL, null, CleanUpResponse.class, false);
 		System.out.println("Clean up locks:" + response.getCount());
 	}
 
 	@Test
 	public void testQuery() {
-		String testURL = "http://localhost:8080/SpatialCubeService/Data/Query.xml?minX=0.0&minY=0.0&maxX=100&maxY=100&startDate=123";
+		String testURL = BASE_URL + "/Data/Query.xml?minX=0.0&minY=0.0&maxX=100&maxY=100&startDate=123";
 
 		MultiValueMap<String, Object> mvm = new LinkedMultiValueMap<String, Object>();
-	    Resource file = new FileSystemResource(new File("/home/forjin/Documents/ula/trunk/src/RSA/CmdClient/data/add_binary_rsa.xml"));
+	    Resource file = new FileSystemResource(new File("../../data/query/add_binary_rsa.xml"));
 //	    mvm.add("point.x", 0.0);
 //	    mvm.add("point.y", 0.0);
 //	    mvm.add("bottomRight.X", 100.0);
@@ -214,12 +215,12 @@ public class DataTest extends TestCase {
 	    mvm.add("threads", "1");
 
 		QueryResponse response = restTemplate.postForObject(testURL, mvm, QueryResponse.class);
-		System.out.println("Clean up locks:" + response.getTaskId());
+		System.out.println("Query task ID:" + response.getTaskId());
 	}
 
 	@Test
 	public void testPreviewQuery() {
-		String testURL = "http://localhost:8080/SpatialCubeService/Data/PreviewQuery.xml";
+		String testURL = BASE_URL + "/Data/PreviewQuery.xml";
 
 		String query = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
 		"<query xmlns=\"http://www.vpac.org/namespaces/rsaquery-0.1\">" +
@@ -253,7 +254,7 @@ public class DataTest extends TestCase {
 		String testURL;
 		ExportResponse response;
 		String datasetId = "ff8081813d244eb7013d244ebc9d0001";
-		testURL = "http://localhost:8080/SpatialCubeService/Data/Export.xml?datasetId={datasetId}";
+		testURL = BASE_URL + "/Data/Export.xml?datasetId={datasetId}";
 		response = restTemplate.postForObject(testURL, null, ExportResponse.class, datasetId);
 		assertNotNull(response.getTaskId());
 	}

@@ -29,5 +29,6 @@ public interface StorageManager {
 	public TimesliceConnector getTimesliceConnector();
 	public BandConnector getBandConnector();
 	public TaskConnector getTaskConnector();
+	public FilterConnector getFilterConnector();
 	public DataDownloader getDataDownloader();
 }

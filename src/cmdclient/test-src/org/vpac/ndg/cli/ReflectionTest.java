@@ -17,31 +17,25 @@
  * http://www.crcsi.com.au/
  */
 
-package org.vpac.web.util;
+package org.vpac.ndg.cli;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.ServiceLoader;
+import static org.junit.Assert.assertTrue;
 
-import org.vpac.ndg.query.filter.Filter;
+import java.io.IOException;
 
-/**
- * This class is intended to load all filter implementation specified in
- * /META-INF/services/org.vpac.ndg.query.Filter service provider configuration.
- * 
- * @author hsumanto
- * 
- */
-public class ServiceHelper {
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.test.context.ContextConfiguration;
 
-	private static ServiceLoader<Filter> filterSetLoader = ServiceLoader
-			.load(Filter.class);
+@ContextConfiguration({ "file:resources/spring/beans/CmdClientBean.xml" })
+public class ReflectionTest extends ConsoleTest {
 
-	public static List<Filter> getFilters() {
-		List<Filter> filters = new ArrayList<>();
-		for (Filter f : filterSetLoader) {
-			filters.add(f);
-		}
-		return filters;
+	final Logger log = LoggerFactory.getLogger(ReflectionTest.class);
+
+	@Test
+	public void testFilterList() throws IOException {
+		execute("filter", "list");
+		assertTrue(output.toString().contains("org.vpac.ndg.query.stats.Statistics"));
 	}
 }

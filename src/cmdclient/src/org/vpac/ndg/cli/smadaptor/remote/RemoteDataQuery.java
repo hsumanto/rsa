@@ -34,7 +34,7 @@ import org.vpac.ndg.geometry.Box;
 import org.vpac.web.model.response.QueryResponse;
 
 public class RemoteDataQuery implements DataQuery {
-	public static String DATA_QUERY_URL = "/SpatialCubeService/Data/Query.xml?minX={minX}&minY={minY}&maxX={maxX}&maxY={maxY}&startDate={startDate}&endDate={endDate}";
+	public static String DATA_QUERY_URL = "/Data/Query.xml?minX={minX}&minY={minY}&maxX={maxX}&maxY={maxY}&startDate={startDate}&endDate={endDate}";
 
 	static final Logger log = LoggerFactory.getLogger(RemoteDataQuery.class);
 

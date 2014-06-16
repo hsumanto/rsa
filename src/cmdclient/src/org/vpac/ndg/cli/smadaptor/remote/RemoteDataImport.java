@@ -30,7 +30,7 @@ import org.vpac.ndg.exceptions.TaskInitialisationException;
 import org.vpac.web.model.response.ImportResponse;
 
 public class RemoteDataImport implements DataImport {
-	public static String GET_IMPORT_URL = "/SpatialCubeService/Data/Import.xml?taskId={taskId}&bandId={bandId}&srcnodata={srcnodata}&useBilinearInterpolation={useBilinearInterpolation}";
+	public static String GET_IMPORT_URL = "/Data/Import.xml?taskId={taskId}&bandId={bandId}&srcnodata={srcnodata}&useBilinearInterpolation={useBilinearInterpolation}";
 
 	private String baseUri;
 	@Autowired

@@ -34,14 +34,14 @@ import org.vpac.web.model.response.TimeSliceLockCollectionResponse;
 import org.vpac.web.model.response.TimeSliceResponse;
 
 public class RemoteTimesliceConnector implements TimesliceConnector {
-	public static String GET_ALL_TIMESLICE_BY_ID_URL = "/SpatialCubeService/TimeSlice/{timesliceId}.xml";
-	public static String GET_ALL_TIMESLICE_BY_DATASET_ID_URL = "/SpatialCubeService/TimeSlice.xml?datasetId={datasetId}";
-	public static String GET_DATASET_BY_ID_URL = "/SpatialCubeService/Dataset/{id}.xml";
-	public static String GET_DATASET_BY_NAME_RESOLUTION_URL = "/SpatialCubeService/Dataset/Search.xml?name={name}&resolution={resolution}";
-	public static String DELETE_TIMESLICE_BY_ID_URL = "/SpatialCubeService/TimeSlice/Delete/{id}.xml";
-	public static String CREATE_OR_UPDATE_TIMESLICE_URL = "/SpatialCubeService/TimeSlice.xml?timesliceId={id}&datasetId={datasetId}&created={created}&abs={abs}&xmin={xmin}&xmax={xmax}&ymin={ymin}&ymax={ymax}";
-	public static String GET_DATASET_BY_TIMESLICE_ID = "/SpatialCubeService/TimeSlice/Parent/{id}.xml";
-	public static String GET_ALL_TIMESLICELOCK_BY_ID_URL = "/SpatialCubeService/TimeSlice/Lock/{id}.xml";
+	public static String GET_ALL_TIMESLICE_BY_ID_URL = "/TimeSlice/{timesliceId}.xml";
+	public static String GET_ALL_TIMESLICE_BY_DATASET_ID_URL = "/TimeSlice.xml?datasetId={datasetId}";
+	public static String GET_DATASET_BY_ID_URL = "/Dataset/{id}.xml";
+	public static String GET_DATASET_BY_NAME_RESOLUTION_URL = "/Dataset/Search.xml?name={name}&resolution={resolution}";
+	public static String DELETE_TIMESLICE_BY_ID_URL = "/TimeSlice/Delete/{id}.xml";
+	public static String CREATE_OR_UPDATE_TIMESLICE_URL = "/TimeSlice.xml?timesliceId={id}&datasetId={datasetId}&created={created}&abs={abs}&xmin={xmin}&xmax={xmax}&ymin={ymin}&ymax={ymax}";
+	public static String GET_DATASET_BY_TIMESLICE_ID = "/TimeSlice/Parent/{id}.xml";
+	public static String GET_ALL_TIMESLICELOCK_BY_ID_URL = "/TimeSlice/Lock/{id}.xml";
 	
 	private String baseUri;
 	

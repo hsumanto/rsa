@@ -39,6 +39,8 @@ import junit.framework.TestCase;
 @RunWith(SpringJUnit4ClassRunner.class)  
 @ContextConfiguration("file:src/main/webapp/WEB-INF/applicationContext.xml")
 public class BandTest extends TestCase {
+	final String BASE_URL = "http://localhost:8080/rsa";
+
 	private static String TestDatasetName = "BandTest";
 	private String testDatasetId;
 
@@ -50,7 +52,7 @@ public class BandTest extends TestCase {
 		String name = TestDatasetName;
 		String resolution = "500m";
 		String dataAbstract = "testAbs";
-		String testURL = "http://localhost:8080/SpatialCubeService/Dataset.xml?name={name}&resolution={resolution}";
+		String testURL = BASE_URL + "/Dataset.xml?name={name}&resolution={resolution}";
 		DatasetCollectionResponse getResponse = restTemplate.getForObject(testURL, DatasetCollectionResponse.class, name, resolution);
 		if(getResponse.getItems().size() == 0) {
 			DatasetResponse response = testCreateDataset(name, resolution, dataAbstract);
@@ -62,7 +64,7 @@ public class BandTest extends TestCase {
 
 	@Test
 	public void testGetAllBands() {
-		String testURL = "http://localhost:8080/SpatialCubeService/Band.xml?datasetId={id}";
+		String testURL = BASE_URL + "/Band.xml?datasetId={id}";
 		BandCollectionResponse getBandsResponse = restTemplate.getForObject(testURL, BandCollectionResponse.class, testDatasetId);
 		if(getBandsResponse.getItems().size() == 0) {
 			String datasetId = testDatasetId;
@@ -79,7 +81,7 @@ public class BandTest extends TestCase {
 	@Test
 	public void testGetAllBandsForDummyResponse() {
 		BandCollectionResponse response;
-		String testURL = "http://localhost:8080/SpatialCubeService/Band.xml?datasetId=DummyDatasetId";
+		String testURL = BASE_URL + "/Band.xml?datasetId=DummyDatasetId";
 		response = restTemplate.getForObject(testURL, BandCollectionResponse.class);
 		assertSame(response.getItems().size(), 0);
 		// Should be empty list
@@ -88,7 +90,7 @@ public class BandTest extends TestCase {
 	@Test(expected=Exception.class)
 	public void testNoDatasetId() {
 		BandCollectionResponse response;
-		String testURL = "http://localhost:8080/SpatialCubeService/Band/DummyBand1.xml";
+		String testURL = BASE_URL + "/Band/DummyBand1.xml";
 		response = restTemplate.getForObject(testURL, BandCollectionResponse.class);
 		assertNotSame(response.getItems().size(), 0);
 		// Should be resulted in 404 (Not Found)
@@ -96,7 +98,7 @@ public class BandTest extends TestCase {
 
 	@Test
 	public void testCreateBandNormal() {
-		String testURL = "http://localhost:8080/SpatialCubeService/Band.xml?datasetId={id}";
+		String testURL = BASE_URL + "/Band.xml?datasetId={id}";
 		BandCollectionResponse getBandsResponse = restTemplate.getForObject(testURL, BandCollectionResponse.class, testDatasetId);
 		if(getBandsResponse.getItems().size() == 0) {
 			String datasetId = "2c9f85243827bc64013827bc67b20006";
@@ -132,12 +134,12 @@ public class BandTest extends TestCase {
 	}
 
 	private BandResponse testCreateBand(String datasetId, String name, String type, String isMetadata) {
-		String testURL = "http://localhost:8080/SpatialCubeService/Band.xml?datasetId={datadsetId}&name={name}&type={type}&metadata={isMetadata}";
+		String testURL = BASE_URL + "/Band.xml?datasetId={datadsetId}&name={name}&type={type}&metadata={isMetadata}";
 		return restTemplate.postForObject(testURL, null, BandResponse.class, datasetId, name, type, isMetadata);
 	}
 
 	private DatasetResponse testCreateDataset(String name, String resolution, String dataAbstract) {
-		String testURL = "http://localhost:8080/SpatialCubeService/Dataset.xml?name={name}&resolution={resolution}&dataAbstract={dataAbstract}&precision=1";
+		String testURL = BASE_URL + "/Dataset.xml?name={name}&resolution={resolution}&dataAbstract={dataAbstract}&precision=1";
 		return restTemplate.postForObject(testURL, null, DatasetResponse.class, name, resolution, dataAbstract);
 	}
 }

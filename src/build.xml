@@ -79,7 +79,7 @@
 	</target>
 
 	<target name="web_services" depends="init" description="Spatial Cube Services">
-		<ant dir="spatialcubeservice" target="war" />
+		<ant dir="spatialcubeservice" target="dist" />
 
 		<copy todir="dist" flatten="false" verbose="true">
 			<fileset dir="spatialcubeservice/dist">

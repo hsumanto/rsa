@@ -19,7 +19,6 @@
 
 package org.vpac.ndg.cli;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import java.text.DecimalFormat;
@@ -32,8 +31,6 @@ import org.junit.rules.MethodRule;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.vpac.ndg.exceptions.TaskException;
-import org.vpac.ndg.exceptions.TaskInitialisationException;
 
 import com.carrotsearch.junitbenchmarks.BenchmarkOptions;
 import com.carrotsearch.junitbenchmarks.BenchmarkRule;
@@ -69,14 +66,13 @@ public class ImportTest extends ConsoleTest {
 			String bandId = ensureBandExists(datasetId, bandName, type);
 
 			// Now the actual test!
-			client.execute("data", "import", tsId, bandId, primaryFileLocation);
-			assertEquals("Failed to perform import.", 0, errcode);
+			execute("data", "import", tsId, bandId, primaryFileLocation);
 		}
 	}
 
 	@Test
 	@BenchmarkOptions(benchmarkRounds = 1, warmupRounds = 0)
-	public void testImportTimeSlice() throws TaskInitialisationException, TaskException {
+	public void testImportTimeSlice() {
 		String acquisitionTime = "2010-01-24T01-50-55.000";
 		String datasetName = "DummyDataset123";
 		String bandName = "DummyBand123";
@@ -90,8 +86,7 @@ public class ImportTest extends ConsoleTest {
 		String bandId = ensureBandExists(datasetId, bandName, type);
 
 		// Now the actual test!
-		client.execute("data", "import", tsId, bandId, primaryFileLocation);
-		assertEquals("Failed to perform import.", 0, errcode);
+		execute("data", "import", tsId, bandId, primaryFileLocation);
 	}
 
 	protected String findId(String clientOutput, String value) {
@@ -112,17 +107,17 @@ public class ImportTest extends ConsoleTest {
 	protected String ensureDatasetExists(String name, String resolution) {
 		// Check whether the time slice exists.
 		String path = name + "/" + resolution;
-		client.execute("dataset", "show", path);
+		try {
+			execute("dataset", "show", path);
+		} catch (ClientExitException e) {
+			// This is OK, it just means this is the first time we've run.
+		}
 		String dsId = findId(output.toString(), path);
 		output.reset();
 		errput.reset();
 
-		// Re-initialize errcode in case this is the first time the dataset is being created thus 
-		// the above dataset show should fail and set errcode to -1
-		errcode = 0;
 		if (dsId == null) {
-			client.execute("dataset", "create", name, resolution);
-			assertEquals("Failed to create dataset.", 0, errcode);
+			execute("dataset", "create", name, resolution);
 			dsId = findId(output.toString(), path);
 			output.reset();
 			errput.reset();
@@ -133,14 +128,17 @@ public class ImportTest extends ConsoleTest {
 
 	protected String ensureTimeSliceExists(String datasetId, String acquisitionTime) {
 		// Check whether the time slice exists.
-		client.execute("timeslice", "list", datasetId);
+		try {
+			execute("timeslice", "list", datasetId);
+		} catch (ClientExitException e) {
+			// This is OK, it just means this is the first time we've run.
+		}
 		String tsId = findId(output.toString(), acquisitionTime);
 		output.reset();
 		errput.reset();
 
 		if (tsId == null) {
-			client.execute("timeslice", "create", datasetId, acquisitionTime);
-			assertEquals("Failed to create time slice.", 0, errcode);
+			execute("timeslice", "create", datasetId, acquisitionTime);
 			tsId = findId(output.toString(), acquisitionTime);
 			output.reset();
 			errput.reset();
@@ -151,14 +149,17 @@ public class ImportTest extends ConsoleTest {
 
 	protected String ensureBandExists(String datasetId, String bandName, String type) {
 		// Check whether the band already exists.
-		client.execute("band", "list", datasetId);
+		try {
+			execute("band", "list", datasetId);
+		} catch (ClientExitException e) {
+			// This is OK, it just means this is the first time we've run.
+		}
 		String bandId = findId(output.toString(), bandName);
 		output.reset();
 		errput.reset();
 
 		if (bandId == null) {
-			client.execute("band", "create", datasetId, bandName, type);
-			assertEquals("Failed to create band.", 0, errcode);
+			execute("band", "create", datasetId, bandName, type);
 			bandId = findId(output.toString(), bandName);
 			output.reset();
 			errput.reset();

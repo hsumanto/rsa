@@ -34,7 +34,7 @@ import org.vpac.ndg.cli.smadaptor.DataUpload;
 import org.vpac.web.model.response.FileInfoResponse;
 
 public class RemoteDataUpload implements DataUpload {
-	public static String UPLOAD_FILE_URL = "/SpatialCubeService/Data/Upload.xml";
+	public static String UPLOAD_FILE_URL = "/Data/Upload.xml";
 
 	private String baseUri;
 	@Autowired

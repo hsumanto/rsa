@@ -107,7 +107,7 @@ import org.vpac.web.model.response.QueryResponse;
 import org.vpac.web.model.response.TaskCollectionResponse;
 import org.vpac.web.model.response.TaskResponse;
 import org.vpac.web.util.ControllerHelper;
-import org.vpac.web.util.FilterUtils;
+import org.vpac.web.util.QueryPreviewHelper;
 import org.vpac.web.util.Pager;
 
 import ucar.ma2.Array;
@@ -983,7 +983,7 @@ public class DataController {
 			Path ncPreviewPath = queryPath.getParent().resolve("multipreview.nc");
 
 			// generate multiple 2D preview out of query output
-			boolean hasNoData = FilterUtils.multiPreview(queryPath, ncPreviewPath);
+			boolean hasNoData = QueryPreviewHelper.multiPreview(queryPath, ncPreviewPath);
 
 			Path pngPreviewPath = queryPath.getParent().resolve("multipreview.png");
 			Path tifPreviewPath = queryPath.getParent().resolve("multipreview.tif");
