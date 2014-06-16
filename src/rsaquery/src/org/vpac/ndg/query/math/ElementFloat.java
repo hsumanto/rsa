@@ -60,6 +60,10 @@ public class ElementFloat implements ScalarElement {
 	public ElementFloat[] getComponents() {
 		return components;
 	}
+	@Override
+	public int size() {
+		return components.length;
+	}
 
 	@Override
 	public boolean isValid() {

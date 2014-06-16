@@ -83,10 +83,13 @@ import org.vpac.ndg.query.sampling.NodataStrategy;
 import org.vpac.ndg.query.sampling.NodataStrategyFactory;
 import org.vpac.ndg.storage.dao.DatasetDao;
 import org.vpac.ndg.storage.dao.JobProgressDao;
+import org.vpac.ndg.storage.dao.StatisticsDao;
 import org.vpac.ndg.storage.dao.UploadDao;
 import org.vpac.ndg.storage.model.Band;
 import org.vpac.ndg.storage.model.Dataset;
 import org.vpac.ndg.storage.model.JobProgress;
+import org.vpac.ndg.storage.model.TaskCats;
+import org.vpac.ndg.storage.model.TaskHist;
 import org.vpac.ndg.storage.model.TimeSlice;
 import org.vpac.ndg.storage.model.Upload;
 import org.vpac.ndg.storage.util.TimeSliceUtil;
@@ -105,11 +108,12 @@ import org.vpac.web.model.response.ExportResponse;
 import org.vpac.web.model.response.FileInfoResponse;
 import org.vpac.web.model.response.ImportResponse;
 import org.vpac.web.model.response.QueryResponse;
+import org.vpac.web.model.response.TaskCatsResponse;
 import org.vpac.web.model.response.TaskCollectionResponse;
 import org.vpac.web.model.response.TaskResponse;
 import org.vpac.web.util.ControllerHelper;
-import org.vpac.web.util.QueryPreviewHelper;
 import org.vpac.web.util.Pager;
+import org.vpac.web.util.QueryPreviewHelper;
 
 import ucar.ma2.Array;
 import ucar.ma2.InvalidRangeException;
@@ -135,6 +139,8 @@ public class DataController {
 	UploadUtil uploadUtil;
 	@Autowired
 	JobProgressDao jobProgressDao;
+	@Autowired
+	StatisticsDao statisticsDao;
 	@Autowired
 	TimeSliceUtil timeSliceUtil;
 	@Autowired
@@ -316,6 +322,37 @@ public class DataController {
 		return "List";
 	}
 
+	@RequestMapping(value="/Task/{taskId}/hist", method = RequestMethod.GET)
+	public String getHistogramByTaskId(@PathVariable String taskId, @RequestParam(required = false) List<Integer> categories, ModelMap model ) throws ResourceNotFoundException {
+
+		log.info("Data getTaskById");
+		log.debug("Task ID: {}", taskId);
+
+		TaskCats cats = statisticsDao.searchCats(taskId, categories);
+		
+		if(cats != null)
+			model.addAttribute(ControllerHelper.RESPONSE_ROOT, new TaskCatsResponse(cats));
+		else
+			throw new ResourceNotFoundException("No data not found.");
+		
+		return "List";
+	}
+
+	@RequestMapping(value="/Task/{taskId}/cats/{catType}", method = RequestMethod.GET)
+	public String getCategoryByTaskId(@PathVariable String taskId, @PathVariable String catType, @RequestParam(required = false) double lower, @RequestParam(required = false) double upper, ModelMap model ) throws ResourceNotFoundException {
+
+		log.info("Data getTaskById");
+		log.debug("Task ID: {}", taskId);
+
+		TaskHist cats = statisticsDao.searchHist(taskId, catType, lower, upper);
+		
+//		if(cats != null)
+//			model.addAttribute(ControllerHelper.RESPONSE_ROOT, new TaskHistResponse(cats));
+//		else
+//			throw new ResourceNotFoundException("No data not found.");
+
+		return "List";
+	}
 	
 	@RequestMapping(value = "/Download/{taskId}", method = RequestMethod.GET)
 	public void downloadFile(@PathVariable("taskId") String taskId, HttpServletResponse response) throws TaskException, FileNotFoundException {
@@ -660,8 +697,11 @@ public class DataController {
 
 		JobProgress job = new JobProgress("Query (distributed)");
 		jobProgressDao.save(job);
-
+		int n = 0;
+		
 		for(Tile t : tiles) {
+			if (n > 20)
+				break;
 			Box bound = tileManager.getNngGrid().getBounds(t.getIndex(), baseRsaDatasetResolution);
 			bound.intersect(extent);
 			BoxReal bb = new BoxReal(2);
@@ -673,6 +713,7 @@ public class DataController {
 			frontend.tell(new org.vpac.worker.Job.Work(
 					UUID.randomUUID().toString(), qd1.toXML(), ver, bb,
 					job.getId()), ActorRef.noSender());
+			n++;
 		}
 		return "Success";
 	}

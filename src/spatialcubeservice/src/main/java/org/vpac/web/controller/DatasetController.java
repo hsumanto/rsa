@@ -22,6 +22,7 @@ package org.vpac.web.controller;
 import java.io.IOException;
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 import org.slf4j.Logger;
@@ -58,44 +59,97 @@ public class DatasetController {
 
 	@Autowired
 	DatasetDao datasetDao;
-	
+
 	@Autowired
 	DatasetUtil datasetUtil;
-	
 
 	@InitBinder
 	public void binder(WebDataBinder binder) {
 		helper.BindDateTimeFormatter(binder);
 		helper.BindCellSizeFormatter(binder);
-	}	
+	}
 
 	@RequestMapping(method = RequestMethod.GET)
-	public String getAllDataset(@RequestParam(required=false) String name, @Valid PagingRequest page, ModelMap model ) {
-		List<Dataset> list = datasetDao.search(name, page.getPage(), page.getPageSize());
-		model.addAttribute(ControllerHelper.RESPONSE_ROOT, new DatasetCollectionResponse(list));
+	public String getAllDataset(@RequestParam(required = false) String name,
+			@Valid PagingRequest page, ModelMap model) {
+		List<Dataset> list = datasetDao.search(name, page.getPage(),
+				page.getPageSize());
+		model.addAttribute(ControllerHelper.RESPONSE_ROOT,
+				new DatasetCollectionResponse(list));
 		return "List";
 	}
 
-	@RequestMapping(value="/Search", method = RequestMethod.GET)
-	public String searchDataset(@RequestParam(required=false) String name, @RequestParam(required=false) String resolution, ModelMap model ) {
-		List<Dataset> list = datasetDao.search(name, CellSize.fromHumanString(resolution));
-		model.addAttribute(ControllerHelper.RESPONSE_ROOT, new DatasetCollectionResponse(list));
+	@RequestMapping(value = "/Search", method = RequestMethod.GET)
+	public String searchDataset(@RequestParam(required = false) String name,
+			@RequestParam(required = false) String resolution, ModelMap model) {
+		List<Dataset> list = datasetDao.search(name,
+				CellSize.fromHumanString(resolution));
+		model.addAttribute(ControllerHelper.RESPONSE_ROOT,
+				new DatasetCollectionResponse(list));
 		return "List";
 	}
-	
-	@RequestMapping(value="/{id}", method = RequestMethod.GET)
-	public String getDatasetById(@PathVariable String id, ModelMap model ) throws ResourceNotFoundException {
+
+	@RequestMapping(value = "/{id}", method = RequestMethod.GET)
+	public String getDatasetById(@PathVariable String id, ModelMap model)
+			throws ResourceNotFoundException {
 		Dataset ds = datasetDao.retrieve(id);
-		if(ds == null) {
+		if (ds == null) {
 			// Capture if dataset not exist
-			throw new ResourceNotFoundException(String.format("Dataset with ID = \"%s\" not found.", id));			
+			throw new ResourceNotFoundException(String.format(
+					"Dataset with ID = \"%s\" not found.", id));
 		}
 		model.addAttribute(ControllerHelper.RESPONSE_ROOT, new DatasetResponse(ds));
 		return "List";
 	}
 
+	@RequestMapping(value = "/{rsaString}/**/hist", method = RequestMethod.GET)
+	public String getHistogram(@PathVariable String rsaString,
+			@RequestParam(required = false) Integer[] categories,
+			@RequestParam(required = false) String type,
+			HttpServletRequest request, ModelMap model)
+			throws ResourceNotFoundException {
+		log.info("rsaString:" + rsaString);
+		log.info("categories:" + categories.toString());
+		log.info("type:" + type);
+		String requestURL = request.getRequestURI().toString();
+		String TimeSliceId = findPathVariable(requestURL, "TimeSlice");
+		String BandId = findPathVariable(requestURL, "Band");
+		
+		return "List";
+	}
+
+	private String findPathVariable(String url, String varName) {
+		String returnValue = null;
+		int timeSliceLocation = url.indexOf(varName);
+		if (timeSliceLocation > 0) {
+			String TimeSlicePart = url.substring(timeSliceLocation
+					+ varName.length() + 1);
+			returnValue = TimeSlicePart.split("/")[0];
+		}
+		return returnValue;
+	}
+
+	@RequestMapping(value = "/{rsaString}/**/cats/{type}", method = RequestMethod.GET)
+	public String getCategory(@PathVariable String rsaString,
+			@PathVariable String type,
+			@RequestParam(required = false) Integer lower,
+			@RequestParam(required = false) Integer upper,
+			HttpServletRequest request, ModelMap model)
+			throws ResourceNotFoundException {
+		log.info("rsaString:" + rsaString);
+		log.info("type:" + type);
+		log.info("lower:" + lower);
+		log.info("upper:" + upper);
+		String requestURL = request.getRequestURI().toString();
+		String TimeSliceId = findPathVariable(requestURL, "TimeSlice");
+		String BandId = findPathVariable(requestURL, "Band");
+
+		return "List";
+	}
+
 	@RequestMapping(method = RequestMethod.POST)
-	public String createOrUpdateDataset(@Valid DatasetRequest dr, ModelMap model ) throws ResourceNotFoundException, IOException {
+	public String createOrUpdateDataset(@Valid DatasetRequest dr, ModelMap model)
+			throws ResourceNotFoundException, IOException {
 
 		log.info("Create / Update Dataset");
 		log.debug("Id: {}", dr.getId());
@@ -105,44 +159,49 @@ public class DatasetController {
 		log.debug("Abstract: {}", dr.getDataAbstract());
 
 		long precision = Utils.parseTemporalPrecision(dr.getPrecision());
-		if(dr.getId() == null || dr.getId().isEmpty()) {
-			Dataset newDataset = new Dataset(dr.getName(), dr.getDataAbstract(), dr.getResolution(), precision);
+		if (dr.getId() == null || dr.getId().isEmpty()) {
+			Dataset newDataset = new Dataset(dr.getName(),
+					dr.getDataAbstract(), dr.getResolution(), precision);
 			datasetDao.create(newDataset);
-			model.addAttribute(ControllerHelper.RESPONSE_ROOT, new DatasetResponse(newDataset));
+			model.addAttribute(ControllerHelper.RESPONSE_ROOT,
+					new DatasetResponse(newDataset));
 		} else {
 			Dataset ds = datasetDao.retrieve(dr.getId());
-			if(ds == null)
-				throw new ResourceNotFoundException(String.format("Dataset with ID = \"%s\" not found.", dr.getId()));			
+			if (ds == null)
+				throw new ResourceNotFoundException(String.format(
+						"Dataset with ID = \"%s\" not found.", dr.getId()));
 			ds.setAbst(dr.getDataAbstract());
 			ds.setResolution(dr.getResolution());
 			ds.setPrecision(Long.parseLong(dr.getPrecision()));
-			if(ds.getName().equals(dr.getName()))
+			if (ds.getName().equals(dr.getName()))
 				datasetDao.update(ds);
 			else {
 				ds.setName(dr.getName());
 				datasetUtil.update(ds);
 			}
-			model.addAttribute(ControllerHelper.RESPONSE_ROOT, new DatasetResponse(ds));
+			model.addAttribute(ControllerHelper.RESPONSE_ROOT,
+					new DatasetResponse(ds));
 		}
-		
 
 		return "Success";
 	}
 
-	@RequestMapping(value="/Delete/{id}", method = RequestMethod.POST)
-	public String deleteDataset(@PathVariable String id, ModelMap model ) throws ResourceNotFoundException, IOException {
+	@RequestMapping(value = "/Delete/{id}", method = RequestMethod.POST)
+	public String deleteDataset(@PathVariable String id, ModelMap model)
+			throws ResourceNotFoundException, IOException {
 		Dataset ds = datasetDao.retrieve(id);
-		if(ds == null) {
+		if (ds == null) {
 			// Capture if dataset not exist
-			throw new ResourceNotFoundException(String.format("Dataset with ID = \"%s\" not found.", id));			
+			throw new ResourceNotFoundException(String.format(
+					"Dataset with ID = \"%s\" not found.", id));
 		}
 		datasetUtil.deleteDataset(ds);
-		model.addAttribute(ControllerHelper.RESPONSE_ROOT, new DatasetResponse(ds));
+		model.addAttribute(ControllerHelper.RESPONSE_ROOT, new DatasetResponse(
+				ds));
 		return "Success";
 	}
 
-	
-	@RequestMapping(value="/Form", method = RequestMethod.GET)
+	@RequestMapping(value = "/Form", method = RequestMethod.GET)
 	public String createTestForm() {
 		return "DatasetForm";
 	}

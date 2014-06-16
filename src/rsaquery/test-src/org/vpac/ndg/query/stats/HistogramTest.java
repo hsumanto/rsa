@@ -147,7 +147,7 @@ public class HistogramTest extends TestCase {
 	}
 
 	private VectorHist calculateVStatsIteratively(List<VectorElement> inputs) {
-		VectorHist hist = new VectorHist(inputs.get(0));
+		VectorHist hist = new VectorHist(inputs.get(0).size());
 		for (VectorElement value : inputs) {
 			hist.update(value);
 		}

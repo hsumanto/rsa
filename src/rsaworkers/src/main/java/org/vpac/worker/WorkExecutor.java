@@ -6,6 +6,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.Serializable;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -15,11 +16,12 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.lang.StringUtils;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.vpac.ndg.AppContext;
@@ -29,8 +31,6 @@ import org.vpac.ndg.query.QueryConfigurationException;
 import org.vpac.ndg.query.QueryDefinition;
 import org.vpac.ndg.query.QueryDefinition.DatasetInputDefinition;
 import org.vpac.ndg.query.filter.Foldable;
-import org.vpac.ndg.query.stats.VectorHist;
-import org.vpac.ndg.query.stats.dao.StatisticsDao;
 import org.vpac.worker.Job.Work;
 
 import ucar.nc2.NetcdfFileWriter;
@@ -63,12 +63,10 @@ public class WorkExecutor extends UntypedActor {
 
 	public WorkExecutor() {
 		ApplicationContext appContext = AppContextSingleton.INSTANCE.appContext;
-		statisticsDao = (StatisticsDao) appContext.getBean("statisticsDao");
 		ndgConfigManager = (NdgConfigManager) appContext
 				.getBean("ndgConfigManager");
 	}
 
-	private StatisticsDao statisticsDao;
 	private NdgConfigManager ndgConfigManager;
 	// Dataset identifier looks like "epiphany:id"
 	private static final Pattern DATASET_PATTERN = Pattern.compile("^([^/]+)");
@@ -80,7 +78,6 @@ public class WorkExecutor extends UntypedActor {
 		if (message instanceof Work) {
 			Work work = (Work) message;
 			WorkProgress wp = new WorkProgress(work.workId);
-			String result = null;
 			Collection<Path> tempFiles = new ArrayList<>();
 
 			Map<String, Foldable<?>> output;
@@ -101,7 +98,12 @@ public class WorkExecutor extends UntypedActor {
 					}
 				}
 			}
-
+			HashMap<String, Foldable<? extends Serializable>> result = new java.util.HashMap<>();
+			for(Entry<String, ?> v : output.entrySet()) {
+				if(Serializable.class.isAssignableFrom(v.getValue().getClass()))
+					result.put(v.getKey(), (Foldable<? extends Serializable>) v.getValue());
+			}
+			
 			log.debug("Produced result {}", output);
 			getSender().tell(new Job.WorkComplete(result), getSelf());
 		}
@@ -167,9 +169,6 @@ public class WorkExecutor extends UntypedActor {
 				q.setProgress(wp);
 				q.run();
 				output = q.getAccumulatedOutput();
-				VectorHist vh = (VectorHist) output.get("hist");
-				if (vh != null)
-					statisticsDao.saveHist(vh.getComponents()[0]);
 			} finally {
 				q.close();
 			}
@@ -187,9 +186,8 @@ public class WorkExecutor extends UntypedActor {
 			throws IOException {
 		String epiphanyHost = ndgConfigManager.getConfig().getEpiphanyIp();
 		String epiphanyPort = ndgConfigManager.getConfig().getEpiphanyPort();
-		String query = di.href.contains("?") ? di.href.substring(di.href.indexOf("?") + 1) : "";
-		// String query =
-		// "AGELOWER=1&AGEUPPER=111&GENDER=F&YEAR=2006&QUERY=Count&GEOMETRY=SA2%20Vic&VIEWMETHOD=Box%20Plot";
+		String query = di.href.contains("?") ? di.href.substring(di.href
+				.indexOf("?") + 1) : "";
 		String datasetId = findDataset(di.href);
 		String url = "http://"
 				+ epiphanyHost
@@ -201,9 +199,8 @@ public class WorkExecutor extends UntypedActor {
 				+ datasetId
 				+ "&FORMAT=application%2Fx-netCDF&SERVICE=WCS&VERSION=1.1.1&REQUEST=GetMap&STYLES=&YEAR=none&QUERY=none&GEOMETRY=none&VIEWMETHOD=none&COLOURSCHEME=ColourBrewer%20Blues&LEGENDEXTENT=STATIC&NUMBERFILTERS=none&VISTYPE=none&SRS=EPSG%3A3111&BBOX="
 				+ w.bound.getMin().getX() + "," + w.bound.getMin().getY() + ","
-				+ w.bound.getMax().getX() + "," + w.bound.getMax().getY()
-				+ "&" + query
-				+ "&WIDTH=5000&HEIGHT=5000";
+				+ w.bound.getMax().getX() + "," + w.bound.getMax().getY() + "&"
+				+ query + "&WIDTH=5000&HEIGHT=5000";
 		URL connectionUrl = new URL(url);
 		HttpURLConnection connection = (HttpURLConnection) connectionUrl
 				.openConnection();

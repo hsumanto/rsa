@@ -1,5 +1,7 @@
 package org.vpac.ndg.query.stats;
 
+import java.io.Serializable;
+
 import org.vpac.ndg.query.filter.Foldable;
 import org.vpac.ndg.query.math.Element;
 import org.vpac.ndg.query.math.ScalarElement;
@@ -10,15 +12,14 @@ import org.vpac.ndg.query.math.ScalarElement;
  *
  * @author Alex Fraser
  */
-public class VectorCats implements Foldable<VectorCats> {
+public class VectorCats implements Foldable<VectorCats>, Serializable {
 
-	private Element<?> prototype;
+	private static final long serialVersionUID = 1L;
+
 	private Cats[] components;
 
-	public VectorCats(Element<?> prototype) {
-		this.prototype = prototype;
-		ScalarElement[] es = prototype.getComponents();
-		components = new Cats[es.length];
+	public VectorCats(int nComponents) {
+		components = new Cats[nComponents];
 		for (int i = 0; i < components.length; i++) {
 			components[i] = new Cats();
 		}
@@ -32,7 +33,7 @@ public class VectorCats implements Foldable<VectorCats> {
 
 	@Override
 	public VectorCats fold(VectorCats other) {
-		VectorCats res = new VectorCats(prototype);
+		VectorCats res = new VectorCats(components.length);
 
 		for (int i = 0; i < components.length; i++) {
 			res.components[i] = components[i].fold(other.components[i]);
