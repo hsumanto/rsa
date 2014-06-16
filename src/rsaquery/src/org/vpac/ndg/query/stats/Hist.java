@@ -16,9 +16,10 @@ import org.vpac.ndg.query.math.ScalarElement;
  */
 public class Hist implements Foldable<Hist>, Serializable {
 
+	private static final long serialVersionUID = 1L;
+
 	// Beware! If you change these, old histograms will not be comparable to
 	// new ones.
-	private static final long serialVersionUID = 1L;
 	private String id;
 	static final double BASE = 10;
 	static final double BUCKETS_PER_ORDER_OF_MAGNITUDE = 3.0;
