@@ -114,6 +114,7 @@ public class DatasetController {
 		String requestURL = request.getRequestURI().toString();
 		String TimeSliceId = findPathVariable(requestURL, "TimeSlice");
 		String BandId = findPathVariable(requestURL, "Band");
+		
 		return "List";
 	}
 

@@ -31,8 +31,6 @@ import org.vpac.ndg.query.QueryConfigurationException;
 import org.vpac.ndg.query.QueryDefinition;
 import org.vpac.ndg.query.QueryDefinition.DatasetInputDefinition;
 import org.vpac.ndg.query.filter.Foldable;
-import org.vpac.ndg.query.stats.VectorHist;
-import org.vpac.ndg.query.stats.dao.StatisticsDao;
 import org.vpac.worker.Job.Work;
 
 import ucar.nc2.NetcdfFileWriter;

@@ -4,12 +4,19 @@
         "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping>
-	<class name="org.vpac.ndg.query.stats.TaskCats" table="TASKCATS" lazy="true">
+	<class name="org.vpac.ndg.storage.model.TaskCats" table="TASKCATS" lazy="true">
 		<id name="id" type="string" column="ID">
 			<generator class="uuid" />
 		</id>
 		<property name="taskId" type="string" column="TASKID" />
 		<property name="cats" type="org.vpac.ndg.query.stats.Cats" column="CATS" />
+	</class>
+	<class name="org.vpac.ndg.storage.model.TaskHist" table="TASKHIST" lazy="true">
+		<id name="id" type="string" column="ID">
+			<generator class="uuid" />
+		</id>
+		<property name="taskId" type="string" column="TASKID" />
+		<property name="hist" type="org.vpac.ndg.query.stats.Hist" column="HIST" />
 	</class>
 	<class name="org.vpac.ndg.query.stats.Cats" table="CATS" lazy="true">
 		<id name="id" type="string" column="ID">
@@ -17,8 +24,8 @@
 		</id>
 		<map name="categories">
 			<key column="id" />
-			<map-key column="cat_id" type="integer"/>
-			<many-to-many class="org.vpac.ndg.query.stats.Hist" /> 
+			<map-key column="cat_id" type="java.lang.Integer"/>
+			<one-to-many class="org.vpac.ndg.query.stats.Hist" /> 
 		</map>
 	</class>
 	<class name="org.vpac.ndg.query.stats.Hist" table="HIST" lazy="true">
