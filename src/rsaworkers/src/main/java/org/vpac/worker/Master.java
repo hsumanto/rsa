@@ -6,16 +6,16 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Queue;
 import java.util.Set;
-import java.util.Map.Entry;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.vpac.ndg.AppContext;
 import org.vpac.ndg.query.filter.Foldable;
+import org.vpac.ndg.query.stats.Cats;
 import org.vpac.ndg.query.stats.TaskCats;
-import org.vpac.ndg.query.stats.VectorHist;
 import org.vpac.ndg.query.stats.dao.StatisticsDao;
 import org.vpac.ndg.storage.dao.JobProgressDao;
 import org.vpac.ndg.storage.model.JobProgress;
@@ -152,7 +152,6 @@ public class Master extends UntypedActor {
 			job.setCurrentStepProgress(100* workCompleted / (noOfWork));
 			if(workCompleted == noOfWork) {
 				job.setCompleted();
-				// TODO : fold
 				HashMap<String, Foldable> resultMap = null;
 				for(WorkInfo w : workProgress.values()) {
 					if (w.work.jobProgressId.equals(currentWorkInfo.work.jobProgressId)) {
@@ -172,8 +171,8 @@ public class Master extends UntypedActor {
 					}
 				}
 				for(Entry<String, ?> v : resultMap.entrySet()) {
-					VectorHist vh = (VectorHist) (resultMap.get(v));
-					statisticsDao.saveCats(new TaskCats(currentWorkInfo.work.jobProgressId, vh.getComponents()[0]));
+					Cats cats = (Cats) (resultMap.get(v));
+					statisticsDao.saveCats(new TaskCats(currentWorkInfo.work.jobProgressId, cats));
 				}
 			}
 			jobProgressDao.save(job);
