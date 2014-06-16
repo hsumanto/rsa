@@ -62,7 +62,8 @@ public class QueryDefinitionTest extends TestCase {
 	public void testFilter() {
 		assertNotNull(qd.filters);
 		assertEquals(qd.filters.size(), 1);
-		assertEquals(qd.filters.get(0).classname, "org.vpac.ndg.query.WettingExtents");
+		assertEquals("org.vpac.ndg.query.testfilters.WettingExtents",
+				qd.filters.get(0).classname);
 	}
 
 	@Test

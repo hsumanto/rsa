@@ -60,6 +60,10 @@ public class ElementShort implements ScalarElement {
 	public ElementShort[] getComponents() {
 		return components;
 	}
+	@Override
+	public int size() {
+		return components.length;
+	}
 
 	@Override
 	public boolean isValid() {

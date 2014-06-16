@@ -50,7 +50,7 @@ public class Histogram implements Filter, Accumulator<VectorHist> {
 
 	@Override
 	public void initialise(BoxReal bounds) throws QueryConfigurationException {
-		stats = new VectorHist(input.getPrototype().getElement());
+		stats = new VectorHist(input.getPrototype().getElement().size());
 	}
 
 	@Override

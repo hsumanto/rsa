@@ -12,6 +12,7 @@ import org.vpac.ndg.query.math.ScalarElement;
 public class Stats implements Foldable<Stats>, Serializable {
 
 	private static final long serialVersionUID = 1L;
+
 	private String id;
 	private double min;
 	private double max;

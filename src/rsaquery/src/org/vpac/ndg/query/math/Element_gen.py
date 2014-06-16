@@ -75,6 +75,10 @@ public interface Element<T extends Element<?>> {
 	void setValidIfValid(Element<?> mask);
 
 	ScalarElement[] getComponents();
+	/**
+	 * @return The number of components in this vector.
+	 */
+	public int size();
 """)
 
 INTERFACE_FOOTER_TEMPLATE = Template("""

@@ -17,16 +17,9 @@ import org.vpac.ndg.query.math.ScalarElement;
 public class Cats implements Foldable<Cats>, Serializable {
 
 	private static final long serialVersionUID = 1L;
+
 	private String id;
 	private Map<Integer, Hist> categories;
-	public Map<Integer, Hist> getCategories() {
-		return categories;
-	}
-
-	public void setCategories(Map<Integer, Hist> categories) {
-		this.categories = categories;
-	}
-
 	private ScalarElement currentCategory;
 	private Hist currentHist;
 
@@ -107,5 +100,13 @@ public class Cats implements Foldable<Cats>, Serializable {
 
 	public void setId(String id) {
 		this.id = id;
+	}
+
+	public Map<Integer, Hist> getCategories() {
+		return categories;
+	}
+
+	public void setCategories(Map<Integer, Hist> categories) {
+		this.categories = categories;
 	}
 }

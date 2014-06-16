@@ -91,6 +91,10 @@ public class $cname implements ScalarElement {
 	public $cname[] getComponents() {
 		return components;
 	}
+	@Override
+	public int size() {
+		return components.length;
+	}
 
 	@Override
 	public boolean isValid() {

@@ -181,6 +181,11 @@ public class VectorElement implements Element<VectorElement> {
 	}
 
 	@Override
+	public int size() {
+		return components.length;
+	}
+
+	@Override
 	public VectorElement minimise() {
 		for (int i = 0; i < components.length; i++) {
 			components[i].minimise();
@@ -234,13 +239,6 @@ SPECIAL_CAST_TEMPLATE = Template("""
 	 */
 	public ScalarElement set(int i, ScalarElement value) {
 		return components[i].set(value);
-	}
-
-	/**
-	 * @return The number of components in this vector.
-	 */
-	public int size() {
-		return components.length;
 	}
 
 	@Override
