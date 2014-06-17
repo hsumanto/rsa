@@ -9,14 +9,14 @@
 			<generator class="uuid" />
 		</id>
 		<property name="taskId" type="string" column="TASKID" />
- 		<one-to-one name="cats" class="org.vpac.ndg.query.stats.Cats" cascade="save-update" />
+ 		<many-to-one name="cats" class="org.vpac.ndg.query.stats.Cats" column="cat_id" cascade="save-update" />
 	</class>
 	<class name="org.vpac.ndg.storage.model.TaskHist" table="TASKHIST" lazy="true">
 		<id name="id" type="string" column="ID">
 			<generator class="uuid" />
 		</id>
 		<property name="taskId" type="string" column="TASKID" />
-  		<one-to-one name="hist" class="org.vpac.ndg.query.stats.Hist" cascade="save-update" />
+  		<many-to-one name="hist" class="org.vpac.ndg.query.stats.Hist" column="hist_id" cascade="save-update" />
 	</class>
 	<class name="org.vpac.ndg.query.stats.Cats" table="CATS" lazy="true">
 		<id name="id" type="string" column="ID">

@@ -340,18 +340,18 @@ public class DataController {
 	}
 
 	@RequestMapping(value="/Task/{taskId}/cats/{catType}", method = RequestMethod.GET)
-	public String getCategoryByTaskId(@PathVariable String taskId, @PathVariable String catType, @RequestParam(required = false) double lower, @RequestParam(required = false) double upper, ModelMap model ) throws ResourceNotFoundException {
+	public String getCategoryByTaskId(@PathVariable String taskId, @PathVariable String catType, @RequestParam(required = false) Double lower, @RequestParam(required = false) Double upper, ModelMap model ) throws ResourceNotFoundException {
 
 		log.info("Data getTaskById");
 		log.debug("Task ID: {}", taskId);
 
-		TaskCats cats = statisticsDao.searchCats(taskId, catType, lower, upper);
+		List<TaskCats> cats = statisticsDao.searchCats(taskId, catType, lower, upper);
 		
-		if(cats != null)
+/*		if(cats != null)
 			model.addAttribute(ControllerHelper.RESPONSE_ROOT, new TaskCatsResponse(cats));
 		else
 			throw new ResourceNotFoundException("No data not found.");
-
+*/
 		return "List";
 	}
 	
@@ -699,10 +699,10 @@ public class DataController {
 		JobProgress job = new JobProgress("Query (distributed)");
 		jobProgressDao.save(job);
 		
-		int n = 0;
+//		int n = 0;
 		for(Tile t : tiles) {
-			if(n++ > 4)
-				break;
+//			if(n++ > 4)
+//				break;
 			Box bound = tileManager.getNngGrid().getBounds(t.getIndex(), baseRsaDatasetResolution);
 			bound.intersect(extent);
 			BoxReal bb = new BoxReal(2);

@@ -2,8 +2,10 @@ package org.vpac.ndg.storage.dao;
 
 import java.util.List;
 
+import org.hibernate.Criteria;
 import org.hibernate.Query;
 import org.hibernate.Session;
+import org.hibernate.criterion.Restrictions;
 import org.vpac.ndg.storage.model.TaskCats;
 import org.vpac.ndg.storage.model.TaskHist;
 import org.vpac.ndg.storage.util.CustomHibernateDaoSupport;
@@ -19,29 +21,33 @@ public class StatisticsDaoImpl extends CustomHibernateDaoSupport implements Stat
 	}
 
 	@Override
-	public TaskCats searchCats(String taskId, String cattype, double lower, double upper) {
+	public List<TaskCats> searchCats(String taskId, String catType, Double lower, Double upper) {
 		Session session = getSession();
-		String queryString = "SELECT tc FROM TaskCats tc JOIN tc.categories c WHERE t.taskId=:taskId AND h.stats";
-		Query query = session.createQuery(queryString);
-		query.setParameter("taskId", taskId);
-		query.setParameter("cattype", cattype);
-		query.setParameter("lower", lower);
-		query.setParameter("upper", upper);
-
-		TaskCats cats = (TaskCats) query.list().get(0);
+		Criteria c = session.createCriteria(TaskCats.class, "tc");
+		c.createAlias("tc.cats", "c");
+//		c.createAlias("c.hist", "h");
+		c.add(Restrictions.eq("tc.taskId", taskId));
+//		c.add(Restrictions.eq("c.catType", catType));
+/*		if(lower != null) 
+			c.add(Restrictions.ge("tc.taskId", taskId));
+		if(lower != null) 
+			c.add(Restrictions.le("tc.taskId", taskId));
+*/
+		List<TaskCats> cats = c.list();
 		return cats;
 	}
 
 	@Override
 	public TaskHist searchHist(String taskId, List<Integer> categories) {
-		Session session = getSession();
-		String queryString = "SELECT th FROM TaskHist th JOIN th.hist h WHERE t.taskId=:taskId AND h.id IN (:categories)";
-		Query query = session.createQuery(queryString);
-		query.setParameter("taskId", taskId);
-		query.setParameterList("categories", categories);
-
-		TaskHist hist = (TaskHist) query.list().get(0);
-		return hist;
+//		Session session = getSession();
+//		String queryString = "SELECT th FROM TaskHist th JOIN th.hist h WHERE th.taskId=:taskId AND h.id IN (:categories)";
+//		Query query = session.createQuery(queryString);
+//		query.setParameter("taskId", taskId);
+//		query.setParameterList("categories", categories);
+//
+//		TaskHist hist = (TaskHist) query.list().get(0);
+//		return hist;
+		return getHibernateTemplate().get(TaskHist.class, taskId);
 	}
 	
 	

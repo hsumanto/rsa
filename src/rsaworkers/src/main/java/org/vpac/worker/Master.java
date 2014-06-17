@@ -1,6 +1,5 @@
 package org.vpac.worker;
 
-import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -14,8 +13,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.vpac.ndg.AppContext;
 import org.vpac.ndg.query.filter.Foldable;
-import org.vpac.ndg.query.stats.Cats;
-import org.vpac.ndg.query.stats.Hist;
 import org.vpac.ndg.query.stats.VectorCats;
 import org.vpac.ndg.query.stats.VectorHist;
 import org.vpac.ndg.storage.dao.JobProgressDao;
@@ -103,7 +100,6 @@ public class Master extends UntypedActor {
 		cleanupTask.cancel();
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public void onReceive(Object message) {
 		if (message instanceof RegisterWorker) {
