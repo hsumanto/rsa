@@ -58,6 +58,8 @@ public class VrtBuilder extends Task {
 	private double targetResolutionX;
 	private double targetResolutionY;
 	
+	private boolean targetExtentsSet;
+	private double[] targetExtents;
 	
 	private CommandUtil commandUtil;
 
@@ -71,6 +73,9 @@ public class VrtBuilder extends Task {
 		timeSliceUtil = (TimeSliceUtil) appContext.getBean("timeSliceUtil");
 		commandUtil = new CommandUtil();
 		copyToStoragePool = false;
+		
+		targetResolutionSet = false;
+		targetExtentsSet = false;
 	}
 
 	@Override
@@ -121,7 +126,13 @@ public class VrtBuilder extends Task {
 		    command.add("-resolution");
 		    command.add("highest");
 		}
-
+		
+		if (targetExtentsSet) {
+	        command.add("-te");
+	        for (double d: targetExtents) {
+	            command.add(Double.toString(d));
+	        }
+		}
 
 		command.add(target.getFileLocation().toString());
 
@@ -217,7 +228,18 @@ public class VrtBuilder extends Task {
 	    targetResolutionY = resolutionY;
 	}
 	
-	
+	/**
+	 * set the target extents flag (-te) passed to gdalbuildvrt
+	 * @param xmin
+	 * @param ymin
+	 * @param xmax
+	 * @param ymax
+	 */
+	public void setTargetExtents(double xmin, double ymin, double xmax, double ymax) {
+	    double te[] = {xmin, ymin, xmax, ymax};
+	    targetExtentsSet = true;
+	    targetExtents = te;
+	}
 	
 	public void setSource(List<TileBand> source) {
 		this.source = source;
