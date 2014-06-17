@@ -54,6 +54,11 @@ public class VrtBuilder extends Task {
 	TimeSliceUtil timeSliceUtil;
 	private boolean copyToStoragePool;
 
+	private boolean targetResolutionSet;
+	private double targetResolutionX;
+	private double targetResolutionY;
+	
+	
 	private CommandUtil commandUtil;
 
 	public VrtBuilder() {
@@ -108,8 +113,15 @@ public class VrtBuilder extends Task {
 		// get the input file list
 		command.add("gdalbuildvrt");
 
-		command.add("-resolution");
-		command.add("highest");
+		if (targetResolutionSet) {
+	        command.add("-tr");
+	        command.add(Double.toString(targetResolutionX));
+	        command.add(Double.toString(targetResolutionY));
+		} else {
+		    command.add("-resolution");
+		    command.add("highest");
+		}
+
 
 		command.add(target.getFileLocation().toString());
 
@@ -193,6 +205,20 @@ public class VrtBuilder extends Task {
 		}
 	}
 
+	/**
+	 * set the target resolution flag (-tr) passed to gdalbuildvrt, this will prevent the '-resolution' arguement from
+	 * being included in the command line (obviously as the gdal docs state)
+	 * @param resolutionX
+	 * @param resolutionY
+	 */
+	public void setTargetResolution(double resolutionX, double resolutionY) {
+	    targetResolutionSet = true;
+	    targetResolutionX = resolutionX;
+	    targetResolutionY = resolutionY;
+	}
+	
+	
+	
 	public void setSource(List<TileBand> source) {
 		this.source = source;
 	}
