@@ -60,7 +60,11 @@ public class Cats implements Foldable<Cats>, Serializable {
 		Cats res = new Cats();
 		for (Integer key : keys) {
 			Hist histA = categories.get(key);
+			if (histA == null)
+				histA = new Hist();
 			Hist histB = other.categories.get(key);
+			if (histB == null)
+				histB = new Hist();
 			res.categories.put(key, histA.fold(histB));
 		}
 

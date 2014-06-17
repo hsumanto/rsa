@@ -699,7 +699,10 @@ public class DataController {
 		JobProgress job = new JobProgress("Query (distributed)");
 		jobProgressDao.save(job);
 		
+		int n = 0;
 		for(Tile t : tiles) {
+			if(n++ > 4)
+				break;
 			Box bound = tileManager.getNngGrid().getBounds(t.getIndex(), baseRsaDatasetResolution);
 			bound.intersect(extent);
 			BoxReal bb = new BoxReal(2);

@@ -4,20 +4,16 @@ import java.util.List;
 
 import org.hibernate.Query;
 import org.hibernate.Session;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 import org.vpac.ndg.storage.model.TaskCats;
 import org.vpac.ndg.storage.model.TaskHist;
 import org.vpac.ndg.storage.util.CustomHibernateDaoSupport;
 
 public class StatisticsDaoImpl extends CustomHibernateDaoSupport implements StatisticsDao {
 
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public void saveHist(TaskHist h){
 		getHibernateTemplate().save(h);
 	}
 
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public void saveCats(TaskCats c) {
 		getHibernateTemplate().save(c);
 	}

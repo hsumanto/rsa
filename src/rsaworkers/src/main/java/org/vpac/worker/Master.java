@@ -158,7 +158,7 @@ public class Master extends UntypedActor {
 			
 			if(workCompleted == noOfWork) {
 				job.setCompleted();
-				foldStatistics(currentWorkInfo);
+				foldResults(currentWorkInfo);
 			}
 			jobProgressDao.save(job);
 			WorkerState state = workers.get(workerId);
@@ -234,22 +234,22 @@ public class Master extends UntypedActor {
 		}
 	}
 
-	private void foldStatistics(WorkInfo currentWorkInfo) {
+	private void foldResults(WorkInfo currentWorkInfo) {
 		HashMap<String, Foldable<?>> resultMap = null;
 		for(WorkInfo w : workProgress.values()) {
 			if (w.work.jobProgressId.equals(currentWorkInfo.work.jobProgressId)) {
 				if(resultMap == null) {
-					resultMap = new java.util.HashMap<>();
+					resultMap = new HashMap<>();
 					Map<String, Foldable> map = ((Map<String, Foldable>)(w.result));
 					for(Entry<String, ?> v : ((Map<String, Foldable>)(w.result)).entrySet()) {
-						resultMap.put(v.getKey(), (Foldable<?>) v.getValue());
+						VectorCats f = (VectorCats)v.getValue();
+						resultMap.put(v.getKey(), f);
 					}
 				} else {
-					for(Entry<String, ?> v : ((Map<String, Foldable<?>>)(w.result)).entrySet()) {
-						Foldable<?> baseResult = resultMap.get(v.getKey());
-						Foldable<?> currentResult = (Foldable<?>) v.getValue();
-						
-						resultMap.put(v.getKey(), ((Foldable)baseResult).fold((Foldable)currentResult));
+					for(Entry<String, ?> v : ((Map<String, Foldable>)(w.result)).entrySet()) {
+						VectorCats baseResult = (VectorCats)resultMap.get(v.getKey());
+						VectorCats currentResult = (VectorCats) v.getValue();
+						resultMap.put(v.getKey(), baseResult.fold(currentResult));
 					}
 				}
 			}
