@@ -44,6 +44,8 @@ public class Translator extends Task {
 	private GraphicsFile source;
 	private GraphicsFile target;
 	private String nodata;
+	private String outputType;
+	private double[] scale;
 	private List<String> command;
 
 	private CommandUtil commandUtil;
@@ -101,6 +103,20 @@ public class Translator extends Task {
 			command.add(nodata);
 		}
 
+		// set the output type if specified
+		if (outputType != null) {
+		    command.add("-ot");
+		    command.add(outputType);
+		}
+		
+		// set the scale if specified
+		if (scale != null) {
+	        command.add("-scale");
+	        for (double d: scale) {
+	            command.add(Double.toString(d));
+	        }
+		}
+		
 		// Add extra options such as Mosaicking options, Memory management options
 		addExtraOptions(command);
 
@@ -201,8 +217,37 @@ public class Translator extends Task {
 	public void setTarget(GraphicsFile target) {
 		this.target = target;
 	}
+	
+	
+	
+	
+	public double[] getScale() {
+        return scale;
+    }
 
-	public String getNodata() {
+	/**
+	 * sets the -scale argument to GDAL, this is used to scale the pixel values (ie; [src_min src_max [dst_min dst_max]] )
+	 * @param scale
+	 */
+    public void setScale(double[] scale) {
+        this.scale = scale;
+    }
+
+    public String getOutputType() {
+        return outputType;
+    }
+	
+	/**
+	 * sets the '-ot' argument passed to GDAL translate, must be one of 
+	 * Byte/Int16/UInt16/UInt32/Int32/Float32/Float64/
+     * CInt16/CInt32/CFloat32/CFloat64
+	 * @param outputType
+	 */
+    public void setOutputType(String outputType) {
+        this.outputType = outputType;
+    }
+
+    public String getNodata() {
 		return nodata;
 	}
 
