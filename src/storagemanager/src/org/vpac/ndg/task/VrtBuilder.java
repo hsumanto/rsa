@@ -124,6 +124,8 @@ public class VrtBuilder extends Task {
         // get the input file list
         command.add("gdalbuildvrt");
 
+        command.add("-overwrite");
+        
         if (targetResolutionSet) {
             command.add("-tr");
             command.add(Double.toString(targetResolutionX));
