@@ -23,26 +23,26 @@ public class StatisticsDaoImpl extends CustomHibernateDaoSupport implements Stat
 	}
 
 	@Override
-	public TaskCats searchCats(String taskId, List<Integer> categories) {
+	public TaskCats searchCats(String taskId, String cattype, double lower, double upper) {
 		Session session = getSession();
-		String queryString = "SELECT tc FROM TaskCats tc JOIN tc.categories c WHERE t.taskId=:taskId AND c.id IN (:categories)";
+		String queryString = "SELECT tc FROM TaskCats tc JOIN tc.categories c WHERE t.taskId=:taskId AND h.stats";
 		Query query = session.createQuery(queryString);
 		query.setParameter("taskId", taskId);
-		query.setParameterList("categories", categories);
+		query.setParameter("cattype", cattype);
+		query.setParameter("lower", lower);
+		query.setParameter("upper", upper);
 
 		TaskCats cats = (TaskCats) query.list().get(0);
 		return cats;
 	}
 
 	@Override
-	public TaskHist searchHist(String taskId, String cattype, double lower, double upper) {
+	public TaskHist searchHist(String taskId, List<Integer> categories) {
 		Session session = getSession();
-		String queryString = "SELECT th FROM TaskHist th JOIN th.hist h WHERE t.taskId=:taskId AND h.stats";
+		String queryString = "SELECT th FROM TaskHist th JOIN th.hist h WHERE t.taskId=:taskId AND h.id IN (:categories)";
 		Query query = session.createQuery(queryString);
 		query.setParameter("taskId", taskId);
-		query.setParameter("cattype", cattype);
-		query.setParameter("lower", lower);
-		query.setParameter("upper", upper);
+		query.setParameterList("categories", categories);
 
 		TaskHist hist = (TaskHist) query.list().get(0);
 		return hist;

@@ -12,7 +12,7 @@
 	<bean id="applicationContextProvider" class="org.vpac.ndg.ApplicationContextProvider"></bean>
 	<bean id="rsaDatasetProvider" class="org.vpac.ndg.datamodel.RsaDatasetProvider" lazy-init="true" />
 	<bean id="fileDatasetProvider" class="org.vpac.ndg.query.io.FileDatasetProvider" lazy-init="true" />
-	<bean id="statisticsDao" class="org.vpac.ndg.query.stats.dao.StatisticsDaoImpl" lazy-init="true" >
+	<bean id="statisticsDao" class="org.vpac.ndg.storage.dao.StatisticsDaoImpl" lazy-init="true" >
 		<property name="sessionFactory" ref="sessionFactory" />
 	</bean>
 </beans>

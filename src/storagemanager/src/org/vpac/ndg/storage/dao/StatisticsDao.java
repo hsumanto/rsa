@@ -8,6 +8,6 @@ import org.vpac.ndg.storage.model.TaskHist;
 public interface StatisticsDao {
 	public void saveHist(TaskHist th);
 	public void saveCats(TaskCats tc);
-	public TaskCats searchCats(String taskId, List<Integer> categories);
-	public TaskHist searchHist(String taskId, String cattype, double lower, double upper);
+	public TaskCats searchCats(String taskId, String cattype, double lower, double upper);
+	public TaskHist searchHist(String taskId, List<Integer> categories);
 }

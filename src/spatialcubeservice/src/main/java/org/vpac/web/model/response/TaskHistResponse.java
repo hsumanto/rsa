@@ -22,14 +22,14 @@ package org.vpac.web.model.response;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import org.vpac.ndg.query.stats.Cats;
-import org.vpac.ndg.storage.model.TaskCats;
+import org.vpac.ndg.query.stats.Hist;
+import org.vpac.ndg.storage.model.TaskHist;
 
-@XmlRootElement(name = "TaskCats")
-public class TaskCatsResponse {
+@XmlRootElement(name = "TaskHist")
+public class TaskHistResponse {
 	private String id;
 	private String taskId;
-	private Cats cats;
+	private Hist hist;
 	
 	public String getId() {
 		return id;
@@ -47,25 +47,25 @@ public class TaskCatsResponse {
 		this.taskId = taskId;
 	}
 
-	public Cats getCats() {
-		return cats;
+	public Hist getHist() {
+		return this.hist;
 	}
 	@XmlAttribute
-	public void setCats(Cats cats) {
-		this.cats = cats;
+	public void setHist(Hist hist) {
+		this.hist = hist;
 	}
 	
-	public TaskCatsResponse() {
+	public TaskHistResponse() {
 	}
 	
-	public TaskCatsResponse(TaskCats cats) {
-		this.setId(cats.getId());
-		this.setTaskId(cats.getTaskId());
-		this.setCats(cats.getCats());
+	public TaskHistResponse(TaskHist hist) {
+		this.setId(hist.getId());
+		this.setTaskId(hist.getTaskId());
+		this.setHist(hist.getHist());
 	}
 	
-	public TaskCats toTaskCats() {
-		TaskCats tc = new TaskCats(getTaskId(), getCats());
-		return tc;
+	public TaskHist toTaskHist() {
+		TaskHist th = new TaskHist(getTaskId(), getHist());
+		return th;
 	}
 }

@@ -109,6 +109,7 @@ import org.vpac.web.model.response.ImportResponse;
 import org.vpac.web.model.response.QueryResponse;
 import org.vpac.web.model.response.TaskCatsResponse;
 import org.vpac.web.model.response.TaskCollectionResponse;
+import org.vpac.web.model.response.TaskHistResponse;
 import org.vpac.web.model.response.TaskResponse;
 import org.vpac.web.util.ControllerHelper;
 import org.vpac.web.util.Pager;
@@ -327,10 +328,10 @@ public class DataController {
 		log.info("Data getTaskById");
 		log.debug("Task ID: {}", taskId);
 
-		TaskCats cats = statisticsDao.searchCats(taskId, categories);
+		TaskHist hist = statisticsDao.searchHist(taskId, categories);
 		
-		if(cats != null)
-			model.addAttribute(ControllerHelper.RESPONSE_ROOT, new TaskCatsResponse(cats));
+		if(hist != null)
+			model.addAttribute(ControllerHelper.RESPONSE_ROOT, new TaskHistResponse(hist));
 		else
 			throw new ResourceNotFoundException("No data not found.");
 		
@@ -343,12 +344,12 @@ public class DataController {
 		log.info("Data getTaskById");
 		log.debug("Task ID: {}", taskId);
 
-		TaskHist cats = statisticsDao.searchHist(taskId, catType, lower, upper);
+		TaskCats cats = statisticsDao.searchCats(taskId, catType, lower, upper);
 		
-//		if(cats != null)
-//			model.addAttribute(ControllerHelper.RESPONSE_ROOT, new TaskHistResponse(cats));
-//		else
-//			throw new ResourceNotFoundException("No data not found.");
+		if(cats != null)
+			model.addAttribute(ControllerHelper.RESPONSE_ROOT, new TaskCatsResponse(cats));
+		else
+			throw new ResourceNotFoundException("No data not found.");
 
 		return "List";
 	}
@@ -696,11 +697,8 @@ public class DataController {
 
 		JobProgress job = new JobProgress("Query (distributed)");
 		jobProgressDao.save(job);
-		int n = 0;
 		
 		for(Tile t : tiles) {
-			if (n > 20)
-				break;
 			Box bound = tileManager.getNngGrid().getBounds(t.getIndex(), baseRsaDatasetResolution);
 			bound.intersect(extent);
 			BoxReal bb = new BoxReal(2);
@@ -712,7 +710,6 @@ public class DataController {
 			frontend.tell(new org.vpac.worker.Job.Work(
 					UUID.randomUUID().toString(), qd1.toXML(), ver, bb,
 					job.getId()), ActorRef.noSender());
-			n++;
 		}
 		return "Success";
 	}
