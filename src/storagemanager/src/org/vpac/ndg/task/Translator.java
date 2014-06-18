@@ -35,6 +35,7 @@ import org.vpac.ndg.storagemanager.GraphicsFile;
 /**
  * This task could be used to translate an image into a different format.
  * @author hsumanto
+ * @author lachlan
  *
  */
 public class Translator extends Task {
@@ -45,7 +46,8 @@ public class Translator extends Task {
 	private GraphicsFile target;
 	private String nodata;
 	private String outputType;
-	private double[] scale;
+	private String expand;
+	private List<ScalarReceiver<Double>> scale;
 	private List<String> command;
 
 	private CommandUtil commandUtil;
@@ -109,11 +111,17 @@ public class Translator extends Task {
 		    command.add(outputType);
 		}
 		
+		//set the expand type
+		if (expand != null) {
+		    command.add("-expand");
+		    command.add(expand);
+		}
+		
 		// set the scale if specified
 		if (scale != null) {
 	        command.add("-scale");
-	        for (double d: scale) {
-	            command.add(Double.toString(d));
+	        for (ScalarReceiver<Double> d: scale) {
+	            command.add(d.get().toString());
 	        }
 		}
 		
@@ -221,7 +229,7 @@ public class Translator extends Task {
 	
 	
 	
-	public double[] getScale() {
+	public List<ScalarReceiver<Double>> getScale() {
         return scale;
     }
 
@@ -229,8 +237,22 @@ public class Translator extends Task {
 	 * sets the -scale argument to GDAL, this is used to scale the pixel values (ie; [src_min src_max [dst_min dst_max]] )
 	 * @param scale
 	 */
-    public void setScale(double[] scale) {
+    public void setScale(List<ScalarReceiver<Double>> scale) {
         this.scale = scale;
+    }
+
+    
+    
+    public String getExpand() {
+        return expand;
+    }
+
+    /**
+     * sets the '-expand' command line option passed to gdal. Must be gray|rgb|rgba
+     * @param expand
+     */
+    public void setExpand(String expand) {
+        this.expand = expand;
     }
 
     public String getOutputType() {
