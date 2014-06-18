@@ -20,13 +20,16 @@
 package org.vpac.web.model.response;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.vpac.ndg.common.datamodel.CellSize;
+import org.vpac.ndg.query.stats.Bucket;
+import org.vpac.ndg.query.stats.Hist;
+import org.vpac.ndg.query.stats.Stats;
 import org.vpac.ndg.storage.model.TaskCats;
 
 @XmlRootElement(name = "TaskCats")
@@ -35,7 +38,8 @@ public class TaskCatsResponse {
 	private String taskId;
 	private String name;
 	private CellSize outputResolution;
-	private Map<Integer, Double> catSummaries;
+	private TaskCats cat;
+	private Map<Integer, Long> catSummaries;
 	
 	public String getId() {
 		return id;
@@ -66,27 +70,38 @@ public class TaskCatsResponse {
 	public void setOutputResolution(CellSize outputResolution) {
 		this.outputResolution = outputResolution;
 	}
-	public Map<Integer, Double> getCatSummaries() {
+	public Map<Integer, Long> getCatSummaries() {
 		return catSummaries;
 	}
 	@XmlAttribute
-	public void setCatSummaries(Map<Integer, Double> catSummaries) {
+	public void setCatSummaries(Map<Integer, Long> catSummaries) {
 		this.catSummaries = catSummaries;
 	}
 	
 	public TaskCatsResponse() {
 	}
 	
-	public TaskCatsResponse(List<TaskCats> cats) {
-		TaskCats cat = cats.get(0);
+	public TaskCatsResponse(TaskCats cat) {
 		this.setId(cat.getId());
 		this.setTaskId(cat.getTaskId());
-		this.setCatSummaries(processSummary(cats));
+		this.cat = cat;
 	}
 	
-	private Map<Integer, Double> processSummary(List<TaskCats> cats) {
-		Map<Integer, Double> result = new HashMap<Integer, Double>();
-		return result;
+	public void processSummary(Double lower, Double upper) {
+		Map<Integer, Long> result = new HashMap<Integer, Long>();
+		for(Entry<Integer, Hist> key : this.cat.getCats().getCategories().entrySet()) {
+			Stats s = null;
+			for(Bucket b : key.getValue().getBuckets()) {
+				if(b.getLower() >= lower && b.getUpper() <= upper) {
+					if(s == null)
+						s = new Stats();
+					s.fold(b.getStats());
+				}
+			}
+			if(s != null)
+				result.put(key.getKey(), s.getCount() * 25 * 25);
+		}
+		this.setCatSummaries(result);
 	}
 	
 //	public TaskCats toTaskCats() {

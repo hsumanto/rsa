@@ -348,7 +348,9 @@ public class DataController {
 		List<TaskCats> cats = statisticsDao.searchCats(taskId, catType);
 		
 		if(cats != null) {
-			model.addAttribute(ControllerHelper.RESPONSE_ROOT, new TaskCatsResponse(cats));
+			TaskCatsResponse result = new TaskCatsResponse(cats.get(0));
+			result.processSummary(lower, upper);
+			model.addAttribute(ControllerHelper.RESPONSE_ROOT, result);
 		} else {
 			throw new ResourceNotFoundException("No data not found.");
 		}
