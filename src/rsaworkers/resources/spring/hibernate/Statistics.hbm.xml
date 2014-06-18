@@ -4,21 +4,30 @@
         "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping>
-	<class name="org.vpac.ndg.storage.model.TaskCats" table="TASKCATS" lazy="true">
+	<class name="org.vpac.ndg.storage.model.TaskCats" table="TASKCATS" lazy="false">
 		<id name="id" type="string" column="ID">
 			<generator class="uuid" />
 		</id>
 		<property name="taskId" type="string" column="TASKID" />
- 		<many-to-one name="cats" class="org.vpac.ndg.query.stats.Cats" column="cat_id" cascade="save-update" />
+		<property name="name" type="string" column="NAME" />
+		<property name="outputResolution" unique-key="multicolumn_unique_key_name">
+			<type name="org.hibernate.type.EnumType">
+				<param name="enumClass">org.vpac.ndg.common.datamodel.CellSize</param>
+				<param name="identifierMethod">toInt</param>
+				<param name="valueOfMethod">fromInt</param>
+			</type>
+		</property>
+ 		<many-to-one name="cats" class="org.vpac.ndg.query.stats.Cats" column="cat_id" cascade="all" />
 	</class>
-	<class name="org.vpac.ndg.storage.model.TaskHist" table="TASKHIST" lazy="true">
+	<class name="org.vpac.ndg.storage.model.TaskHist" table="TASKHIST" lazy="false">
 		<id name="id" type="string" column="ID">
 			<generator class="uuid" />
 		</id>
+		<property name="name" type="string" column="NAME" />
 		<property name="taskId" type="string" column="TASKID" />
-  		<many-to-one name="hist" class="org.vpac.ndg.query.stats.Hist" column="hist_id" cascade="save-update" />
+  		<many-to-one name="hist" class="org.vpac.ndg.query.stats.Hist" column="hist_id" cascade="all" />
 	</class>
-	<class name="org.vpac.ndg.query.stats.Cats" table="CATS" lazy="true">
+	<class name="org.vpac.ndg.query.stats.Cats" table="CATS" lazy="false">
 		<id name="id" type="string" column="ID">
 			<generator class="uuid" />
 		</id>
@@ -32,7 +41,7 @@
 		<id name="id" type="string" column="ID">
 			<generator class="uuid" />
 		</id>
-		<list name="buckets" cascade="save-update" lazy="true">
+		<list name="buckets" cascade="all" lazy="true">
 			<key column="bucket_id" />
 			<list-index column="idx" />
 			<one-to-many class="org.vpac.ndg.query.stats.Bucket" />
@@ -46,7 +55,7 @@
 		<property name="lower" type="double" column="LOWER" />
 		<property name="upper" type="double" column="UPPER" />
 		<one-to-one name="stats" class="org.vpac.ndg.query.stats.Stats"
-			cascade="save-update" />
+			cascade="all" />
 	</class>
 	<class name="org.vpac.ndg.query.stats.Stats" table="STATS" lazy="true">
 		<id name="id" type="string" column="ID">

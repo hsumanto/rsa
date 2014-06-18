@@ -29,6 +29,7 @@ import org.vpac.ndg.storage.model.TaskHist;
 public class TaskHistResponse {
 	private String id;
 	private String taskId;
+	private String name;
 	private Hist hist;
 	
 	public String getId() {
@@ -54,6 +55,13 @@ public class TaskHistResponse {
 	public void setHist(Hist hist) {
 		this.hist = hist;
 	}
+	public String getName() {
+		return name;
+	}
+	@XmlAttribute
+	public void setName(String name) {
+		this.name = name;
+	}
 	
 	public TaskHistResponse() {
 	}
@@ -65,7 +73,7 @@ public class TaskHistResponse {
 	}
 	
 	public TaskHist toTaskHist() {
-		TaskHist th = new TaskHist(getTaskId(), getHist());
+		TaskHist th = new TaskHist(getTaskId(), getName(), getHist());
 		return th;
 	}
 }

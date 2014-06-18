@@ -13,10 +13,12 @@ public class TaskHist implements Serializable {
 	private static final long serialVersionUID = 1L;
 	private String id;
 	private String taskId;
+	private String name;
 	private Hist hist;
 	
-	public TaskHist(String taskId, Hist hist) {
+	public TaskHist(String taskId, String name, Hist hist) {
 		this.taskId = taskId;
+		this.name = name;
 		this.hist = hist;
 	}
 
@@ -42,5 +44,13 @@ public class TaskHist implements Serializable {
 
 	public void setHist(Hist hist) {
 		this.hist = hist;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
 	}
 }

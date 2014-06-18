@@ -19,17 +19,23 @@
 
 package org.vpac.web.model.response;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import org.vpac.ndg.query.stats.Cats;
+import org.vpac.ndg.common.datamodel.CellSize;
 import org.vpac.ndg.storage.model.TaskCats;
 
 @XmlRootElement(name = "TaskCats")
 public class TaskCatsResponse {
 	private String id;
 	private String taskId;
-	private Cats cats;
+	private String name;
+	private CellSize outputResolution;
+	private Map<Integer, Double> catSummaries;
 	
 	public String getId() {
 		return id;
@@ -46,26 +52,45 @@ public class TaskCatsResponse {
 	public void setTaskId(String taskId) {
 		this.taskId = taskId;
 	}
-
-	public Cats getCats() {
-		return cats;
+	public String getName() {
+		return name;
 	}
 	@XmlAttribute
-	public void setCats(Cats cats) {
-		this.cats = cats;
+	public void setName(String name) {
+		this.name = name;
+	}
+	public CellSize getOutputResolution() {
+		return outputResolution;
+	}
+	@XmlAttribute
+	public void setOutputResolution(CellSize outputResolution) {
+		this.outputResolution = outputResolution;
+	}
+	public Map<Integer, Double> getCatSummaries() {
+		return catSummaries;
+	}
+	@XmlAttribute
+	public void setCatSummaries(Map<Integer, Double> catSummaries) {
+		this.catSummaries = catSummaries;
 	}
 	
 	public TaskCatsResponse() {
 	}
 	
-	public TaskCatsResponse(TaskCats cats) {
-		this.setId(cats.getId());
-		this.setTaskId(cats.getTaskId());
-		this.setCats(cats.getCats());
+	public TaskCatsResponse(List<TaskCats> cats) {
+		TaskCats cat = cats.get(0);
+		this.setId(cat.getId());
+		this.setTaskId(cat.getTaskId());
+		this.setCatSummaries(processSummary(cats));
 	}
 	
-	public TaskCats toTaskCats() {
-		TaskCats tc = new TaskCats(getTaskId(), getCats());
-		return tc;
+	private Map<Integer, Double> processSummary(List<TaskCats> cats) {
+		Map<Integer, Double> result = new HashMap<Integer, Double>();
+		return result;
 	}
+	
+//	public TaskCats toTaskCats() {
+//		TaskCats tc = new TaskCats(getTaskId(), getName(), getOutputResolution(),getCats());
+//		return tc;
+//	}
 }

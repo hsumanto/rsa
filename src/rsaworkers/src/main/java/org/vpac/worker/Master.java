@@ -12,6 +12,7 @@ import java.util.Set;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.vpac.ndg.AppContext;
+import org.vpac.ndg.common.datamodel.CellSize;
 import org.vpac.ndg.query.filter.Foldable;
 import org.vpac.ndg.query.stats.VectorCats;
 import org.vpac.ndg.query.stats.VectorHist;
@@ -252,9 +253,12 @@ public class Master extends UntypedActor {
 		}
 		for(Foldable f : resultMap.values()) {
 			if (VectorCats.class.isAssignableFrom(f.getClass())) {
-				statisticsDao.saveCats(new TaskCats(currentWorkInfo.work.jobProgressId, ((VectorCats)f).getComponents()[0]));
+				String name = "lga";
+				CellSize outputResolution = CellSize.m25;
+				statisticsDao.saveCats(new TaskCats(currentWorkInfo.work.jobProgressId, name, outputResolution,((VectorCats)f).getComponents()[0]));
 			} else 	if (VectorHist.class.isAssignableFrom(f.getClass())) {
-				statisticsDao.saveHist(new TaskHist(currentWorkInfo.work.jobProgressId, ((VectorHist)f).getComponents()[0]));
+				String name = "lga";
+				statisticsDao.saveHist(new TaskHist(currentWorkInfo.work.jobProgressId, name, ((VectorHist)f).getComponents()[0]));
 			}
 		}
 	}

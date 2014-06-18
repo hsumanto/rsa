@@ -21,18 +21,11 @@ public class StatisticsDaoImpl extends CustomHibernateDaoSupport implements Stat
 	}
 
 	@Override
-	public List<TaskCats> searchCats(String taskId, String catType, Double lower, Double upper) {
+	public List<TaskCats> searchCats(String taskId, String catType) {
 		Session session = getSession();
 		Criteria c = session.createCriteria(TaskCats.class, "tc");
-		c.createAlias("tc.cats", "c");
-//		c.createAlias("c.hist", "h");
 		c.add(Restrictions.eq("tc.taskId", taskId));
-//		c.add(Restrictions.eq("c.catType", catType));
-/*		if(lower != null) 
-			c.add(Restrictions.ge("tc.taskId", taskId));
-		if(lower != null) 
-			c.add(Restrictions.le("tc.taskId", taskId));
-*/
+		c.add(Restrictions.eq("tc.name", catType));
 		List<TaskCats> cats = c.list();
 		return cats;
 	}
