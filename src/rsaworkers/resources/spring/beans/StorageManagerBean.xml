@@ -36,6 +36,9 @@
 	<bean id="processDao" class="org.vpac.ndg.storage.dao.ProcessDaoImpl" lazy-init="true">
 		<property name="sessionFactory" ref="sessionFactory" />
 	</bean>
+	<bean id="statisticsDao" class="org.vpac.ndg.storage.dao.StatisticsDaoImpl" lazy-init="true">
+		<property name="sessionFactory" ref="sessionFactory" />
+	</bean>
 	<bean id="uploadUtil" class="org.vpac.ndg.storage.util.UploadUtil" lazy-init="true" >
 		<property name="ndgConfigManager" ref="ndgConfigManager" />
 	</bean>

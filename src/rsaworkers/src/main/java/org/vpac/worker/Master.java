@@ -1,6 +1,5 @@
 package org.vpac.worker;
 
-import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -13,9 +12,10 @@ import java.util.Set;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.vpac.ndg.AppContext;
+import org.vpac.ndg.common.datamodel.CellSize;
 import org.vpac.ndg.query.filter.Foldable;
-import org.vpac.ndg.query.stats.Cats;
-import org.vpac.ndg.query.stats.Hist;
+import org.vpac.ndg.query.stats.VectorCats;
+import org.vpac.ndg.query.stats.VectorHist;
 import org.vpac.ndg.storage.dao.JobProgressDao;
 import org.vpac.ndg.storage.dao.StatisticsDao;
 import org.vpac.ndg.storage.model.JobProgress;
@@ -101,7 +101,6 @@ public class Master extends UntypedActor {
 		cleanupTask.cancel();
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public void onReceive(Object message) {
 		if (message instanceof RegisterWorker) {
@@ -149,39 +148,14 @@ public class Master extends UntypedActor {
 				}
 			}
 			System.out.println("noOfWork:" + noOfWork);
-			System.out.println("calc:" + (workCompleted / (noOfWork) * 100) + "%");
+			System.out.println("workCompleted:" + workCompleted);
+			System.out.println("calc:" + (workCompleted * 100 / (noOfWork) ) + "%");
 			JobProgress job = jobProgressDao.retrieve(currentWorkInfo.work.jobProgressId);
-			job.setCurrentStepProgress(100* workCompleted / (noOfWork));
+			job.setCurrentStepProgress(100 * workCompleted / (noOfWork));
 			
 			if(workCompleted == noOfWork) {
 				job.setCompleted();
-				HashMap<String, Foldable<?>> resultMap = null;
-				for(WorkInfo w : workProgress.values()) {
-					if (w.work.jobProgressId.equals(currentWorkInfo.work.jobProgressId)) {
-						if(resultMap == null) {
-							resultMap = new java.util.HashMap<>();
-							Map<String, Foldable> map = ((Map<String, Foldable>)(w.result));
-							for(Entry<String, ?> v : ((Map<String, Foldable>)(w.result)).entrySet()) {
-								resultMap.put(v.getKey(), (Foldable<?>) v.getValue());
-							}
-						} else {
-							for(Entry<String, ?> v : ((Map<String, Foldable<?>>)(w.result)).entrySet()) {
-								Foldable<?> baseResult = resultMap.get(v.getKey());
-								Foldable<?> currentResult = (Foldable<?>) v.getValue();
-								
-								resultMap.put(v.getKey(), ((Foldable)baseResult).fold((Foldable)currentResult));
-							}
-						}
-					}
-				}
-				for(Entry<String, ?> v : resultMap.entrySet()) {
-					if (Cats.class.isAssignableFrom(resultMap.get(v).getClass())) {
-						statisticsDao.saveCats(new TaskCats(currentWorkInfo.work.jobProgressId, (Cats)resultMap.get(v)));
-					} else 	if (Hist.class.isAssignableFrom(resultMap.get(v).getClass())) {
-						statisticsDao.saveHist(new TaskHist(currentWorkInfo.work.jobProgressId, (Hist)resultMap.get(v)));
-					}
-
-				}
+				foldResults(currentWorkInfo);
 			}
 			jobProgressDao.save(job);
 			WorkerState state = workers.get(workerId);
@@ -257,6 +231,38 @@ public class Master extends UntypedActor {
 		}
 	}
 
+	private void foldResults(WorkInfo currentWorkInfo) {
+		HashMap<String, Foldable<?>> resultMap = null;
+		for(WorkInfo w : workProgress.values()) {
+			if (w.work.jobProgressId.equals(currentWorkInfo.work.jobProgressId)) {
+				if(resultMap == null) {
+					resultMap = new HashMap<>();
+					Map<String, Foldable> map = ((Map<String, Foldable>)(w.result));
+					for(Entry<String, ?> v : ((Map<String, Foldable>)(w.result)).entrySet()) {
+						VectorCats f = (VectorCats)v.getValue();
+						resultMap.put(v.getKey(), f);
+					}
+				} else {
+					for(Entry<String, ?> v : ((Map<String, Foldable>)(w.result)).entrySet()) {
+						VectorCats baseResult = (VectorCats)resultMap.get(v.getKey());
+						VectorCats currentResult = (VectorCats) v.getValue();
+						resultMap.put(v.getKey(), baseResult.fold(currentResult));
+					}
+				}
+			}
+		}
+		for(Foldable f : resultMap.values()) {
+			if (VectorCats.class.isAssignableFrom(f.getClass())) {
+				String name = "lga";
+				CellSize outputResolution = CellSize.m25;
+				statisticsDao.saveCats(new TaskCats(currentWorkInfo.work.jobProgressId, name, outputResolution,((VectorCats)f).getComponents()[0]));
+			} else 	if (VectorHist.class.isAssignableFrom(f.getClass())) {
+				String name = "lga";
+				statisticsDao.saveHist(new TaskHist(currentWorkInfo.work.jobProgressId, name, ((VectorHist)f).getComponents()[0]));
+			}
+		}
+	}
+	
 	private void notifyWorkers() {
 		if (!pendingWork.isEmpty()) {
 			// could pick a few random instead of all

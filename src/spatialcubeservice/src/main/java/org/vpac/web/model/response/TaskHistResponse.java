@@ -19,23 +19,18 @@
 
 package org.vpac.web.model.response;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import org.vpac.ndg.common.datamodel.CellSize;
-import org.vpac.ndg.storage.model.TaskCats;
+import org.vpac.ndg.query.stats.Hist;
+import org.vpac.ndg.storage.model.TaskHist;
 
-@XmlRootElement(name = "TaskCats")
-public class TaskCatsResponse {
+@XmlRootElement(name = "TaskHist")
+public class TaskHistResponse {
 	private String id;
 	private String taskId;
 	private String name;
-	private CellSize outputResolution;
-	private Map<Integer, Double> catSummaries;
+	private Hist hist;
 	
 	public String getId() {
 		return id;
@@ -52,6 +47,14 @@ public class TaskCatsResponse {
 	public void setTaskId(String taskId) {
 		this.taskId = taskId;
 	}
+
+	public Hist getHist() {
+		return this.hist;
+	}
+	@XmlAttribute
+	public void setHist(Hist hist) {
+		this.hist = hist;
+	}
 	public String getName() {
 		return name;
 	}
@@ -59,38 +62,18 @@ public class TaskCatsResponse {
 	public void setName(String name) {
 		this.name = name;
 	}
-	public CellSize getOutputResolution() {
-		return outputResolution;
-	}
-	@XmlAttribute
-	public void setOutputResolution(CellSize outputResolution) {
-		this.outputResolution = outputResolution;
-	}
-	public Map<Integer, Double> getCatSummaries() {
-		return catSummaries;
-	}
-	@XmlAttribute
-	public void setCatSummaries(Map<Integer, Double> catSummaries) {
-		this.catSummaries = catSummaries;
+	
+	public TaskHistResponse() {
 	}
 	
-	public TaskCatsResponse() {
+	public TaskHistResponse(TaskHist hist) {
+		this.setId(hist.getId());
+		this.setTaskId(hist.getTaskId());
+		this.setHist(hist.getHist());
 	}
 	
-	public TaskCatsResponse(List<TaskCats> cats) {
-		TaskCats cat = cats.get(0);
-		this.setId(cat.getId());
-		this.setTaskId(cat.getTaskId());
-		this.setCatSummaries(processSummary(cats));
+	public TaskHist toTaskHist() {
+		TaskHist th = new TaskHist(getTaskId(), getName(), getHist());
+		return th;
 	}
-	
-	private Map<Integer, Double> processSummary(List<TaskCats> cats) {
-		Map<Integer, Double> result = new HashMap<Integer, Double>();
-		return result;
-	}
-	
-//	public TaskCats toTaskCats() {
-//		TaskCats tc = new TaskCats(getTaskId(), getName(), getOutputResolution(),getCats());
-//		return tc;
-//	}
 }
