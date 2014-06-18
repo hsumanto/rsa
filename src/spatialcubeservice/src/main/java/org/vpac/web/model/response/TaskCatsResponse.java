@@ -99,6 +99,8 @@ public class TaskCatsResponse {
 				}
 			}
 			if(s != null)
+				// TODO : remove hard coded resolution
+				// replace it to outputResolution.
 				result.put(key.getKey(), s.getCount() * 25 * 25);
 		}
 		this.setCatSummaries(result);

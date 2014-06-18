@@ -19,10 +19,19 @@
 
 package org.vpac.web.model.response;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.vpac.ndg.query.stats.Bucket;
+import org.vpac.ndg.query.stats.Cats;
 import org.vpac.ndg.query.stats.Hist;
+import org.vpac.ndg.query.stats.Stats;
+import org.vpac.ndg.storage.model.TaskCats;
 import org.vpac.ndg.storage.model.TaskHist;
 
 @XmlRootElement(name = "TaskHist")
@@ -30,7 +39,8 @@ public class TaskHistResponse {
 	private String id;
 	private String taskId;
 	private String name;
-	private Hist hist;
+	private Cats cat;
+	private List<HistElement> histSummaries;
 	
 	public String getId() {
 		return id;
@@ -48,13 +58,6 @@ public class TaskHistResponse {
 		this.taskId = taskId;
 	}
 
-	public Hist getHist() {
-		return this.hist;
-	}
-	@XmlAttribute
-	public void setHist(Hist hist) {
-		this.hist = hist;
-	}
 	public String getName() {
 		return name;
 	}
@@ -62,18 +65,36 @@ public class TaskHistResponse {
 	public void setName(String name) {
 		this.name = name;
 	}
+	public List<HistElement> getHistSummaries() {
+		return histSummaries;
+	}
+	@XmlAttribute
+	public void setHistSummaries(List<HistElement> histSummaries) {
+		this.histSummaries = histSummaries;
+	}
 	
 	public TaskHistResponse() {
 	}
 	
-	public TaskHistResponse(TaskHist hist) {
-		this.setId(hist.getId());
-		this.setTaskId(hist.getTaskId());
-		this.setHist(hist.getHist());
+	public TaskHistResponse(TaskCats cat) {
+		this.setId(cat.getId());
+		this.setTaskId(cat.getTaskId());
+		this.cat = cat.getCats();
 	}
 	
-	public TaskHist toTaskHist() {
-		TaskHist th = new TaskHist(getTaskId(), getName(), getHist());
-		return th;
+	public void processSummary(List<Integer> categories) {
+		List<HistElement> result = new ArrayList<HistElement>();
+		Hist histSummary = new Hist();
+		for(Hist h : cat.getCategories().values()) {
+			histSummary.fold(h);
+		}
+		for(Bucket b : histSummary.getBuckets()) {
+			result.add(new HistElement(b.getLower(), b.getUpper(), b.getStats().getCount()));
+		}
+		setHistSummaries(result);
 	}
+//	public TaskHist toTaskHist() {
+//		TaskHist th = new TaskHist(getTaskId(), getName(), getHist());
+//		return th;
+//	}
 }

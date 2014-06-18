@@ -25,24 +25,11 @@ public class StatisticsDaoImpl extends CustomHibernateDaoSupport implements Stat
 		Session session = getSession();
 		Criteria c = session.createCriteria(TaskCats.class, "tc");
 		c.add(Restrictions.eq("tc.taskId", taskId));
-		c.add(Restrictions.eq("tc.name", catType));
+		if(catType != null)
+			c.add(Restrictions.eq("tc.name", catType));
 		List<TaskCats> cats = c.list();
 		return cats;
 	}
-
-	@Override
-	public TaskHist searchHist(String taskId, List<Integer> categories) {
-//		Session session = getSession();
-//		String queryString = "SELECT th FROM TaskHist th JOIN th.hist h WHERE th.taskId=:taskId AND h.id IN (:categories)";
-//		Query query = session.createQuery(queryString);
-//		query.setParameter("taskId", taskId);
-//		query.setParameterList("categories", categories);
-//
-//		TaskHist hist = (TaskHist) query.list().get(0);
-//		return hist;
-		return getHibernateTemplate().get(TaskHist.class, taskId);
-	}
-	
 	
 //	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 //	public void update(Dataset ds){
