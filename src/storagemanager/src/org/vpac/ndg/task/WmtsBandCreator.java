@@ -1,5 +1,6 @@
 package org.vpac.ndg.task;
 
+import java.io.File;
 import java.nio.file.Path;
 import java.text.DateFormat;
 import java.util.ArrayList;
@@ -32,6 +33,7 @@ import org.vpac.ndg.storage.model.TimeSlice;
 import org.vpac.ndg.storage.util.DatasetUtil;
 import org.vpac.ndg.storage.util.TimeSliceUtil;
 import org.vpac.ndg.storagemanager.GraphicsFile;
+import org.vpac.ndg.task.VrtColouriser.ColourTableType;
 
 /**
  * WMTS Band Creator uses a number of gdal commands to build a set of tiles suitable
@@ -181,8 +183,7 @@ public class WmtsBandCreator extends Application {
         // Make a VRT file containing all the timeslices netcdf files for a single band
         // gdalbuildvrt -te 1786000 1997265 2999979.288 2900000.000 -tr 66.146 66.146 -srcnodata 0 -a_srs EPSG:3111 -overwrite lga_extents.vrt *.nc
         //
-        DateFormat formatter = Utils.getTimestampFormatter();
-        String targetName = String.format("%s_%s", formatter.format(ts.getCreated()), b.getName());
+        String targetName = String.format("%s/%s", ts.getId(), b.getId());
         Path vrtMosaicLoc = getWorkingDirectory().resolve(targetName + "_scaled" + Constant.EXT_VRT);
         GraphicsFile vrtMosaicFile = new GraphicsFile(vrtMosaicLoc);
         
@@ -208,10 +209,10 @@ public class WmtsBandCreator extends Application {
         // TASK 3
         // Get the min and max for the dataset so we can scale this into a range of 0-255 appropriately
         //
-        //TODO
-        
-        double minPixelValue = 300;
-        double maxPixelValue = 380;
+        FileStatistics stats = new FileStatistics();
+        stats.setSource(vrtMosaicFile);
+        stats.setApproximate(false);
+        //NOTE: we grab some of the scalar recievers from this task to feed values into the next task
         
         //
         // TASK 4
@@ -221,22 +222,87 @@ public class WmtsBandCreator extends Application {
         GraphicsFile tifByteFile = new GraphicsFile(tifByte);
         tifByteFile.setFormat(GdalFormat.GEOTIFF);
         
-        
         Translator vrtToByteTif = new Translator("Translating vrt (nc based) into tif file of type byte");
         setTaskCleanupOptions(vrtToByteTif);
         vrtToByteTif.setSource(vrtMosaicFile);
         vrtToByteTif.setTarget(tifByteFile);
         vrtToByteTif.setOutputType("Byte");
-        double[] scale = {300,380,1,255};
+        ScalarReceiver<Double> byteLowestValue = new ScalarReceiver<Double>();
+        byteLowestValue.set(1.0);
+        ScalarReceiver<Double> byteHighestValue = new ScalarReceiver<Double>();
+        byteHighestValue.set(255.0);
+        
+        //set the scale using scalar recievers as this info will not be know till the previous task is run
+        List<ScalarReceiver<Double>> scale = new ArrayList<ScalarReceiver<Double>>();
+        scale.add(stats.getMin());
+        scale.add(stats.getMax());
+        scale.add(byteLowestValue);
+        scale.add(byteHighestValue);
         vrtToByteTif.setScale(scale);
         
         
+        //
+        // TASK 5
+        // Make another vrt file so that we can insert a colour table into it
+        Path vrtWithNoColour = getWorkingDirectory().resolve(targetName + "_noColour" + Constant.EXT_VRT);
+        GraphicsFile vrtWithNoColourFile = new GraphicsFile(vrtWithNoColour);
         
-        // ADD TASK
+        VrtBuilder noColourVrtBuilder = new VrtBuilder("Building VRT based on Byte layer");
+        setTaskCleanupOptions(noColourVrtBuilder);
+        noColourVrtBuilder.setSource(tifByteFile);
+        noColourVrtBuilder.setTarget(vrtWithNoColourFile);
+        noColourVrtBuilder.setTemporaryLocation(getWorkingDirectory());
+        noColourVrtBuilder.setCopyToStoragePool(false);
+        
+        //
+        // TASK 6
+        // Make a VRT file with colour table
+        Path vrtWithColour = getWorkingDirectory().resolve(targetName + "_Colour" + Constant.EXT_VRT);
+        GraphicsFile vrtWithColourFile = new GraphicsFile(vrtWithColour);
+        
+        VrtColouriser vrtColourer = new VrtColouriser();
+        setTaskCleanupOptions(vrtColourer);
+        vrtColourer.setSource(vrtWithNoColourFile);
+        vrtColourer.setTarget(vrtWithColourFile);
+        if (b.isContinuous()) {
+            vrtColourer.setColourTableType(ColourTableType.CONTINUOUS);
+        } else {
+            vrtColourer.setColourTableType(ColourTableType.CATAGORICAL);
+        }
+        
+        //
+        // TASK 7
+        // Make a VRT with an expanded colour 'thing'. gdal2tiles requires this step fortunately it's quick
+        Path vrtWithColourExpanded = getWorkingDirectory().resolve(targetName + "_Colour_Expanded" + Constant.EXT_VRT);
+        GraphicsFile vrtWithColourExpandedFile = new GraphicsFile(vrtWithColourExpanded);
+        vrtWithColourExpandedFile.setFormat(GdalFormat.VRT);
+        
+        Translator vrtToExpandedVrt = new Translator("Expanding vrt with colour table");
+        setTaskCleanupOptions(vrtToExpandedVrt);
+        vrtToExpandedVrt.setSource(vrtWithColourFile);
+        vrtToExpandedVrt.setTarget(vrtWithColourExpandedFile);
+        vrtToExpandedVrt.setExpand("rgba");
+        
+        //
+        // TASK 8
+        // Use gdal2tiles.py to actually build the tiles (HORAy)
+        Path wmtsDir = getWorkingDirectory().resolve(targetName);
+        
+        TileBuilder tileBuilder = new TileBuilder();
+        tileBuilder.setSource(vrtWithColourExpandedFile);
+        tileBuilder.setTarget(wmtsDir);
+        tileBuilder.setProfile("raster");
+        
+        
+        // ADD TASKS
         getTaskPipeline().addTask(tilebandCreator);
         getTaskPipeline().addTask(sourceVrtBuilder);
+        getTaskPipeline().addTask(stats);
         getTaskPipeline().addTask(vrtToByteTif);
-        
+        getTaskPipeline().addTask(noColourVrtBuilder);
+        getTaskPipeline().addTask(vrtColourer);
+        getTaskPipeline().addTask(vrtToExpandedVrt);
+        getTaskPipeline().addTask(tileBuilder);
         
     }
     
