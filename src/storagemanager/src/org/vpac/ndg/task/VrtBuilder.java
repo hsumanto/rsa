@@ -45,6 +45,7 @@ public class VrtBuilder extends Task {
     final private Logger log = LoggerFactory.getLogger(VrtBuilder.class);
 
     private List<TileBand> source;
+    private GraphicsFile sourceFile;
     private GraphicsFile target;
     private List<GraphicsFile> outputBucket;
     private Path temporaryLocation;
@@ -81,7 +82,7 @@ public class VrtBuilder extends Task {
 
     @Override
     public void initialise() throws TaskInitialisationException {
-        if (getSource() == null) {
+        if (getSource() == null && this.sourceFile == null) {
             throw new TaskInitialisationException(getDescription(),
                     Constant.ERR_NO_INPUT_IMAGES);
         }
@@ -109,13 +110,16 @@ public class VrtBuilder extends Task {
     }
 
     public void revalidateBeforeExecution() throws TaskException {
-        for (TileBand tileband : source) {
-            if (!tileband.getBand().equals(band)) {
-                throw new TaskException(String.format(
-                        "Band \"%s\" not found in dataset.", tileband.getBand()
-                                .getName()));
+        if (source != null) {
+            for (TileBand tileband : source) {
+                if (!tileband.getBand().equals(band)) {
+                    throw new TaskException(String.format(
+                            "Band \"%s\" not found in dataset.", tileband.getBand()
+                                    .getName()));
+                }
             }
         }
+
     }
 
     public List<String> prepareCommand() {
@@ -142,16 +146,20 @@ public class VrtBuilder extends Task {
             }
         }
 
-        if (band.getNodata() != null && band.getNodata().length() != 0) {
+        if (band !=null && band.getNodata() != null && band.getNodata().length() != 0) {
             command.add("-srcnodata");
             command.add(band.getNodata());
         }
         
         
         command.add(target.getFileLocation().toString());
-
-        for (TileBand tileband : source) {
-            command.add(tileband.getFileLocation().toString());
+        
+        if (source != null) {
+            for (TileBand tileband : source) {
+                command.add(tileband.getFileLocation().toString());
+            }
+        } else  {
+            command.add(sourceFile.getFileLocation().toString());
         }
 
         return command;
@@ -159,7 +167,7 @@ public class VrtBuilder extends Task {
 
     @Override
     public void execute() throws TaskException {
-        if (source.isEmpty()) {
+        if (source == null && sourceFile == null && source.isEmpty()) {
             // Can't work with zero input files. Just return; the output list
             // will not be populated. This is not an error.
             log.debug("Source is empty; will not create a VRT.");
@@ -265,6 +273,14 @@ public class VrtBuilder extends Task {
 
     public void setSource(List<TileBand> source) {
         this.source = source;
+    }
+    
+    /**
+     * Sets a graphics file as the source to use in the construction of a VRT file
+     * @param source
+     */
+    public void setSource(GraphicsFile source) {
+        this.sourceFile = source;
     }
 
     public List<TileBand> getSource() {
