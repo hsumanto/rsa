@@ -68,9 +68,12 @@ import org.vpac.ndg.storage.util.DatasetUtil;
 import org.vpac.web.exception.ResourceNotFoundException;
 import org.vpac.web.model.request.DatasetRequest;
 import org.vpac.web.model.request.PagingRequest;
+import org.vpac.web.model.response.DatasetCatsResponse;
 import org.vpac.web.model.response.DatasetCollectionResponse;
+import org.vpac.web.model.response.DatasetHistResponse;
 import org.vpac.web.model.response.DatasetResponse;
 import org.vpac.web.model.response.QueryResponse;
+import org.vpac.web.model.response.TaskHistResponse;
 import org.vpac.web.util.ControllerHelper;
 
 import ucar.nc2.NetcdfFileWriter;
@@ -150,18 +153,27 @@ public class DatasetController {
 		return "List";
 	}
 
-	@RequestMapping(value = "/{rsaString}/**/hist", method = RequestMethod.GET)
-	public String getHistogram(@PathVariable String rsaString,
-			@RequestParam(required = false) Integer[] categories,
+	@RequestMapping(value = "/{datasetId}/**/hist", method = RequestMethod.GET)
+	public String getHistogram(@PathVariable String datasetId,
+			@RequestParam(required = false) List<Integer> categories,
 			@RequestParam(required = false) String type,
 			HttpServletRequest request, ModelMap model)
 			throws ResourceNotFoundException {
-		log.info("rsaString:" + rsaString);
-		log.info("categories:" + categories.toString());
+		log.info("datasetId:" + datasetId);
+//		log.info("categories:" + categories.toString());
 		log.info("type:" + type);
 		String requestURL = request.getRequestURI().toString();
-		String TimeSliceId = findPathVariable(requestURL, "TimeSlice");
-		String BandId = findPathVariable(requestURL, "Band");
+		String timeSliceId = findPathVariable(requestURL, "TimeSlice");
+		String bandId = findPathVariable(requestURL, "Band");
+		
+		List<DatasetCats> cats = statisticsDao.searchCats(datasetId, timeSliceId, bandId, null);
+		
+		if(cats != null) {
+			DatasetHistResponse result = new DatasetHistResponse(cats.get(0));
+			result.processSummary(categories);
+			model.addAttribute(ControllerHelper.RESPONSE_ROOT, result);
+		} else
+			throw new ResourceNotFoundException("No data not found.");
 
 		return "List";
 	}
@@ -280,20 +292,29 @@ public class DatasetController {
 		return returnValue;
 	}
 
-	@RequestMapping(value = "/{rsaString}/**/cats/{type}", method = RequestMethod.GET)
-	public String getCategory(@PathVariable String rsaString,
+	@RequestMapping(value = "/{datasetId}/**/cats/{type}", method = RequestMethod.GET)
+	public String getCategory(@PathVariable String datasetId,
 			@PathVariable String type,
-			@RequestParam(required = false) Integer lower,
-			@RequestParam(required = false) Integer upper,
+			@RequestParam(required = false) Double lower,
+			@RequestParam(required = false) Double upper,
 			HttpServletRequest request, ModelMap model)
 			throws ResourceNotFoundException {
-		log.info("rsaString:" + rsaString);
+		log.info("datasetId:" + datasetId);
 		log.info("type:" + type);
 		log.info("lower:" + lower);
 		log.info("upper:" + upper);
 		String requestURL = request.getRequestURI().toString();
-		String TimeSliceId = findPathVariable(requestURL, "TimeSlice");
-		String BandId = findPathVariable(requestURL, "Band");
+		String timeSliceId = findPathVariable(requestURL, "TimeSlice");
+		String bandId = findPathVariable(requestURL, "Band");
+
+		List<DatasetCats> cats = statisticsDao.searchCats(datasetId, timeSliceId, bandId, type);
+		
+		if(cats != null) {
+			DatasetCatsResponse result = new DatasetCatsResponse(cats.get(0));
+			result.processSummary(lower, upper);
+			model.addAttribute(ControllerHelper.RESPONSE_ROOT, new DatasetCatsResponse(cats.get(0)));
+		} else
+			throw new ResourceNotFoundException("No data not found.");
 
 		return "List";
 	}

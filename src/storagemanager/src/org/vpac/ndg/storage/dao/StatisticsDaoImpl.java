@@ -36,6 +36,22 @@ public class StatisticsDaoImpl extends CustomHibernateDaoSupport implements Stat
 		return cats;
 	}
 
+	@Override
+	public List<DatasetCats> searchCats(String datasetId, String timeSliceId,
+			String bandId, String catType) {
+		Session session = getSession();
+		Criteria c = session.createCriteria(DatasetCats.class, "dc");
+		c.add(Restrictions.eq("dc.datasetId", datasetId));
+		if (timeSliceId != null)
+			c.add(Restrictions.eq("dc.timeSliceId", timeSliceId));
+		if (bandId != null)
+			c.add(Restrictions.eq("dc.bandId", bandId));
+		if (catType != null)
+			c.add(Restrictions.eq("dc.name", catType));
+		List<DatasetCats> cats = c.list();
+		return cats;
+	}
+
 	// @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	// public void update(Dataset ds){
 	// getHibernateTemplate().update(ds);

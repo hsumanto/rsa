@@ -333,7 +333,7 @@ public class DataController {
 		if(cats != null) {
 			TaskHistResponse result = new TaskHistResponse(cats.get(0));
 			result.processSummary(categories);
-			model.addAttribute(ControllerHelper.RESPONSE_ROOT, new TaskHistResponse(cats.get(0)));
+			model.addAttribute(ControllerHelper.RESPONSE_ROOT, result);
 		} else
 			throw new ResourceNotFoundException("No data not found.");
 		
