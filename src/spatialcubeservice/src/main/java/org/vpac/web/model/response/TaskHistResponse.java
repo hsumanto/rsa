@@ -20,9 +20,7 @@
 package org.vpac.web.model.response;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -30,9 +28,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import org.vpac.ndg.query.stats.Bucket;
 import org.vpac.ndg.query.stats.Cats;
 import org.vpac.ndg.query.stats.Hist;
-import org.vpac.ndg.query.stats.Stats;
 import org.vpac.ndg.storage.model.TaskCats;
-import org.vpac.ndg.storage.model.TaskHist;
 
 @XmlRootElement(name = "TaskHist")
 public class TaskHistResponse {
@@ -79,22 +75,22 @@ public class TaskHistResponse {
 	public TaskHistResponse(TaskCats cat) {
 		this.setId(cat.getId());
 		this.setTaskId(cat.getTaskId());
+		this.setName(cat.getName());
 		this.cat = cat.getCats();
 	}
 	
 	public void processSummary(List<Integer> categories) {
 		List<HistElement> result = new ArrayList<HistElement>();
 		Hist histSummary = new Hist();
-		for(Hist h : cat.getCategories().values()) {
-			histSummary.fold(h);
+		for(Integer key : cat.getCategories().keySet()) {
+			if(categories == null)
+				histSummary.fold(cat.getCategories().get(key));
+			else if(categories.contains(key))
+				histSummary.fold(cat.getCategories().get(key));
 		}
 		for(Bucket b : histSummary.getBuckets()) {
 			result.add(new HistElement(b.getLower(), b.getUpper(), b.getStats().getCount()));
 		}
 		setHistSummaries(result);
 	}
-//	public TaskHist toTaskHist() {
-//		TaskHist th = new TaskHist(getTaskId(), getName(), getHist());
-//		return th;
-//	}
 }

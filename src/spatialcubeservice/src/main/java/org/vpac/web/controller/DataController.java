@@ -329,11 +329,13 @@ public class DataController {
 		log.info("Data getTaskById");
 		log.debug("Task ID: {}", taskId);
 
-		TaskHist hist = statisticsDao.searchHist(taskId, categories);
+		List<TaskCats> cats = statisticsDao.searchCats(taskId, null);
 		
-		if(hist != null)
-			model.addAttribute(ControllerHelper.RESPONSE_ROOT, new TaskHistResponse(hist));
-		else
+		if(cats != null) {
+			TaskHistResponse result = new TaskHistResponse(cats.get(0));
+			result.processSummary(categories);
+			model.addAttribute(ControllerHelper.RESPONSE_ROOT, new TaskHistResponse(cats.get(0)));
+		} else
 			throw new ResourceNotFoundException("No data not found.");
 		
 		return "List";

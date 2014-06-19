@@ -39,7 +39,7 @@ public class TaskCatsResponse {
 	private String name;
 	private CellSize outputResolution;
 	private TaskCats cat;
-	private Map<Integer, Long> catSummaries;
+	private Map<Integer, Double> catSummaries;
 	
 	public String getId() {
 		return id;
@@ -70,11 +70,11 @@ public class TaskCatsResponse {
 	public void setOutputResolution(CellSize outputResolution) {
 		this.outputResolution = outputResolution;
 	}
-	public Map<Integer, Long> getCatSummaries() {
+	public Map<Integer, Double> getCatSummaries() {
 		return catSummaries;
 	}
 	@XmlAttribute
-	public void setCatSummaries(Map<Integer, Long> catSummaries) {
+	public void setCatSummaries(Map<Integer, Double> catSummaries) {
 		this.catSummaries = catSummaries;
 	}
 	
@@ -84,30 +84,25 @@ public class TaskCatsResponse {
 	public TaskCatsResponse(TaskCats cat) {
 		this.setId(cat.getId());
 		this.setTaskId(cat.getTaskId());
+		this.setName(cat.getName());
+		this.setOutputResolution(cat.getOutputResolution());
 		this.cat = cat;
 	}
 	
 	public void processSummary(Double lower, Double upper) {
-		Map<Integer, Long> result = new HashMap<Integer, Long>();
+		Map<Integer, Double> result = new HashMap<Integer, Double>();
 		for(Entry<Integer, Hist> key : this.cat.getCats().getCategories().entrySet()) {
 			Stats s = null;
 			for(Bucket b : key.getValue().getBuckets()) {
 				if(b.getLower() >= lower && b.getUpper() <= upper) {
 					if(s == null)
 						s = new Stats();
-					s.fold(b.getStats());
+					s = s.fold(b.getStats());
 				}
 			}
 			if(s != null)
-				// TODO : remove hard coded resolution
-				// replace it to outputResolution.
-				result.put(key.getKey(), s.getCount() * 25 * 25);
+				result.put(key.getKey(), s.getCount() * outputResolution.toDouble() * outputResolution.toDouble());
 		}
 		this.setCatSummaries(result);
 	}
-	
-//	public TaskCats toTaskCats() {
-//		TaskCats tc = new TaskCats(getTaskId(), getName(), getOutputResolution(),getCats());
-//		return tc;
-//	}
 }
