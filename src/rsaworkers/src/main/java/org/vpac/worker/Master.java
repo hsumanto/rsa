@@ -251,15 +251,14 @@ public class Master extends UntypedActor {
 				}
 			}
 		}
-		for(Foldable f : resultMap.values()) {
-			if (VectorCats.class.isAssignableFrom(f.getClass())) {
-				String name = "lga";
+		for(String key : resultMap.keySet()) {
+			Foldable value = resultMap.get(key);
+			if (VectorCats.class.isAssignableFrom(value.getClass())) {
 				CellSize outputResolution = CellSize.m25;
-				statisticsDao.saveCats(new TaskCats(currentWorkInfo.work.jobProgressId, name, outputResolution,((VectorCats)f).getComponents()[0]));
-			} else 	if (VectorHist.class.isAssignableFrom(f.getClass())) {
-				String name = "lga";
+				statisticsDao.saveCats(new TaskCats(currentWorkInfo.work.jobProgressId, key, outputResolution,((VectorCats)value).getComponents()[0]));
+			} else 	if (VectorHist.class.isAssignableFrom(value.getClass())) {
 				CellSize outputResolution = CellSize.m25;
-				statisticsDao.saveHist(new TaskHist(currentWorkInfo.work.jobProgressId, name, outputResolution,((VectorHist)f).getComponents()[0]));
+				statisticsDao.saveHist(new TaskHist(currentWorkInfo.work.jobProgressId, key, outputResolution,((VectorHist)value).getComponents()[0]));
 			}
 		}
 	}

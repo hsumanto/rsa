@@ -89,7 +89,6 @@ import org.vpac.ndg.storage.model.Band;
 import org.vpac.ndg.storage.model.Dataset;
 import org.vpac.ndg.storage.model.JobProgress;
 import org.vpac.ndg.storage.model.TaskCats;
-import org.vpac.ndg.storage.model.TaskHist;
 import org.vpac.ndg.storage.model.TimeSlice;
 import org.vpac.ndg.storage.model.Upload;
 import org.vpac.ndg.storage.util.TimeSliceUtil;
@@ -1069,7 +1068,7 @@ public class DataController {
 			Query q = new Query(outputDataset);
 			if (threads != null)
 				q.setNumThreads(threads);
-			q.setMemento(qd, "preview:");
+				q.setMemento(qd, "preview:");
 			try {
 				q.setProgress(qp);
 				q.run();
