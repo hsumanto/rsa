@@ -59,6 +59,7 @@ public class WmtsBandCreator extends Application {
     
     private String datasetId;
     private String bandId;
+    private String timesliceId;
     
     private Dataset dataset;
 
@@ -108,8 +109,18 @@ public class WmtsBandCreator extends Application {
 
         log.info("Dataset: {}", dataset);
 
-        // Get all time slices from the list, we'll run this over all of them for now
-        timeSlices = datasetDao.getTimeSlices(datasetId);
+        //use the timeslice id if provided, otherwise run over all of them
+        if (timesliceId == null) {
+            timeSlices = datasetDao.getTimeSlices(datasetId);
+        } else {
+            TimeSlice ts = timeSliceDao.retrieve(timesliceId);
+            if (ts == null) {
+                throw new TaskInitialisationException(String.format("Timeslice with ID = \"%s\" not found.", timesliceId));
+            }
+            List<TimeSlice> tss = new ArrayList<TimeSlice>();
+            tss.add(ts);
+            timeSlices = tss;
+        }
         
         Collections.sort(timeSlices);
         if (timeSlices.size() == 0)
@@ -363,6 +374,21 @@ public class WmtsBandCreator extends Application {
         this.datasetId = datasetId;
     }
     
+    
+    public String getTimesliceId() {
+        return timesliceId;
+    }
+
+    /**
+     * setting the timeslice id is optional. If not set the tiles will be created for all
+     * timeslices.
+     * @param timesliceId
+     */
+    public void setTimesliceId(String timesliceId) {
+        this.timesliceId = timesliceId;
+    }
+
+
     @Override
     protected void preExecute() throws TaskException {
         if (!ndgConfigManager.getConfig().isFilelockingOn()) {
