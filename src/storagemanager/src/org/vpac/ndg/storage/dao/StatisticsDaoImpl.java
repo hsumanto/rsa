@@ -28,7 +28,7 @@ public class StatisticsDaoImpl extends CustomHibernateDaoSupport implements Stat
 			c.add(Restrictions.eq("tc.name", catType));
 		List<TaskCats> cats = c.list();
 		return cats;
-	}
+	}	
 	
 //	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 //	public void update(Dataset ds){

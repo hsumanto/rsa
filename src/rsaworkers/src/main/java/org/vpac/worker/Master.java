@@ -258,7 +258,8 @@ public class Master extends UntypedActor {
 				statisticsDao.saveCats(new TaskCats(currentWorkInfo.work.jobProgressId, name, outputResolution,((VectorCats)f).getComponents()[0]));
 			} else 	if (VectorHist.class.isAssignableFrom(f.getClass())) {
 				String name = "lga";
-				statisticsDao.saveHist(new TaskHist(currentWorkInfo.work.jobProgressId, name, ((VectorHist)f).getComponents()[0]));
+				CellSize outputResolution = CellSize.m25;
+				statisticsDao.saveHist(new TaskHist(currentWorkInfo.work.jobProgressId, name, outputResolution,((VectorHist)f).getComponents()[0]));
 			}
 		}
 	}

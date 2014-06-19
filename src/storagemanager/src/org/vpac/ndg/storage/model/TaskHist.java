@@ -2,6 +2,7 @@ package org.vpac.ndg.storage.model;
 
 import java.io.Serializable;
 
+import org.vpac.ndg.common.datamodel.CellSize;
 import org.vpac.ndg.query.stats.Hist;
 
 /**
@@ -14,12 +15,14 @@ public class TaskHist implements Serializable {
 	private String id;
 	private String taskId;
 	private String name;
+	private CellSize outputResolution;
 	private Hist hist;
 	
-	public TaskHist(String taskId, String name, Hist hist) {
+	public TaskHist(String taskId, String name, CellSize outputResolution, Hist hist) {
 		this.taskId = taskId;
 		this.name = name;
 		this.hist = hist;
+		this.outputResolution = outputResolution;
 	}
 
 	public String getId() {
@@ -52,5 +55,12 @@ public class TaskHist implements Serializable {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+	public CellSize getOutputResolution() {
+		return outputResolution;
+	}
+
+	public void setOutputResolution(CellSize outputResolution) {
+		this.outputResolution = outputResolution;
 	}
 }

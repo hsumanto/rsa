@@ -10,7 +10,7 @@
 		</id>
 		<property name="taskId" type="string" column="TASKID" />
 		<property name="name" type="string" column="NAME" />
-		<property name="outputResolution" unique-key="multicolumn_unique_key_name">
+		<property name="outputResolution">
 			<type name="org.hibernate.type.EnumType">
 				<param name="enumClass">org.vpac.ndg.common.datamodel.CellSize</param>
 				<param name="identifierMethod">toInt</param>
@@ -25,6 +25,13 @@
 		</id>
 		<property name="name" type="string" column="NAME" />
 		<property name="taskId" type="string" column="TASKID" />
+		<property name="outputResolution">
+			<type name="org.hibernate.type.EnumType">
+				<param name="enumClass">org.vpac.ndg.common.datamodel.CellSize</param>
+				<param name="identifierMethod">toInt</param>
+				<param name="valueOfMethod">fromInt</param>
+			</type>
+		</property>
   		<many-to-one name="hist" class="org.vpac.ndg.query.stats.Hist" column="hist_id" cascade="all" />
 	</class>
 	<class name="org.vpac.ndg.query.stats.Cats" table="CATS" lazy="false">

@@ -19,7 +19,9 @@
 
 package org.vpac.web.model.response;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -93,12 +95,23 @@ public class TaskCatsResponse {
 		Map<Integer, Double> result = new HashMap<Integer, Double>();
 		for(Entry<Integer, Hist> key : this.cat.getCats().getCategories().entrySet()) {
 			Stats s = null;
-			for(Bucket b : key.getValue().getBuckets()) {
-				if(b.getLower() >= lower && b.getUpper() <= upper) {
-					if(s == null)
-						s = new Stats();
-					s = s.fold(b.getStats());
+			List<Bucket> filteredBuckets = new ArrayList<Bucket>();
+			filteredBuckets.addAll(key.getValue().getBuckets());
+			if (lower != null)
+				for(int i = 0; i < filteredBuckets.size(); i++) {
+					if(filteredBuckets.get(i).getLower() < lower)
+						filteredBuckets.remove(i);
 				}
+			if (upper != null)
+				for(int i = 0; i < filteredBuckets.size(); i++) {
+					if(filteredBuckets.get(i).getUpper() > upper)
+						filteredBuckets.remove(i);
+				}
+
+			for(Bucket b : filteredBuckets) {
+				if(s == null)
+					s = new Stats();
+				s = s.fold(b.getStats());
 			}
 			if(s != null)
 				result.put(key.getKey(), s.getCount() * outputResolution.toDouble() * outputResolution.toDouble());
