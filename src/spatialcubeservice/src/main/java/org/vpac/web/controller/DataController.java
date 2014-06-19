@@ -97,6 +97,7 @@ import org.vpac.ndg.storage.util.UploadUtil;
 import org.vpac.ndg.task.Exporter;
 import org.vpac.ndg.task.ImageTranslator;
 import org.vpac.ndg.task.Importer;
+import org.vpac.ndg.task.WmtsBandCreator;
 import org.vpac.web.exception.ResourceNotFoundException;
 import org.vpac.web.model.request.DataExportRequest;
 import org.vpac.web.model.request.FileRequest;
@@ -719,6 +720,26 @@ public class DataController {
 		return "Success";
 	}
 
+	@RequestMapping(value = "/WmtsDatasetGenerate", method = RequestMethod.POST)
+	public String wmtsDatasetGenerate(@RequestParam(required = true) String datasetId, 
+	                                  @RequestParam(required = false) String timesliceId,
+	                                  @RequestParam(required = true) String bandId,
+	                                  ModelMap model) throws TaskInitialisationException {
+	    
+	    
+	    WmtsBandCreator bandCreator = new WmtsBandCreator();
+	    bandCreator.setDatasetId(datasetId);
+	    bandCreator.setTimesliceId(timesliceId);
+	    bandCreator.setBandId(bandId);
+	    
+	    bandCreator.configure();
+	    model.addAttribute(ControllerHelper.RESPONSE_ROOT, new ExportResponse(bandCreator.getTaskId()));
+	    bandCreator.runInBackground();
+
+	    return "Success";
+	}
+	
+	
 	@RequestMapping(value = "/Query", method = RequestMethod.POST)
 	public String query(@RequestParam(required = false) MultipartFile file,
 			@RequestParam(required = false) String threads,
