@@ -28,12 +28,10 @@ import java.util.Map.Entry;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.vpac.ndg.common.datamodel.CellSize;
 import org.vpac.ndg.query.stats.Bucket;
 import org.vpac.ndg.query.stats.Hist;
 import org.vpac.ndg.query.stats.Stats;
-import org.vpac.ndg.storage.dao.DatasetDao;
 import org.vpac.ndg.storage.model.Dataset;
 import org.vpac.ndg.storage.model.DatasetCats;
 
@@ -45,9 +43,8 @@ public class DatasetCatsResponse {
 	private String bandId;
 	private String name;
 	private DatasetCats cat;
+	private Dataset dataset;
 	private Map<Integer, Double> catSummaries;
-	@Autowired
-	private DatasetDao datasetDao;
 	
 	public String getId() {
 		return id;
@@ -96,15 +93,17 @@ public class DatasetCatsResponse {
 	public DatasetCatsResponse() {
 	}
 	
-	public DatasetCatsResponse(DatasetCats cat) {
+	public DatasetCatsResponse(DatasetCats cat, Dataset ds) {
 		this.setId(cat.getId());
+		this.setDatasetId(cat.getDatasetId());
+		this.setBandId(cat.getBandId());
 		this.setName(cat.getName());
+		this.dataset = ds;
 		this.cat = cat;
 	}
 	
 	public void processSummary(Double lower, Double upper) {
-		Dataset ds = datasetDao.retrieve(this.datasetId);
-		CellSize outputResolution = ds.getResolution();
+		CellSize outputResolution = dataset.getResolution();
 		Map<Integer, Double> result = new HashMap<Integer, Double>();
 		for(Entry<Integer, Hist> key : this.cat.getCats().getCategories().entrySet()) {
 			Stats s = null;

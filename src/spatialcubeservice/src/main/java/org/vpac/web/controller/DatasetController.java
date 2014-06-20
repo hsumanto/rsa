@@ -308,11 +308,12 @@ public class DatasetController {
 		String bandId = findPathVariable(requestURL, "Band");
 
 		List<DatasetCats> cats = statisticsDao.searchCats(datasetId, timeSliceId, bandId, type);
+		Dataset ds =  datasetDao.retrieve(datasetId);
 		
 		if(cats != null) {
-			DatasetCatsResponse result = new DatasetCatsResponse(cats.get(0));
+			DatasetCatsResponse result = new DatasetCatsResponse(cats.get(0), ds);
 			result.processSummary(lower, upper);
-			model.addAttribute(ControllerHelper.RESPONSE_ROOT, new DatasetCatsResponse(cats.get(0)));
+			model.addAttribute(ControllerHelper.RESPONSE_ROOT, result);
 		} else
 			throw new ResourceNotFoundException("No data not found.");
 
