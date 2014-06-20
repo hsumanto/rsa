@@ -98,9 +98,9 @@ public class DatasetHistResponse {
 		Hist histSummary = new Hist();
 		for(Integer key : cat.getCategories().keySet()) {
 			if(categories == null)
-				histSummary.fold(cat.getCategories().get(key));
+				histSummary = histSummary.fold(cat.getCategories().get(key));
 			else if(categories.contains(key))
-				histSummary.fold(cat.getCategories().get(key));
+				histSummary = histSummary.fold(cat.getCategories().get(key));
 		}
 		for(Bucket b : histSummary.getBuckets()) {
 			result.add(new HistElement(b.getLower(), b.getUpper(), b.getStats().getCount()));
