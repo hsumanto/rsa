@@ -20,9 +20,7 @@
 package org.vpac.web.model.response;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.xml.bind.annotation.XmlAttribute;
@@ -35,16 +33,17 @@ import org.vpac.ndg.query.stats.Stats;
 import org.vpac.ndg.storage.model.Dataset;
 import org.vpac.ndg.storage.model.DatasetCats;
 
-@XmlRootElement(name = "TaskCats")
+@XmlRootElement(name = "DatasetCats")
 public class DatasetCatsResponse {
 	private String id;
 	private String datasetId;
 	private String timeSliceId;
 	private String bandId;
-	private String name;
+	private String tableType;
+	private String categorisation;
 	private DatasetCats cat;
 	private Dataset dataset;
-	private Map<Integer, Double> catSummaries;
+	private List<CatsElement> table;
 	
 	public String getId() {
 		return id;
@@ -75,19 +74,19 @@ public class DatasetCatsResponse {
 	public void setBandId(String bandId) {
 		this.bandId = bandId;
 	}
-	public String getName() {
-		return name;
+	public String getCategorisation() {
+		return categorisation;
 	}
 	@XmlAttribute
-	public void setName(String name) {
-		this.name = name;
+	public void setCategorisation(String categorisation) {
+		this.categorisation = categorisation;
 	}
-	public Map<Integer, Double> getCatSummaries() {
-		return catSummaries;
+	public List<CatsElement> getTable() {
+		return table;
 	}
 	@XmlAttribute
-	public void setCatSummaries(Map<Integer, Double> catSummaries) {
-		this.catSummaries = catSummaries;
+	public void setTable(List<CatsElement> table) {
+		this.table = table;
 	}
 	
 	public DatasetCatsResponse() {
@@ -97,14 +96,15 @@ public class DatasetCatsResponse {
 		this.setId(cat.getId());
 		this.setDatasetId(cat.getDatasetId());
 		this.setBandId(cat.getBandId());
-		this.setName(cat.getName());
+		this.setCategorisation(cat.getName());
+		this.setTableType("categories");
 		this.dataset = ds;
 		this.cat = cat;
 	}
 	
 	public void processSummary(Double lower, Double upper) {
 		CellSize outputResolution = dataset.getResolution();
-		Map<Integer, Double> result = new HashMap<Integer, Double>();
+		List<CatsElement> result = new ArrayList<CatsElement>();
 		for(Entry<Integer, Hist> key : this.cat.getCats().getCategories().entrySet()) {
 			Stats s = null;
 			List<Bucket> filteredBuckets = new ArrayList<Bucket>();
@@ -126,8 +126,14 @@ public class DatasetCatsResponse {
 				s = s.fold(b.getStats());
 			}
 			if(s != null)
-				result.put(key.getKey(), s.getCount() * outputResolution.toDouble() * outputResolution.toDouble());
+				result.add(new CatsElement(key.getKey(), s.getCount() * outputResolution.toDouble() * outputResolution.toDouble()));
 		}
-		this.setCatSummaries(result);
+		this.setTable(result);
+	}
+	public String getTableType() {
+		return tableType;
+	}
+	public void setTableType(String tableType) {
+		this.tableType = tableType;
 	}
 }

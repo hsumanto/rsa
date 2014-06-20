@@ -36,9 +36,9 @@ public class DatasetHistResponse {
 	private String datasetId;
 	private String timeSliceId;
 	private String bandId;
-	private String name;
+	private String tableType;
 	private Cats cat;
-	private List<HistElement> histSummaries;
+	private List<HistElement> table;
 
 	public String getDatasetId() {
 		return datasetId;
@@ -69,19 +69,19 @@ public class DatasetHistResponse {
 		this.id = id;
 	}
 
-	public String getName() {
-		return name;
+	public List<HistElement> getTable() {
+		return table;
 	}
 	@XmlAttribute
-	public void setName(String name) {
-		this.name = name;
+	public void setTable(List<HistElement> table) {
+		this.table = table;
 	}
-	public List<HistElement> getHistSummaries() {
-		return histSummaries;
+	public String getTableType() {
+		return tableType;
 	}
 	@XmlAttribute
-	public void setHistSummaries(List<HistElement> histSummaries) {
-		this.histSummaries = histSummaries;
+	public void setTableType(String tableType) {
+		this.tableType = tableType;
 	}
 	
 	public DatasetHistResponse() {
@@ -89,7 +89,10 @@ public class DatasetHistResponse {
 	
 	public DatasetHistResponse(DatasetCats cat) {
 		this.setId(cat.getId());
-		this.setName(cat.getName());
+		this.setDatasetId(cat.getDatasetId());
+		this.setTimeSliceId(cat.getTimeSliceId());
+		this.setBandId(cat.getBandId());
+		this.setTableType("histogram");
 		this.cat = cat.getCats();
 	}
 	
@@ -105,6 +108,6 @@ public class DatasetHistResponse {
 		for(Bucket b : histSummary.getBuckets()) {
 			result.add(new HistElement(b.getLower(), b.getUpper(), b.getStats().getCount()));
 		}
-		setHistSummaries(result);
+		this.setTable(result);
 	}
 }
