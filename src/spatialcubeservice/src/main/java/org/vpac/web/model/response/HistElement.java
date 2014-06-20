@@ -30,6 +30,13 @@ public class HistElement {
 	public void setCount(long count) {
 		this.count = count;
 	}
+	public long getArea() {
+        return count;
+    }
+    @XmlAttribute
+    public void setArea(long count) {
+        this.count = count;
+    }
 	
 	public HistElement() {
 	}

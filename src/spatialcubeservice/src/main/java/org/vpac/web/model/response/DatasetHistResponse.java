@@ -69,11 +69,11 @@ public class DatasetHistResponse {
 		this.id = id;
 	}
 
-	public List<HistElement> getTable() {
+	public List<HistElement> getRows() {
 		return table;
 	}
 	@XmlAttribute
-	public void setTable(List<HistElement> table) {
+	public void setRows(List<HistElement> table) {
 		this.table = table;
 	}
 	public String getTableType() {
@@ -108,6 +108,6 @@ public class DatasetHistResponse {
 		for(Bucket b : histSummary.getBuckets()) {
 			result.add(new HistElement(b.getLower(), b.getUpper(), b.getStats().getCount()));
 		}
-		this.setTable(result);
+		this.setRows(result);
 	}
 }

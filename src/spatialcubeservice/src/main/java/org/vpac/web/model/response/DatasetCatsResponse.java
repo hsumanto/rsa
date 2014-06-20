@@ -81,11 +81,11 @@ public class DatasetCatsResponse {
 	public void setCategorisation(String categorisation) {
 		this.categorisation = categorisation;
 	}
-	public List<CatsElement> getTable() {
+	public List<CatsElement> getRows() {
 		return table;
 	}
 	@XmlAttribute
-	public void setTable(List<CatsElement> table) {
+	public void setRows(List<CatsElement> table) {
 		this.table = table;
 	}
 	
@@ -128,7 +128,7 @@ public class DatasetCatsResponse {
 			if(s != null)
 				result.add(new CatsElement(key.getKey(), s.getCount() * outputResolution.toDouble() * outputResolution.toDouble()));
 		}
-		this.setTable(result);
+		this.setRows(result);
 	}
 	public String getTableType() {
 		return tableType;
