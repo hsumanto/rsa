@@ -4,13 +4,23 @@
         "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping>
+	<class name="org.vpac.ndg.storage.model.DatasetCats" table="DATASETCATS" lazy="false">
+		<id name="id" type="string" column="ID">
+			<generator class="uuid" />
+		</id>
+		<property name="datasetId" type="string" column="DATASETID" />
+		<property name="timeSliceId" type="string" column="TIMESLICEID" />
+		<property name="bandId" type="string" column="BANDID" />
+		<property name="name" type="string" column="NAME" />
+ 		<many-to-one name="cats" class="org.vpac.ndg.query.stats.Cats" column="cat_id" cascade="all" />
+	</class>
 	<class name="org.vpac.ndg.storage.model.TaskCats" table="TASKCATS" lazy="false">
 		<id name="id" type="string" column="ID">
 			<generator class="uuid" />
 		</id>
 		<property name="taskId" type="string" column="TASKID" />
 		<property name="name" type="string" column="NAME" />
-		<property name="outputResolution" unique-key="multicolumn_unique_key_name">
+		<property name="outputResolution">
 			<type name="org.hibernate.type.EnumType">
 				<param name="enumClass">org.vpac.ndg.common.datamodel.CellSize</param>
 				<param name="identifierMethod">toInt</param>
@@ -25,6 +35,13 @@
 		</id>
 		<property name="name" type="string" column="NAME" />
 		<property name="taskId" type="string" column="TASKID" />
+		<property name="outputResolution">
+			<type name="org.hibernate.type.EnumType">
+				<param name="enumClass">org.vpac.ndg.common.datamodel.CellSize</param>
+				<param name="identifierMethod">toInt</param>
+				<param name="valueOfMethod">fromInt</param>
+			</type>
+		</property>
   		<many-to-one name="hist" class="org.vpac.ndg.query.stats.Hist" column="hist_id" cascade="all" />
 	</class>
 	<class name="org.vpac.ndg.query.stats.Cats" table="CATS" lazy="false">
@@ -48,16 +65,15 @@
 		</list>
 	</class>
 	<class name="org.vpac.ndg.query.stats.Bucket" table="BUCKET"
-		lazy="true">
+		lazy="false">
 		<id name="id" type="string" column="ID">
 			<generator class="uuid" />
 		</id>
 		<property name="lower" type="double" column="LOWER" />
 		<property name="upper" type="double" column="UPPER" />
-		<one-to-one name="stats" class="org.vpac.ndg.query.stats.Stats"
-			cascade="all" />
+ 		<many-to-one name="stats" class="org.vpac.ndg.query.stats.Stats" column="stat_id" cascade="all" />
 	</class>
-	<class name="org.vpac.ndg.query.stats.Stats" table="STATS" lazy="true">
+	<class name="org.vpac.ndg.query.stats.Stats" table="STATS" lazy="false">
 		<id name="id" type="string" column="ID">
 			<generator class="uuid" />
 		</id>

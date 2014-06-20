@@ -17,8 +17,8 @@ public class DatasetProviderInitializer extends HttpServlet {
 
 	
 	public void init() throws ServletException {
-		ProviderRegistry.getInstance().clearProivders();
-		ProviderRegistry.getInstance().addProvider(rsaDatasetProvider);
-		ProviderRegistry.getInstance().addProvider(previewDatasetProvider);
+//		ProviderRegistry.getInstance().clearProivders();
+//		ProviderRegistry.getInstance().addProvider(rsaDatasetProvider);
+//		ProviderRegistry.getInstance().addProvider(previewDatasetProvider);
 	}
 }

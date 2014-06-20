@@ -22,6 +22,8 @@ public class Bucket implements Foldable<Bucket>, Serializable {
 		this.upper = upper;
 		this.stats = stats;
 	}
+	public Bucket() {
+	}
 
 	public boolean canContain(ScalarElement value) {
 		if (value.compareTo(lower) < 0)

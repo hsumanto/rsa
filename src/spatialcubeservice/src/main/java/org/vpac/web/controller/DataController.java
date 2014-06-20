@@ -89,7 +89,6 @@ import org.vpac.ndg.storage.model.Band;
 import org.vpac.ndg.storage.model.Dataset;
 import org.vpac.ndg.storage.model.JobProgress;
 import org.vpac.ndg.storage.model.TaskCats;
-import org.vpac.ndg.storage.model.TaskHist;
 import org.vpac.ndg.storage.model.TimeSlice;
 import org.vpac.ndg.storage.model.Upload;
 import org.vpac.ndg.storage.util.TimeSliceUtil;
@@ -330,11 +329,13 @@ public class DataController {
 		log.info("Data getTaskById");
 		log.debug("Task ID: {}", taskId);
 
-		TaskHist hist = statisticsDao.searchHist(taskId, categories);
+		List<TaskCats> cats = statisticsDao.searchCats(taskId, null);
 		
-		if(hist != null)
-			model.addAttribute(ControllerHelper.RESPONSE_ROOT, new TaskHistResponse(hist));
-		else
+		if(cats != null) {
+			TaskHistResponse result = new TaskHistResponse(cats.get(0));
+			result.processSummary(categories);
+			model.addAttribute(ControllerHelper.RESPONSE_ROOT, result);
+		} else
 			throw new ResourceNotFoundException("No data not found.");
 		
 		return "List";
@@ -349,7 +350,9 @@ public class DataController {
 		List<TaskCats> cats = statisticsDao.searchCats(taskId, catType);
 		
 		if(cats != null) {
-			model.addAttribute(ControllerHelper.RESPONSE_ROOT, new TaskCatsResponse(cats));
+			TaskCatsResponse result = new TaskCatsResponse(cats.get(0));
+			result.processSummary(lower, upper);
+			model.addAttribute(ControllerHelper.RESPONSE_ROOT, result);
 		} else {
 			throw new ResourceNotFoundException("No data not found.");
 		}
@@ -1086,7 +1089,7 @@ public class DataController {
 			Query q = new Query(outputDataset);
 			if (threads != null)
 				q.setNumThreads(threads);
-			q.setMemento(qd, "preview:");
+				q.setMemento(qd, "preview:");
 			try {
 				q.setProgress(qp);
 				q.run();

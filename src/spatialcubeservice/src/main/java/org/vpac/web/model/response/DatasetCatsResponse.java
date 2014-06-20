@@ -28,20 +28,26 @@ import java.util.Map.Entry;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.vpac.ndg.common.datamodel.CellSize;
 import org.vpac.ndg.query.stats.Bucket;
 import org.vpac.ndg.query.stats.Hist;
 import org.vpac.ndg.query.stats.Stats;
-import org.vpac.ndg.storage.model.TaskCats;
+import org.vpac.ndg.storage.dao.DatasetDao;
+import org.vpac.ndg.storage.model.Dataset;
+import org.vpac.ndg.storage.model.DatasetCats;
 
 @XmlRootElement(name = "TaskCats")
-public class TaskCatsResponse {
+public class DatasetCatsResponse {
 	private String id;
-	private String taskId;
+	private String datasetId;
+	private String timeSliceId;
+	private String bandId;
 	private String name;
-	private CellSize outputResolution;
-	private TaskCats cat;
+	private DatasetCats cat;
 	private Map<Integer, Double> catSummaries;
+	@Autowired
+	private DatasetDao datasetDao;
 	
 	public String getId() {
 		return id;
@@ -51,12 +57,26 @@ public class TaskCatsResponse {
 		this.id = id;
 	}
 
-	public String getTaskId() {
-		return taskId;
+	public String getDatasetId() {
+		return datasetId;
 	}
 	@XmlAttribute
-	public void setTaskId(String taskId) {
-		this.taskId = taskId;
+	public void setDatasetId(String datasetId) {
+		this.datasetId = datasetId;
+	}
+	public String getTimeSliceId() {
+		return timeSliceId;
+	}
+	@XmlAttribute
+	public void setTimeSliceId(String timeSliceId) {
+		this.timeSliceId = timeSliceId;
+	}
+	public String getBandId() {
+		return bandId;
+	}
+	@XmlAttribute
+	public void setBandId(String bandId) {
+		this.bandId = bandId;
 	}
 	public String getName() {
 		return name;
@@ -64,13 +84,6 @@ public class TaskCatsResponse {
 	@XmlAttribute
 	public void setName(String name) {
 		this.name = name;
-	}
-	public CellSize getOutputResolution() {
-		return outputResolution;
-	}
-	@XmlAttribute
-	public void setOutputResolution(CellSize outputResolution) {
-		this.outputResolution = outputResolution;
 	}
 	public Map<Integer, Double> getCatSummaries() {
 		return catSummaries;
@@ -80,18 +93,18 @@ public class TaskCatsResponse {
 		this.catSummaries = catSummaries;
 	}
 	
-	public TaskCatsResponse() {
+	public DatasetCatsResponse() {
 	}
 	
-	public TaskCatsResponse(TaskCats cat) {
+	public DatasetCatsResponse(DatasetCats cat) {
 		this.setId(cat.getId());
-		this.setTaskId(cat.getTaskId());
 		this.setName(cat.getName());
-		this.setOutputResolution(cat.getOutputResolution());
 		this.cat = cat;
 	}
 	
 	public void processSummary(Double lower, Double upper) {
+		Dataset ds = datasetDao.retrieve(this.datasetId);
+		CellSize outputResolution = ds.getResolution();
 		Map<Integer, Double> result = new HashMap<Integer, Double>();
 		for(Entry<Integer, Hist> key : this.cat.getCats().getCategories().entrySet()) {
 			Stats s = null;

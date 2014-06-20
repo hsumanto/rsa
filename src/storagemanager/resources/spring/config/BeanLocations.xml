@@ -10,4 +10,5 @@ http://www.springframework.org/schema/context/spring-context-3.1.xsd">
 	<import resource="classpath:spring/database/Hibernate.xml"/>
 	<!-- Beans Declaration -->
 	<import resource="classpath:spring/beans/StorageManagerBean.xml"/>
+	<import resource="classpath:spring/beans/StatisticsBean.xml"/>
 </beans>

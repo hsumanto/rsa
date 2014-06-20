@@ -28,30 +28,45 @@ import javax.xml.bind.annotation.XmlRootElement;
 import org.vpac.ndg.query.stats.Bucket;
 import org.vpac.ndg.query.stats.Cats;
 import org.vpac.ndg.query.stats.Hist;
-import org.vpac.ndg.storage.model.TaskCats;
+import org.vpac.ndg.storage.model.DatasetCats;
 
 @XmlRootElement(name = "TaskHist")
-public class TaskHistResponse {
+public class DatasetHistResponse {
 	private String id;
-	private String taskId;
+	private String datasetId;
+	private String timeSliceId;
+	private String bandId;
 	private String name;
 	private Cats cat;
 	private List<HistElement> histSummaries;
+
+	public String getDatasetId() {
+		return datasetId;
+	}
+	@XmlAttribute
+	public void setDatasetId(String datasetId) {
+		this.datasetId = datasetId;
+	}
+	public String getTimeSliceId() {
+		return timeSliceId;
+	}
+	@XmlAttribute
+	public void setTimeSliceId(String timeSliceId) {
+		this.timeSliceId = timeSliceId;
+	}
+	public String getBandId() {
+		return bandId;
+	}
+	@XmlAttribute
+	public void setBandId(String bandId) {
+		this.bandId = bandId;
+	}
 	
 	public String getId() {
 		return id;
 	}
-	@XmlAttribute
 	public void setId(String id) {
 		this.id = id;
-	}
-
-	public String getTaskId() {
-		return taskId;
-	}
-	@XmlAttribute
-	public void setTaskId(String taskId) {
-		this.taskId = taskId;
 	}
 
 	public String getName() {
@@ -69,12 +84,11 @@ public class TaskHistResponse {
 		this.histSummaries = histSummaries;
 	}
 	
-	public TaskHistResponse() {
+	public DatasetHistResponse() {
 	}
 	
-	public TaskHistResponse(TaskCats cat) {
+	public DatasetHistResponse(DatasetCats cat) {
 		this.setId(cat.getId());
-		this.setTaskId(cat.getTaskId());
 		this.setName(cat.getName());
 		this.cat = cat.getCats();
 	}
