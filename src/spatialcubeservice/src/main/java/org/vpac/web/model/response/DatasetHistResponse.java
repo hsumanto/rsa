@@ -36,6 +36,7 @@ public class DatasetHistResponse {
 	private String datasetId;
 	private String timeSliceId;
 	private String bandId;
+	private String tableType;
 	private Cats cat;
 	private List<HistElement> table;
 
@@ -75,6 +76,13 @@ public class DatasetHistResponse {
 	public void setTable(List<HistElement> table) {
 		this.table = table;
 	}
+	public String getTableType() {
+		return tableType;
+	}
+	@XmlAttribute
+	public void setTableType(String tableType) {
+		this.tableType = tableType;
+	}
 	
 	public DatasetHistResponse() {
 	}
@@ -84,6 +92,7 @@ public class DatasetHistResponse {
 		this.setDatasetId(cat.getDatasetId());
 		this.setTimeSliceId(cat.getTimeSliceId());
 		this.setBandId(cat.getBandId());
+		this.setTableType("histogram");
 		this.cat = cat.getCats();
 	}
 	

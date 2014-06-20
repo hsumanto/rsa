@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Map.Entry;
 
 import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlList;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.vpac.ndg.common.datamodel.CellSize;
@@ -40,7 +39,8 @@ public class DatasetCatsResponse {
 	private String datasetId;
 	private String timeSliceId;
 	private String bandId;
-	private String name;
+	private String tableType;
+	private String categorisation;
 	private DatasetCats cat;
 	private Dataset dataset;
 	private List<CatsElement> table;
@@ -74,12 +74,12 @@ public class DatasetCatsResponse {
 	public void setBandId(String bandId) {
 		this.bandId = bandId;
 	}
-	public String getName() {
-		return name;
+	public String getCategorisation() {
+		return categorisation;
 	}
 	@XmlAttribute
-	public void setName(String name) {
-		this.name = name;
+	public void setCategorisation(String categorisation) {
+		this.categorisation = categorisation;
 	}
 	public List<CatsElement> getTable() {
 		return table;
@@ -96,7 +96,8 @@ public class DatasetCatsResponse {
 		this.setId(cat.getId());
 		this.setDatasetId(cat.getDatasetId());
 		this.setBandId(cat.getBandId());
-		this.setName(cat.getName());
+		this.setCategorisation(cat.getName());
+		this.setTableType("categories");
 		this.dataset = ds;
 		this.cat = cat;
 	}
@@ -128,5 +129,11 @@ public class DatasetCatsResponse {
 				result.add(new CatsElement(key.getKey(), s.getCount() * outputResolution.toDouble() * outputResolution.toDouble()));
 		}
 		this.setTable(result);
+	}
+	public String getTableType() {
+		return tableType;
+	}
+	public void setTableType(String tableType) {
+		this.tableType = tableType;
 	}
 }
