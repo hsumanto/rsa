@@ -24,7 +24,6 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -54,7 +53,6 @@ import org.vpac.ndg.query.filter.Foldable;
 import org.vpac.ndg.query.io.DatasetProvider;
 import org.vpac.ndg.query.io.ProviderRegistry;
 import org.vpac.ndg.query.stats.VectorCats;
-import org.vpac.ndg.query.stats.VectorHist;
 import org.vpac.ndg.storage.dao.BandDao;
 import org.vpac.ndg.storage.dao.DatasetDao;
 import org.vpac.ndg.storage.dao.JobProgressDao;
@@ -62,8 +60,6 @@ import org.vpac.ndg.storage.dao.StatisticsDao;
 import org.vpac.ndg.storage.model.Band;
 import org.vpac.ndg.storage.model.Dataset;
 import org.vpac.ndg.storage.model.DatasetCats;
-import org.vpac.ndg.storage.model.TaskCats;
-import org.vpac.ndg.storage.model.TaskHist;
 import org.vpac.ndg.storage.util.DatasetUtil;
 import org.vpac.web.exception.ResourceNotFoundException;
 import org.vpac.web.model.request.DatasetRequest;
@@ -73,7 +69,6 @@ import org.vpac.web.model.response.DatasetCollectionResponse;
 import org.vpac.web.model.response.DatasetHistResponse;
 import org.vpac.web.model.response.DatasetResponse;
 import org.vpac.web.model.response.QueryResponse;
-import org.vpac.web.model.response.TaskHistResponse;
 import org.vpac.web.util.ControllerHelper;
 
 import ucar.nc2.NetcdfFileWriter;
@@ -166,7 +161,7 @@ public class DatasetController {
 		String timeSliceId = findPathVariable(requestURL, "TimeSlice");
 		String bandId = findPathVariable(requestURL, "Band");
 		
-		List<DatasetCats> cats = statisticsDao.searchCats(datasetId, timeSliceId, bandId, null);
+		List<DatasetCats> cats = statisticsDao.searchCats(datasetId, timeSliceId, bandId, type);
 		
 		if(cats != null) {
 			DatasetHistResponse result = new DatasetHistResponse(cats.get(0));
