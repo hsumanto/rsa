@@ -1,18 +1,17 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <query xmlns='http://www.vpac.org/namespaces/rsaquery-0.2'>
 	<input id='ds' href='rsa:vic/25m' />
-	<input id='lga' href='rsa:vic_region/25m' />
-  	<input id='sa2' href='rsa:vic_region/25m' /> -->
-	<filter id='lga_cats' cls='org.vpac.ndg.query.stats.Categories'>
+	<input id='boundaries' href='rsa:boundaries/100m' />
+	<filter id='LGA' cls='org.vpac.ndg.query.stats.Categories'>
 		<sampler name='input' ref='#ds/Band1' />
-		<sampler name='categories' ref='#lga/region' />
+		<sampler name='categories' ref='#boundaries/LGA' />
 	</filter>
- 	<filter id='sa2_cats' cls='org.vpac.ndg.query.stats.Categories'>
-		<sampler name='input' ref='#lga_cats/output' />
-		<sampler name='categories' ref='#sa2/region' />
+ 	<filter id='SA3' cls='org.vpac.ndg.query.stats.Categories'>
+		<sampler name='input' ref='#LGA/output' />
+		<sampler name='categories' ref='#boundaries/SA3' />
 	</filter>
 	<output id='outfile'>
 		<grid ref='#ds' />
-		<variable name='nothing' ref='#sa2_cats/output' />
+		<variable name='nothing' ref='#SA3/output' />
 	</output>
 </query>
