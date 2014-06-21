@@ -153,10 +153,11 @@ Check out the latest svn source of GDAL:
 An alternative to an svn checkout would be to get a [nightly build][gdn]. Then configure:
 
 	$ cd gdal-trunk/gdal
-	$ ./configure --with-netcdf=/usr/local --with-hdf5=/usr/local
+	$ ./configure --with-netcdf=/usr/local --with-hdf5=/usr/local --with-python
   
 **Important:** At the end of the configure, it's important that in the status
-  report printed, HDF5 and netCDF support are both listed as 'yes'.
+  report printed, HDF5 and netCDF support are both listed as 'yes', and 'python'
+  is listed as a SWIG binding.
 
 To be doubly sure, open the config.log file:
 
