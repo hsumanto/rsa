@@ -6,13 +6,13 @@
 	<display-name>Raster Storage Archive</display-name>
 
     <servlet>
-        <servlet-name>wmts</servlet-name>
-        <servlet-class>org.vpac.web.servlets.WmtsServlet</servlet-class>
+        <servlet-name>tms</servlet-name>
+        <servlet-class>org.vpac.web.servlets.TmsServlet</servlet-class>
     </servlet>
 
     <servlet-mapping>
-        <servlet-name>wmts</servlet-name>
-        <url-pattern>/wmts/*</url-pattern>
+        <servlet-name>tms</servlet-name>
+        <url-pattern>/tms/*</url-pattern>
     </servlet-mapping>
 
 	<servlet>
