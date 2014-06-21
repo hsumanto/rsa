@@ -25,9 +25,11 @@ import java.util.List;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.vpac.ndg.common.datamodel.CellSize;
 import org.vpac.ndg.query.stats.Bucket;
 import org.vpac.ndg.query.stats.Cats;
 import org.vpac.ndg.query.stats.Hist;
+import org.vpac.ndg.storage.model.Dataset;
 import org.vpac.ndg.storage.model.DatasetCats;
 
 @XmlRootElement(name = "TaskHist")
@@ -39,6 +41,7 @@ public class DatasetHistResponse {
 	private String tableType;
 	private Cats cat;
 	private List<HistElement> table;
+	private Dataset dataset;
 
 	public String getDatasetId() {
 		return datasetId;
@@ -87,26 +90,30 @@ public class DatasetHistResponse {
 	public DatasetHistResponse() {
 	}
 	
-	public DatasetHistResponse(DatasetCats cat) {
+	public DatasetHistResponse(DatasetCats cat, Dataset ds) {
 		this.setId(cat.getId());
 		this.setDatasetId(cat.getDatasetId());
 		this.setTimeSliceId(cat.getTimeSliceId());
 		this.setBandId(cat.getBandId());
 		this.setTableType("histogram");
 		this.cat = cat.getCats();
+		this.dataset = ds;
 	}
 	
 	public void processSummary(List<Integer> categories) {
 		List<HistElement> result = new ArrayList<HistElement>();
 		Hist histSummary = new Hist();
-		for(Integer key : cat.getCategories().keySet()) {
-			if(categories == null)
+		for (Integer key : cat.getCategories().keySet()) {
+			if (categories == null)
 				histSummary = histSummary.fold(cat.getCategories().get(key));
-			else if(categories.contains(key))
+			else if (categories.contains(key))
 				histSummary = histSummary.fold(cat.getCategories().get(key));
 		}
-		for(Bucket b : histSummary.getBuckets()) {
-			result.add(new HistElement(b.getLower(), b.getUpper(), b.getStats().getCount()));
+		CellSize outputResolution = dataset.getResolution();
+		double cellArea = outputResolution.toDouble() * outputResolution.toDouble();
+		for (Bucket b : histSummary.getBuckets()) {
+			if (b.getStats().getCount() > 0)
+				result.add(new HistElement(b.getLower(), b.getUpper(), b.getStats().getCount() * cellArea));
 		}
 		this.setRows(result);
 	}

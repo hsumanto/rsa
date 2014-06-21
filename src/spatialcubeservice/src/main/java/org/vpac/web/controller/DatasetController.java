@@ -162,9 +162,10 @@ public class DatasetController {
 		String bandId = findPathVariable(requestURL, "Band");
 		
 		List<DatasetCats> cats = statisticsDao.searchCats(datasetId, timeSliceId, bandId, type);
+		Dataset ds =  datasetDao.retrieve(datasetId);
 		
 		if(cats != null) {
-			DatasetHistResponse result = new DatasetHistResponse(cats.get(0));
+			DatasetHistResponse result = new DatasetHistResponse(cats.get(0), ds);
 			result.processSummary(categories);
 			model.addAttribute(ControllerHelper.RESPONSE_ROOT, result);
 		} else
