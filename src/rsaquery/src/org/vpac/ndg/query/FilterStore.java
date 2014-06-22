@@ -51,7 +51,7 @@ public class FilterStore {
 	 */
 	public FilterAdapter findFilter(String ref)
 			throws QueryConfigurationException {
-		return getFilter(resolve.decompose(ref).nodeId);
+		return getFilter(resolve.decompose(ref).getNodeId());
 	}
 
 	/**
@@ -75,12 +75,12 @@ public class FilterStore {
 
 		NodeReference nr = resolve.decompose(ref);
 
-		if (nr.socketName == null)
+		if (nr.getSocketName() == null)
 			throw new QueryConfigurationException(String.format(
 					"Socket name not specified in \"%s\".", ref));
 
-		FilterAdapter filter = getFilter(nr.nodeId);
-		return filter.getOutputSocket(nr.socketName);
+		FilterAdapter filter = getFilter(nr.getNodeId());
+		return filter.getOutputSocket(nr.getSocketName());
 	}
 
 }

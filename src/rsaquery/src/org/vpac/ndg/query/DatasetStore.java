@@ -68,7 +68,7 @@ public class DatasetStore {
 	 */
 	public DatasetMeta findDataset(String ref)
 			throws QueryConfigurationException {
-		return getDataset(resolve.decompose(ref).nodeId);
+		return getDataset(resolve.decompose(ref).getNodeId());
 	}
 
 	/**
@@ -96,16 +96,16 @@ public class DatasetStore {
 
 		NodeReference nr = resolve.decompose(ref);
 
-		if (nr.socketName == null)
+		if (nr.getSocketName() == null)
 			throw new QueryConfigurationException(String.format(
 					"Dimension name not specified in \"%s\".", ref));
 
-		NetcdfFile sourceDataset = getDataset(nr.nodeId).getDataset();
-		Dimension dimension = sourceDataset.findDimension(nr.socketName);
+		NetcdfFile sourceDataset = getDataset(nr.getNodeId()).getDataset();
+		Dimension dimension = sourceDataset.findDimension(nr.getSocketName());
 		if (dimension == null) {
 			throw new QueryConfigurationException(String.format(
 					"Dimension \"%s\" can't be found in dataset \"%s\".",
-					nr.socketName, nr.nodeId));
+					nr.getSocketName(), nr.getNodeId()));
 		}
 		return dimension;
 	}
@@ -121,9 +121,9 @@ public class DatasetStore {
 	public void requestInputBand(NodeReference nr)
 			throws QueryConfigurationException {
 
-		DatasetMeta dm = getDataset(nr.nodeId);
+		DatasetMeta dm = getDataset(nr.getNodeId());
 
-		if (nr.socketName == null)
+		if (nr.getSocketName() == null)
 			throw new QueryConfigurationException("Input band not specified");
 
 		DatasetInput di;
@@ -133,7 +133,7 @@ public class DatasetStore {
 			throw new QueryConfigurationException(String.format(
 					"Can't tag output bands (specified band was %s).", nr));
 		}
-		di.requestBand(nr.socketName);
+		di.requestBand(nr.getSocketName());
 	}
 
 	public void closeAll() throws IOException {

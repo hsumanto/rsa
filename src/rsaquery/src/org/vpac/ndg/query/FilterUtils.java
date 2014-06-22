@@ -91,7 +91,8 @@ public class FilterUtils {
 		for (Field f : clazz.getFields()) {
 			if (!Modifier.isPublic(f.getModifiers()))
 				continue;
-			if (f.getType().isPrimitive())
+			Class<?> cls = f.getType();
+			if (cls.isPrimitive() || String.class.isAssignableFrom(cls))
 				res.add(f);
 		}
 		return res;

@@ -206,12 +206,12 @@ public class FilterFactory {
 		List<VariableAdapter> variables = new ArrayList<VariableAdapter>();
 		for (String ref : toRefs) {
 			NodeReference nr = resolve.decompose(ref);
-			DatasetMeta ds = datasetStore.getDataset(nr.nodeId);
+			DatasetMeta ds = datasetStore.getDataset(nr.getNodeId());
 			if (!DatasetOutput.class.isAssignableFrom(ds.getClass())) {
 				throw new QueryConfigurationException(String.format(
 						"Can't bind output to input variable %s", ref));
 			}
-			VariableAdapter pvar = ds.getVariableAdapter(nr.socketName);
+			VariableAdapter pvar = ds.getVariableAdapter(nr.getSocketName());
 			variables.add(pvar);
 		}
 		return variables;
@@ -308,16 +308,16 @@ public class FilterFactory {
 
 		// Dataset
 		try {
-			inputDataset = (DatasetInput) datasetStore.getDataset(nr.nodeId);
+			inputDataset = (DatasetInput) datasetStore.getDataset(nr.getNodeId());
 		} catch (QueryConfigurationException e) {
 			// Will test for null below.
 		} catch (ClassCastException e) {
-			log.warn("Found dataset \"{}\", but it is not an input dataset.", nr.nodeId);
+			log.warn("Found dataset \"{}\", but it is not an input dataset.", nr.getNodeId());
 		}
 
 		// Filter
 		try {
-			inputFilter = filterStore.getFilter(nr.nodeId);
+			inputFilter = filterStore.getFilter(nr.getNodeId());
 		} catch (QueryConfigurationException e) {
 			// Will test for null below.
 		}
@@ -328,7 +328,7 @@ public class FilterFactory {
 			// DatasetInput class because then each sampler would be shared by
 			// all threads. The VariableAdapter is already shared, which means
 			// the samplers will share the cache where possible.
-			VariableAdapter var = inputDataset.getVariableAdapter(nr.socketName);
+			VariableAdapter var = inputDataset.getVariableAdapter(nr.getSocketName());
 			SamplerScalar sampler = new SamplerScalar(var, context);
 
 			// Configure coordinate transform. Note that this is a transform
@@ -340,11 +340,11 @@ public class FilterFactory {
 			return sampler;
 
 		} else if (inputFilter != null) {
-			return inputFilter.getOutputSocket(nr.socketName);
+			return inputFilter.getOutputSocket(nr.getSocketName());
 
 		} else {
 			throw new QueryConfigurationException(String.format(
-					"\"%s\" is not a filter or dataset id.", nr.nodeId));
+					"\"%s\" is not a filter or dataset id.", nr.getNodeId()));
 		}
 	}
 

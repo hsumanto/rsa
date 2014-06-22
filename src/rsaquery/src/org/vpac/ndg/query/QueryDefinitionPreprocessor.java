@@ -233,11 +233,11 @@ public class QueryDefinitionPreprocessor {
 					continue;
 				}
 				NodeReference nr = resolve.decompose(vd.ref);
-				FilterComparator fc = fcs.get(nr.nodeId);
+				FilterComparator fc = fcs.get(nr.getNodeId());
 				if (fc == null) {
 					throw new QueryConfigurationException(String.format(
 							"Variable \"%s\" is bound to non-existant filter " +
-							"\"%s\"", vd.name, nr.nodeId));
+							"\"%s\"", vd.name, nr.getNodeId()));
 				}
 				fc.downstreamConnections.add(qd.output.id);
 			}
@@ -256,14 +256,14 @@ public class QueryDefinitionPreprocessor {
 						try {
 							if (sd1.children != null) {
 								for (SamplerDefinition sd2 : sd1.children) {
-									String conn = resolve.decompose(sd2.ref).nodeId;
+									String conn = resolve.decompose(sd2.ref).getNodeId();
 									FilterComparator otherFc = fcs.get(conn);
 									if (otherFc != null) {
 										otherFc.downstreamConnections.add(fd.id);
 									}
 								}
 							} else {
-								String conn = resolve.decompose(sd1.ref).nodeId;
+								String conn = resolve.decompose(sd1.ref).getNodeId();
 								FilterComparator otherFc = fcs.get(conn);
 								if (otherFc != null) {
 									otherFc.downstreamConnections.add(fd.id);
@@ -372,14 +372,14 @@ public class QueryDefinitionPreprocessor {
 		DatasetInput dataset = null;
 		FilterDefinition fd = null;
 		try {
-			dataset = (DatasetInput) datasetStore.getDataset(nr.nodeId);
+			dataset = (DatasetInput) datasetStore.getDataset(nr.getNodeId());
 		} catch (ClassCastException e) {
 			throw new QueryConfigurationException(String.format(
-					"Dataset \"%s\" is not an input dataset.", nr.nodeId));
+					"Dataset \"%s\" is not an input dataset.", nr.getNodeId()));
 		} catch (QueryConfigurationException e) {
 			// Will check for null below.
 		}
-		fd = filterMap.get(nr.nodeId);
+		fd = filterMap.get(nr.getNodeId());
 
 		if (dataset != null) {
 			isDatasetReference = true;
@@ -389,13 +389,13 @@ public class QueryDefinitionPreprocessor {
 			outputNames = filterOutputMap.get(fd.classname);
 		} else {
 			throw new QueryConfigurationException(String.format(
-					"\"%s\" is not a filter or dataset id.", nr.nodeId));
+					"\"%s\" is not a filter or dataset id.", nr.getNodeId()));
 		}
 
 		List<NodeReference> refs = new ArrayList<NodeReference>();
 		Pattern re;
 		try {
-			re = Pattern.compile(nr.socketName);
+			re = Pattern.compile(nr.getSocketName());
 		} catch (PatternSyntaxException e) {
 			throw new QueryConfigurationException(String.format(
 					"Could not compile regular expression from \"%s\"", nr), e);
@@ -405,8 +405,8 @@ public class QueryDefinitionPreprocessor {
 			if (!match.matches())
 				continue;
 			NodeReference newRef = new NodeReference();
-			newRef.nodeId = nr.nodeId;
-			newRef.socketName = varName;
+			newRef.setNodeId(nr.getNodeId());
+			newRef.setSocketName(varName);
 			refs.add(newRef);
 			if (isDatasetReference)
 				inputVariableReferences.add(newRef);

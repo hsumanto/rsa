@@ -19,9 +19,9 @@
 
 package org.vpac.ndg.query;
 
-class NodeReference {
-	String nodeId;
-	String socketName;
+public class NodeReference {
+	private String nodeId;
+	private String socketName;
 
 	@Override
 	public String toString() {
@@ -65,5 +65,21 @@ class NodeReference {
 		} else if (!socketName.equals(other.socketName))
 			return false;
 		return true;
+	}
+
+	public String getNodeId() {
+		return nodeId;
+	}
+
+	public void setNodeId(String nodeId) {
+		this.nodeId = nodeId;
+	}
+
+	public String getSocketName() {
+		return socketName;
+	}
+
+	public void setSocketName(String socketName) {
+		this.socketName = socketName;
 	}
 }

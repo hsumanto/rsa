@@ -74,6 +74,7 @@ import org.vpac.ndg.query.Query;
 import org.vpac.ndg.query.QueryConfigurationException;
 import org.vpac.ndg.query.QueryDefinition;
 import org.vpac.ndg.query.QueryDefinition.DatasetInputDefinition;
+import org.vpac.ndg.query.Resolve;
 import org.vpac.ndg.query.math.BoxReal;
 import org.vpac.ndg.query.math.ScalarElement;
 import org.vpac.ndg.query.math.Type;
@@ -761,8 +762,9 @@ public class DataController {
 	    
 	}
 	
-	
-	@RequestMapping(value = "/Query", method = RequestMethod.POST)
+
+	@RequestMapping(value = "/Query", method = RequestMethod.POST,
+			headers = "content-type=multipart/form-data*")
 	public String query(@RequestParam(required = false) MultipartFile file,
 			@RequestParam(required = false) String threads,
 			@RequestParam(required = false) Double minX,
@@ -774,9 +776,37 @@ public class DataController {
 			@RequestParam(required = false) String netcdfVersion,
 			ModelMap model)
 			throws IOException, QueryConfigurationException, IllegalAccessException {
-
 		QueryDefinition qd1 = QueryDefinition.fromXML(file.getInputStream());
-		String baseRsaDatasetRef = qd1.output.grid.ref.replace("#", "");
+		return query(qd1, threads, minX, minY, maxX, maxY, startDate, endDate,
+				netcdfVersion, model);
+	}
+
+	@RequestMapping(value = "/Query", method = RequestMethod.POST)
+	public String query(@RequestParam(required = false) String query,
+			@RequestParam(required = false) String threads,
+			@RequestParam(required = false) Double minX,
+			@RequestParam(required = false) Double minY,
+			@RequestParam(required = false) Double maxX,
+			@RequestParam(required = false) Double maxY,
+			@RequestParam(required = false) String startDate,
+			@RequestParam(required = false) String endDate,
+			@RequestParam(required = false) String netcdfVersion,
+			ModelMap model)
+			throws IOException, QueryConfigurationException, IllegalAccessException {
+		QueryDefinition qd1 = QueryDefinition.fromString(query);
+		return query(qd1, threads, minX, minY, maxX, maxY, startDate, endDate,
+				netcdfVersion, model);
+	}
+
+	public String query(QueryDefinition qd1, String threads,
+			Double minX, Double minY, Double maxX, Double maxY,
+			String startDate, String endDate, String netcdfVersion,
+			ModelMap model)
+			throws IOException, QueryConfigurationException, IllegalAccessException {
+
+		Resolve resolve = new Resolve();
+
+		String baseRsaDatasetRef = resolve.decompose(qd1.output.grid.ref).getNodeId();
 		String baseRsaDatasetName = "";
 		CellSize baseRsaDatasetResolution = null;		
 		
@@ -789,7 +819,7 @@ public class DataController {
 		}
 		
 		Box extent = null;
-		if(diGrid == null)
+		if (diGrid == null)
 			throw new IllegalArgumentException("No input reference of output grid");
 
 		if (diGrid.href.startsWith("rsa")) {
