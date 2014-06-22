@@ -6,6 +6,7 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
 import javax.servlet.ServletConfig;
@@ -19,6 +20,7 @@ import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 import org.vpac.ndg.common.datamodel.TaskState;
 import org.vpac.ndg.common.datamodel.TaskType;
+import org.vpac.ndg.configuration.NdgConfigManager;
 import org.vpac.ndg.storage.dao.BandDao;
 import org.vpac.ndg.storage.dao.DatasetDao;
 import org.vpac.ndg.storage.dao.JobProgressDao;
@@ -29,6 +31,7 @@ import org.vpac.ndg.storage.model.TimeSlice;
 import org.vpac.ndg.storage.util.DatasetUtil;
 import org.vpac.ndg.task.Task;
 import org.vpac.ndg.task.WmtsBandCreator;
+import org.vpac.ndg.task.WmtsQueryCreator;
 
 import thredds.util.UnidataTdsDataPathRemapper.UrlRemapperBean;
 
@@ -38,6 +41,7 @@ public class TmsServlet extends HttpServlet {
     private BandDao bandDao;
     private TimeSliceDao timeSliceDao;
     private JobProgressDao jobProgressDao;
+    private NdgConfigManager ndgConfigManager;
     
     private DatasetUtil datasetUtil;
     
@@ -51,6 +55,7 @@ public class TmsServlet extends HttpServlet {
         this.bandDao = (BandDao) ctx.getBean("bandDao");
         this.timeSliceDao = (TimeSliceDao) ctx.getBean("timeSliceDao");
         this.jobProgressDao = (JobProgressDao) ctx.getBean("jobProgressDao");
+        this.ndgConfigManager = (NdgConfigManager) ctx.getBean("ndgConfigManager");
         
         datasetUtil = new DatasetUtil();
     }
@@ -177,14 +182,31 @@ public class TmsServlet extends HttpServlet {
         in.close();
     }
 
+    protected Path getQueryWmtsDirectory(String queryJobProgressId) {
+        Path pickupPath = Paths.get(ndgConfigManager.getConfig().getDefaultPickupLocation());
+        
+        String wmtsPath = String.format("%s/%s/%s", queryJobProgressId, WmtsQueryCreator.WMTS_TILE_DIR, queryJobProgressId);
+        Path queryPickupPath = pickupPath.resolve(wmtsPath);
+        
+        return queryPickupPath;
+    }
+    
     private void doGetQuery(JobProgress progress, String urlRemainder, HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         
-        response.setContentType("text/html");
-        response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-        PrintWriter out = response.getWriter();
-        out.println("Query WMTS not implemented");
-        return;
+        Path queryWmtsDir = getQueryWmtsDirectory(progress.getId());
+        
+        Path resolvedWmtsTileFile = queryWmtsDir.resolve(urlRemainder.substring(1));
+        
+        if (Files.notExists(resolvedWmtsTileFile)) {
+            response.setContentType("text/html");
+            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            PrintWriter out = response.getWriter();
+            out.println("No tile");
+        }
+        else {
+            writeFileToResponse(resolvedWmtsTileFile, response);   
+        }
     }
 
     public void destroy() {
