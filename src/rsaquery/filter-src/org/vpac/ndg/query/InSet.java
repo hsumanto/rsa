@@ -17,47 +17,44 @@
  * http://vpac-innovations.com.au
  */
 
-package org.vpac.web.query;
+package org.vpac.ndg.query;
 
-import java.io.IOException;
+import java.util.List;
 
 import org.vpac.ndg.query.QueryConfigurationException;
 import org.vpac.ndg.query.filter.CellType;
 import org.vpac.ndg.query.filter.Description;
-import org.vpac.ndg.query.filter.Filter;
 import org.vpac.ndg.query.filter.InheritDimensions;
-import org.vpac.ndg.query.filter.Rank;
 import org.vpac.ndg.query.math.BoxReal;
-import org.vpac.ndg.query.math.Element;
-import org.vpac.ndg.query.math.VectorReal;
-import org.vpac.ndg.query.sampling.Cell;
-import org.vpac.ndg.query.sampling.PixelSource;
+import org.vpac.ndg.query.math.ElementByte;
+import org.vpac.ndg.query.math.ScalarElement;
+import org.vpac.ndg.query.sampling.CellScalar;
+import org.vpac.ndg.query.sampling.PixelSourceScalar;
 
-@Description(name = "Maximum", description = "Returns the greater value of its"
-		+ " inputs. Can also be used as an 'or' filter for boolean data.")
-@InheritDimensions(from = "in")
-public class Maximum implements Filter {
+@Description(name = "In Set", description = "Generates a mask of pixels that are contained in a set.")
+@InheritDimensions(from = "input")
+public class InSet extends InRange {
 
 	// Input fields.
-	@Rank(promote = true, group = "in")
-	public PixelSource inputA;
-	@Rank(promote = true, group = "in")
-	public PixelSource inputB;
+	public PixelSourceScalar input;
+
+	// Comma-separated list of IDs.
+	public String ids;
 
 	// Output fields.
-	@CellType("inputA")
-	public Cell output;
+	@CellType("byte")
+	public CellScalar output;
 
-	Element<?> max;
+	List<Double> lowerBounds;
+	List<Double> upperBounds;
+	public double EPSILON = 0.00001;
+	ScalarElement match = new ElementByte((byte) 1);
+	ScalarElement fail = new ElementByte((byte) 0);
 
 	@Override
 	public void initialise(BoxReal bounds) throws QueryConfigurationException {
-		max = inputA.getPrototype().getElement().copy();
+		String[] keys = ids.split(",");
+		setBounds(keys, keys);
 	}
 
-	@Override
-	public void kernel(VectorReal coords) throws IOException {
-		max.maxOf(inputA.getPixel(coords), inputB.getPixel(coords));
-		output.set(max);
-	}
 }

@@ -17,7 +17,7 @@
  * http://vpac-innovations.com.au
  */
 
-package org.vpac.web.query;
+package org.vpac.ndg.query;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -35,7 +35,7 @@ import org.vpac.ndg.query.math.VectorReal;
 import org.vpac.ndg.query.sampling.CellScalar;
 import org.vpac.ndg.query.sampling.PixelSourceScalar;
 
-@Description(name = "Range", description = "Generates a mask of pixels that are within a set of ranges.")
+@Description(name = "In Range", description = "Generates a mask of pixels that are within a set of ranges.")
 @InheritDimensions(from = "input")
 public class InRange implements Filter {
 
