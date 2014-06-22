@@ -97,6 +97,7 @@ import org.vpac.ndg.task.Exporter;
 import org.vpac.ndg.task.ImageTranslator;
 import org.vpac.ndg.task.Importer;
 import org.vpac.ndg.task.WmtsBandCreator;
+import org.vpac.ndg.task.WmtsQueryCreator;
 import org.vpac.web.exception.ResourceNotFoundException;
 import org.vpac.web.model.request.DataExportRequest;
 import org.vpac.web.model.request.FileRequest;
@@ -724,22 +725,40 @@ public class DataController {
 	}
 
 	@RequestMapping(value = "/WmtsDatasetGenerate", method = RequestMethod.POST)
-	public String wmtsDatasetGenerate(@RequestParam(required = true) String datasetId, 
+	public String wmtsDatasetGenerate(@RequestParam(required = false) String datasetId, 
 	                                  @RequestParam(required = false) String timesliceId,
-	                                  @RequestParam(required = true) String bandId,
-	                                  ModelMap model) throws TaskInitialisationException {
+	                                  @RequestParam(required = false) String bandId,
+	                                  @RequestParam(required = false) String queryJobProgressId,
+	                                  ModelMap model) throws TaskInitialisationException, IllegalAccessException {
 	    
-	    
-	    WmtsBandCreator bandCreator = new WmtsBandCreator();
-	    bandCreator.setDatasetId(datasetId);
-	    bandCreator.setTimesliceId(timesliceId);
-	    bandCreator.setBandId(bandId);
-	    
-	    bandCreator.configure();
-	    model.addAttribute(ControllerHelper.RESPONSE_ROOT, new ExportResponse(bandCreator.getTaskId()));
-	    bandCreator.runInBackground();
+	    if (queryJobProgressId != null) {
+	        //then generate tiles for the query results
+	        WmtsQueryCreator bandCreator = new WmtsQueryCreator();
+	        bandCreator.setQueryJobProgressId(queryJobProgressId);
 
-	    return "Success";
+	        bandCreator.configure();
+	        model.addAttribute(ControllerHelper.RESPONSE_ROOT, new ExportResponse(bandCreator.getTaskId()));
+	        bandCreator.runInBackground();
+	           
+	        return "Success";
+	    } else if (datasetId != null && bandId != null) {
+	        //then generate tiles for something stored in the storage pool
+	        //Note: timeslice doesn't really matter, if not specified we build all timeslices
+	        WmtsBandCreator bandCreator = new WmtsBandCreator();
+	        bandCreator.setDatasetId(datasetId);
+	        bandCreator.setTimesliceId(timesliceId);
+	        bandCreator.setBandId(bandId);
+	        
+	        bandCreator.configure();
+	        model.addAttribute(ControllerHelper.RESPONSE_ROOT, new ExportResponse(bandCreator.getTaskId()));
+	        bandCreator.runInBackground();
+
+	        return "Success";
+	    } else {
+	        throw new IllegalAccessException("Failed to specify a query job progress id, or a dataset and band id");
+	    }
+	    
+	    
 	}
 	
 	
