@@ -19,6 +19,7 @@
 
 package org.vpac.ndg.task;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -159,12 +160,32 @@ public class VrtBuilder extends Task {
                 command.add(tileband.getFileLocation().toString());
             }
         } else  {
-            command.add(sourceFile.getFileLocation().toString());
+            List<Path> sourceFiles = getSourceFilesFromFile(sourceFile);
+            for (Path sourceFile: sourceFiles) {
+                command.add(sourceFile.toString());
+            }
         }
 
         return command;
     }
 
+    private List<Path> getSourceFilesFromFile(GraphicsFile file) {
+        List<Path> sourceFiles = new ArrayList<Path>();
+        if (file.getFileLocation().toFile().isDirectory())
+        {
+            File[] filesInDir = file.getFileLocation().toFile().listFiles();
+            for (File fileInDir : filesInDir) {
+                if (fileInDir.isFile()) {
+                    sourceFiles.add(fileInDir.toPath());
+                }
+            }
+        } else {
+             sourceFiles.add(sourceFile.getFileLocation());
+        }
+        return sourceFiles;
+    }
+    
+    
     @Override
     public void execute() throws TaskException {
         if (source == null && sourceFile == null && source.isEmpty()) {
