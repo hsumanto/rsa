@@ -164,12 +164,13 @@ public class DatasetController {
 		List<DatasetCats> cats = statisticsDao.searchCats(datasetId, timeSliceId, bandId, filter);
 		Dataset ds =  datasetDao.retrieve(datasetId);
 
-		if(cats != null) {
+		if (cats.size() > 0) {
 			DatasetHistResponse result = new DatasetHistResponse(cats.get(0), ds);
 			result.processSummary(categories);
 			model.addAttribute(ControllerHelper.RESPONSE_ROOT, result);
-		} else
-			throw new ResourceNotFoundException("No data not found.");
+		} else {
+			throw new ResourceNotFoundException("No data found for this dataset, band, time slice and categorisation.");
+		}
 
 		return "List";
 	}
@@ -306,12 +307,13 @@ public class DatasetController {
 		List<DatasetCats> cats = statisticsDao.searchCats(datasetId, timeSliceId, bandId, type);
 		Dataset ds =  datasetDao.retrieve(datasetId);
 		
-		if(cats != null) {
+		if (cats.size() > 0) {
 			DatasetCatsResponse result = new DatasetCatsResponse(cats.get(0), ds);
 			result.processSummary(lower, upper);
 			model.addAttribute(ControllerHelper.RESPONSE_ROOT, result);
-		} else
-			throw new ResourceNotFoundException("No data not found.");
+		} else {
+			throw new ResourceNotFoundException("No data found for this dataset, band, time slice and categorisation.");
+		}
 
 		return "List";
 	}
