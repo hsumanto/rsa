@@ -113,6 +113,7 @@ public class TaskResponse {
 		this.setNumberOfSteps(jp.getNumberOfSteps());
 		this.setCurrentStep(jp.getCurrentStep());
 		this.setCurrentStepProgress(jp.getCurrentStepProgress());
+		System.out.println("CurrentProgress:" + jp.getCurrentStepProgress());
 		this.setErrorMessage(jp.getErrorMessage());
 		this.setJobDescription(jp.getJobDescription());
 		this.setProcessingSource(jp.getProcessingSource());

@@ -20,7 +20,6 @@ public class TaskHist implements Serializable {
 	
 	public TaskHist(String taskId, String name, CellSize outputResolution, Hist hist) {
 		this.taskId = taskId;
-		this.name = name;
 		this.hist = hist;
 		this.outputResolution = outputResolution;
 	}
@@ -49,13 +48,6 @@ public class TaskHist implements Serializable {
 		this.hist = hist;
 	}
 
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
 	public CellSize getOutputResolution() {
 		return outputResolution;
 	}

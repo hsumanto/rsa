@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Queue;
@@ -147,13 +148,14 @@ public class Master extends UntypedActor {
 					noOfWork++;
 				}
 			}
-			System.out.println("noOfWork:" + noOfWork);
-			System.out.println("workCompleted:" + workCompleted);
-			System.out.println("calc:" + (workCompleted * 100 / (noOfWork) ) + "%");
 			JobProgress job = jobProgressDao.retrieve(currentWorkInfo.work.jobProgressId);
 			job.setCurrentStepProgress(100 * workCompleted / (noOfWork));
 			
 			if(workCompleted == noOfWork) {
+				System.out.println("noOfWork:" + noOfWork);
+				System.out.println("workCompleted:" + workCompleted);
+				System.out.println("calc:" + (workCompleted * 100 / (noOfWork) ) + "%");
+
 				job.setCompleted();
 				foldResults(currentWorkInfo);
 			}
@@ -255,13 +257,30 @@ public class Master extends UntypedActor {
 			Foldable value = resultMap.get(key);
 			if (VectorCats.class.isAssignableFrom(value.getClass())) {
 				CellSize outputResolution = CellSize.m25;
-				statisticsDao.saveCats(new TaskCats(currentWorkInfo.work.jobProgressId, key, outputResolution,((VectorCats)value).getComponents()[0]));
+				if(!isTaskCatsExist(currentWorkInfo, key))
+					statisticsDao.saveCats(new TaskCats(currentWorkInfo.work.jobProgressId, key, outputResolution,((VectorCats)value).getComponents()[0]));
 			} else 	if (VectorHist.class.isAssignableFrom(value.getClass())) {
 				CellSize outputResolution = CellSize.m25;
-				statisticsDao.saveHist(new TaskHist(currentWorkInfo.work.jobProgressId, key, outputResolution,((VectorHist)value).getComponents()[0]));
+				if(!isTaskHistExist(currentWorkInfo, key))
+					statisticsDao.saveHist(new TaskHist(currentWorkInfo.work.jobProgressId, key, outputResolution,((VectorHist)value).getComponents()[0]));
 			}
 		}
 	}
+	
+	private boolean isTaskCatsExist(WorkInfo currentWorkInfo, String key) {
+		List<TaskCats> tc = statisticsDao.searchCats(currentWorkInfo.work.jobProgressId, key);
+		if(tc.size() > 0)
+			return true;
+		return false;
+	}
+
+	private boolean isTaskHistExist(WorkInfo currentWorkInfo, String key) {
+		List<TaskHist> th = statisticsDao.searchHist(currentWorkInfo.work.jobProgressId);
+		if(th.size() > 0)
+			return true;
+		return false;
+	}
+
 	
 	private void notifyWorkers() {
 		if (!pendingWork.isEmpty()) {

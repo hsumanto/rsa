@@ -52,6 +52,15 @@ public class StatisticsDaoImpl extends CustomHibernateDaoSupport implements Stat
 		return cats;
 	}
 
+	@Override
+	public List<TaskHist> searchHist(String taskId) {
+		Session session = getSession();
+		Criteria c = session.createCriteria(TaskHist.class, "th");
+		c.add(Restrictions.eq("th.taskId", taskId));
+		List<TaskHist> hist = c.list();
+		return hist;
+	}
+
 	// @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	// public void update(Dataset ds){
 	// getHibernateTemplate().update(ds);

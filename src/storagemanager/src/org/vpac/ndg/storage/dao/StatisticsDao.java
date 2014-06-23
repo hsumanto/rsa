@@ -11,5 +11,6 @@ public interface StatisticsDao {
 	public void saveCats(TaskCats tc);
 	public void saveCats(DatasetCats dc);
 	public List<TaskCats> searchCats(String taskId, String cattype);
+	public List<TaskHist> searchHist(String taskId);
 	public List<DatasetCats> searchCats(String datasetId, String timeSliceId, String bandId, String catType);
 }
