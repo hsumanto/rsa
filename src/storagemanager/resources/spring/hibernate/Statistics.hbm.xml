@@ -33,7 +33,6 @@
 		<id name="id" type="string" column="ID">
 			<generator class="uuid" />
 		</id>
-		<property name="name" type="string" column="NAME" />
 		<property name="taskId" type="string" column="TASKID" />
 		<property name="outputResolution">
 			<type name="org.hibernate.type.EnumType">
