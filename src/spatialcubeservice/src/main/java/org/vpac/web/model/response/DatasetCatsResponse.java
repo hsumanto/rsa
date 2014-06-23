@@ -81,11 +81,11 @@ public class DatasetCatsResponse {
 	public void setCategorisation(String categorisation) {
 		this.categorisation = categorisation;
 	}
-	public List<CatsElement> getTable() {
+	public List<CatsElement> getRows() {
 		return table;
 	}
 	@XmlAttribute
-	public void setTable(List<CatsElement> table) {
+	public void setRows(List<CatsElement> table) {
 		this.table = table;
 	}
 	
@@ -105,30 +105,20 @@ public class DatasetCatsResponse {
 	public void processSummary(Double lower, Double upper) {
 		CellSize outputResolution = dataset.getResolution();
 		List<CatsElement> result = new ArrayList<CatsElement>();
-		for(Entry<Integer, Hist> key : this.cat.getCats().getCategories().entrySet()) {
-			Stats s = null;
-			List<Bucket> filteredBuckets = new ArrayList<Bucket>();
-			filteredBuckets.addAll(key.getValue().getBuckets());
-			if (lower != null)
-				for(int i = 0; i < filteredBuckets.size(); i++) {
-					if(filteredBuckets.get(i).getLower() < lower)
-						filteredBuckets.remove(i);
-				}
-			if (upper != null)
-				for(int i = 0; i < filteredBuckets.size(); i++) {
-					if(filteredBuckets.get(i).getUpper() > upper)
-						filteredBuckets.remove(i);
-				}
-
-			for(Bucket b : filteredBuckets) {
-				if(s == null)
-					s = new Stats();
+		double cellArea = outputResolution.toDouble() * outputResolution.toDouble();
+		for (Entry<Integer, Hist> entry : this.cat.getCats().getCategories().entrySet()) {
+			Stats s = new Stats();
+			for (Bucket b : entry.getValue().getBuckets()) {
+				if (lower != null && b.getLower() < lower)
+					continue;
+				if (upper != null && b.getUpper() > upper)
+					continue;
 				s = s.fold(b.getStats());
 			}
-			if(s != null)
-				result.add(new CatsElement(key.getKey(), s.getCount() * outputResolution.toDouble() * outputResolution.toDouble()));
+			if (s.getCount() > 0)
+				result.add(new CatsElement(entry.getKey(), s.getCount() * cellArea));
 		}
-		this.setTable(result);
+		this.setRows(result);
 	}
 	public String getTableType() {
 		return tableType;

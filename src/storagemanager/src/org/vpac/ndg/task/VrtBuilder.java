@@ -19,6 +19,7 @@
 
 package org.vpac.ndg.task;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -42,214 +43,322 @@ import org.vpac.ndg.storagemanager.GraphicsFile;
 
 public class VrtBuilder extends Task {
 
-	final private Logger log = LoggerFactory.getLogger(VrtBuilder.class);
+    final private Logger log = LoggerFactory.getLogger(VrtBuilder.class);
 
-	private List<TileBand> source;
-	private GraphicsFile target;
-	private List<GraphicsFile> outputBucket;
-	private Path temporaryLocation;
-	private TimeSlice timeSlice;
-	private Band band;
-	private List<Path> tmpFileList; // Store the tmp vrt files in tmp directory
-	TimeSliceUtil timeSliceUtil;
-	private boolean copyToStoragePool;
+    private List<TileBand> source;
+    private GraphicsFile sourceFile;
+    private GraphicsFile target;
+    private List<GraphicsFile> outputBucket;
+    private Path temporaryLocation;
+    private TimeSlice timeSlice;
+    private Band band;
+    private List<Path> tmpFileList; // Store the tmp vrt files in tmp directory
+    TimeSliceUtil timeSliceUtil;
+    private boolean copyToStoragePool;
 
-	private CommandUtil commandUtil;
+    private boolean targetResolutionSet;
+    private double targetResolutionX;
+    private double targetResolutionY;
 
-	public VrtBuilder() {
-		this(Constant.TASK_DESCRIPTION_VRTBUILDER);
-	}
+    private boolean targetExtentsSet;
+    private double[] targetExtents;
 
-	public VrtBuilder(String description) {
-		super(description);
-		ApplicationContext appContext = ApplicationContextProvider.getApplicationContext();
-		timeSliceUtil = (TimeSliceUtil) appContext.getBean("timeSliceUtil");
-		commandUtil = new CommandUtil();
-		copyToStoragePool = false;
-	}
+    private CommandUtil commandUtil;
 
-	@Override
-	public void initialise() throws TaskInitialisationException {
-		if(getSource() == null) {
-			throw new TaskInitialisationException(getDescription(), Constant.ERR_NO_INPUT_IMAGES);
-		}
-		
-		if(getTarget() == null) {
-			throw new TaskInitialisationException(getDescription(), Constant.ERR_TARGET_DATASET_NOT_SPECIFIED);
-		}
+    public VrtBuilder() {
+        this(Constant.TASK_DESCRIPTION_VRTBUILDER);
+    }
 
-		// If temporaryLocation is null, create temporary location
-		if(temporaryLocation == null) {			
-			try {
-				temporaryLocation = FileUtils.createTmpLocation();
-			} catch (IOException e) {
-				log.error("Could not create temporary directory: {}", e);
-				throw new TaskInitialisationException(String.format("Error encountered when create temporary directory: %s", temporaryLocation));
-			}
-			log.info("Temporary Location: {}", temporaryLocation);
-		}
+    public VrtBuilder(String description) {
+        super(description);
+        ApplicationContext appContext = ApplicationContextProvider
+                .getApplicationContext();
+        timeSliceUtil = (TimeSliceUtil) appContext.getBean("timeSliceUtil");
+        commandUtil = new CommandUtil();
+        copyToStoragePool = false;
 
-		tmpFileList = new ArrayList<Path>();
-	}
+        targetResolutionSet = false;
+        targetExtentsSet = false;
+    }
 
-	public void revalidateBeforeExecution() throws TaskException {
-		for (TileBand tileband : source) {
-			if (!tileband.getBand().equals(band)) {
-				throw new TaskException(String.format(
-						"Band \"%s\" not found in dataset.",
-						tileband.getBand().getName()));
-			}
-		}
-	}
+    @Override
+    public void initialise() throws TaskInitialisationException {
+        if (getSource() == null && this.sourceFile == null) {
+            throw new TaskInitialisationException(getDescription(),
+                    Constant.ERR_NO_INPUT_IMAGES);
+        }
 
-	public List<String> prepareCommand() {
-		List<String> command = new ArrayList<String>();
+        if (getTarget() == null) {
+            throw new TaskInitialisationException(getDescription(),
+                    Constant.ERR_TARGET_DATASET_NOT_SPECIFIED);
+        }
 
-		// get the input file list
-		command.add("gdalbuildvrt");
+        // If temporaryLocation is null, create temporary location
+        if (temporaryLocation == null) {
+            try {
+                temporaryLocation = FileUtils.createTmpLocation();
+            } catch (IOException e) {
+                log.error("Could not create temporary directory: {}", e);
+                throw new TaskInitialisationException(
+                        String.format(
+                                "Error encountered when create temporary directory: %s",
+                                temporaryLocation));
+            }
+            log.info("Temporary Location: {}", temporaryLocation);
+        }
 
-		command.add("-resolution");
-		command.add("highest");
+        tmpFileList = new ArrayList<Path>();
+    }
 
-		command.add(target.getFileLocation().toString());
+    public void revalidateBeforeExecution() throws TaskException {
+        if (source != null) {
+            for (TileBand tileband : source) {
+                if (!tileband.getBand().equals(band)) {
+                    throw new TaskException(String.format(
+                            "Band \"%s\" not found in dataset.", tileband.getBand()
+                                    .getName()));
+                }
+            }
+        }
 
-		for(TileBand tileband: source) {
-			command.add(tileband.getFileLocation().toString());
-		}
-	
-		return command;
-	}
+    }
 
-	@Override
-	public void execute() throws TaskException {
-		if (source.isEmpty()) {
-			// Can't work with zero input files. Just return; the output list
-			// will not be populated. This is not an error.
-			log.debug("Source is empty; will not create a VRT.");
-			return;
-		}
+    public List<String> prepareCommand() {
+        List<String> command = new ArrayList<String>();
 
-		revalidateBeforeExecution();
+        // get the input file list
+        command.add("gdalbuildvrt");
 
-		// Prepare gdalbuildvrt for the specified band and then execute it
-		List<String> command = prepareCommand();			
-		try {
-			commandUtil.start(command);
-		} catch (ProcessException e) {
-			throw new TaskException(getDescription(), e);
-		} catch (InterruptedException e) {
-			throw new TaskException(getDescription(), e);
-		} catch (IOException e) {
-			throw new TaskException(getDescription(), e);
-		}
+        command.add("-overwrite");
+        
+        if (targetResolutionSet) {
+            command.add("-tr");
+            command.add(Double.toString(targetResolutionX));
+            command.add(Double.toString(targetResolutionY));
+        } else {
+            command.add("-resolution");
+            command.add("highest");
+        }
 
-		if (outputBucket != null)
-			outputBucket.add(target);
+        if (targetExtentsSet) {
+            command.add("-te");
+            for (double d : targetExtents) {
+                command.add(Double.toString(d));
+            }
+        }
 
-		// TODO: Copying should always be done in the Committer, not here.
-		if (!isCopyToStoragePool())
-			return;
+        if (band !=null && band.getNodata() != null && band.getNodata().length() != 0) {
+            command.add("-srcnodata");
+            command.add(band.getNodata());
+        }
+        
+        
+        command.add(target.getFileLocation().toString());
+        
+        if (source != null) {
+            for (TileBand tileband : source) {
+                command.add(tileband.getFileLocation().toString());
+            }
+        } else  {
+            List<Path> sourceFiles = getSourceFilesFromFile(sourceFile);
+            for (Path sourceFile: sourceFiles) {
+                command.add(sourceFile.toString());
+            }
+        }
 
-		try {
-			// Initialize timeSlice directory in storagepool if applicable
-			timeSliceUtil.initializeLocations(timeSlice);
-		} catch (IOException e) {
-			log.error("Could not create timeslice directory: {}", e);
-			throw new TaskException(String.format("Error encountered when creating timeslice directory: %s", timeSliceUtil.getFileLocation(timeSlice)));
-		}
-		Path from = target.getFileLocation();
-		Path to = timeSliceUtil.getFileLocation(timeSlice).resolve(from.getFileName());
-		try {
-			// Store the tmp vrt file for removal later
-			tmpFileList.add(from);
-			// Copy into vrt file into storage pool
-			FileUtils.copy(from, to);
-			// Set the new location in storage pool
-			target.setFileLocation(to);
-		} catch (IOException e) {
-			throw new TaskException(String.format(Constant.ERR_COPY_FILE_FAILED, from, to), e);
-		}
-	}
+        return command;
+    }
 
-	@Override
-	public void rollback() {
-		if(target == null) {
-			return;
-		}
+    private List<Path> getSourceFilesFromFile(GraphicsFile file) {
+        List<Path> sourceFiles = new ArrayList<Path>();
+        if (file.getFileLocation().toFile().isDirectory())
+        {
+            File[] filesInDir = file.getFileLocation().toFile().listFiles();
+            for (File fileInDir : filesInDir) {
+                if (fileInDir.isFile()) {
+                    sourceFiles.add(fileInDir.toPath());
+                }
+            }
+        } else {
+             sourceFiles.add(sourceFile.getFileLocation());
+        }
+        return sourceFiles;
+    }
+    
+    
+    @Override
+    public void execute() throws TaskException {
+        if (source == null && sourceFile == null && source.isEmpty()) {
+            // Can't work with zero input files. Just return; the output list
+            // will not be populated. This is not an error.
+            log.debug("Source is empty; will not create a VRT.");
+            return;
+        }
 
-		// Delete vrt file
-		if (target.deleteIfExists()) {
-			log.trace("Deleted {}", target);
-		}
-	}
+        revalidateBeforeExecution();
 
-	@Override
-	public void finalise() {
-		for(Path tmpVrt: tmpFileList) {
-			// Delete vrt file in temporary storage
-			if(FileUtils.deleteIfExists(tmpVrt)) {
-				log.trace("Deleted {}", tmpVrt);
-			}
-		}
-	}
+        // Prepare gdalbuildvrt for the specified band and then execute it
+        List<String> command = prepareCommand();
+        try {
+            commandUtil.start(command);
+        } catch (ProcessException e) {
+            throw new TaskException(getDescription(), e);
+        } catch (InterruptedException e) {
+            throw new TaskException(getDescription(), e);
+        } catch (IOException e) {
+            throw new TaskException(getDescription(), e);
+        }
 
-	public void setSource(List<TileBand> source) {
-		this.source = source;
-	}
+        if (outputBucket != null)
+            outputBucket.add(target);
 
-	public List<TileBand> getSource() {
-		return source;
-	}
+        // TODO: Copying should always be done in the Committer, not here.
+        if (!isCopyToStoragePool())
+            return;
 
-	public void setTarget(GraphicsFile vrtFile) {
-		this.target = vrtFile;
-	}
+        try {
+            // Initialize timeSlice directory in storagepool if applicable
+            timeSliceUtil.initializeLocations(timeSlice);
+        } catch (IOException e) {
+            log.error("Could not create timeslice directory: {}", e);
+            throw new TaskException(String.format(
+                    "Error encountered when creating timeslice directory: %s",
+                    timeSliceUtil.getFileLocation(timeSlice)));
+        }
+        Path from = target.getFileLocation();
+        Path to = timeSliceUtil.getFileLocation(timeSlice).resolve(
+                from.getFileName());
+        try {
+            // Store the tmp vrt file for removal later
+            tmpFileList.add(from);
+            // Copy into vrt file into storage pool
+            FileUtils.copy(from, to);
+            // Set the new location in storage pool
+            target.setFileLocation(to);
+        } catch (IOException e) {
+            throw new TaskException(String.format(
+                    Constant.ERR_COPY_FILE_FAILED, from, to), e);
+        }
+    }
 
-	public GraphicsFile getTarget() {
-		return target;
-	}
+    @Override
+    public void rollback() {
+        if (target == null) {
+            return;
+        }
 
-	public void setTimeSlice(TimeSlice timeSlice) {
-		this.timeSlice = timeSlice;
-	}
+        // Delete vrt file
+        if (target.deleteIfExists()) {
+            log.trace("Deleted {}", target);
+        }
+    }
 
-	public TimeSlice getTimeSlice() {
-		return timeSlice;
-	}
+    @Override
+    public void finalise() {
+        for (Path tmpVrt : tmpFileList) {
+            // Delete vrt file in temporary storage
+            if (FileUtils.deleteIfExists(tmpVrt)) {
+                log.trace("Deleted {}", tmpVrt);
+            }
+        }
+    }
 
-	/**
-	 * Set the temporary location for storing temporary .ncml file.
-	 * @param temporaryLocation The specified temporary location.
-	 */
-	public void setTemporaryLocation(Path temporaryLocation) {
-		this.temporaryLocation = temporaryLocation;
-	}
+    /**
+     * set the target resolution flag (-tr) passed to gdalbuildvrt, this will
+     * prevent the '-resolution' arguement from being included in the command
+     * line (obviously as the gdal docs state)
+     * 
+     * @param resolutionX
+     * @param resolutionY
+     */
+    public void setTargetResolution(double resolutionX, double resolutionY) {
+        targetResolutionSet = true;
+        targetResolutionX = resolutionX;
+        targetResolutionY = resolutionY;
+    }
 
-	public Band getBand() {
-		return band;
-	}
+    /**
+     * set the target extents flag (-te) passed to gdalbuildvrt
+     * 
+     * @param xmin
+     * @param ymin
+     * @param xmax
+     * @param ymax
+     */
+    public void setTargetExtents(double xmin, double ymin, double xmax,
+            double ymax) {
+        double te[] = { xmin, ymin, xmax, ymax };
+        targetExtentsSet = true;
+        targetExtents = te;
+    }
 
-	public void setBand(Band band) {
-		this.band = band;
-	}
+    public void setSource(List<TileBand> source) {
+        this.source = source;
+    }
+    
+    /**
+     * Sets a graphics file as the source to use in the construction of a VRT file
+     * @param source
+     */
+    public void setSource(GraphicsFile source) {
+        this.sourceFile = source;
+    }
 
-	public List<Path> getTmpFileList() {
-		return tmpFileList;
-	}
+    public List<TileBand> getSource() {
+        return source;
+    }
 
-	public boolean isCopyToStoragePool() {
-		return copyToStoragePool;
-	}
+    public void setTarget(GraphicsFile vrtFile) {
+        this.target = vrtFile;
+    }
 
-	public void setCopyToStoragePool(boolean copyToStoragePool) {
-		this.copyToStoragePool = copyToStoragePool;
-	}
+    public GraphicsFile getTarget() {
+        return target;
+    }
 
-	public List<GraphicsFile> getOutputBucket() {
-		return outputBucket;
-	}
+    public void setTimeSlice(TimeSlice timeSlice) {
+        this.timeSlice = timeSlice;
+    }
 
-	public void setOutputBucket(List<GraphicsFile> outputBucket) {
-		this.outputBucket = outputBucket;
-	}
+    public TimeSlice getTimeSlice() {
+        return timeSlice;
+    }
+
+    /**
+     * Set the temporary location for storing temporary .ncml file.
+     * 
+     * @param temporaryLocation
+     *            The specified temporary location.
+     */
+    public void setTemporaryLocation(Path temporaryLocation) {
+        this.temporaryLocation = temporaryLocation;
+    }
+
+    public Band getBand() {
+        return band;
+    }
+
+    public void setBand(Band band) {
+        this.band = band;
+    }
+
+    public List<Path> getTmpFileList() {
+        return tmpFileList;
+    }
+
+    public boolean isCopyToStoragePool() {
+        return copyToStoragePool;
+    }
+
+    public void setCopyToStoragePool(boolean copyToStoragePool) {
+        this.copyToStoragePool = copyToStoragePool;
+    }
+
+    public List<GraphicsFile> getOutputBucket() {
+        return outputBucket;
+    }
+
+    public void setOutputBucket(List<GraphicsFile> outputBucket) {
+        this.outputBucket = outputBucket;
+    }
 }

@@ -5,6 +5,16 @@
 
 	<display-name>Raster Storage Archive</display-name>
 
+    <servlet>
+        <servlet-name>tms</servlet-name>
+        <servlet-class>org.vpac.web.servlets.TmsServlet</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>tms</servlet-name>
+        <url-pattern>/tms/*</url-pattern>
+    </servlet-mapping>
+
 	<servlet>
 		<servlet-name>mvc-dispatcher</servlet-name>
 		<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>

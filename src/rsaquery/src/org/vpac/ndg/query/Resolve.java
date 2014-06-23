@@ -39,8 +39,8 @@ public class Resolve {
 		}
 
 		NodeReference nodeReference = new NodeReference();
-		nodeReference.nodeId = matcher.group(1);
-		nodeReference.socketName = matcher.group(2);
+		nodeReference.setNodeId(matcher.group(1));
+		nodeReference.setSocketName(matcher.group(2));
 		return nodeReference;
 	}
 }

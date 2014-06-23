@@ -150,25 +150,27 @@ public class DatasetController {
 
 	@RequestMapping(value = "/{datasetId}/**/hist", method = RequestMethod.GET)
 	public String getHistogram(@PathVariable String datasetId,
-			@RequestParam(required = false) List<Integer> categories,
-			@RequestParam(required = false) String type,
+			@RequestParam(value="cat", required = false) List<Integer> categories,
+			@RequestParam(required = false) String filter,
 			HttpServletRequest request, ModelMap model)
 			throws ResourceNotFoundException {
 		log.info("datasetId:" + datasetId);
 //		log.info("categories:" + categories.toString());
-		log.info("type:" + type);
+		log.info("filter:" + filter);
 		String requestURL = request.getRequestURI().toString();
 		String timeSliceId = findPathVariable(requestURL, "TimeSlice");
 		String bandId = findPathVariable(requestURL, "Band");
-		
-		List<DatasetCats> cats = statisticsDao.searchCats(datasetId, timeSliceId, bandId, type);
-		
-		if(cats != null) {
-			DatasetHistResponse result = new DatasetHistResponse(cats.get(0));
+
+		List<DatasetCats> cats = statisticsDao.searchCats(datasetId, timeSliceId, bandId, filter);
+		Dataset ds =  datasetDao.retrieve(datasetId);
+
+		if (cats.size() > 0) {
+			DatasetHistResponse result = new DatasetHistResponse(cats.get(0), ds);
 			result.processSummary(categories);
 			model.addAttribute(ControllerHelper.RESPONSE_ROOT, result);
-		} else
-			throw new ResourceNotFoundException("No data not found.");
+		} else {
+			throw new ResourceNotFoundException("No data found for this dataset, band, time slice and categorisation.");
+		}
 
 		return "List";
 	}
@@ -305,12 +307,13 @@ public class DatasetController {
 		List<DatasetCats> cats = statisticsDao.searchCats(datasetId, timeSliceId, bandId, type);
 		Dataset ds =  datasetDao.retrieve(datasetId);
 		
-		if(cats != null) {
+		if (cats.size() > 0) {
 			DatasetCatsResponse result = new DatasetCatsResponse(cats.get(0), ds);
 			result.processSummary(lower, upper);
 			model.addAttribute(ControllerHelper.RESPONSE_ROOT, result);
-		} else
-			throw new ResourceNotFoundException("No data not found.");
+		} else {
+			throw new ResourceNotFoundException("No data found for this dataset, band, time slice and categorisation.");
+		}
 
 		return "List";
 	}

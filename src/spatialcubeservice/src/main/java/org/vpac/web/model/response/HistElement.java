@@ -7,7 +7,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 public class HistElement {
 	private double lower;
 	private double upper;
-	private long count;
+	private double area;
 	
 	public double getLower() {
 		return lower;
@@ -23,20 +23,20 @@ public class HistElement {
 	public void setUpper(double upper) {
 		this.upper = upper;
 	}
-	public long getCount() {
-		return count;
-	}
-	@XmlAttribute
-	public void setCount(long count) {
-		this.count = count;
-	}
+	public double getArea() {
+        return area;
+    }
+    @XmlAttribute
+    public void setArea(double area) {
+        this.area = area;
+    }
 	
 	public HistElement() {
 	}
 
-	public HistElement(double lower, double upper, long count) {
+	public HistElement(double lower, double upper, double area) {
 		this.lower = lower;
 		this.upper = upper;
-		this.count = count;
+		this.area = area;
 	}
 }

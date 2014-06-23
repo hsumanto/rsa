@@ -35,6 +35,7 @@ import org.vpac.ndg.storagemanager.GraphicsFile;
 /**
  * This task could be used to translate an image into a different format.
  * @author hsumanto
+ * @author lachlan
  *
  */
 public class Translator extends Task {
@@ -44,6 +45,9 @@ public class Translator extends Task {
 	private GraphicsFile source;
 	private GraphicsFile target;
 	private String nodata;
+	private String outputType;
+	private String expand;
+	private List<ScalarReceiver<Double>> scale;
 	private List<String> command;
 
 	private CommandUtil commandUtil;
@@ -101,6 +105,26 @@ public class Translator extends Task {
 			command.add(nodata);
 		}
 
+		// set the output type if specified
+		if (outputType != null) {
+		    command.add("-ot");
+		    command.add(outputType);
+		}
+		
+		//set the expand type
+		if (expand != null) {
+		    command.add("-expand");
+		    command.add(expand);
+		}
+		
+		// set the scale if specified
+		if (scale != null) {
+	        command.add("-scale");
+	        for (ScalarReceiver<Double> d: scale) {
+	            command.add(d.get().toString());
+	        }
+		}
+		
 		// Add extra options such as Mosaicking options, Memory management options
 		addExtraOptions(command);
 
@@ -201,8 +225,51 @@ public class Translator extends Task {
 	public void setTarget(GraphicsFile target) {
 		this.target = target;
 	}
+	
+	
+	
+	
+	public List<ScalarReceiver<Double>> getScale() {
+        return scale;
+    }
 
-	public String getNodata() {
+	/**
+	 * sets the -scale argument to GDAL, this is used to scale the pixel values (ie; [src_min src_max [dst_min dst_max]] )
+	 * @param scale
+	 */
+    public void setScale(List<ScalarReceiver<Double>> scale) {
+        this.scale = scale;
+    }
+
+    
+    
+    public String getExpand() {
+        return expand;
+    }
+
+    /**
+     * sets the '-expand' command line option passed to gdal. Must be gray|rgb|rgba
+     * @param expand
+     */
+    public void setExpand(String expand) {
+        this.expand = expand;
+    }
+
+    public String getOutputType() {
+        return outputType;
+    }
+	
+	/**
+	 * sets the '-ot' argument passed to GDAL translate, must be one of 
+	 * Byte/Int16/UInt16/UInt32/Int32/Float32/Float64/
+     * CInt16/CInt32/CFloat32/CFloat64
+	 * @param outputType
+	 */
+    public void setOutputType(String outputType) {
+        this.outputType = outputType;
+    }
+
+    public String getNodata() {
 		return nodata;
 	}
 
