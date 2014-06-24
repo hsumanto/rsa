@@ -326,14 +326,16 @@ public class DataController {
 	}
 
 	@RequestMapping(value="/Task/{taskId}/hist", method = RequestMethod.GET)
-	public String getHistogramByTaskId(@PathVariable String taskId, @RequestParam(required = false) List<Integer> categories, ModelMap model ) throws ResourceNotFoundException {
+	public String getHistogramByTaskId(@PathVariable String taskId,
+			@RequestParam(required = false) List<Integer> categories,
+			ModelMap model) throws ResourceNotFoundException {
 
 		log.info("Data getTaskById");
 		log.debug("Task ID: {}", taskId);
 
 		List<TaskCats> cats = statisticsDao.searchCats(taskId, null);
 		
-		if(cats != null) {
+		if (cats.size() > 0) {
 			TaskHistResponse result = new TaskHistResponse(cats.get(0));
 			result.processSummary(categories);
 			model.addAttribute(ControllerHelper.RESPONSE_ROOT, result);
@@ -344,14 +346,18 @@ public class DataController {
 	}
 
 	@RequestMapping(value="/Task/{taskId}/cats/{catType}", method = RequestMethod.GET)
-	public String getCategoryByTaskId(@PathVariable String taskId, @PathVariable String catType, @RequestParam(required = false) Double lower, @RequestParam(required = false) Double upper, ModelMap model ) throws ResourceNotFoundException {
+	public String getCategoryByTaskId(@PathVariable String taskId,
+			@PathVariable String catType,
+			@RequestParam(required = false) Double lower,
+			@RequestParam(required = false) Double upper,
+			ModelMap model ) throws ResourceNotFoundException {
 
 		log.info("Data getTaskById");
 		log.debug("Task ID: {}", taskId);
 
 		List<TaskCats> cats = statisticsDao.searchCats(taskId, catType);
-		
-		if(cats != null) {
+
+		if (cats.size() > 0) {
 			TaskCatsResponse result = new TaskCatsResponse(cats.get(0));
 			result.processSummary(lower, upper);
 			model.addAttribute(ControllerHelper.RESPONSE_ROOT, result);

@@ -20,9 +20,7 @@
 package org.vpac.web.model.response;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.xml.bind.annotation.XmlAttribute;
@@ -41,7 +39,8 @@ public class TaskCatsResponse {
 	private String name;
 	private CellSize outputResolution;
 	private TaskCats cat;
-	private Map<Integer, Double> catSummaries;
+	private String tableType;
+	private List<CatsElement> table;
 	
 	public String getId() {
 		return id;
@@ -72,14 +71,22 @@ public class TaskCatsResponse {
 	public void setOutputResolution(CellSize outputResolution) {
 		this.outputResolution = outputResolution;
 	}
-	public Map<Integer, Double> getCatSummaries() {
-		return catSummaries;
+	public List<CatsElement> getRows() {
+		return table;
 	}
 	@XmlAttribute
-	public void setCatSummaries(Map<Integer, Double> catSummaries) {
-		this.catSummaries = catSummaries;
+	public void setRows(List<CatsElement> table) {
+		this.table = table;
 	}
 	
+	public String getTableType() {
+		return tableType;
+	}
+	@XmlAttribute
+	public void setTableType(String tableType) {
+		this.tableType = tableType;
+	}
+
 	public TaskCatsResponse() {
 	}
 	
@@ -89,33 +96,26 @@ public class TaskCatsResponse {
 		this.setName(cat.getName());
 		this.setOutputResolution(cat.getOutputResolution());
 		this.cat = cat;
+		this.setTableType("categories");
+		outputResolution = cat.getOutputResolution();
 	}
 	
 	public void processSummary(Double lower, Double upper) {
-		Map<Integer, Double> result = new HashMap<Integer, Double>();
-		for(Entry<Integer, Hist> key : this.cat.getCats().getCategories().entrySet()) {
-			Stats s = null;
-			List<Bucket> filteredBuckets = new ArrayList<Bucket>();
-			filteredBuckets.addAll(key.getValue().getBuckets());
-			if (lower != null)
-				for(int i = 0; i < filteredBuckets.size(); i++) {
-					if(filteredBuckets.get(i).getLower() < lower)
-						filteredBuckets.remove(i);
-				}
-			if (upper != null)
-				for(int i = 0; i < filteredBuckets.size(); i++) {
-					if(filteredBuckets.get(i).getUpper() > upper)
-						filteredBuckets.remove(i);
-				}
-
-			for(Bucket b : filteredBuckets) {
-				if(s == null)
-					s = new Stats();
+		CellSize outputResolution = this.outputResolution;
+		List<CatsElement> result = new ArrayList<CatsElement>();
+		double cellArea = outputResolution.toDouble() * outputResolution.toDouble();
+		for (Entry<Integer, Hist> entry : this.cat.getCats().getCategories().entrySet()) {
+			Stats s = new Stats();
+			for (Bucket b : entry.getValue().getBuckets()) {
+				if (lower != null && b.getLower() < lower)
+					continue;
+				if (upper != null && b.getUpper() > upper)
+					continue;
 				s = s.fold(b.getStats());
 			}
-			if(s != null)
-				result.put(key.getKey(), s.getCount() * outputResolution.toDouble() * outputResolution.toDouble());
+			if (s.getCount() > 0)
+				result.add(new CatsElement(entry.getKey(), s.getCount() * cellArea));
 		}
-		this.setCatSummaries(result);
+		this.setRows(result);
 	}
 }

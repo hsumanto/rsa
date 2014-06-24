@@ -25,6 +25,7 @@ import java.util.List;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.vpac.ndg.common.datamodel.CellSize;
 import org.vpac.ndg.query.stats.Bucket;
 import org.vpac.ndg.query.stats.Cats;
 import org.vpac.ndg.query.stats.Hist;
@@ -36,8 +37,11 @@ public class TaskHistResponse {
 	private String taskId;
 	private String name;
 	private Cats cat;
-	private List<HistElement> histSummaries;
-	
+	private CellSize outputResolution;
+	private String tableType;
+	private List<HistElement> table;
+
+	@XmlAttribute
 	public String getId() {
 		return id;
 	}
@@ -46,6 +50,7 @@ public class TaskHistResponse {
 		this.id = id;
 	}
 
+	@XmlAttribute
 	public String getTaskId() {
 		return taskId;
 	}
@@ -54,6 +59,7 @@ public class TaskHistResponse {
 		this.taskId = taskId;
 	}
 
+	@XmlAttribute
 	public String getName() {
 		return name;
 	}
@@ -61,12 +67,28 @@ public class TaskHistResponse {
 	public void setName(String name) {
 		this.name = name;
 	}
-	public List<HistElement> getHistSummaries() {
-		return histSummaries;
+	public CellSize getOutputResolution() {
+		return outputResolution;
 	}
 	@XmlAttribute
-	public void setHistSummaries(List<HistElement> histSummaries) {
-		this.histSummaries = histSummaries;
+	public void setOutputResolution(CellSize outputResolution) {
+		this.outputResolution = outputResolution;
+	}
+	@XmlAttribute
+	public List<HistElement> getRows() {
+		return table;
+	}
+	@XmlAttribute
+	public void setRows(List<HistElement> table) {
+		this.table = table;
+	}
+	
+	public String getTableType() {
+		return tableType;
+	}
+	@XmlAttribute
+	public void setTableType(String tableType) {
+		this.tableType = tableType;
 	}
 	
 	public TaskHistResponse() {
@@ -77,20 +99,25 @@ public class TaskHistResponse {
 		this.setTaskId(cat.getTaskId());
 		this.setName(cat.getName());
 		this.cat = cat.getCats();
+		this.setTableType("histogram");
+		outputResolution = cat.getOutputResolution();
 	}
 	
 	public void processSummary(List<Integer> categories) {
 		List<HistElement> result = new ArrayList<HistElement>();
 		Hist histSummary = new Hist();
-		for(Integer key : cat.getCategories().keySet()) {
-			if(categories == null)
-				histSummary.fold(cat.getCategories().get(key));
-			else if(categories.contains(key))
-				histSummary.fold(cat.getCategories().get(key));
+		for (Integer key : cat.getCategories().keySet()) {
+			if (categories == null)
+				histSummary = histSummary.fold(cat.getCategories().get(key));
+			else if (categories.contains(key))
+				histSummary = histSummary.fold(cat.getCategories().get(key));
 		}
-		for(Bucket b : histSummary.getBuckets()) {
-			result.add(new HistElement(b.getLower(), b.getUpper(), b.getStats().getCount()));
+		CellSize outputResolution = this.outputResolution;
+		double cellArea = outputResolution.toDouble() * outputResolution.toDouble();
+		for (Bucket b : histSummary.getBuckets()) {
+			if (b.getStats().getCount() > 0)
+				result.add(new HistElement(b.getLower(), b.getUpper(), b.getStats().getCount() * cellArea));
 		}
-		setHistSummaries(result);
+		this.setRows(result);
 	}
 }
