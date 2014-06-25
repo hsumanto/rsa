@@ -12,7 +12,7 @@
 		<property name="timeSliceId" type="string" column="TIMESLICEID" />
 		<property name="bandId" type="string" column="BANDID" />
 		<property name="name" type="string" column="NAME" />
- 		<many-to-one name="cats" class="org.vpac.ndg.query.stats.Cats" column="cat_id" cascade="all" />
+		<many-to-one name="cats" class="org.vpac.ndg.query.stats.Cats" column="cat_id" cascade="all" lazy="false" />
 	</class>
 	<class name="org.vpac.ndg.storage.model.TaskCats" table="TASKCATS" lazy="false">
 		<id name="id" type="string" column="ID">
@@ -27,7 +27,7 @@
 				<param name="valueOfMethod">fromInt</param>
 			</type>
 		</property>
- 		<many-to-one name="cats" class="org.vpac.ndg.query.stats.Cats" column="cat_id" cascade="all" />
+		<many-to-one name="cats" class="org.vpac.ndg.query.stats.Cats" column="cat_id" cascade="all" lazy="false" />
 	</class>
 	<class name="org.vpac.ndg.storage.model.TaskHist" table="TASKHIST" lazy="false">
 		<id name="id" type="string" column="ID">
@@ -41,36 +41,35 @@
 				<param name="valueOfMethod">fromInt</param>
 			</type>
 		</property>
-  		<many-to-one name="hist" class="org.vpac.ndg.query.stats.Hist" column="hist_id" cascade="all" />
+		<many-to-one name="hist" class="org.vpac.ndg.query.stats.Hist" column="hist_id" cascade="all" lazy="false" />
 	</class>
 	<class name="org.vpac.ndg.query.stats.Cats" table="CATS" lazy="false">
 		<id name="id" type="string" column="ID">
 			<generator class="uuid" />
 		</id>
- 		<map name="categories" cascade="all">
+ 		<map name="categories" cascade="all" lazy="false">
 			<key column="categories_id" />
 			<index column="cat_id" type="java.lang.Integer"/>
 			<one-to-many class="org.vpac.ndg.query.stats.Hist" /> 
 		</map>
 	</class>
-	<class name="org.vpac.ndg.query.stats.Hist" table="HIST" lazy="true">
+	<class name="org.vpac.ndg.query.stats.Hist" table="HIST" lazy="false">
 		<id name="id" type="string" column="ID">
 			<generator class="uuid" />
 		</id>
-		<list name="buckets" cascade="all" lazy="true">
+		<list name="buckets" cascade="all" lazy="false">
 			<key column="bucket_id" />
 			<list-index column="idx" />
 			<one-to-many class="org.vpac.ndg.query.stats.Bucket" />
 		</list>
 	</class>
-	<class name="org.vpac.ndg.query.stats.Bucket" table="BUCKET"
-		lazy="false">
+	<class name="org.vpac.ndg.query.stats.Bucket" table="BUCKET" lazy="false">
 		<id name="id" type="string" column="ID">
 			<generator class="uuid" />
 		</id>
 		<property name="lower" type="double" column="LOWER" />
 		<property name="upper" type="double" column="UPPER" />
- 		<many-to-one name="stats" class="org.vpac.ndg.query.stats.Stats" column="stat_id" cascade="all" />
+		<many-to-one name="stats" class="org.vpac.ndg.query.stats.Stats" column="stat_id" cascade="all" lazy="false" />
 	</class>
 	<class name="org.vpac.ndg.query.stats.Stats" table="STATS" lazy="false">
 		<id name="id" type="string" column="ID">
