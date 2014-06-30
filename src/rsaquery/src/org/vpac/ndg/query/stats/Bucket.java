@@ -34,6 +34,11 @@ public class Bucket implements Foldable<Bucket>, Serializable {
 		return res;
 	}
 
+	@Override
+	public Bucket optimise() {
+		return this.copy();
+	}
+
 	public boolean canContain(ScalarElement value) {
 		return canContain(value.doubleValue());
 	}

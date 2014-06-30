@@ -42,6 +42,17 @@ public class VectorHist implements Foldable<VectorHist>, Serializable {
 		return res;
 	}
 
+	@Override
+	public VectorHist optimise() {
+		VectorHist res = new VectorHist(components.length);
+
+		for (int i = 0; i < components.length; i++) {
+			res.components[i] = components[i].optimise();
+		}
+
+		return res;
+	}
+
 	public Hist[] getComponents() {
 		return components;
 	}
