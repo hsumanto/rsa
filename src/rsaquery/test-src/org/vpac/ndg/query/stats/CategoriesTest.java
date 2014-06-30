@@ -20,7 +20,7 @@ import org.vpac.ndg.query.math.ElementInt;
 import com.carrotsearch.junitbenchmarks.BenchmarkOptions;
 import com.carrotsearch.junitbenchmarks.BenchmarkRule;
 
-@BenchmarkOptions(benchmarkRounds = 5, warmupRounds = 2)
+@BenchmarkOptions(benchmarkRounds = 5, warmupRounds = 5)
 @RunWith(BlockJUnit4ClassRunner.class)
 public class CategoriesTest extends TestCase {
 
