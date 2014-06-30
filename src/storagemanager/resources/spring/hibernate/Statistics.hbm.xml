@@ -75,7 +75,7 @@
 		<id name="id" type="string" column="ID">
 			<generator class="uuid" />
 		</id>
-		<property name="n" type="long" column="N" />
+		<property name="count" type="long" column="N" />
 		<property name="min" type="double" column="MIN" />
 		<property name="max" type="double" column="MAX" />
 		<property name="mean" type="double" column="MEAN" />

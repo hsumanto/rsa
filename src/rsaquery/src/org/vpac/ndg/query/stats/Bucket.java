@@ -17,20 +17,52 @@ public class Bucket implements Foldable<Bucket>, Serializable {
 	private double upper;
 	private Stats stats;
 
+	public Bucket() {
+	}
+
 	public Bucket(Double lower, Double upper, Stats stats) {
 		this.lower = lower;
 		this.upper = upper;
 		this.stats = stats;
 	}
-	public Bucket() {
+
+	public Bucket copy() {
+		Bucket res = new Bucket();
+		res.lower = this.lower;
+		res.upper = this.upper;
+		res.stats = this.stats.copy();
+		return res;
 	}
 
 	public boolean canContain(ScalarElement value) {
-		if (value.compareTo(lower) < 0)
+		return canContain(value.doubleValue());
+	}
+
+	public boolean canContain(double value) {
+		if (lower == upper && value == 0)
+			// Special case for categorical (zero-range) buckets.
+			return true;
+		else if (value < lower)
 			return false;
-		else if (value.compareTo(upper) >= 0)
+		else if (value >= upper)
 			return false;
-		return true;
+		else
+			return true;
+	}
+
+	public boolean intersects(Bucket other) {
+		if (lower == upper)
+			// Special case for categorical (zero-range) buckets.
+			return other.canContain(lower);
+		else if (other.lower == other.upper)
+			// Special case for categorical (zero-range) buckets.
+			return canContain(other.lower);
+		else if (other.lower >= upper)
+			return false;
+		else if (other.upper <= lower)
+			return false;
+		else
+			return true;
 	}
 
 	@Override
@@ -75,4 +107,5 @@ public class Bucket implements Foldable<Bucket>, Serializable {
 	public String toString() {
 		return String.format("Bucket(%g-%g)", lower, upper);
 	}
+
 }

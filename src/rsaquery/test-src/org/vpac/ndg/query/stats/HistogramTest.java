@@ -41,7 +41,7 @@ public class HistogramTest extends TestCase {
 				SCALE);
 		assertEquals(100, lb, 0.00001);
 
-		double[] lbs = Hist.genBuckets(BASE,
+		double[] lbs = Hist.genBoundaries(BASE,
 				BUCKETS_PER_ORDER_OF_MAGNITUDE, SCALE, NUM_BUCKETS);
 		log.info("Lower bounds: {}", lbs);
 		assertEquals(Double.NEGATIVE_INFINITY, lbs[0], EPSILON);

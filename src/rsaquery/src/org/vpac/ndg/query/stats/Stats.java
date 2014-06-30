@@ -19,42 +19,6 @@ public class Stats implements Foldable<Stats>, Serializable {
 	private double mean;
 	private long n;
 
-	public String getId() {
-		return id;
-	}
-
-	public void setId(String id) {
-		this.id = id;
-	}
-
-	public long getN() {
-		return n;
-	}
-
-	public void setN(long n) {
-		this.n = n;
-	}
-
-	public double getM2() {
-		return M2;
-	}
-
-	public void setM2(double m2) {
-		M2 = m2;
-	}
-
-	public void setMin(double min) {
-		this.min = min;
-	}
-
-	public void setMax(double max) {
-		this.max = max;
-	}
-
-	public void setMean(double mean) {
-		this.mean = mean;
-	}
-
 	// M2 = variance * (n - 1)
 	// Variance is the square of the standard deviation.
 	double M2;
@@ -66,6 +30,16 @@ public class Stats implements Foldable<Stats>, Serializable {
 		n = 0;
 		M2 = 0.0;
 		mean = 0.0;
+	}
+
+	public Stats copy() {
+		Stats res = new Stats();
+		res.min = this.min;
+		res.max = this.max;
+		res.mean = this.mean;
+		res.n = this.n;
+		res.M2 = this.M2;
+		return res;
 	}
 
 	public void update(ScalarElement value) {
@@ -136,16 +110,40 @@ public class Stats implements Foldable<Stats>, Serializable {
 		return n;
 	}
 
+	public void setCount(long n) {
+		this.n = n;
+	}
+
+	public double getM2() {
+		return M2;
+	}
+
+	public void setM2(double m2) {
+		M2 = m2;
+	}
+
 	public double getMin() {
 		return min;
+	}
+
+	public void setMin(double min) {
+		this.min = min;
 	}
 
 	public double getMax() {
 		return max;
 	}
 
+	public void setMax(double max) {
+		this.max = max;
+	}
+
 	public double getMean() {
 		return mean;
+	}
+
+	public void setMean(double mean) {
+		this.mean = mean;
 	}
 
 	public double getStdDev() {
@@ -157,6 +155,14 @@ public class Stats implements Foldable<Stats>, Serializable {
 	public String toString() {
 		return String.format("min: %s, max: %s, mean: %s, stddev: %s",
 				min, max, mean, getStdDev());
+	}
+
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
 	}
 
 }

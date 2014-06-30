@@ -2,8 +2,8 @@ package org.vpac.ndg.query.stats;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import org.vpac.ndg.query.filter.Foldable;
@@ -26,18 +26,17 @@ public class Hist implements Foldable<Hist>, Serializable {
 	static final double SCALE = 0.1;
 	static final int NUM_BUCKETS = 45;
 
-	public ScalarElement prototype;
-	private double[] lowerBounds;
 	private List<Bucket> buckets;
+
 	private Bucket mruBucket;
 
 	public Hist() {
-		lowerBounds = genBuckets(BASE, BUCKETS_PER_ORDER_OF_MAGNITUDE, SCALE,
-				NUM_BUCKETS);
+		double[] boundaries = genBoundaries(BASE, BUCKETS_PER_ORDER_OF_MAGNITUDE,
+				SCALE, NUM_BUCKETS);
 
 		buckets = new ArrayList<Bucket>();
-		for (int i = 0; i < lowerBounds.length - 1; i++) {
-			buckets.add(new Bucket(lowerBounds[i], lowerBounds[i + 1],
+		for (int i = 0; i < boundaries.length - 1; i++) {
+			buckets.add(new Bucket(boundaries[i], boundaries[i + 1],
 					new Stats()));
 		}
 
@@ -47,25 +46,81 @@ public class Hist implements Foldable<Hist>, Serializable {
 	public void update(ScalarElement value) {
 		if (!value.isValid())
 			return;
-		if (!mruBucket.canContain(value)) {
-			int i = Arrays.binarySearch(lowerBounds, value.doubleValue());
-			if (i < 0)
-				i = (0 - i) - 2;
-			// TODO : need to fix like this?
-			if (i >= buckets.size())
-				i = buckets.size() - 1;
-			mruBucket = buckets.get(i);
-		}
-		mruBucket.getStats().update(value);
+
+		double v = value.doubleValue();
+		getBucket(v).getStats().update(value);
 	}
 
+	private Bucket getBucket(double value) {
+		if (mruBucket.canContain(value))
+			return mruBucket;
+
+		int i = -1;
+		for (int j = 0; j < buckets.size(); j++) {
+			Bucket b = buckets.get(j);
+			if (b.getLower() <= value)
+				i = j;
+		}
+
+		Bucket b = null;
+		if (i < 0 || !buckets.get(i).canContain(value)) {
+			// No bucket can contain this value! This must be a categorical
+			// dataset, so create a new bucket to store this value.
+			b = new Bucket(value, value, new Stats());
+			buckets.add(i + 1, b);
+		} else {
+			b = buckets.get(i);
+		}
+		mruBucket = b;
+
+		return mruBucket;
+	}
+
+	/**
+	 * Combine this histogram with another to create a new object that contains
+	 * the information from both.
+	 *
+	 * <p>
+	 * <b>Warning</b>: Any buckets in <em>other</em> that overlap buckets in
+	 * this histogram will be merged together in the new object. You should
+	 * only fold histograms that have been created with the same bucketing
+	 * scheme.
+	 * </p>
+	 */
 	@Override
 	public Hist fold(Hist other) {
-		Hist res = new Hist();
 
-		for (int i = 0; i < buckets.size(); i++) {
-			res.buckets.set(i, buckets.get(i).fold(other.buckets.get(i)));
+		List<Bucket> sourceBuckets = new ArrayList<Bucket>();
+		sourceBuckets.addAll(this.buckets);
+		sourceBuckets.addAll(other.buckets);
+		Collections.sort(sourceBuckets, new Comparator<Bucket>() {
+			@Override
+			public int compare(Bucket o1, Bucket o2) {
+				return Double.compare(o1.getLower(), o2.getLower());
+			}
+		});
+
+		Bucket currentBucket = null;
+		List<Bucket> targetBuckets = new ArrayList<Bucket>();
+		for (Bucket b : sourceBuckets) {
+			if (b.getStats().getCount() == 0)
+				continue;
+
+			if (currentBucket == null) {
+				currentBucket = b.copy();
+			} else if (currentBucket.intersects(b)) {
+				currentBucket = currentBucket.fold(b);
+			} else {
+				targetBuckets.add(currentBucket);
+				currentBucket = b.copy();
+			}
 		}
+
+		if (currentBucket != null)
+			targetBuckets.add(currentBucket);
+
+		Hist res = new Hist();
+		res.setBuckets(targetBuckets);
 
 		return res;
 	}
@@ -77,7 +132,7 @@ public class Hist implements Foldable<Hist>, Serializable {
 	public List<Bucket> getNonemptyBuckets() {
 		List<Bucket> bs = new ArrayList<Bucket>();
 		for (Bucket b : buckets) {
-			if (b.getStats().getN() > 0)
+			if (b.getStats().getCount() > 0)
 				bs.add(b);
 		}
 		return bs;
@@ -90,7 +145,7 @@ public class Hist implements Foldable<Hist>, Serializable {
 	public Stats getSummary() {
 		Stats res = new Stats();
 		for (Bucket b : buckets) {
-			if (b.getStats().getN() > 0)
+			if (b.getStats().getCount() > 0)
 				res = res.fold(b.getStats());
 		}
 		return res;
@@ -102,17 +157,13 @@ public class Hist implements Foldable<Hist>, Serializable {
 	 * bucket catches all very large positive numbers. Therefore the first
 	 * bucket has a bound of negative infinity.
 	 *
-	 * @param base
-	 *            The base order.
-	 * @param root
-	 *            The number of buckets per order of magnitude.
-	 * @param scale
-	 *            The scaling factor.
-	 * @param n
-	 *            The number of buckets to generate.
-	 * @return An array of bucket lower bounds.
+	 * @param base The base order.
+	 * @param root The number of buckets per order of magnitude.
+	 * @param scale The scaling factor.
+	 * @param n The number of buckets to generate.
+	 * @return An array of bucket boundaries.
 	 */
-	static double[] genBuckets(double base, double root, double scale, int n) {
+	static double[] genBoundaries(double base, double root, double scale, int n) {
 
 		// Lower bound generation only works for positive numbers! So do this
 		// in three steps:
@@ -147,14 +198,10 @@ public class Hist implements Foldable<Hist>, Serializable {
 	 * Computes the lower bound of a bucket. This only generates lower bounds
 	 * for positive indices.
 	 *
-	 * @param i
-	 *            The index to generate a lower bound of.
-	 * @param base
-	 *            The base order.
-	 * @param root
-	 *            The number of buckets per order of magnitude.
-	 * @param scale
-	 *            The scaling factor.
+	 * @param i The index to generate a lower bound of.
+	 * @param base The base order.
+	 * @param root The number of buckets per order of magnitude.
+	 * @param scale The scaling factor.
 	 * @return The lower bound of the bucket.
 	 */
 	static double lowerBound(int i, double base, double root, double scale) {
@@ -170,7 +217,7 @@ public class Hist implements Foldable<Hist>, Serializable {
 		for (int i = 0; i < buckets.size(); i++) {
 			Bucket b = buckets.get(i);
 
-			if (b.getStats().getN() <= 0)
+			if (b.getStats().getCount() <= 0)
 				continue;
 
 			if (!firstBucket)
@@ -195,7 +242,8 @@ public class Hist implements Foldable<Hist>, Serializable {
 			Stats stats = b.getStats();
 			if (stats.getCount() == 0)
 				continue;
-			sb.append(String.format("%g,%d,%g,%g,%g,%g\n", b.getLower(), stats.getN(),
+			sb.append(String.format("%g,%d,%g,%g,%g,%g\n", b.getLower(),
+					stats.getCount(),
 					stats.getMin(), stats.getMax(),
 					stats.getMean(),
 					stats.getStdDev()));
@@ -209,13 +257,6 @@ public class Hist implements Foldable<Hist>, Serializable {
 
 	public void setId(String id) {
 		this.id = id;
-	}
-	public double[] getLowerBounds() {
-		return lowerBounds;
-	}
-
-	public void setLowerBounds(double[] lowerBounds) {
-		this.lowerBounds = lowerBounds;
 	}
 
 	public Bucket getMruBucket() {
