@@ -106,6 +106,11 @@ public class Stats implements Foldable<Stats>, Serializable {
 		return res;
 	}
 
+	@Override
+	public Stats optimise() {
+		return this.copy();
+	}
+
 	public long getCount() {
 		return n;
 	}

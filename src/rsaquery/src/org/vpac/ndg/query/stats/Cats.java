@@ -71,6 +71,16 @@ public class Cats implements Foldable<Cats>, Serializable {
 		return res;
 	}
 
+	public Cats optimise() {
+		Cats res = new Cats();
+		for (Entry<Integer, Hist> entry : categories.entrySet()) {
+			Hist hist = entry.getValue().optimise();
+			if (hist.getSummary().getCount() > 0)
+				res.categories.put(entry.getKey(), hist);
+		}
+		return res;
+	}
+
 	public Set<Integer> getKeys() {
 		return categories.keySet();
 	}

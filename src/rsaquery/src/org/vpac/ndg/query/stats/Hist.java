@@ -39,8 +39,6 @@ public class Hist implements Foldable<Hist>, Serializable {
 			buckets.add(new Bucket(boundaries[i], boundaries[i + 1],
 					new Stats()));
 		}
-
-		mruBucket = buckets.get(buckets.size() / 2);
 	}
 
 	public void update(ScalarElement value) {
@@ -52,7 +50,7 @@ public class Hist implements Foldable<Hist>, Serializable {
 	}
 
 	private Bucket getBucket(double value) {
-		if (mruBucket.canContain(value))
+		if (mruBucket != null && mruBucket.canContain(value))
 			return mruBucket;
 
 		int i = -1;
@@ -103,9 +101,6 @@ public class Hist implements Foldable<Hist>, Serializable {
 		Bucket currentBucket = null;
 		List<Bucket> targetBuckets = new ArrayList<Bucket>();
 		for (Bucket b : sourceBuckets) {
-			if (b.getStats().getCount() == 0)
-				continue;
-
 			if (currentBucket == null) {
 				currentBucket = b.copy();
 			} else if (currentBucket.intersects(b)) {
@@ -125,17 +120,18 @@ public class Hist implements Foldable<Hist>, Serializable {
 		return res;
 	}
 
-	public List<Bucket> getBuckets() {
-		return buckets;
-	}
-
-	public List<Bucket> getNonemptyBuckets() {
-		List<Bucket> bs = new ArrayList<Bucket>();
+	public Hist optimise() {
+		Hist res = new Hist();
+		res.buckets.clear();
 		for (Bucket b : buckets) {
 			if (b.getStats().getCount() > 0)
-				bs.add(b);
+				res.buckets.add(b);
 		}
-		return bs;
+		return res;
+	}
+
+	public List<Bucket> getBuckets() {
+		return buckets;
 	}
 
 	/**
