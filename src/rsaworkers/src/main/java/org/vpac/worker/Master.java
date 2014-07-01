@@ -238,7 +238,7 @@ public class Master extends UntypedActor {
 			ActorSelection database = getContext().system().actorSelection("akka://Workers/user/database");
 			if (VectorCats.class.isAssignableFrom(value.getClass())) {
 				CellSize outputResolution = CellSize.m25;
-				SaveCats msg = new SaveCats(currentWorkInfo.work.jobProgressId, key, outputResolution, value);
+				SaveCats msg = new SaveCats(currentWorkInfo.work.jobProgressId, key, outputResolution, value.optimise());
 				database.tell(msg, getSelf());
 			} else {
 				log.debug("Ignorning unrecognised query result {}", value.getClass());
