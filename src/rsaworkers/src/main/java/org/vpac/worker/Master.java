@@ -117,16 +117,15 @@ public class Master extends UntypedActor {
 					noOfWork++;
 				}
 			}
-			
-			// move this to database worker
+
+			if (workCompleted == noOfWork) {
+				foldResults(currentWorkInfo);
+			}
 			ActorSelection database = getContext().system().actorSelection("akka://Workers/user/database");
 			JobUpdate update = new JobUpdate(currentWorkInfo.work.jobProgressId,  workCompleted, noOfWork);
 			database.tell(update, getSelf());
-			if(workCompleted == noOfWork) {
-				foldResults(currentWorkInfo);
-			}
+
 			WorkerState state = workers.get(workerId);
-			
 			if (state != null && state.status.isBusy()
 					&& state.status.getWork().workId.equals(workId)) {
 				Work work = state.status.getWork();

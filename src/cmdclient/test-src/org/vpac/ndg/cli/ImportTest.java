@@ -40,7 +40,6 @@ import com.carrotsearch.junitbenchmarks.BenchmarkRule;
  * @author hsumanto
  * @author Alex Fraser
  */
-@SuppressWarnings("deprecation")
 @RunWith(SpringJUnit4ClassRunner.class)  
 @ContextConfiguration({"file:resources/spring/beans/CmdClientBean.xml"})
 public class ImportTest extends ConsoleTest {

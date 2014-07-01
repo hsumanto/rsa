@@ -45,7 +45,6 @@ import ucar.nc2.Variable;
 import com.carrotsearch.junitbenchmarks.BenchmarkOptions;
 import com.carrotsearch.junitbenchmarks.BenchmarkRule;
 
-@SuppressWarnings("deprecation")
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration({ "file:resources/spring/beans/CmdClientBean.xml" })
 @BenchmarkOptions(benchmarkRounds = 4, warmupRounds = 1)

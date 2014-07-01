@@ -30,6 +30,8 @@ import java.io.Serializable;
  * @author hsumanto
  */
 public class Box implements Serializable {
+	private static final long serialVersionUID = 1L;
+
 	private double xMin;
 	private double xMax;
 	private double yMax;
