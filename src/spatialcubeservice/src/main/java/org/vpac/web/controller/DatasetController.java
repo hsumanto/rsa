@@ -21,13 +21,10 @@ package org.vpac.web.controller;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.Serializable;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
@@ -223,7 +220,7 @@ public class DatasetController {
 				q.setProgress(qp);
 				q.run();
 				output = q.getAccumulatedOutput();
-				foldResults(datasetId, timeSliceId, bandId, output);
+				save(datasetId, timeSliceId, bandId, output);
 			} finally {
 				q.close();
 			}
@@ -239,39 +236,15 @@ public class DatasetController {
 				taskId));
 		return "Success";
 	}
-	private void foldResults(String datasetId, String timeSliceId, String bandId, Map<String, Foldable<?>> output) {
-		Map<String, Foldable<? extends Serializable>> result  = filterOutNonSerializable(output);
-		Map<String, Foldable> resultMap = new HashMap<>();
-		for(Entry<String, ?> v : result.entrySet()) {
-			String key = v.getKey();
-			Foldable value = (Foldable) v.getValue();
-			if(resultMap.get(key) == null) {
-				resultMap.put(key, new VectorCats(1));
-			}
-			resultMap.put(key, resultMap.get(key).fold(value));
-		}
-		save(datasetId, timeSliceId, bandId, resultMap);
-	}
 
-	private Map<String, Foldable<? extends Serializable>> filterOutNonSerializable(Map<String, Foldable<?>> output) {
-		Map<String, Foldable<? extends Serializable>> result = new HashMap<>();
-		for(Entry<String, ?> v : output.entrySet()) {
-			if(Serializable.class.isAssignableFrom(v.getValue().getClass()))
-				result.put(v.getKey(), (Foldable<? extends Serializable>) v.getValue());
-		}
-		return result;
-	}
-	
-	private void save(String datasetId, String timeSliceId, String bandId, Map<String, Foldable> result) {
-		for(String key : result.keySet()) {
+	private void save(String datasetId, String timeSliceId, String bandId, Map<String, Foldable<?>> result) {
+		for (String key : result.keySet()) {
 			if (VectorCats.class.isAssignableFrom(result.get(key).getClass())) {
 				String name = key;
-				CellSize outputResolution = CellSize.m25;
-				statisticsDao.saveCats(new DatasetCats(datasetId, timeSliceId, bandId, name, ((VectorCats)result.get(key)).getComponents()[0]));
-//			} else 	if (VectorHist.class.isAssignableFrom(f.getClass())) {
-//				String name = "lga";
-//				CellSize outputResolution = CellSize.m25;
-//				statisticsDao.saveHist(new TaskHist(currentWorkInfo.work.jobProgressId, name, outputResolution,((VectorHist)f).getComponents()[0]));
+				VectorCats value = (VectorCats) result.get(key);
+				value = value.optimise();
+				statisticsDao.saveCats(new DatasetCats(datasetId, timeSliceId,
+						bandId, name, value.getComponents()[0]));
 			}
 		}
 	}
