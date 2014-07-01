@@ -3,6 +3,7 @@ package org.vpac.worker;
 import java.io.Serializable;
 
 import org.vpac.ndg.common.datamodel.CellSize;
+import org.vpac.ndg.common.datamodel.TaskState;
 import org.vpac.ndg.query.filter.Foldable;
 
 public abstract class MasterDatabaseProtocol {
@@ -10,18 +11,18 @@ public abstract class MasterDatabaseProtocol {
 	public static final class JobUpdate implements Serializable {
 		private static final long serialVersionUID = 1L;
 		public final String jobId;
-		public final double completedArea;
-		public final double totalArea;
+		public final double fraction;
+		public final TaskState state;
 		
-		public JobUpdate(String jobId, double  completedArea, double totalArea) {
+		public JobUpdate(String jobId, double  fraction, TaskState state) {
 			this.jobId = jobId;
-			this.completedArea = completedArea;
-			this.totalArea = totalArea;
+			this.fraction = fraction;
+			this.state = state;
 		}
 
 		@Override
 		public String toString() {
-			return "JobUpdate{" + "jobId=" + jobId + ",completedArea=" + completedArea + ",totalArea=" + totalArea + '}';
+			return "JobUpdate{" + "jobId=" + jobId + ",fraction=" + fraction + ",state=" + state + '}';
 		}
 	}
 

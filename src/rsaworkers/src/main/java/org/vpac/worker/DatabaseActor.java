@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.vpac.ndg.AppContext;
+import org.vpac.ndg.common.datamodel.TaskState;
 import org.vpac.ndg.query.stats.VectorCats;
 import org.vpac.ndg.storage.dao.JobProgressDao;
 import org.vpac.ndg.storage.dao.StatisticsDao;
@@ -53,9 +54,8 @@ public class DatabaseActor extends UntypedActor {
 		if (message instanceof JobUpdate) {
 			JobUpdate job = (JobUpdate) message;
 			JobProgress progress = jobProgressDao.retrieve(job.jobId);
-			progress.setCurrentStepProgress(100 * job.completedArea
-					/ (job.totalArea));
-			if (job.completedArea == job.totalArea)
+			progress.setCurrentStepProgress(100 * job.fraction);
+			if (job.state == TaskState.FINISHED)
 				progress.setCompleted();
 			jobProgressDao.save(progress);
 		} else if (message instanceof SaveCats) {

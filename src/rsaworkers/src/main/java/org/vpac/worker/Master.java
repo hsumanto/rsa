@@ -10,6 +10,7 @@ import java.util.Queue;
 import java.util.Set;
 
 import org.vpac.ndg.common.datamodel.CellSize;
+import org.vpac.ndg.common.datamodel.TaskState;
 import org.vpac.ndg.query.filter.Foldable;
 import org.vpac.ndg.query.math.VectorReal;
 import org.vpac.ndg.query.stats.VectorCats;
@@ -111,22 +112,30 @@ public class Master extends UntypedActor {
 
 			double totalArea = 0;
 			double completedArea = 0;
+			int completedWork = 0;
+			int totalNoOfWork = 0;
+			TaskState taskState = TaskState.RUNNING;
 			for(WorkInfo w : workProgress.values()) {
 				if (w.work.jobProgressId.equals(currentWorkInfo.work.jobProgressId)) {
 					VectorReal sub = w.work.bound.getMax().subNew(w.work.bound.getMin());
 					double area = sub.get(0) * sub.get(1);
-					if(w.result != null)
+					if(w.result != null) {
 						completedArea += area;
+						completedWork++;
+					}
 					totalArea += area;
+					totalNoOfWork++;
 				}
 			}
 
-			if (totalArea == completedArea) {
+			if (totalNoOfWork == completedWork) {
 				foldResults(currentWorkInfo);
+				taskState = TaskState.FINISHED;
 				// todo clean task from map
 			}
 			ActorSelection database = getContext().system().actorSelection("akka://Workers/user/database");
-			JobUpdate update = new JobUpdate(currentWorkInfo.work.jobProgressId,  completedArea, totalArea);
+			double fraction = completedArea / totalArea;
+			JobUpdate update = new JobUpdate(currentWorkInfo.work.jobProgressId, fraction, taskState);
 			database.tell(update, getSelf());
 
 			WorkerState state = workers.get(workerId);
