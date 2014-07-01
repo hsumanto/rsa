@@ -327,13 +327,14 @@ public class DataController {
 
 	@RequestMapping(value="/Task/{taskId}/hist", method = RequestMethod.GET)
 	public String getHistogramByTaskId(@PathVariable String taskId,
-			@RequestParam(required = false) List<Integer> categories,
+			@RequestParam(value="cat", required = false) List<Integer> categories,
+			@RequestParam(required = false) String filter,
 			ModelMap model) throws ResourceNotFoundException {
 
 		log.info("Data getTaskById");
 		log.debug("Task ID: {}", taskId);
 
-		List<TaskCats> cats = statisticsDao.searchCats(taskId, null);
+		List<TaskCats> cats = statisticsDao.searchCats(taskId, filter);
 		
 		if (cats.size() > 0) {
 			TaskHistResponse result = new TaskHistResponse(cats.get(0));

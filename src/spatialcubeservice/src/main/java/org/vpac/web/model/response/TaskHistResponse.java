@@ -97,7 +97,7 @@ public class TaskHistResponse {
 	public TaskHistResponse(TaskCats cat) {
 		this.setId(cat.getId());
 		this.setTaskId(cat.getTaskId());
-		this.setName(cat.getName());
+		this.setName("value");
 		this.cat = cat.getCats();
 		this.setTableType("histogram");
 		outputResolution = cat.getOutputResolution();
