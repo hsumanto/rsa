@@ -131,13 +131,15 @@ public class Master extends UntypedActor {
 			if (totalNoOfWork == completedWork) {
 				foldResults(currentWorkInfo);
 				taskState = TaskState.FINISHED;
-				// todo clean task from map
 			}
 			ActorSelection database = getContext().system().actorSelection("akka://Workers/user/database");
 			double fraction = completedArea / totalArea;
 			JobUpdate update = new JobUpdate(currentWorkInfo.work.jobProgressId, fraction, taskState);
 			database.tell(update, getSelf());
-
+			if (totalNoOfWork == completedWork)
+				removeWork(currentWorkInfo.work.jobProgressId);
+			
+			
 			WorkerState state = workers.get(workerId);
 			if (state != null && state.status.isBusy()
 					&& state.status.getWork().workId.equals(workId)) {
@@ -241,6 +243,16 @@ public class Master extends UntypedActor {
 			} else {
 				log.debug("Ignorning unrecognised query result {}", value.getClass());
 			}
+		}
+	}
+
+	private void removeWork(String jobProgressId) {
+		Iterator<Entry<String, WorkInfo>> iter = workProgress.entrySet().iterator();
+		while(iter.hasNext()) {
+			Entry<String, WorkInfo> entry = iter.next();
+			if (entry.getValue().work.jobProgressId.equals(jobProgressId))
+				iter.remove();
+			
 		}
 	}
 	
