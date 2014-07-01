@@ -102,18 +102,15 @@ public class DatasetCatsResponse {
 		this.cat = cat;
 	}
 	
-	public void processSummary(Double lower, Double upper) {
+	public void processSummary(List<Double> lower, List<Double> upper) {
 		CellSize outputResolution = dataset.getResolution();
 		List<CatsElement> result = new ArrayList<CatsElement>();
 		double cellArea = outputResolution.toDouble() * outputResolution.toDouble();
 		for (Entry<Integer, Hist> entry : this.cat.getCats().getCategories().entrySet()) {
 			Stats s = new Stats();
 			for (Bucket b : entry.getValue().getBuckets()) {
-				if (lower != null && b.getLower() < lower)
-					continue;
-				if (upper != null && b.getUpper() > upper)
-					continue;
-				s = s.fold(b.getStats());
+				if(filterBucket(b, lower, upper))
+					s = s.fold(b.getStats());
 			}
 			if (s.getCount() > 0)
 				result.add(new CatsElement(entry.getKey(), s.getCount() * cellArea));
@@ -125,5 +122,16 @@ public class DatasetCatsResponse {
 	}
 	public void setTableType(String tableType) {
 		this.tableType = tableType;
+	}
+	private boolean filterBucket(Bucket b, List<Double> lower, List<Double> upper) {
+		if(lower.size() != upper.size()) throw new ArrayStoreException("lower & upper list doen't match");
+		boolean inbound = false;
+		for(int i = 0; i < lower.size(); i++) {
+			if(b.getLower() > lower.get(i) && b.getUpper() < upper.get(i)) {
+				inbound = true;
+				break;
+			}
+		}
+		return inbound;
 	}
 }

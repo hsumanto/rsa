@@ -349,8 +349,8 @@ public class DataController {
 	@RequestMapping(value="/Task/{taskId}/cats/{catType}", method = RequestMethod.GET)
 	public String getCategoryByTaskId(@PathVariable String taskId,
 			@PathVariable String catType,
-			@RequestParam(required = false) Double lower,
-			@RequestParam(required = false) Double upper,
+			@RequestParam(required = false) List<Double> lower,
+			@RequestParam(required = false) List<Double> upper,
 			ModelMap model ) throws ResourceNotFoundException {
 
 		log.info("Data getTaskById");

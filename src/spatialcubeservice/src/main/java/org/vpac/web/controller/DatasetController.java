@@ -154,9 +154,9 @@ public class DatasetController {
 			@RequestParam(required = false) String filter,
 			HttpServletRequest request, ModelMap model)
 			throws ResourceNotFoundException {
-		log.info("datasetId:" + datasetId);
+//		log.info("datasetId:" + datasetId);
 //		log.info("categories:" + categories.toString());
-		log.info("filter:" + filter);
+//		log.info("filter:" + filter);
 		String requestURL = request.getRequestURI().toString();
 		String timeSliceId = findPathVariable(requestURL, "TimeSlice");
 		String bandId = findPathVariable(requestURL, "Band");
@@ -181,7 +181,6 @@ public class DatasetController {
 			HttpServletRequest request, ModelMap model)
 			throws ResourceNotFoundException, IOException, QueryConfigurationException {
 		log.info("datasetId:" + datasetId);
-//		log.info("categories:" + regions.toString());
 		String requestURL = request.getRequestURI().toString();
 		String timeSliceId = findPathVariable(requestURL, "TimeSlice");
 		String bandId = findPathVariable(requestURL, "Band");
@@ -292,8 +291,8 @@ public class DatasetController {
 	@RequestMapping(value = "/{datasetId}/**/cats/{type}", method = RequestMethod.GET)
 	public String getCategory(@PathVariable String datasetId,
 			@PathVariable String type,
-			@RequestParam(required = false) Double lower,
-			@RequestParam(required = false) Double upper,
+			@RequestParam(required = false) List<Double> lower,
+			@RequestParam(required = false) List<Double> upper,
 			HttpServletRequest request, ModelMap model)
 			throws ResourceNotFoundException {
 		log.info("datasetId:" + datasetId);
