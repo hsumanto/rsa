@@ -107,7 +107,7 @@ public class TaskCatsResponse {
 		for (Entry<Integer, Hist> entry : this.cat.getCats().getCategories().entrySet()) {
 			Stats s = new Stats();
 			for (Bucket b : entry.getValue().getBuckets()) {
-				if(filterBucket(b, lower, upper))
+				if (filterBucket(b, lower, upper))
 					s = s.fold(b.getStats());
 			}
 			if (s.getCount() > 0)
@@ -117,14 +117,13 @@ public class TaskCatsResponse {
 	}
 	
 	private boolean filterBucket(Bucket b, List<Double> lower, List<Double> upper) {
-		if(lower.size() != upper.size()) throw new ArrayStoreException("lower & upper list doen't match");
-		boolean inbound = false;
-		for(int i = 0; i < lower.size(); i++) {
-			if(b.getLower() > lower.get(i) && b.getUpper() < upper.get(i)) {
-				inbound = true;
-				break;
-			}
+		if (lower.size() != upper.size())
+			throw new IndexOutOfBoundsException("Lower and upper bounds don't match");
+
+		for (int i = 0; i < lower.size(); i++) {
+			if (b.getLower() >= lower.get(i) && b.getUpper() <= upper.get(i))
+				return true;
 		}
-		return inbound;
+		return false;
 	}
 }
