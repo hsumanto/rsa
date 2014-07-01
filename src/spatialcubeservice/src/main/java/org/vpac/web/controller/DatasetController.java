@@ -145,33 +145,6 @@ public class DatasetController {
 		return "List";
 	}
 
-	@RequestMapping(value = "/{datasetId}/**/hist", method = RequestMethod.GET)
-	public String getHistogram(@PathVariable String datasetId,
-			@RequestParam(value="cat", required = false) List<Integer> categories,
-			@RequestParam(required = false) String filter,
-			HttpServletRequest request, ModelMap model)
-			throws ResourceNotFoundException {
-//		log.info("datasetId:" + datasetId);
-//		log.info("categories:" + categories.toString());
-//		log.info("filter:" + filter);
-		String requestURL = request.getRequestURI().toString();
-		String timeSliceId = findPathVariable(requestURL, "TimeSlice");
-		String bandId = findPathVariable(requestURL, "Band");
-
-		List<DatasetCats> cats = statisticsDao.searchCats(datasetId, timeSliceId, bandId, filter);
-		Dataset ds =  datasetDao.retrieve(datasetId);
-
-		if (cats.size() > 0) {
-			DatasetHistResponse result = new DatasetHistResponse(cats.get(0), ds);
-			result.processSummary(categories);
-			model.addAttribute(ControllerHelper.RESPONSE_ROOT, result);
-		} else {
-			throw new ResourceNotFoundException("No data found for this dataset, band, time slice and categorisation.");
-		}
-
-		return "List";
-	}
-
 	@RequestMapping(value = "/{datasetId}/**/categorise", method = RequestMethod.GET)
 	public String createCategories(@PathVariable String datasetId,
 //			@RequestParam(required = false) String[] regions,
@@ -259,6 +232,33 @@ public class DatasetController {
 			returnValue = TimeSlicePart.split("/")[0];
 		}
 		return returnValue;
+	}
+
+	@RequestMapping(value = "/{datasetId}/**/hist", method = RequestMethod.GET)
+	public String getHistogram(@PathVariable String datasetId,
+			@RequestParam(value="cat", required = false) List<Integer> categories,
+			@RequestParam(required = false) String filter,
+			HttpServletRequest request, ModelMap model)
+			throws ResourceNotFoundException {
+		log.info("datasetId: {}", datasetId);
+		log.info("categories: {}", categories);
+		log.info("filter: {}", filter);
+		String requestURL = request.getRequestURI().toString();
+		String timeSliceId = findPathVariable(requestURL, "TimeSlice");
+		String bandId = findPathVariable(requestURL, "Band");
+
+		List<DatasetCats> cats = statisticsDao.searchCats(datasetId, timeSliceId, bandId, filter);
+		Dataset ds =  datasetDao.retrieve(datasetId);
+
+		if (cats.size() > 0) {
+			DatasetHistResponse result = new DatasetHistResponse(cats.get(0), ds);
+			result.processSummary(categories);
+			model.addAttribute(ControllerHelper.RESPONSE_ROOT, result);
+		} else {
+			throw new ResourceNotFoundException("No data found for this dataset, band, time slice and categorisation.");
+		}
+
+		return "List";
 	}
 
 	@RequestMapping(value = "/{datasetId}/**/cats/{type}", method = RequestMethod.GET)
@@ -349,29 +349,4 @@ public class DatasetController {
 		return "DatasetForm";
 	}
 
-	private void executeQuery(QueryDefinition qd, QueryProgress qp,
-			Integer threads, Path outputPath, Version netcdfVersion)
-			throws IOException, QueryConfigurationException {
-		NetcdfFileWriter outputDataset = NetcdfFileWriter.createNew(
-				netcdfVersion, outputPath.toString());
-
-		try {
-			Query q = new Query(outputDataset);
-			if (threads != null)
-				q.setNumThreads(threads);
-			q.setMemento(qd, "preview:");
-			try {
-				q.setProgress(qp);
-				q.run();
-			} finally {
-				q.close();
-			}
-		} finally {
-			try {
-				outputDataset.close();
-			} catch (Exception e) {
-				log.warn("Failed to close output file", e);
-			}
-		}
-	}
 }
