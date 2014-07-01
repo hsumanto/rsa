@@ -198,34 +198,32 @@ public class Master extends UntypedActor {
 	}
 
 	private void foldResults(WorkInfo currentWorkInfo) {
-		HashMap<String, Foldable<?>> resultMap = null;
-		for(WorkInfo w : workProgress.values()) {
-			if (w.work.jobProgressId.equals(currentWorkInfo.work.jobProgressId)) {
-				if(resultMap == null) {
-					resultMap = new HashMap<>();
-					Map<String, Foldable> map = ((Map<String, Foldable>)(w.result));
-					for(Entry<String, ?> v : ((Map<String, Foldable>)(w.result)).entrySet()) {
-						VectorCats f = (VectorCats)v.getValue();
-						resultMap.put(v.getKey(), f);
-					}
-				} else {
-					for(Entry<String, ?> v : ((Map<String, Foldable>)(w.result)).entrySet()) {
-						VectorCats baseResult = (VectorCats)resultMap.get(v.getKey());
-						VectorCats currentResult = (VectorCats) v.getValue();
-						resultMap.put(v.getKey(), baseResult.fold(currentResult));
-					}
-				}
+		HashMap<String, Foldable<?>> resultMap = new HashMap<>();
+
+		for (WorkInfo w : workProgress.values()) {
+			if (!w.work.jobProgressId.equals(currentWorkInfo.work.jobProgressId))
+				continue;
+
+			Map<String, Foldable<?>> map = (Map<String, Foldable<?>>) w.result;
+			for (Entry<String, ?> v : map.entrySet()) {
+				VectorCats baseResult = (VectorCats) resultMap.get(v.getKey());
+				VectorCats currentResult = (VectorCats) v.getValue();
+				if (baseResult == null)
+					resultMap.put(v.getKey(), currentResult);
+				else
+					resultMap.put(v.getKey(), baseResult.fold(currentResult));
 			}
 		}
-		for(String key : resultMap.keySet()) {
-			Foldable value = resultMap.get(key);
+
+		for (String key : resultMap.keySet()) {
+			Foldable<?> value = resultMap.get(key);
 			ActorSelection database = getContext().system().actorSelection("akka://Workers/user/database");
 			if (VectorCats.class.isAssignableFrom(value.getClass())) {
 				CellSize outputResolution = CellSize.m25;
 				SaveCats msg = new SaveCats(currentWorkInfo.work.jobProgressId, key, outputResolution, value);
 				database.tell(msg, getSelf());
-			} else 	if (VectorHist.class.isAssignableFrom(value.getClass())) {
-				CellSize outputResolution = CellSize.m25;
+			} else {
+				log.debug("Ignorning unrecognised query result {}", value.getClass());
 			}
 		}
 	}

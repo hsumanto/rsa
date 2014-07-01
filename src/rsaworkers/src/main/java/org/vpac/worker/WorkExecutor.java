@@ -98,12 +98,14 @@ public class WorkExecutor extends UntypedActor {
 					}
 				}
 			}
-			HashMap<String, Foldable<? extends Serializable>> result = new java.util.HashMap<>();
-			for(Entry<String, ?> v : output.entrySet()) {
-				if(Serializable.class.isAssignableFrom(v.getValue().getClass()))
-					result.put(v.getKey(), (Foldable<? extends Serializable>) v.getValue());
+
+			HashMap<String, Foldable<?>> result = new java.util.HashMap<>();
+			for (Entry<String, Foldable<?>> v : output.entrySet()) {
+				if (!Serializable.class.isAssignableFrom(v.getValue().getClass()))
+					continue;
+				result.put(v.getKey(), v.getValue());
 			}
-			
+
 			log.debug("Produced result {}", output);
 			getSender().tell(new Job.WorkComplete(result), getSelf());
 		}
