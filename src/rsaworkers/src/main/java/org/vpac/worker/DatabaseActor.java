@@ -6,6 +6,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.vpac.ndg.AppContext;
 import org.vpac.ndg.common.datamodel.TaskState;
+import org.vpac.ndg.query.stats.Cats;
 import org.vpac.ndg.query.stats.VectorCats;
 import org.vpac.ndg.storage.dao.JobProgressDao;
 import org.vpac.ndg.storage.dao.StatisticsDao;
@@ -14,7 +15,6 @@ import org.vpac.ndg.storage.model.TaskCats;
 import org.vpac.ndg.storage.model.TaskHist;
 import org.vpac.worker.MasterDatabaseProtocol.JobUpdate;
 import org.vpac.worker.MasterDatabaseProtocol.SaveCats;
-import org.vpac.worker.MasterWorkerProtocol.RegisterWorker;
 
 import akka.actor.UntypedActor;
 
@@ -59,9 +59,13 @@ public class DatabaseActor extends UntypedActor {
 				progress.setCompleted();
 			jobProgressDao.save(progress);
 		} else if (message instanceof SaveCats) {
-			SaveCats cats = (SaveCats) message;
-			if(!isTaskCatsExist(cats.jobId, cats.key))
-				statisticsDao.saveCats(new TaskCats(cats.jobId, cats.key, cats.outputResolution, ((VectorCats)cats.value).getComponents()[0]));
+			SaveCats saveCats = (SaveCats) message;
+			if (!isTaskCatsExist(saveCats.jobId, saveCats.key)) {
+				Cats cats = ((VectorCats) saveCats.cats).getComponents()[0];
+				cats = cats.optimise();
+				statisticsDao.saveCats(new TaskCats(saveCats.jobId,
+						saveCats.key, saveCats.outputResolution, cats));
+			}
 		} else if (message instanceof String){
 			System.out.println("message:" + message);
 		}

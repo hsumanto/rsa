@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 import org.vpac.ndg.common.datamodel.CellSize;
 import org.vpac.ndg.common.datamodel.TaskState;
-import org.vpac.ndg.query.filter.Foldable;
+import org.vpac.ndg.query.stats.VectorCats;
 
 public abstract class MasterDatabaseProtocol {
 
@@ -31,13 +31,13 @@ public abstract class MasterDatabaseProtocol {
 		public final String jobId;
 		public final String key;
 		public final CellSize outputResolution;
-		public final Foldable value;
+		public final VectorCats cats;
 		
-		public SaveCats(String jobId, String key, CellSize outputResolution, Foldable value) {
+		public SaveCats(String jobId, String key, CellSize outputResolution, VectorCats cats) {
 			this.jobId = jobId;
 			this.key = key;
 			this.outputResolution = outputResolution;
-			this.value = value;
+			this.cats = cats;
 		}
 
 		@Override

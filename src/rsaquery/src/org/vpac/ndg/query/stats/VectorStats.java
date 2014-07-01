@@ -41,17 +41,6 @@ public class VectorStats implements Foldable<VectorStats>, Serializable {
 		return res;
 	}
 
-	@Override
-	public VectorStats optimise() {
-		VectorStats res = new VectorStats(components.length);
-
-		for (int i = 0; i < components.length; i++) {
-			res.components[i] = components[i].optimise();
-		}
-
-		return res;
-	}
-
 	public long[] getCount() {
 		long[] es = new long[components.length];
 		for (int i = 0; i < es.length; i++) {

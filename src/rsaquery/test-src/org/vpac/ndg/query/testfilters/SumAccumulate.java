@@ -86,11 +86,6 @@ public class SumAccumulate implements Filter,
 		}
 
 		@Override
-		public IntAdder optimise() {
-			return new IntAdder(value);
-		}
-
-		@Override
 		public String toString() {
 			return Long.toString(value);
 		}

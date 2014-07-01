@@ -17,6 +17,4 @@ public interface Foldable<F> {
 	 */
 	Foldable<F> fold(F other);
 
-	Foldable<F> optimise();
-
 }
