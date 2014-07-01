@@ -11,11 +11,12 @@ import java.util.Set;
 
 import org.vpac.ndg.common.datamodel.CellSize;
 import org.vpac.ndg.query.filter.Foldable;
+import org.vpac.ndg.query.math.VectorReal;
 import org.vpac.ndg.query.stats.VectorCats;
-import org.vpac.ndg.query.stats.VectorHist;
 import org.vpac.worker.Job.Work;
 import org.vpac.worker.MasterDatabaseProtocol.JobUpdate;
 import org.vpac.worker.MasterDatabaseProtocol.SaveCats;
+import org.vpac.worker.MasterWorkerProtocol.ProgressCheckPoint;
 import org.vpac.worker.MasterWorkerProtocol.RegisterWorker;
 import org.vpac.worker.MasterWorkerProtocol.WorkFailed;
 import org.vpac.worker.MasterWorkerProtocol.WorkIsDone;
@@ -108,21 +109,24 @@ public class Master extends UntypedActor {
 			currentWorkInfo.result = msg.result;
 			workProgress.put(workId, currentWorkInfo);
 
-			int workCompleted = 0;
-			int noOfWork = 0;
+			double totalArea = 0;
+			double completedArea = 0;
 			for(WorkInfo w : workProgress.values()) {
 				if (w.work.jobProgressId.equals(currentWorkInfo.work.jobProgressId)) {
+					VectorReal sub = w.work.bound.getMax().subNew(w.work.bound.getMin());
+					double area = sub.get(0) * sub.get(1);
 					if(w.result != null)
-						workCompleted++;
-					noOfWork++;
+						completedArea += area;
+					totalArea += area;
 				}
 			}
 
-			if (workCompleted == noOfWork) {
+			if (totalArea == completedArea) {
 				foldResults(currentWorkInfo);
+				// todo clean task from map
 			}
 			ActorSelection database = getContext().system().actorSelection("akka://Workers/user/database");
-			JobUpdate update = new JobUpdate(currentWorkInfo.work.jobProgressId,  workCompleted, noOfWork);
+			JobUpdate update = new JobUpdate(currentWorkInfo.work.jobProgressId,  completedArea, totalArea);
 			database.tell(update, getSelf());
 
 			WorkerState state = workers.get(workerId);
@@ -192,6 +196,9 @@ public class Master extends UntypedActor {
 					}
 				}
 			}
+		} else if (message instanceof ProgressCheckPoint) {
+			ProgressCheckPoint msg = (ProgressCheckPoint) message;
+			System.out.println("ProgressCheckPoint");
 		} else {
 			unhandled(message);
 		}

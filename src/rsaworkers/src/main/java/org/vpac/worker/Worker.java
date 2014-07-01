@@ -114,6 +114,8 @@ public class Worker extends UntypedActor {
         getContext().setReceiveTimeout(Duration.create(5, "seconds"));
         getContext().become(waitForWorkIsDoneAck(result));
       }
+//      else if (message instanceof MasterWorkerProtocol.ProgressCheckPoint)
+//          sendToMaster(new MasterWorkerProtocol.ProgressCheckPoint(workerId));
       else if (message instanceof Work) {
         log.info("Yikes. Master told me to do work, while I'm working.");
       }

@@ -53,15 +53,17 @@ public class DatabaseActor extends UntypedActor {
 		if (message instanceof JobUpdate) {
 			JobUpdate job = (JobUpdate) message;
 			JobProgress progress = jobProgressDao.retrieve(job.jobId);
-			progress.setCurrentStepProgress(100 * job.workCompleted
-					/ (job.totalNoOfWork));
-			if (job.workCompleted == job.totalNoOfWork)
+			progress.setCurrentStepProgress(100 * job.completedArea
+					/ (job.totalArea));
+			if (job.completedArea == job.totalArea)
 				progress.setCompleted();
 			jobProgressDao.save(progress);
 		} else if (message instanceof SaveCats) {
 			SaveCats cats = (SaveCats) message;
 			if(!isTaskCatsExist(cats.jobId, cats.key))
 				statisticsDao.saveCats(new TaskCats(cats.jobId, cats.key, cats.outputResolution, ((VectorCats)cats.value).getComponents()[0]));
+		} else if (message instanceof String){
+			System.out.println("message:" + message);
 		}
 	}
 

@@ -10,18 +10,18 @@ public abstract class MasterDatabaseProtocol {
 	public static final class JobUpdate implements Serializable {
 		private static final long serialVersionUID = 1L;
 		public final String jobId;
-		public final int workCompleted;
-		public final int totalNoOfWork;
+		public final double completedArea;
+		public final double totalArea;
 		
-		public JobUpdate(String jobId, int workCompleted, int totalNoOfWork) {
+		public JobUpdate(String jobId, double  completedArea, double totalArea) {
 			this.jobId = jobId;
-			this.workCompleted = workCompleted;
-			this.totalNoOfWork = totalNoOfWork;
+			this.completedArea = completedArea;
+			this.totalArea = totalArea;
 		}
 
 		@Override
 		public String toString() {
-			return "JobUpdate{" + "jobId=" + jobId + ",workCompleted=" + workCompleted + ",totalNoOfWork=" + totalNoOfWork + '}';
+			return "JobUpdate{" + "jobId=" + jobId + ",completedArea=" + completedArea + ",totalArea=" + totalArea + '}';
 		}
 	}
 
