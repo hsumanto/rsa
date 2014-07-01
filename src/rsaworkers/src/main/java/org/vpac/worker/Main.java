@@ -89,7 +89,7 @@ public class Main {
 		system.actorOf(ClusterSingletonManager.defaultProps(
 				Master.props(workTimeout), "active", PoisonPill.getInstance(),
 				"backend"), "master");
-
+		ActorRef database = system.actorOf(Props.create(DatabaseActor.class), "database");
 		return realJoinAddress;
 	}
 

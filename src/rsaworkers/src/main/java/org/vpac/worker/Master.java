@@ -4,25 +4,18 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Queue;
 import java.util.Set;
 
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
-import org.vpac.ndg.AppContext;
 import org.vpac.ndg.common.datamodel.CellSize;
 import org.vpac.ndg.query.filter.Foldable;
 import org.vpac.ndg.query.stats.VectorCats;
 import org.vpac.ndg.query.stats.VectorHist;
-import org.vpac.ndg.storage.dao.JobProgressDao;
-import org.vpac.ndg.storage.dao.StatisticsDao;
-import org.vpac.ndg.storage.model.JobProgress;
-import org.vpac.ndg.storage.model.TaskCats;
-import org.vpac.ndg.storage.model.TaskHist;
 import org.vpac.worker.Job.Work;
+import org.vpac.worker.MasterDatabaseProtocol.JobUpdate;
+import org.vpac.worker.MasterDatabaseProtocol.SaveCats;
 import org.vpac.worker.MasterWorkerProtocol.RegisterWorker;
 import org.vpac.worker.MasterWorkerProtocol.WorkFailed;
 import org.vpac.worker.MasterWorkerProtocol.WorkIsDone;
@@ -34,6 +27,7 @@ import org.vpac.worker.master.WorkResult;
 import scala.concurrent.duration.Deadline;
 import scala.concurrent.duration.FiniteDuration;
 import akka.actor.ActorRef;
+import akka.actor.ActorSelection;
 import akka.actor.Cancellable;
 import akka.actor.Props;
 import akka.actor.UntypedActor;
@@ -45,26 +39,6 @@ import akka.event.LoggingAdapter;
 
 public class Master extends UntypedActor {
 
-	/**
-	 * The application context should only be initialised once EVER - otherwise
-	 * you get resource leaks (e.g. extra open sockets) when using something
-	 * like Nailgun. The use of the enum here ensures this. The context acquired
-	 * here is passed automatically to {@link AppContext} in the Storage Manager
-	 * for use by other parts of the RSA.
-	 */
-	private static enum AppContextSingleton {
-		INSTANCE;
-
-		public ApplicationContext appContext;
-
-		private AppContextSingleton() {
-			System.out.println("Path");
-			appContext = new ClassPathXmlApplicationContext(
-					new String[] { "spring/config/BeanLocations.xml" });
-
-		}
-	}
-	
 	public static String ResultsTopic = "results";
 
 	public static Props props(FiniteDuration workTimeout) {
@@ -81,8 +55,6 @@ public class Master extends UntypedActor {
 	private Queue<Work> pendingWork = new LinkedList<Work>();
 	private Set<String> workIds = new LinkedHashSet<String>();
 	private Map<String, WorkInfo> workProgress = new HashMap<String, WorkInfo>();
-	private JobProgressDao jobProgressDao;
-	private StatisticsDao statisticsDao;
 	
 	public Master(FiniteDuration workTimeout) {
 		this.workTimeout = workTimeout;
@@ -92,9 +64,6 @@ public class Master extends UntypedActor {
 				.scheduler()
 				.schedule(workTimeout.div(2), workTimeout.div(2), getSelf(),
 						CleanupTick, getContext().dispatcher(), getSelf());
-		ApplicationContext appContext = AppContextSingleton.INSTANCE.appContext;
-		statisticsDao = (StatisticsDao) appContext.getBean("statisticsDao");
-		jobProgressDao = (JobProgressDao) appContext.getBean("jobProgressDao");
 	}
 
 	@Override
@@ -148,18 +117,14 @@ public class Master extends UntypedActor {
 					noOfWork++;
 				}
 			}
-			JobProgress job = jobProgressDao.retrieve(currentWorkInfo.work.jobProgressId);
-			job.setCurrentStepProgress(100 * workCompleted / (noOfWork));
 			
+			// move this to database worker
+			ActorSelection database = getContext().system().actorSelection("akka://Workers/user/database");
+			JobUpdate update = new JobUpdate(currentWorkInfo.work.jobProgressId,  workCompleted, noOfWork);
+			database.tell(update, getSelf());
 			if(workCompleted == noOfWork) {
-				System.out.println("noOfWork:" + noOfWork);
-				System.out.println("workCompleted:" + workCompleted);
-				System.out.println("calc:" + (workCompleted * 100 / (noOfWork) ) + "%");
-
-				job.setCompleted();
 				foldResults(currentWorkInfo);
 			}
-			jobProgressDao.save(job);
 			WorkerState state = workers.get(workerId);
 			
 			if (state != null && state.status.isBusy()
@@ -255,32 +220,16 @@ public class Master extends UntypedActor {
 		}
 		for(String key : resultMap.keySet()) {
 			Foldable value = resultMap.get(key);
+			ActorSelection database = getContext().system().actorSelection("akka://Workers/user/database");
 			if (VectorCats.class.isAssignableFrom(value.getClass())) {
 				CellSize outputResolution = CellSize.m25;
-				if(!isTaskCatsExist(currentWorkInfo, key))
-					statisticsDao.saveCats(new TaskCats(currentWorkInfo.work.jobProgressId, key, outputResolution,((VectorCats)value).getComponents()[0]));
+				SaveCats msg = new SaveCats(currentWorkInfo.work.jobProgressId, key, outputResolution, value);
+				database.tell(msg, getSelf());
 			} else 	if (VectorHist.class.isAssignableFrom(value.getClass())) {
 				CellSize outputResolution = CellSize.m25;
-				if(!isTaskHistExist(currentWorkInfo, key))
-					statisticsDao.saveHist(new TaskHist(currentWorkInfo.work.jobProgressId, key, outputResolution,((VectorHist)value).getComponents()[0]));
 			}
 		}
 	}
-	
-	private boolean isTaskCatsExist(WorkInfo currentWorkInfo, String key) {
-		List<TaskCats> tc = statisticsDao.searchCats(currentWorkInfo.work.jobProgressId, key);
-		if(tc.size() > 0)
-			return true;
-		return false;
-	}
-
-	private boolean isTaskHistExist(WorkInfo currentWorkInfo, String key) {
-		List<TaskHist> th = statisticsDao.searchHist(currentWorkInfo.work.jobProgressId);
-		if(th.size() > 0)
-			return true;
-		return false;
-	}
-
 	
 	private void notifyWorkers() {
 		if (!pendingWork.isEmpty()) {
