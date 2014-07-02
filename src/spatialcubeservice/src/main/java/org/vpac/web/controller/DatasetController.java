@@ -218,8 +218,9 @@ public class DatasetController {
 				VectorCats value = (VectorCats) result.get(key);
 				Cats cats = value.getComponents()[0];
 				cats = cats.optimise();
-				statisticsDao.saveCats(new DatasetCats(datasetId, timeSliceId,
-						bandId, name, cats));
+
+				statisticsDao.saveOrReplaceCats(new DatasetCats(datasetId,
+						timeSliceId, bandId, name, cats));
 			}
 		}
 	}
