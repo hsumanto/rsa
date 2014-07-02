@@ -30,26 +30,61 @@ public class HistogramTest extends TestCase {
 	final static double EPSILON = 1.0e-4;
 
 	@Test
-	public void test_lowerBoundGeneration() throws Exception {
+	public void test_logLowerBounds() throws Exception {
 		double lb;
+		int i;
 
-		lb = Hist.lowerBound(0, BASE, BUCKETS_PER_ORDER_OF_MAGNITUDE,
-				SCALE);
-		assertEquals(0.1, lb, 0.00001);
+		lb = BucketingStrategyLog.lowerBound(0, BASE,
+				BUCKETS_PER_ORDER_OF_MAGNITUDE, SCALE);
+		assertEquals(0.1, lb, EPSILON);
+		i = BucketingStrategyLog.indexOf(0.1, BASE,
+				BUCKETS_PER_ORDER_OF_MAGNITUDE, SCALE);
+		assertEquals(0, i);
 
-		lb = Hist.lowerBound(9, BASE, BUCKETS_PER_ORDER_OF_MAGNITUDE,
-				SCALE);
-		assertEquals(100, lb, 0.00001);
+		lb = BucketingStrategyLog.lowerBound(9, BASE,
+				BUCKETS_PER_ORDER_OF_MAGNITUDE, SCALE);
+		assertEquals(100, lb, EPSILON);
+		i = BucketingStrategyLog.indexOf(100, BASE,
+				BUCKETS_PER_ORDER_OF_MAGNITUDE, SCALE);
+		assertEquals(9, i);
+	}
 
-		double[] lbs = Hist.genBoundaries(BASE,
-				BUCKETS_PER_ORDER_OF_MAGNITUDE, SCALE, NUM_BUCKETS);
-		log.info("Lower bounds: {}", lbs);
-		assertEquals(Double.NEGATIVE_INFINITY, lbs[0], EPSILON);
-		assertEquals(0.0, lbs[22], EPSILON);
-		assertEquals(0.1, lbs[23], EPSILON);
-		assertEquals(0.2154, lbs[24], EPSILON);
-		assertEquals(1000000.0, lbs[44], EPSILON);
-		assertEquals(Double.POSITIVE_INFINITY, lbs[lbs.length - 1], EPSILON);
+	@Test
+	public void test_logBounds() throws Exception {
+		double[] bounds;
+		BucketingStrategyLog bs = new BucketingStrategyLog();
+		bounds = bs.computeBucketBounds(0.0);
+		assertEquals(0.0, bounds[0], EPSILON);
+		assertEquals(SCALE, bounds[1], EPSILON);
+
+		bounds = bs.computeBucketBounds(SCALE / 2);
+		assertEquals(0.0, bounds[0], EPSILON);
+		assertEquals(SCALE, bounds[1], EPSILON);
+
+		bounds = bs.computeBucketBounds(-SCALE / 2);
+		assertEquals(-SCALE, bounds[0], EPSILON);
+		assertEquals(0.0, bounds[1], EPSILON);
+
+		bounds = bs.computeBucketBounds(5.0);
+		assertEquals(4.6415888336, bounds[0], EPSILON);
+		assertEquals(10.0, bounds[1], EPSILON);
+
+		bounds = bs.computeBucketBounds(-5.0);
+		assertEquals(-10.0, bounds[0], EPSILON);
+		assertEquals(-4.6415888336, bounds[1], EPSILON);
+
+		bounds = bs.computeBucketBounds(Double.POSITIVE_INFINITY);
+		assertEquals(Double.POSITIVE_INFINITY, bounds[0], EPSILON);
+		assertEquals(Double.POSITIVE_INFINITY, bounds[1], EPSILON);
+
+		bounds = bs.computeBucketBounds(Double.NEGATIVE_INFINITY);
+		assertEquals(Double.NEGATIVE_INFINITY, bounds[0], EPSILON);
+		assertEquals(Double.NEGATIVE_INFINITY, bounds[1], EPSILON);
+
+		bounds = bs.computeBucketBounds(Double.NaN);
+		assertEquals(Double.NaN, bounds[0], EPSILON);
+		assertEquals(Double.NaN, bounds[1], EPSILON);
+
 	}
 
 	/**

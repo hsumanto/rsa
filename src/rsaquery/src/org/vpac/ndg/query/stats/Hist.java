@@ -16,29 +16,19 @@ import org.vpac.ndg.query.math.ScalarElement;
  */
 public class Hist implements Foldable<Hist>, Serializable {
 
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 2L;
 
-	// Beware! If you change these, old histograms will not be comparable to
-	// new ones.
 	private String id;
-	static final double BASE = 10;
-	static final double BUCKETS_PER_ORDER_OF_MAGNITUDE = 3.0;
-	static final double SCALE = 0.1;
-	static final int NUM_BUCKETS = 45;
 
 	private List<Bucket> buckets;
 
+	private BucketingStrategy bucketingStrategy;
+	// The most-recently-used bucket.
 	private Bucket mruBucket;
 
 	public Hist() {
-		double[] boundaries = genBoundaries(BASE, BUCKETS_PER_ORDER_OF_MAGNITUDE,
-				SCALE, NUM_BUCKETS);
-
+		bucketingStrategy = new BucketingStrategyLog();
 		buckets = new ArrayList<Bucket>();
-		for (int i = 0; i < boundaries.length - 1; i++) {
-			buckets.add(new Bucket(boundaries[i], boundaries[i + 1],
-					new Stats()));
-		}
 	}
 
 	public Hist copy() {
@@ -66,13 +56,17 @@ public class Hist implements Foldable<Hist>, Serializable {
 			Bucket b = buckets.get(j);
 			if (b.getLower() <= value)
 				i = j;
+			else
+				break;
 		}
 
 		Bucket b = null;
 		if (i < 0 || !buckets.get(i).canContain(value)) {
-			// No bucket can contain this value! This must be a categorical
-			// dataset, so create a new bucket to store this value.
-			b = new Bucket(value, value, new Stats());
+			// No bucket can contain this value yet. Create one that can.
+			// The buckets are always sorted, so we already know where to insert
+			// the new bucket (discovered above).
+			double[] bounds = bucketingStrategy.computeBucketBounds(value);
+			b = new Bucket(bounds[0], bounds[1], new Stats());
 			buckets.add(i + 1, b);
 		} else {
 			b = buckets.get(i);
@@ -188,63 +182,6 @@ public class Hist implements Foldable<Hist>, Serializable {
 		return buckets;
 	}
 
-	/**
-	 * Generates a symmetric array of buckets, with zero in the middle. The
-	 * first bucket should catch all very large negative numbers, while the last
-	 * bucket catches all very large positive numbers. Therefore the first
-	 * bucket has a bound of negative infinity.
-	 *
-	 * @param base The base order.
-	 * @param root The number of buckets per order of magnitude.
-	 * @param scale The scaling factor.
-	 * @param n The number of buckets to generate.
-	 * @return An array of bucket boundaries.
-	 */
-	static double[] genBoundaries(double base, double root, double scale, int n) {
-
-		// Lower bound generation only works for positive numbers! So do this
-		// in three steps:
-		// 1. Compute lower bounds of positive numbers and add to list.
-		// 2. Add 0.0.
-		// 3. Repeat 1, but negate numbers before insertion.
-		// 4. Add NEGATIVE_INFINITY, to catch all very large negative values.
-		// 4. Sort the list.
-
-		List<Double> buckets = new ArrayList<Double>();
-
-		for (int i = 0; i < n / 2; i++)
-			buckets.add(lowerBound(i, base, root, scale));
-
-		buckets.add(0.0);
-
-		for (int i = 0; i < (n / 2) - 1; i++)
-			buckets.add(0.0 - lowerBound(i, base, root, scale));
-
-		buckets.add(Double.NEGATIVE_INFINITY);
-		buckets.add(Double.POSITIVE_INFINITY);
-
-		Collections.sort(buckets);
-
-		double[] bs = new double[buckets.size()];
-		for (int i = 0; i < bs.length; i++)
-			bs[i] = buckets.get(i);
-		return bs;
-	}
-
-	/**
-	 * Computes the lower bound of a bucket. This only generates lower bounds
-	 * for positive indices.
-	 *
-	 * @param i The index to generate a lower bound of.
-	 * @param base The base order.
-	 * @param root The number of buckets per order of magnitude.
-	 * @param scale The scaling factor.
-	 * @return The lower bound of the bucket.
-	 */
-	static double lowerBound(int i, double base, double root, double scale) {
-		return Math.pow(base, i / root) * scale;
-	}
-
 	@Override
 	public String toString() {
 		StringBuffer sb = new StringBuffer();
@@ -306,5 +243,13 @@ public class Hist implements Foldable<Hist>, Serializable {
 
 	public void setBuckets(List<Bucket> buckets) {
 		this.buckets = buckets;
+	}
+
+	public BucketingStrategy getBucketingStrategy() {
+		return bucketingStrategy;
+	}
+
+	public void setBucketingStrategy(BucketingStrategy bucketingStrategy) {
+		this.bucketingStrategy = bucketingStrategy;
 	}
 }
