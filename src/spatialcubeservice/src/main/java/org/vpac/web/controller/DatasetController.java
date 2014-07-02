@@ -21,13 +21,10 @@ package org.vpac.web.controller;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.Serializable;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
@@ -52,6 +49,7 @@ import org.vpac.ndg.query.QueryDefinition;
 import org.vpac.ndg.query.filter.Foldable;
 import org.vpac.ndg.query.io.DatasetProvider;
 import org.vpac.ndg.query.io.ProviderRegistry;
+import org.vpac.ndg.query.stats.Cats;
 import org.vpac.ndg.query.stats.VectorCats;
 import org.vpac.ndg.storage.dao.BandDao;
 import org.vpac.ndg.storage.dao.DatasetDao;
@@ -64,11 +62,11 @@ import org.vpac.ndg.storage.util.DatasetUtil;
 import org.vpac.web.exception.ResourceNotFoundException;
 import org.vpac.web.model.request.DatasetRequest;
 import org.vpac.web.model.request.PagingRequest;
-import org.vpac.web.model.response.DatasetCatsResponse;
+import org.vpac.web.model.response.CategoryTableResponse;
 import org.vpac.web.model.response.DatasetCollectionResponse;
-import org.vpac.web.model.response.DatasetHistResponse;
 import org.vpac.web.model.response.DatasetResponse;
 import org.vpac.web.model.response.QueryResponse;
+import org.vpac.web.model.response.RangeTableResponse;
 import org.vpac.web.util.ControllerHelper;
 
 import ucar.nc2.NetcdfFileWriter;
@@ -148,33 +146,6 @@ public class DatasetController {
 		return "List";
 	}
 
-	@RequestMapping(value = "/{datasetId}/**/hist", method = RequestMethod.GET)
-	public String getHistogram(@PathVariable String datasetId,
-			@RequestParam(value="cat", required = false) List<Integer> categories,
-			@RequestParam(required = false) String filter,
-			HttpServletRequest request, ModelMap model)
-			throws ResourceNotFoundException {
-//		log.info("datasetId:" + datasetId);
-//		log.info("categories:" + categories.toString());
-//		log.info("filter:" + filter);
-		String requestURL = request.getRequestURI().toString();
-		String timeSliceId = findPathVariable(requestURL, "TimeSlice");
-		String bandId = findPathVariable(requestURL, "Band");
-
-		List<DatasetCats> cats = statisticsDao.searchCats(datasetId, timeSliceId, bandId, filter);
-		Dataset ds =  datasetDao.retrieve(datasetId);
-
-		if (cats.size() > 0) {
-			DatasetHistResponse result = new DatasetHistResponse(cats.get(0), ds);
-			result.processSummary(categories);
-			model.addAttribute(ControllerHelper.RESPONSE_ROOT, result);
-		} else {
-			throw new ResourceNotFoundException("No data found for this dataset, band, time slice and categorisation.");
-		}
-
-		return "List";
-	}
-
 	@RequestMapping(value = "/{datasetId}/**/categorise", method = RequestMethod.GET)
 	public String createCategories(@PathVariable String datasetId,
 //			@RequestParam(required = false) String[] regions,
@@ -223,7 +194,7 @@ public class DatasetController {
 				q.setProgress(qp);
 				q.run();
 				output = q.getAccumulatedOutput();
-				foldResults(datasetId, timeSliceId, bandId, output);
+				save(datasetId, timeSliceId, bandId, output);
 			} finally {
 				q.close();
 			}
@@ -239,39 +210,16 @@ public class DatasetController {
 				taskId));
 		return "Success";
 	}
-	private void foldResults(String datasetId, String timeSliceId, String bandId, Map<String, Foldable<?>> output) {
-		Map<String, Foldable<? extends Serializable>> result  = filterOutNonSerializable(output);
-		Map<String, Foldable> resultMap = new HashMap<>();
-		for(Entry<String, ?> v : result.entrySet()) {
-			String key = v.getKey();
-			Foldable value = (Foldable) v.getValue();
-			if(resultMap.get(key) == null) {
-				resultMap.put(key, new VectorCats(1));
-			}
-			resultMap.put(key, resultMap.get(key).fold(value));
-		}
-		save(datasetId, timeSliceId, bandId, resultMap);
-	}
 
-	private Map<String, Foldable<? extends Serializable>> filterOutNonSerializable(Map<String, Foldable<?>> output) {
-		Map<String, Foldable<? extends Serializable>> result = new HashMap<>();
-		for(Entry<String, ?> v : output.entrySet()) {
-			if(Serializable.class.isAssignableFrom(v.getValue().getClass()))
-				result.put(v.getKey(), (Foldable<? extends Serializable>) v.getValue());
-		}
-		return result;
-	}
-	
-	private void save(String datasetId, String timeSliceId, String bandId, Map<String, Foldable> result) {
-		for(String key : result.keySet()) {
+	private void save(String datasetId, String timeSliceId, String bandId, Map<String, Foldable<?>> result) {
+		for (String key : result.keySet()) {
 			if (VectorCats.class.isAssignableFrom(result.get(key).getClass())) {
 				String name = key;
-				CellSize outputResolution = CellSize.m25;
-				statisticsDao.saveCats(new DatasetCats(datasetId, timeSliceId, bandId, name, ((VectorCats)result.get(key)).getComponents()[0]));
-//			} else 	if (VectorHist.class.isAssignableFrom(f.getClass())) {
-//				String name = "lga";
-//				CellSize outputResolution = CellSize.m25;
-//				statisticsDao.saveHist(new TaskHist(currentWorkInfo.work.jobProgressId, name, outputResolution,((VectorHist)f).getComponents()[0]));
+				VectorCats value = (VectorCats) result.get(key);
+				Cats cats = value.getComponents()[0];
+				cats = cats.optimise();
+				statisticsDao.saveCats(new DatasetCats(datasetId, timeSliceId,
+						bandId, name, cats));
 			}
 		}
 	}
@@ -286,6 +234,38 @@ public class DatasetController {
 			returnValue = TimeSlicePart.split("/")[0];
 		}
 		return returnValue;
+	}
+
+	@RequestMapping(value = "/{datasetId}/**/hist", method = RequestMethod.GET)
+	public String getHistogram(@PathVariable String datasetId,
+			@RequestParam(value="cat", required = false) List<Integer> categories,
+			@RequestParam(required = false) String filter,
+			HttpServletRequest request, ModelMap model)
+			throws ResourceNotFoundException {
+		log.info("datasetId: {}", datasetId);
+		log.info("categories: {}", categories);
+		log.info("filter: {}", filter);
+		String requestURL = request.getRequestURI().toString();
+		String timeSliceId = findPathVariable(requestURL, "TimeSlice");
+		String bandId = findPathVariable(requestURL, "Band");
+
+		List<DatasetCats> dsCats = statisticsDao.searchCats(datasetId, timeSliceId, bandId, filter);
+		Dataset ds =  datasetDao.retrieve(datasetId);
+
+		if (dsCats.size() > 0) {
+			DatasetCats dsCat = dsCats.get(0);
+			Cats cats = dsCat.getCats();
+			cats = cats.filterByCategory(categories);
+			cats = cats.optimise();
+			RangeTableResponse table = new RangeTableResponse();
+			table.setCategorisation("value");
+			table.setRows(cats, ds.getResolution());
+			model.addAttribute(ControllerHelper.RESPONSE_ROOT, table);
+		} else {
+			throw new ResourceNotFoundException("No data found for this dataset, band, time slice and categorisation.");
+		}
+
+		return "List";
 	}
 
 	@RequestMapping(value = "/{datasetId}/**/cats/{type}", method = RequestMethod.GET)
@@ -303,13 +283,18 @@ public class DatasetController {
 		String timeSliceId = findPathVariable(requestURL, "TimeSlice");
 		String bandId = findPathVariable(requestURL, "Band");
 
-		List<DatasetCats> cats = statisticsDao.searchCats(datasetId, timeSliceId, bandId, type);
+		List<DatasetCats> dsCats = statisticsDao.searchCats(datasetId, timeSliceId, bandId, type);
 		Dataset ds =  datasetDao.retrieve(datasetId);
 		
-		if (cats.size() > 0) {
-			DatasetCatsResponse result = new DatasetCatsResponse(cats.get(0), ds);
-			result.processSummary(lower, upper);
-			model.addAttribute(ControllerHelper.RESPONSE_ROOT, result);
+		if (dsCats.size() > 0) {
+			DatasetCats dsCat = dsCats.get(0);
+			Cats cats = dsCat.getCats();
+			cats = cats.filterByRange(lower, upper);
+			cats = cats.optimise();
+			CategoryTableResponse table = new CategoryTableResponse();
+			table.setCategorisation(dsCat.getName());
+			table.setRows(cats, ds.getResolution());
+			model.addAttribute(ControllerHelper.RESPONSE_ROOT, table);
 		} else {
 			throw new ResourceNotFoundException("No data found for this dataset, band, time slice and categorisation.");
 		}
@@ -376,29 +361,4 @@ public class DatasetController {
 		return "DatasetForm";
 	}
 
-	private void executeQuery(QueryDefinition qd, QueryProgress qp,
-			Integer threads, Path outputPath, Version netcdfVersion)
-			throws IOException, QueryConfigurationException {
-		NetcdfFileWriter outputDataset = NetcdfFileWriter.createNew(
-				netcdfVersion, outputPath.toString());
-
-		try {
-			Query q = new Query(outputDataset);
-			if (threads != null)
-				q.setNumThreads(threads);
-			q.setMemento(qd, "preview:");
-			try {
-				q.setProgress(qp);
-				q.run();
-			} finally {
-				q.close();
-			}
-		} finally {
-			try {
-				outputDataset.close();
-			} catch (Exception e) {
-				log.warn("Failed to close output file", e);
-			}
-		}
-	}
 }

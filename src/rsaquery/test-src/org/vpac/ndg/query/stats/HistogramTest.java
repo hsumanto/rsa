@@ -41,7 +41,7 @@ public class HistogramTest extends TestCase {
 				SCALE);
 		assertEquals(100, lb, 0.00001);
 
-		double[] lbs = Hist.genBuckets(BASE,
+		double[] lbs = Hist.genBoundaries(BASE,
 				BUCKETS_PER_ORDER_OF_MAGNITUDE, SCALE, NUM_BUCKETS);
 		log.info("Lower bounds: {}", lbs);
 		assertEquals(Double.NEGATIVE_INFINITY, lbs[0], EPSILON);
@@ -65,7 +65,8 @@ public class HistogramTest extends TestCase {
 		}
 		log.info("Histogram: {}", hist.toCsv());
 
-		List<Bucket> buckets = hist.getNonemptyBuckets();
+		Hist optimisedHist = hist.optimise();
+		List<Bucket> buckets = optimisedHist.getBuckets();
 		assertEquals("Number of nonempty buckets", 11, buckets.size());
 
 		Bucket b = buckets.get(0);
@@ -119,17 +120,20 @@ public class HistogramTest extends TestCase {
 				numLessThanTen++;
 		}
 
-		Bucket b = stats.getComponents()[0].getNonemptyBuckets().get(0);
+		Hist optimisedHist = stats.getComponents()[0].optimise();
+		Bucket b = optimisedHist.getBuckets().get(0);
 		Stats s = b.getStats();
 		assertEquals("Lower bound of first bucket of first component", 0.0, b.getLower(), EPSILON);
 		assertEquals("Elements in first bucket of first component", numLessThanTen, s.getCount());
 
-		b = stats.getComponents()[1].getNonemptyBuckets().get(0);
+		optimisedHist = stats.getComponents()[1].optimise();
+		b = optimisedHist.getBuckets().get(0);
 		s = b.getStats();
 		assertEquals("Lower bound of first bucket of second component", 1.0, b.getLower(), EPSILON);
 		assertEquals("Elements in first bucket of second component", 1, s.getCount());
 
-		b = stats.getComponents()[2].getNonemptyBuckets().get(0);
+		optimisedHist = stats.getComponents()[2].optimise();
+		b = optimisedHist.getBuckets().get(0);
 		s = b.getStats();
 		assertEquals("Lower bound of first bucket of third component", 10.0, b.getLower(), EPSILON);
 		assertEquals("Elements in first bucket of third component", 1, s.getCount());

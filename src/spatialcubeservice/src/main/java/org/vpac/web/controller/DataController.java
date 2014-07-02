@@ -82,6 +82,7 @@ import org.vpac.ndg.query.sampling.ArrayAdapter;
 import org.vpac.ndg.query.sampling.ArrayAdapterImpl;
 import org.vpac.ndg.query.sampling.NodataStrategy;
 import org.vpac.ndg.query.sampling.NodataStrategyFactory;
+import org.vpac.ndg.query.stats.Cats;
 import org.vpac.ndg.storage.dao.DatasetDao;
 import org.vpac.ndg.storage.dao.JobProgressDao;
 import org.vpac.ndg.storage.dao.StatisticsDao;
@@ -104,15 +105,15 @@ import org.vpac.web.model.request.DataExportRequest;
 import org.vpac.web.model.request.FileRequest;
 import org.vpac.web.model.request.PagingRequest;
 import org.vpac.web.model.request.TaskSearchRequest;
+import org.vpac.web.model.response.CategoryTableResponse;
 import org.vpac.web.model.response.CleanUpResponse;
 import org.vpac.web.model.response.DatasetPlotResponse;
 import org.vpac.web.model.response.ExportResponse;
 import org.vpac.web.model.response.FileInfoResponse;
 import org.vpac.web.model.response.ImportResponse;
 import org.vpac.web.model.response.QueryResponse;
-import org.vpac.web.model.response.TaskCatsResponse;
+import org.vpac.web.model.response.RangeTableResponse;
 import org.vpac.web.model.response.TaskCollectionResponse;
-import org.vpac.web.model.response.TaskHistResponse;
 import org.vpac.web.model.response.TaskResponse;
 import org.vpac.web.util.ControllerHelper;
 import org.vpac.web.util.Pager;
@@ -334,12 +335,17 @@ public class DataController {
 		log.info("Data getTaskById");
 		log.debug("Task ID: {}", taskId);
 
-		List<TaskCats> cats = statisticsDao.searchCats(taskId, filter);
+		List<TaskCats> tCats = statisticsDao.searchCats(taskId, filter);
 		
-		if (cats.size() > 0) {
-			TaskHistResponse result = new TaskHistResponse(cats.get(0));
-			result.processSummary(categories);
-			model.addAttribute(ControllerHelper.RESPONSE_ROOT, result);
+		if (tCats.size() > 0) {
+			TaskCats tCat = tCats.get(0);
+			Cats cats = tCat.getCats();
+			cats = cats.filterByCategory(categories);
+			cats = cats.optimise();
+			RangeTableResponse table = new RangeTableResponse();
+			table.setCategorisation("value");
+			table.setRows(cats, tCat.getOutputResolution());
+			model.addAttribute(ControllerHelper.RESPONSE_ROOT, table);
 		} else
 			throw new ResourceNotFoundException("No data not found.");
 		
@@ -356,12 +362,17 @@ public class DataController {
 		log.info("Data getTaskById");
 		log.debug("Task ID: {}", taskId);
 
-		List<TaskCats> cats = statisticsDao.searchCats(taskId, catType);
+		List<TaskCats> tCats = statisticsDao.searchCats(taskId, catType);
 
-		if (cats.size() > 0) {
-			TaskCatsResponse result = new TaskCatsResponse(cats.get(0));
-			result.processSummary(lower, upper);
-			model.addAttribute(ControllerHelper.RESPONSE_ROOT, result);
+		if (tCats.size() > 0) {
+			TaskCats tCat = tCats.get(0);
+			Cats cats = tCat.getCats();
+			cats = cats.filterByRange(lower, upper);
+			cats = cats.optimise();
+			CategoryTableResponse table = new CategoryTableResponse();
+			table.setCategorisation(tCat.getName());
+			table.setRows(cats, tCat.getOutputResolution());
+			model.addAttribute(ControllerHelper.RESPONSE_ROOT, table);
 		} else {
 			throw new ResourceNotFoundException("No data not found.");
 		}

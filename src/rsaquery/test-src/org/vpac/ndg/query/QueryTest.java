@@ -515,7 +515,7 @@ public class QueryTest extends TestCase {
 		VectorHist vhist = (VectorHist) output.get("hist");
 
 		Hist hist = vhist.getComponents()[0];
-		List<Bucket> buckets = hist.getNonemptyBuckets();
+		List<Bucket> buckets = hist.optimise().getBuckets();
 		Bucket b = buckets.get(0);
 		Stats s = b.getStats();
 		assertEquals("Number of elements in first bucket", 68, s.getCount());
@@ -544,23 +544,23 @@ public class QueryTest extends TestCase {
 
 		cats = vcats.getComponents()[0];
 		hist = cats.get(0);
-		buckets = hist.getNonemptyBuckets();
+		buckets = hist.optimise().getBuckets();
 		b = buckets.get(0);
 		s = b.getStats();
 		assertEquals("Number of pixels in first bucket of category 0", 68, s.getCount());
-		s = hist.getSummary();
+		s = hist.summarise();
 		assertEquals("Number of pixels where x < 64", 365, s.getCount());
 
 		hist = cats.get(1);
-		buckets = hist.getNonemptyBuckets();
+		buckets = hist.optimise().getBuckets();
 		b = buckets.get(0);
 		s = b.getStats();
 		assertEquals("Number of pixels in first bucket of category 1", 2233, s.getCount());
-		s = hist.getSummary();
+		s = hist.summarise();
 		assertEquals("Number of pixels where 64 <= x < 128", 6422, s.getCount());
 
 		hist = cats.get(2);
-		s = hist.getSummary();
+		s = hist.summarise();
 		assertEquals("Number of pixels where 196 <= x", 5393, s.getCount());
 	}
 

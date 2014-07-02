@@ -20,7 +20,7 @@ import org.vpac.ndg.query.math.ElementInt;
 import com.carrotsearch.junitbenchmarks.BenchmarkOptions;
 import com.carrotsearch.junitbenchmarks.BenchmarkRule;
 
-@BenchmarkOptions(benchmarkRounds = 5, warmupRounds = 2)
+@BenchmarkOptions(benchmarkRounds = 5, warmupRounds = 5)
 @RunWith(BlockJUnit4ClassRunner.class)
 public class CategoriesTest extends TestCase {
 
@@ -59,16 +59,16 @@ public class CategoriesTest extends TestCase {
 		Set<Entry<Integer, Hist>> entries = cats.getEntries();
 		assertEquals("Number of categories", 1000, entries.size());
 
-		Hist hist = cats.get(1);
-		List<Bucket> buckets = hist.getNonemptyBuckets();
+		Hist hist = cats.get(1).optimise();
+		List<Bucket> buckets = hist.getBuckets();
 		Bucket b = buckets.get(0);
 		Stats s = b.getStats();
 		assertEquals("Lower bound of first bucket of category 1", 1.0, b.getLower(), EPSILON);
 		assertEquals("Elements in first bucket of category 1", 2, s.getCount());
 		assertEquals("Mean of first bucket of category 1", 1.5, s.getMean(), EPSILON);
 
-		hist = cats.get(10);
-		buckets = hist.getNonemptyBuckets();
+		hist = cats.get(10).optimise();
+		buckets = hist.getBuckets();
 		b = buckets.get(0);
 		s = b.getStats();
 		assertEquals("Lower bound of first bucket of category 10", 10.0, b.getLower(), EPSILON);
@@ -95,13 +95,13 @@ public class CategoriesTest extends TestCase {
 		Set<Entry<Integer, Hist>> entries = cats.getEntries();
 		assertEquals("Number of categories", 1000, entries.size());
 
-		Hist hist = cats.get(1);
-		List<Bucket> buckets = hist.getNonemptyBuckets();
+		Hist hist = cats.get(1).optimise();
+		List<Bucket> buckets = hist.getBuckets();
 		Bucket b = buckets.get(0);
 		assertEquals("Lower bound of first bucket of category 1", 1.0, b.getLower(), EPSILON);
 
-		hist = cats.get(10);
-		buckets = hist.getNonemptyBuckets();
+		hist = cats.get(10).optimise();
+		buckets = hist.getBuckets();
 		b = buckets.get(0);
 		assertEquals("Lower bound of first bucket of category 10", 10.0, b.getLower(), EPSILON);
 	}
