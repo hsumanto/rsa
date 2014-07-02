@@ -26,6 +26,24 @@ public class StatisticsDaoImpl extends CustomHibernateDaoSupport implements Stat
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
+	public void saveOrReplaceCats(TaskCats tc) {
+		for (TaskCats oldTc : searchCats(tc.getTaskId(), tc.getName())) {
+			getHibernateTemplate().delete(oldTc);
+		}
+		saveCats(tc);
+	}
+
+	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
+	public void saveOrReplaceCats(DatasetCats dc) {
+		for (DatasetCats oldDc : searchCats(dc.getDatasetId(), dc.getTimeSliceId(), dc.getBandId(), dc.getName())) {
+			getHibernateTemplate().delete(oldDc);
+		}
+		saveCats(dc);
+	}
+
+	@Override
 	@Transactional
 	public List<TaskCats> searchCats(String taskId, String catType) {
 		Session session = getSession();

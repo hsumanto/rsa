@@ -6,8 +6,11 @@ import org.vpac.ndg.storage.model.DatasetCats;
 import org.vpac.ndg.storage.model.TaskCats;
 
 public interface StatisticsDao {
-	public void saveCats(TaskCats tc);
-	public void saveCats(DatasetCats dc);
-	public List<TaskCats> searchCats(String taskId, String cattype);
-	public List<DatasetCats> searchCats(String datasetId, String timeSliceId, String bandId, String catType);
+	void saveCats(TaskCats tc);
+	void saveOrReplaceCats(TaskCats tc);
+	List<TaskCats> searchCats(String taskId, String cattype);
+
+	void saveCats(DatasetCats dc);
+	void saveOrReplaceCats(DatasetCats dc);
+	List<DatasetCats> searchCats(String datasetId, String timeSliceId, String bandId, String catType);
 }
