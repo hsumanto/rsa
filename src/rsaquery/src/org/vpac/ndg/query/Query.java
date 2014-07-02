@@ -55,6 +55,7 @@ import org.vpac.ndg.query.sampling.TilingStrategy;
 import org.vpac.ndg.query.sampling.TilingStrategyStride;
 
 import ucar.nc2.NetcdfFileWriter;
+import ucar.nc2.dataset.NetcdfDataset;
 
 /**
  * Generates new datasets by passing existing data through a filter. In
@@ -87,6 +88,12 @@ public class Query implements Closeable {
 
 	static final int TILE_SIZE = 256;
 	static final int DEFAULT_WORKER_THREADS = 1;
+
+	static {
+		// The query engine has its own handling of nodata values; no need to
+		// convert to NaN.
+		NetcdfDataset.setUseNaNs(false);
+	}
 
 	/**
 	 * Creates a null query. Use {@link #setMemento(QueryDefinition, String)} to
