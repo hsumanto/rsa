@@ -39,7 +39,7 @@ public class TaskHistResponse {
 	private Cats cat;
 	private CellSize outputResolution;
 	private String tableType;
-	private List<HistElement> table;
+	private List<TableRowRanged> table;
 
 	@XmlAttribute
 	public String getId() {
@@ -75,11 +75,11 @@ public class TaskHistResponse {
 		this.outputResolution = outputResolution;
 	}
 	@XmlAttribute
-	public List<HistElement> getRows() {
+	public List<TableRowRanged> getRows() {
 		return table;
 	}
 	@XmlAttribute
-	public void setRows(List<HistElement> table) {
+	public void setRows(List<TableRowRanged> table) {
 		this.table = table;
 	}
 	
@@ -104,7 +104,7 @@ public class TaskHistResponse {
 	}
 	
 	public void processSummary(List<Integer> categories) {
-		List<HistElement> result = new ArrayList<HistElement>();
+		List<TableRowRanged> result = new ArrayList<TableRowRanged>();
 		Hist histSummary = new Hist();
 		for (Integer key : cat.getCategories().keySet()) {
 			if (categories == null)
@@ -116,7 +116,7 @@ public class TaskHistResponse {
 		double cellArea = outputResolution.toDouble() * outputResolution.toDouble();
 		for (Bucket b : histSummary.getBuckets()) {
 			if (b.getStats().getCount() > 0)
-				result.add(new HistElement(b.getLower(), b.getUpper(), b.getStats().getCount() * cellArea));
+				result.add(new TableRowRanged(b.getLower(), b.getUpper(), b.getStats().getCount() * cellArea));
 		}
 		this.setRows(result);
 	}

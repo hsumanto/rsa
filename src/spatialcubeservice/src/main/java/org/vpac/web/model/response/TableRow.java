@@ -3,12 +3,11 @@ package org.vpac.web.model.response;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 
-@XmlRootElement(name = "CatsElement")
-public class CatsElement {
+@XmlRootElement(name = "TableRow")
+public class TableRow {
 	private Integer id;
 	private double area;
-	
-	
+
 	public Integer getId() {
 		return id;
 	}
@@ -27,10 +26,10 @@ public class CatsElement {
 		this.area = area;
 	}
 
-	public CatsElement() {
+	public TableRow() {
 	}
 
-	public CatsElement(Integer id, double area) {
+	public TableRow(Integer id, double area) {
 		this.id = id;
 		this.area = area;
 	}

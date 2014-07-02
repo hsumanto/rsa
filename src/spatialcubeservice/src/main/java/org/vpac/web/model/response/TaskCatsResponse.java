@@ -40,7 +40,7 @@ public class TaskCatsResponse {
 	private CellSize outputResolution;
 	private TaskCats cat;
 	private String tableType;
-	private List<CatsElement> table;
+	private List<TableRow> table;
 	
 	public String getId() {
 		return id;
@@ -71,11 +71,11 @@ public class TaskCatsResponse {
 	public void setOutputResolution(CellSize outputResolution) {
 		this.outputResolution = outputResolution;
 	}
-	public List<CatsElement> getRows() {
+	public List<TableRow> getRows() {
 		return table;
 	}
 	@XmlAttribute
-	public void setRows(List<CatsElement> table) {
+	public void setRows(List<TableRow> table) {
 		this.table = table;
 	}
 	
@@ -102,7 +102,7 @@ public class TaskCatsResponse {
 	
 	public void processSummary(List<Double> lower, List<Double> upper) {
 		CellSize outputResolution = this.outputResolution;
-		List<CatsElement> result = new ArrayList<CatsElement>();
+		List<TableRow> result = new ArrayList<TableRow>();
 		double cellArea = outputResolution.toDouble() * outputResolution.toDouble();
 		for (Entry<Integer, Hist> entry : this.cat.getCats().getCategories().entrySet()) {
 			Stats s = new Stats();
@@ -111,7 +111,7 @@ public class TaskCatsResponse {
 					s = s.fold(b.getStats());
 			}
 			if (s.getCount() > 0)
-				result.add(new CatsElement(entry.getKey(), s.getCount() * cellArea));
+				result.add(new TableRow(entry.getKey(), s.getCount() * cellArea));
 		}
 		this.setRows(result);
 	}

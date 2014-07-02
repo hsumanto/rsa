@@ -41,6 +41,14 @@ public class Hist implements Foldable<Hist>, Serializable {
 		}
 	}
 
+	public Hist copy() {
+		Hist res = new Hist();
+		res.buckets.clear();
+		for (Bucket b : buckets)
+			res.buckets.add(b.copy());
+		return res;
+	}
+
 	public void update(ScalarElement value) {
 		if (!value.isValid())
 			return;
@@ -130,21 +138,54 @@ public class Hist implements Foldable<Hist>, Serializable {
 		return res;
 	}
 
-	public List<Bucket> getBuckets() {
-		return buckets;
-	}
-
 	/**
 	 * @return A single stats object that summarises all values in this
 	 *         histogram.
 	 */
-	public Stats getSummary() {
+	public Stats summarise() {
 		Stats res = new Stats();
 		for (Bucket b : buckets) {
 			if (b.getStats().getCount() > 0)
 				res = res.fold(b.getStats());
 		}
 		return res;
+	}
+
+	/**
+	 * Create a new histogram containing only buckets that match some criteria.
+	 *
+	 * @param lower The lower bounds of the buckets. Parallel list with upper.
+	 *            If null, all buckets will match.
+	 * @param upper The upper bounds of the buckets. Parallel list with lower.
+	 *            If null, all buckets will match.
+	 * @return A new histogram containing only buckets that match one of the
+	 *         lower-upper bound pairs.
+	 */
+	public Hist filterByRange(List<Double> lower, List<Double> upper) {
+		if (lower == null && upper != null)
+			throw new IndexOutOfBoundsException("Lower and upper bounds don't match");
+
+		if (lower == null)
+			return copy();
+
+		if (lower.size() != upper.size())
+			throw new IndexOutOfBoundsException("Lower and upper bounds don't match");
+
+		Hist res = new Hist();
+		res.getBuckets().clear();
+		for (Bucket b : buckets) {
+			for (int i = 0; i < lower.size(); i++) {
+				if (b.getLower() >= lower.get(i) && b.getUpper() <= upper.get(i)) {
+					res.buckets.add(b.copy());
+					continue;
+				}
+			}
+		}
+		return res;
+	}
+
+	public List<Bucket> getBuckets() {
+		return buckets;
 	}
 
 	/**

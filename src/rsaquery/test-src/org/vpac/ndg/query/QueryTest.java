@@ -548,7 +548,7 @@ public class QueryTest extends TestCase {
 		b = buckets.get(0);
 		s = b.getStats();
 		assertEquals("Number of pixels in first bucket of category 0", 68, s.getCount());
-		s = hist.getSummary();
+		s = hist.summarise();
 		assertEquals("Number of pixels where x < 64", 365, s.getCount());
 
 		hist = cats.get(1);
@@ -556,11 +556,11 @@ public class QueryTest extends TestCase {
 		b = buckets.get(0);
 		s = b.getStats();
 		assertEquals("Number of pixels in first bucket of category 1", 2233, s.getCount());
-		s = hist.getSummary();
+		s = hist.summarise();
 		assertEquals("Number of pixels where 64 <= x < 128", 6422, s.getCount());
 
 		hist = cats.get(2);
-		s = hist.getSummary();
+		s = hist.summarise();
 		assertEquals("Number of pixels where 196 <= x", 5393, s.getCount());
 	}
 

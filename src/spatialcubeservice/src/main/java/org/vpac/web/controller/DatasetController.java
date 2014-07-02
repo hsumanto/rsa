@@ -49,6 +49,7 @@ import org.vpac.ndg.query.QueryDefinition;
 import org.vpac.ndg.query.filter.Foldable;
 import org.vpac.ndg.query.io.DatasetProvider;
 import org.vpac.ndg.query.io.ProviderRegistry;
+import org.vpac.ndg.query.stats.Cats;
 import org.vpac.ndg.query.stats.VectorCats;
 import org.vpac.ndg.storage.dao.BandDao;
 import org.vpac.ndg.storage.dao.DatasetDao;
@@ -61,11 +62,11 @@ import org.vpac.ndg.storage.util.DatasetUtil;
 import org.vpac.web.exception.ResourceNotFoundException;
 import org.vpac.web.model.request.DatasetRequest;
 import org.vpac.web.model.request.PagingRequest;
-import org.vpac.web.model.response.DatasetCatsResponse;
+import org.vpac.web.model.response.CategoryTableResponse;
 import org.vpac.web.model.response.DatasetCollectionResponse;
-import org.vpac.web.model.response.DatasetHistResponse;
 import org.vpac.web.model.response.DatasetResponse;
 import org.vpac.web.model.response.QueryResponse;
+import org.vpac.web.model.response.RangeTableResponse;
 import org.vpac.web.util.ControllerHelper;
 
 import ucar.nc2.NetcdfFileWriter;
@@ -215,9 +216,10 @@ public class DatasetController {
 			if (VectorCats.class.isAssignableFrom(result.get(key).getClass())) {
 				String name = key;
 				VectorCats value = (VectorCats) result.get(key);
-				value = value.optimise();
+				Cats cats = value.getComponents()[0];
+				cats = cats.optimise();
 				statisticsDao.saveCats(new DatasetCats(datasetId, timeSliceId,
-						bandId, name, value.getComponents()[0]));
+						bandId, name, cats));
 			}
 		}
 	}
@@ -247,13 +249,18 @@ public class DatasetController {
 		String timeSliceId = findPathVariable(requestURL, "TimeSlice");
 		String bandId = findPathVariable(requestURL, "Band");
 
-		List<DatasetCats> cats = statisticsDao.searchCats(datasetId, timeSliceId, bandId, filter);
+		List<DatasetCats> dsCats = statisticsDao.searchCats(datasetId, timeSliceId, bandId, filter);
 		Dataset ds =  datasetDao.retrieve(datasetId);
 
-		if (cats.size() > 0) {
-			DatasetHistResponse result = new DatasetHistResponse(cats.get(0), ds);
-			result.processSummary(categories);
-			model.addAttribute(ControllerHelper.RESPONSE_ROOT, result);
+		if (dsCats.size() > 0) {
+			DatasetCats dsCat = dsCats.get(0);
+			Cats cats = dsCat.getCats();
+			cats = cats.filterByCategory(categories);
+			cats = cats.optimise();
+			RangeTableResponse table = new RangeTableResponse();
+			table.setCategorisation("value");
+			table.setRows(cats, ds.getResolution());
+			model.addAttribute(ControllerHelper.RESPONSE_ROOT, table);
 		} else {
 			throw new ResourceNotFoundException("No data found for this dataset, band, time slice and categorisation.");
 		}
@@ -276,13 +283,18 @@ public class DatasetController {
 		String timeSliceId = findPathVariable(requestURL, "TimeSlice");
 		String bandId = findPathVariable(requestURL, "Band");
 
-		List<DatasetCats> cats = statisticsDao.searchCats(datasetId, timeSliceId, bandId, type);
+		List<DatasetCats> dsCats = statisticsDao.searchCats(datasetId, timeSliceId, bandId, type);
 		Dataset ds =  datasetDao.retrieve(datasetId);
 		
-		if (cats.size() > 0) {
-			DatasetCatsResponse result = new DatasetCatsResponse(cats.get(0), ds);
-			result.processSummary(lower, upper);
-			model.addAttribute(ControllerHelper.RESPONSE_ROOT, result);
+		if (dsCats.size() > 0) {
+			DatasetCats dsCat = dsCats.get(0);
+			Cats cats = dsCat.getCats();
+			cats = cats.filterByRange(lower, upper);
+			cats = cats.optimise();
+			CategoryTableResponse table = new CategoryTableResponse();
+			table.setCategorisation(dsCat.getName());
+			table.setRows(cats, ds.getResolution());
+			model.addAttribute(ControllerHelper.RESPONSE_ROOT, table);
 		} else {
 			throw new ResourceNotFoundException("No data found for this dataset, band, time slice and categorisation.");
 		}

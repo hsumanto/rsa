@@ -3,6 +3,7 @@ package org.vpac.ndg.query.stats;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -31,6 +32,14 @@ public class Cats implements Foldable<Cats>, Serializable {
 		currentCategory = null;
 		currentHist = null;
 		categories = new HashMap<Integer, Hist>();
+	}
+
+	public Cats copy() {
+		Cats res = new Cats();
+		for (Entry<Integer, Hist> entry : categories.entrySet()) {
+			res.categories.put(entry.getKey(), entry.getValue().copy());
+		}
+		return res;
 	}
 
 	public void update(ScalarElement category, ScalarElement value) {
@@ -75,8 +84,65 @@ public class Cats implements Foldable<Cats>, Serializable {
 		Cats res = new Cats();
 		for (Entry<Integer, Hist> entry : categories.entrySet()) {
 			Hist hist = entry.getValue().optimise();
-			if (hist.getSummary().getCount() > 0)
+			if (hist.summarise().getCount() > 0)
 				res.categories.put(entry.getKey(), hist);
+		}
+		return res;
+	}
+
+	public Hist summarise() {
+		Hist summary = new Hist();
+		summary.getBuckets().clear();
+		for (Hist hist : categories.values()) {
+			summary = summary.fold(hist);
+		}
+		return summary;
+	}
+
+	/**
+	 * Create a new set of categories, filtered by a list of keys.
+	 *
+	 * @param filterCats The keys to filter by. If null, all categories will
+	 *            match.
+	 * @return A new set of categories.
+	 */
+	public Cats filterByCategory(List<Integer> filterCats) {
+		if (filterCats == null)
+			return copy();
+
+		Cats res = new Cats();
+		for (Integer key : categories.keySet()) {
+			if (filterCats.contains(key))
+				res.categories.put(key, categories.get(key).copy());
+		}
+		return res;
+	}
+
+	/**
+	 * Create a new set of categories whose histograms contain only buckets that
+	 * match some criteria.
+	 *
+	 * @param lower The lower bounds of the buckets. Parallel list with upper.
+	 *            If null, all buckets will match.
+	 * @param upper The upper bounds of the buckets. Parallel list with lower.
+	 *            If null, all buckets will match.
+	 * @return A new set of categories containing only buckets that match one of
+	 *         the lower-upper bound pairs.
+	 */
+	public Cats filterByRange(List<Double> lower, List<Double> upper) {
+		if (lower == null && upper != null)
+			throw new IndexOutOfBoundsException("Lower and upper bounds don't match");
+
+		if (lower == null)
+			return copy();
+
+		if (lower.size() != upper.size())
+			throw new IndexOutOfBoundsException("Lower and upper bounds don't match");
+
+		Cats res = new Cats();
+		for (Entry<Integer, Hist> entry : categories.entrySet()) {
+			Hist hist = entry.getValue().filterByRange(lower, upper);
+			res.categories.put(entry.getKey(), hist);
 		}
 		return res;
 	}
