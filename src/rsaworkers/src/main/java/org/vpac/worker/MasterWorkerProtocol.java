@@ -2,8 +2,6 @@ package org.vpac.worker;
 
 import java.io.Serializable;
 
-import org.vpac.ndg.query.math.BoxReal;
-
 public abstract class MasterWorkerProtocol {
 
 	// Messages from/to Workers

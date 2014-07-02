@@ -4,7 +4,6 @@ import java.io.Serializable;
 
 import org.vpac.ndg.common.datamodel.CellSize;
 import org.vpac.ndg.common.datamodel.TaskState;
-import org.vpac.ndg.query.math.BoxReal;
 import org.vpac.ndg.query.stats.VectorCats;
 
 public abstract class MasterDatabaseProtocol {

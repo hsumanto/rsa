@@ -116,28 +116,29 @@ public class Master extends UntypedActor {
 			double totalArea = 0;
 			double completedArea = 0;
 			int completedWork = 0;
-			int totalNoOfWork = 0;
 			TaskState taskState = TaskState.RUNNING;
 			List<WorkInfo> allTaskWorks = getAllTaskWork(currentWorkInfo.work.jobProgressId);
+			int totalNoOfWork = allTaskWorks.size();
 			for(WorkInfo w : allTaskWorks) {
 					if(w.result != null) {
 						completedArea += w.processedArea;
 						completedWork++;
 					}
 					totalArea += w.area;
-					totalNoOfWork++;
 			}
 
 			if (totalNoOfWork == completedWork) {
 				foldResults(currentWorkInfo);
 				taskState = TaskState.FINISHED;
-			}
-			ActorSelection database = getContext().system().actorSelection("akka://Workers/user/database");
-			double fraction = completedArea / totalArea;
-			JobUpdate update = new JobUpdate(currentWorkInfo.work.jobProgressId, fraction, taskState);
-			database.tell(update, getSelf());
-			if (totalNoOfWork == completedWork)
+				updateDatabase(currentWorkInfo.work.jobProgressId, completedArea, totalArea, TaskState.FINISHED);
 				removeWork(currentWorkInfo.work.jobProgressId);
+			}
+//			ActorSelection database = getContext().system().actorSelection("akka://Workers/user/database");
+//			double fraction = completedArea / totalArea;
+//			JobUpdate update = new JobUpdate(currentWorkInfo.work.jobProgressId, fraction, taskState);
+//			database.tell(update, getSelf());
+//			if (totalNoOfWork == completedWork)
+				
 			
 			
 			WorkerState state = workers.get(workerId);
@@ -186,11 +187,7 @@ public class Master extends UntypedActor {
 				totalArea += wi.area;
 				completedArea += wi.processedArea;
 			}
-				
-			ActorSelection database = getContext().system().actorSelection("akka://Workers/user/database");
-			double fraction = completedArea / totalArea;
-			JobUpdate update = new JobUpdate(taskId, fraction, TaskState.RUNNING);
-			database.tell(update, getSelf());
+			updateDatabase(taskId, completedArea, totalArea, TaskState.RUNNING);	
 		} else if (message instanceof Work) {
 			Work work = (Work) message;
 			// idempotent
@@ -227,6 +224,13 @@ public class Master extends UntypedActor {
 		} else {
 			unhandled(message);
 		}
+	}
+	
+	private void updateDatabase(String taskId, double completedArea, double totalArea, TaskState state) {
+		ActorSelection database = getContext().system().actorSelection("akka://Workers/user/database");
+		double fraction = completedArea / totalArea;
+		JobUpdate update = new JobUpdate(taskId, fraction, state);
+		database.tell(update, getSelf());
 	}
 	
 	private List<WorkInfo> getAllTaskWork(String taskId) {
