@@ -29,20 +29,6 @@
 		</property>
 		<many-to-one name="cats" class="org.vpac.ndg.query.stats.Cats" column="cat_id" cascade="all" lazy="false" />
 	</class>
-	<class name="org.vpac.ndg.storage.model.TaskHist" table="TASKHIST" lazy="false">
-		<id name="id" type="string" column="ID">
-			<generator class="uuid" />
-		</id>
-		<property name="taskId" type="string" column="TASKID" />
-		<property name="outputResolution">
-			<type name="org.hibernate.type.EnumType">
-				<param name="enumClass">org.vpac.ndg.common.datamodel.CellSize</param>
-				<param name="identifierMethod">toInt</param>
-				<param name="valueOfMethod">fromInt</param>
-			</type>
-		</property>
-		<many-to-one name="hist" class="org.vpac.ndg.query.stats.Hist" column="hist_id" cascade="all" lazy="false" />
-	</class>
 	<class name="org.vpac.ndg.query.stats.Cats" table="CATS" lazy="false">
 		<id name="id" type="string" column="ID">
 			<generator class="uuid" />

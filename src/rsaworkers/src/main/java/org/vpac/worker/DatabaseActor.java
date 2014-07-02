@@ -12,7 +12,6 @@ import org.vpac.ndg.storage.dao.JobProgressDao;
 import org.vpac.ndg.storage.dao.StatisticsDao;
 import org.vpac.ndg.storage.model.JobProgress;
 import org.vpac.ndg.storage.model.TaskCats;
-import org.vpac.ndg.storage.model.TaskHist;
 import org.vpac.worker.MasterDatabaseProtocol.JobUpdate;
 import org.vpac.worker.MasterDatabaseProtocol.SaveCats;
 
@@ -78,10 +77,4 @@ public class DatabaseActor extends UntypedActor {
 		return false;
 	}
 
-	private boolean isTaskHistExist(String jobProgressId) {
-		List<TaskHist> th = statisticsDao.searchHist(jobProgressId);
-		if(th.size() > 0)
-			return true;
-		return false;
-	}
 }
