@@ -1,9 +1,12 @@
 package org.vpac.worker;
 
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Queue;
@@ -115,17 +118,14 @@ public class Master extends UntypedActor {
 			int completedWork = 0;
 			int totalNoOfWork = 0;
 			TaskState taskState = TaskState.RUNNING;
-			for(WorkInfo w : workProgress.values()) {
-				if (w.work.jobProgressId.equals(currentWorkInfo.work.jobProgressId)) {
-					VectorReal sub = w.work.bound.getMax().subNew(w.work.bound.getMin());
-					double area = sub.get(0) * sub.get(1);
+			List<WorkInfo> allTaskWorks = getAllTaskWork(currentWorkInfo.work.jobProgressId);
+			for(WorkInfo w : allTaskWorks) {
 					if(w.result != null) {
-						completedArea += area;
+						completedArea += w.processedArea;
 						completedWork++;
 					}
-					totalArea += area;
+					totalArea += w.area;
 					totalNoOfWork++;
-				}
 			}
 
 			if (totalNoOfWork == completedWork) {
@@ -174,6 +174,23 @@ public class Master extends UntypedActor {
 				pendingWork.add(state.status.getWork());
 				notifyWorkers();
 			}
+		} else if (message instanceof ProgressCheckPoint) {
+			ProgressCheckPoint check = (ProgressCheckPoint) message;
+			WorkInfo work = workProgress.get(check.workId);
+			work.processedArea = work.area * check.progress.getFraction();
+			String taskId = work.work.jobProgressId;
+			List<WorkInfo> allTaskWork = getAllTaskWork(taskId);
+			double totalArea = 0;
+			double completedArea = 0;
+			for(WorkInfo wi : allTaskWork) {
+				totalArea += wi.area;
+				completedArea += wi.processedArea;
+			}
+				
+			ActorSelection database = getContext().system().actorSelection("akka://Workers/user/database");
+			double fraction = completedArea / totalArea;
+			JobUpdate update = new JobUpdate(taskId, fraction, TaskState.RUNNING);
+			database.tell(update, getSelf());
 		} else if (message instanceof Work) {
 			Work work = (Work) message;
 			// idempotent
@@ -207,12 +224,19 @@ public class Master extends UntypedActor {
 					}
 				}
 			}
-		} else if (message instanceof ProgressCheckPoint) {
-			ProgressCheckPoint msg = (ProgressCheckPoint) message;
-			System.out.println("ProgressCheckPoint");
 		} else {
 			unhandled(message);
 		}
+	}
+	
+	private List<WorkInfo> getAllTaskWork(String taskId) {
+		List<WorkInfo> list = new ArrayList();
+		for(WorkInfo wi : workProgress.values()) {
+			if(wi.work.jobProgressId.equals(taskId))
+				list.add(wi);
+		}
+		System.out.println("count:" + list.size());
+		return list;
 	}
 
 	private void foldResults(WorkInfo currentWorkInfo) {
@@ -395,10 +419,16 @@ public class Master extends UntypedActor {
 	private class WorkInfo {
 		public Work work;
 		public Object result;
+		public double processedArea;
+		public double area;
+
 		
 		public WorkInfo(Work work, Object result) {
 			this.work = work;
 			this.result = result;
+			this.processedArea = 0;
+			VectorReal sub = work.bound.getMax().subNew(work.bound.getMin());
+			this.area = sub.get(0) * sub.get(1);
 		}
 	}
 

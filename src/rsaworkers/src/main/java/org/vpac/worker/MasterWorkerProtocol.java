@@ -2,6 +2,8 @@ package org.vpac.worker;
 
 import java.io.Serializable;
 
+import org.vpac.ndg.query.math.BoxReal;
+
 public abstract class MasterWorkerProtocol {
 
 	// Messages from/to Workers
@@ -75,15 +77,22 @@ public abstract class MasterWorkerProtocol {
 			return instance;
 		}
 	}
-
+	
 	// Messages from Workers
 	public static final class ProgressCheckPoint implements Serializable {
-		private String taskId = "";
 
-		public ProgressCheckPoint(String taskId) {
-			this.taskId = taskId;
+		private static final long serialVersionUID = 1L;
+		public String workId;
+		public WorkProgress progress;
+
+		public ProgressCheckPoint(String taskId, WorkProgress progress) {
+			this.workId = taskId;
+			this.progress = progress;
 		}
-		public ProgressCheckPoint() {
+		
+		@Override
+		public String toString() {
+			return "ProgressCheckPoint{" + "workId=" + workId + ",progress=" + progress + "}";
 		}
 	}
 }

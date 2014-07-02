@@ -1,5 +1,7 @@
 package org.vpac.worker;
 
+import java.io.Serializable;
+
 /*
  * This file is part of the Raster Storage Archive (RSA).
  *
@@ -20,13 +22,18 @@ package org.vpac.worker;
  */
 import org.vpac.ndg.query.Progress;
 
-public class WorkProgress implements Progress {
+public class WorkProgress implements Progress, Serializable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private long totalQuanta;
 	private long totalProcessedQuanta;
 	private int totalSteps;
 	private int currentStep;
 	private long currentProgress;
+	private double fraction;
 	
 	private String workId;
 	
@@ -55,7 +62,7 @@ public class WorkProgress implements Progress {
 	@Override
 	public void addProcessedQuanta(long processedQuanta) {
 		totalProcessedQuanta += processedQuanta;
-		double fraction = ((double)totalProcessedQuanta / (double)totalQuanta) * 100;
+		fraction = ((double)totalProcessedQuanta / (double)totalQuanta);
 	}
 
 	@Override
@@ -68,6 +75,10 @@ public class WorkProgress implements Progress {
 	}
 	
 	public void setErrorMessage(String message) {
+	}
+
+	public double getFraction() {
+		return fraction;
 	}
 }
 

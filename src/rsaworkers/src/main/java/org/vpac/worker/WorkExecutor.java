@@ -41,7 +41,9 @@ import ucar.nc2.NetcdfFileWriter;
 import ucar.nc2.NetcdfFileWriter.Version;
 import akka.actor.ActorRef;
 import akka.actor.ActorSelection;
+import akka.actor.Cancellable;
 import akka.actor.Props;
+import akka.actor.TypedActor;
 import akka.actor.UntypedActor;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
@@ -87,8 +89,8 @@ public class WorkExecutor extends UntypedActor {
 			Work work = (Work) message;
 			WorkProgress wp = new WorkProgress(work.workId);
 			Collection<Path> tempFiles = new ArrayList<>();
-//			getContext().system().scheduler().schedule(Duration.create(0, "seconds"), Duration.create(2, "seconds"), getSender(), new MasterWorkerProtocol.ProgressCheckPoint(work.jobProgressId), getContext().system().dispatcher(), null);
-
+			Cancellable cancel = getContext().system().scheduler().schedule(Duration.create(1, "seconds"), Duration.create(1, "seconds"), getSender(), new MasterWorkerProtocol.ProgressCheckPoint(work.workId, wp), getContext().system().dispatcher(), null);
+			
 			Map<String, Foldable<?>> output;
 			try {
 				QueryDefinition qd = preprocessQueryDef(work, tempFiles);
@@ -115,7 +117,7 @@ public class WorkExecutor extends UntypedActor {
 				result.put(v.getKey(), v.getValue());
 			}
 
-			log.debug("Produced result {}", output);
+			cancel.cancel();
 			getSender().tell(new Job.WorkComplete(result), getSelf());
 		}
 	}
