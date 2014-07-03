@@ -36,7 +36,7 @@ public class HistogramTest extends TestCase {
 
 		BucketingStrategyLog bs = new BucketingStrategyLog();
 		bs.setBase(BASE);
-		bs.setRoot(BUCKETS_PER_ORDER_OF_MAGNITUDE);
+		bs.setN(BUCKETS_PER_ORDER_OF_MAGNITUDE);
 		bs.setScale(SCALE);
 
 		i = bs.indexOf(0.1);
@@ -54,6 +54,10 @@ public class HistogramTest extends TestCase {
 	public void test_logBounds() throws Exception {
 		double[] bounds;
 		BucketingStrategyLog bs = new BucketingStrategyLog();
+		bs.setBase(BASE);
+		bs.setN(BUCKETS_PER_ORDER_OF_MAGNITUDE);
+		bs.setScale(SCALE);
+
 		bounds = bs.computeBucketBounds(0.0);
 		assertEquals(0.0, bounds[0], EPSILON);
 		assertEquals(SCALE, bounds[1], EPSILON);
@@ -95,7 +99,7 @@ public class HistogramTest extends TestCase {
 
 		BucketingStrategyFalseLog bs = new BucketingStrategyFalseLog();
 		bs.setBase(BASE);
-		bs.setRoot(BUCKETS_PER_ORDER_OF_MAGNITUDE);
+		bs.setN(BUCKETS_PER_ORDER_OF_MAGNITUDE);
 		bs.setScale(SCALE);
 
 		i = bs.indexOf(0.1);
@@ -135,7 +139,7 @@ public class HistogramTest extends TestCase {
 		double[] bounds;
 		BucketingStrategyFalseLog bs = new BucketingStrategyFalseLog();
 		bs.setBase(BASE);
-		bs.setRoot(BUCKETS_PER_ORDER_OF_MAGNITUDE);
+		bs.setN(BUCKETS_PER_ORDER_OF_MAGNITUDE);
 		bs.setScale(SCALE);
 
 		bounds = bs.computeBucketBounds(0.0);

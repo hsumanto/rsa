@@ -3,6 +3,12 @@ package org.vpac.ndg.query.stats;
 import java.io.Serializable;
 
 
+/**
+ * Creates histogram buckets that increase in size the further they are from
+ * zero.
+ *
+ * @author Alex Fraser
+ */
 public class BucketingStrategyLog implements BucketingStrategy, Serializable {
 
 	private static final long serialVersionUID = 1L;
@@ -13,12 +19,12 @@ public class BucketingStrategyLog implements BucketingStrategy, Serializable {
 	static final double EPSILON = 1.0e-9;
 
 	protected double base;
-	protected double root;
+	protected double n;
 	protected double scale;
 
 	public BucketingStrategyLog() {
 		base = BASE;
-		root = BUCKETS_PER_ORDER_OF_MAGNITUDE;
+		n = BUCKETS_PER_ORDER_OF_MAGNITUDE;
 		scale = SCALE;
 	}
 
@@ -26,22 +32,35 @@ public class BucketingStrategyLog implements BucketingStrategy, Serializable {
 		return scale;
 	}
 
+	/**
+	 * @param scale The size of the smallest bucket, e.g. if set to 0.1 then the
+	 *            first positive bucket will range from zero to 0.1. This is
+	 *            used as a scaling factor for all buckets.
+	 */
 	public void setScale(double scale) {
 		this.scale = scale;
 	}
 
-	public double getRoot() {
-		return root;
+	public double getN() {
+		return n;
 	}
 
-	public void setRoot(double root) {
-		this.root = root;
+	/**
+	 * @param n The number of buckets in each order of magnitude.
+	 */
+	public void setN(double n) {
+		this.n = n;
 	}
 
 	public double getBase() {
 		return base;
 	}
 
+	/**
+	 * @param base The number of integers that comprise an order of magnitude.
+	 * @see <a href="http://en.wikipedia.org/wiki/Base_(exponentiation)">
+	 * 	          Wikipedia's article on bases</a>
+	 */
 	public void setBase(double base) {
 		this.base = base;
 	}
@@ -96,26 +115,24 @@ public class BucketingStrategyLog implements BucketingStrategy, Serializable {
 	 * Computes the lower bound of a bucket. This only generates lower bounds
 	 * for positive indices.
 	 *
-	 * @param i The index to generate a lower bound of.
-	 * @param base The base order.
-	 * @param root The number of buckets per order of magnitude.
-	 * @param scale The scaling factor.
+	 * @param i The index to find the lower bound of.
 	 * @return The lower bound of the bucket.
 	 */
 	double lowerBound(int i) {
-		return Math.pow(base, i / root) * scale;
+		return Math.pow(base, i / n) * scale;
 	}
 
 	/**
-	 * Find the bucket "index" (offset from zero) for some value.
+	 * Find the bucket "index" (offset from zero) for some value. This is an
+	 * encoding of the bucket lower bound, comprising the number of whole orders
+	 * of magnitude (index / n) and the bucket offset within that order
+	 * (index % n).
+	 *
 	 * @param value The value to find a bucket for.
-	 * @param root The number of buckets per order of magnitude.
-	 * @param base The base order.
-	 * @param scale The scaling factor (lower bound of bucket 0).
 	 * @return The "index" of the bucket.
 	 */
 	int indexOf(double value) {
-		double index = logN(base, value / scale) * root;
+		double index = logN(base, value / scale) * n;
 		index += EPSILON;
 		return (int) index;
 	}
