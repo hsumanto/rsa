@@ -3,10 +3,12 @@
 	<input id='ds' href='rsa:vic/25m' />
 	<input id='boundaries' href='rsa:boundaries/100m' />
 	<filter id='LGA' cls='org.vpac.ndg.query.stats.Categories'>
+		<literal name='buckets' value='logQuantile' />
 		<sampler name='input' ref='#ds/Band1' />
 		<sampler name='categories' ref='#boundaries/LGA' />
 	</filter>
  	<filter id='SA3' cls='org.vpac.ndg.query.stats.Categories'>
+		<literal name='buckets' value='logQuantile' />
 		<sampler name='input' ref='#LGA/output' />
 		<sampler name='categories' ref='#boundaries/SA3' />
 	</filter>

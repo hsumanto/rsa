@@ -14,7 +14,7 @@ import org.vpac.ndg.query.math.ScalarElement;
  */
 public class VectorCats implements Foldable<VectorCats>, Serializable {
 
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 2L;
 
 	private Cats[] components;
 
@@ -65,5 +65,11 @@ public class VectorCats implements Foldable<VectorCats>, Serializable {
 		sb.append("\n]");
 
 		return sb.toString();
+	}
+
+	public void setBucketingStrategy(BucketingStrategy bs) {
+		for (Cats cats : components) {
+			cats.setBucketingStrategy(bs);
+		}
 	}
 }

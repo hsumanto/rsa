@@ -10,6 +10,7 @@
 	</output>
 
 	<filter id="hist" cls="org.vpac.ndg.query.stats.Histogram">
+		<literal name="buckets" value="log" />
 		<sampler name="input" ref="#infile/Quality" />
 	</filter>
 </query>

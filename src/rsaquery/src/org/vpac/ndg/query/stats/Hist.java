@@ -27,13 +27,13 @@ public class Hist implements Foldable<Hist>, Serializable {
 	private Bucket mruBucket;
 
 	public Hist() {
-		bucketingStrategy = new BucketingStrategyLog();
+		bucketingStrategy = new BucketingStrategyCategorical();
 		buckets = new ArrayList<Bucket>();
 	}
 
 	public Hist copy() {
 		Hist res = new Hist();
-		res.buckets.clear();
+		res.setBucketingStrategy(bucketingStrategy);
 		for (Bucket b : buckets)
 			res.buckets.add(b.copy());
 		return res;
@@ -117,6 +117,7 @@ public class Hist implements Foldable<Hist>, Serializable {
 			targetBuckets.add(currentBucket);
 
 		Hist res = new Hist();
+		res.setBucketingStrategy(bucketingStrategy);
 		res.setBuckets(targetBuckets);
 
 		return res;
@@ -124,7 +125,7 @@ public class Hist implements Foldable<Hist>, Serializable {
 
 	public Hist optimise() {
 		Hist res = new Hist();
-		res.buckets.clear();
+		res.setBucketingStrategy(bucketingStrategy);
 		for (Bucket b : buckets) {
 			if (b.getStats().getCount() > 0)
 				res.buckets.add(b);
@@ -166,7 +167,7 @@ public class Hist implements Foldable<Hist>, Serializable {
 			throw new IndexOutOfBoundsException("Lower and upper bounds don't match");
 
 		Hist res = new Hist();
-		res.getBuckets().clear();
+		res.setBucketingStrategy(bucketingStrategy);
 		for (Bucket b : buckets) {
 			for (int i = 0; i < lower.size(); i++) {
 				if (b.getLower() >= lower.get(i) && b.getUpper() <= upper.get(i)) {

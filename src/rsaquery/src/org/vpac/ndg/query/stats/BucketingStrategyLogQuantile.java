@@ -15,6 +15,13 @@ public class BucketingStrategyLogQuantile extends BucketingStrategyLog {
 
 	private static final long serialVersionUID = 1L;
 
+	static final double BUCKETS_PER_ORDER_OF_MAGNITUDE = 5.0;
+
+	public BucketingStrategyLogQuantile() {
+		super();
+		setN(BUCKETS_PER_ORDER_OF_MAGNITUDE);
+	}
+
 	@Override
 	double lowerBound(int i) {
 		// Lower bound = n^(floor(i/nb)+logn(i % nb / nb) + 1)

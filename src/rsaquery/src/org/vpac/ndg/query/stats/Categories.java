@@ -49,6 +49,8 @@ public class Categories implements Filter, Accumulator<VectorCats> {
 	public PixelSource input;
 	public PixelSourceScalar categories;
 
+	public String buckets = "logQuantile";
+
 	@CellType("input")
 	public Cell output;
 
@@ -61,6 +63,8 @@ public class Categories implements Filter, Accumulator<VectorCats> {
 				(!ElementByte.class.isAssignableFrom(categories.getPrototype().getElement().getClass())))
 			throw new QueryConfigurationException("Categories must be byte, short or integer.");
 		stats = new VectorCats(input.getPrototype().getElement().size());
+		BucketingStrategy bs = new BucketingStrategyFactory().create(buckets);
+		stats.setBucketingStrategy(bs);
 	}
 
 	@Override
