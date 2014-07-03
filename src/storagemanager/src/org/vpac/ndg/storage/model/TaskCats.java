@@ -17,15 +17,18 @@ public class TaskCats implements Serializable {
 	private String name;
 	private CellSize outputResolution;
 	private Cats cats;
-	
+	private boolean categorical;
+
 	public TaskCats() {
 	}
 	
-	public TaskCats(String taskId, String name, CellSize outputResolution, Cats cats) {
+	public TaskCats(String taskId, String name, CellSize outputResolution,
+			Cats cats, boolean categorical) {
 		this.taskId = taskId;
 		this.cats = cats;
 		this.name = name;
 		this.outputResolution = outputResolution;
+		this.categorical = categorical;
 	}
 
 	public String getId() {
@@ -66,5 +69,13 @@ public class TaskCats implements Serializable {
 
 	public void setOutputResolution(CellSize outputResolution) {
 		this.outputResolution = outputResolution;
+	}
+
+	public boolean isCategorical() {
+		return categorical;
+	}
+
+	public void setCategorical(boolean categorical) {
+		this.categorical = categorical;
 	}
 }

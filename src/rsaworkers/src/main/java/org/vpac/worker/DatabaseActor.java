@@ -63,7 +63,8 @@ public class DatabaseActor extends UntypedActor {
 				Cats cats = ((VectorCats) saveCats.cats).getComponents()[0];
 				cats = cats.optimise();
 				statisticsDao.saveCats(new TaskCats(saveCats.jobId,
-						saveCats.key, saveCats.outputResolution, cats));
+						saveCats.key, saveCats.outputResolution, cats,
+						cats.getBucketingStrategy().isCategorical()));
 			}
 		} else if (message instanceof String){
 			System.out.println("message:" + message);

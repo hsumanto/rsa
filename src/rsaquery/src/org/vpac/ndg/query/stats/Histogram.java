@@ -43,6 +43,8 @@ public class Histogram implements Filter, Accumulator<VectorHist> {
 
 	public PixelSource input;
 
+	public String buckets = "logQuantile";
+
 	@CellType("input")
 	public Cell output;
 
@@ -51,6 +53,8 @@ public class Histogram implements Filter, Accumulator<VectorHist> {
 	@Override
 	public void initialise(BoxReal bounds) throws QueryConfigurationException {
 		stats = new VectorHist(input.getPrototype().getElement().size());
+		BucketingStrategy bs = new BucketingStrategyFactory().create(buckets);
+		stats.setBucketingStrategy(bs);
 	}
 
 	@Override

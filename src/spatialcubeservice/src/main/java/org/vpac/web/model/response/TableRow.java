@@ -5,15 +5,15 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "TableRow")
 public class TableRow {
-	private Integer id;
+	private double id;
 	private double area;
 
-	public Integer getId() {
+	public double getId() {
 		return id;
 	}
 
 	@XmlAttribute
-	public void setId(Integer id) {
+	public void setId(double id) {
 		this.id = id;
 	}
 
@@ -29,7 +29,7 @@ public class TableRow {
 	public TableRow() {
 	}
 
-	public TableRow(Integer id, double area) {
+	public TableRow(double id, double area) {
 		this.id = id;
 		this.area = area;
 	}

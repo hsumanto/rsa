@@ -67,4 +67,10 @@ public class VectorHist implements Foldable<VectorHist>, Serializable {
 		return sb.toString();
 	}
 
+	public void setBucketingStrategy(BucketingStrategy bs) {
+		for (Hist hist : components) {
+			hist.setBucketingStrategy(bs);
+		}
+	}
+
 }

@@ -27,6 +27,7 @@
 				<param name="valueOfMethod">fromInt</param>
 			</type>
 		</property>
+		<property name="categorical" type="boolean" column="CATEGORICAL" />
 		<many-to-one name="cats" class="org.vpac.ndg.query.stats.Cats" column="cat_id" cascade="all" lazy="false" />
 	</class>
 	<class name="org.vpac.ndg.query.stats.Cats" table="CATS" lazy="false">

@@ -23,6 +23,7 @@ public class Cats implements Foldable<Cats>, Serializable {
 	private Map<Integer, Hist> categories;
 	private ScalarElement currentCategory;
 	private Hist currentHist;
+	private BucketingStrategy bs;
 
 	/**
 	 * @param prototype The data type of the values to store (not the
@@ -36,6 +37,7 @@ public class Cats implements Foldable<Cats>, Serializable {
 
 	public Cats copy() {
 		Cats res = new Cats();
+		res.setBucketingStrategy(bs);
 		for (Entry<Integer, Hist> entry : categories.entrySet()) {
 			res.categories.put(entry.getKey(), entry.getValue().copy());
 		}
@@ -55,6 +57,7 @@ public class Cats implements Foldable<Cats>, Serializable {
 		currentHist = categories.get(category);
 		if (currentHist == null) {
 			currentHist = new Hist();
+			currentHist.setBucketingStrategy(bs);
 			categories.put(category, currentHist);
 		}
 		return currentHist;
@@ -67,6 +70,7 @@ public class Cats implements Foldable<Cats>, Serializable {
 		keys.addAll(other.categories.keySet());
 
 		Cats res = new Cats();
+		res.setBucketingStrategy(bs);
 		for (Integer key : keys) {
 			Hist histA = categories.get(key);
 			if (histA == null)
@@ -82,6 +86,7 @@ public class Cats implements Foldable<Cats>, Serializable {
 
 	public Cats optimise() {
 		Cats res = new Cats();
+		res.setBucketingStrategy(bs);
 		for (Entry<Integer, Hist> entry : categories.entrySet()) {
 			Hist hist = entry.getValue().optimise();
 			if (hist.summarise().getCount() > 0)
@@ -92,6 +97,7 @@ public class Cats implements Foldable<Cats>, Serializable {
 
 	public Hist summarise() {
 		Hist summary = new Hist();
+		summary.setBucketingStrategy(bs);
 		summary.getBuckets().clear();
 		for (Hist hist : categories.values()) {
 			summary = summary.fold(hist);
@@ -106,14 +112,28 @@ public class Cats implements Foldable<Cats>, Serializable {
 	 *            match.
 	 * @return A new set of categories.
 	 */
-	public Cats filterByCategory(List<Integer> filterCats) {
+	public Cats filterByCategoryExtrinsic(List<Integer> filterCats) {
 		if (filterCats == null)
 			return copy();
 
 		Cats res = new Cats();
+		res.setBucketingStrategy(bs);
 		for (Integer key : categories.keySet()) {
 			if (filterCats.contains(key))
 				res.categories.put(key, categories.get(key).copy());
+		}
+		return res;
+	}
+
+	public Cats filterByCategoryIntrinsic(List<Double> filterCats) {
+		if (filterCats == null)
+			return copy();
+
+		Cats res = new Cats();
+		res.setBucketingStrategy(bs);
+		for (Entry<Integer, Hist> entry : categories.entrySet()) {
+			Hist hist = entry.getValue().filterByValue(filterCats);
+			res.categories.put(entry.getKey(), hist);
 		}
 		return res;
 	}
@@ -129,7 +149,7 @@ public class Cats implements Foldable<Cats>, Serializable {
 	 * @return A new set of categories containing only buckets that match one of
 	 *         the lower-upper bound pairs.
 	 */
-	public Cats filterByRange(List<Double> lower, List<Double> upper) {
+	public Cats filterByRangeIntrinsic(List<Double> lower, List<Double> upper) {
 		if (lower == null && upper != null)
 			throw new IndexOutOfBoundsException("Lower and upper bounds don't match");
 
@@ -140,6 +160,7 @@ public class Cats implements Foldable<Cats>, Serializable {
 			throw new IndexOutOfBoundsException("Lower and upper bounds don't match");
 
 		Cats res = new Cats();
+		res.setBucketingStrategy(bs);
 		for (Entry<Integer, Hist> entry : categories.entrySet()) {
 			Hist hist = entry.getValue().filterByRange(lower, upper);
 			res.categories.put(entry.getKey(), hist);
@@ -189,4 +210,15 @@ public class Cats implements Foldable<Cats>, Serializable {
 	public void setCategories(Map<Integer, Hist> categories) {
 		this.categories = categories;
 	}
+
+	public BucketingStrategy getBucketingStrategy() {
+		return bs;
+	}
+
+	public void setBucketingStrategy(BucketingStrategy bs) {
+		this.bs = bs;
+		for (Hist hist : categories.values())
+			hist.setBucketingStrategy(bs);
+	}
+
 }

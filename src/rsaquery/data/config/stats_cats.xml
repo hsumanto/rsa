@@ -37,6 +37,7 @@
 	</filter>
 
 	<filter id="cats" cls="org.vpac.ndg.query.stats.Categories">
+		<literal name="buckets" value="log" />
 		<sampler name="input" ref="#infile/Quality" />
 		<sampler name="categories" ref="#add2/output" />
 	</filter>

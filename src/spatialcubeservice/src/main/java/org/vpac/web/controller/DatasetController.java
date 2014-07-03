@@ -256,11 +256,11 @@ public class DatasetController {
 		if (dsCats.size() > 0) {
 			DatasetCats dsCat = dsCats.get(0);
 			Cats cats = dsCat.getCats();
-			cats = cats.filterByCategory(categories);
+			cats = cats.filterByCategoryExtrinsic(categories);
 			cats = cats.optimise();
 			RangeTableResponse table = new RangeTableResponse();
 			table.setCategorisation("value");
-			table.setRows(cats, ds.getResolution());
+			table.setRows(cats.summarise(), ds.getResolution());
 			model.addAttribute(ControllerHelper.RESPONSE_ROOT, table);
 		} else {
 			throw new ResourceNotFoundException("No data found for this dataset, band, time slice and categorisation.");
@@ -290,7 +290,7 @@ public class DatasetController {
 		if (dsCats.size() > 0) {
 			DatasetCats dsCat = dsCats.get(0);
 			Cats cats = dsCat.getCats();
-			cats = cats.filterByRange(lower, upper);
+			cats = cats.filterByRangeIntrinsic(lower, upper);
 			cats = cats.optimise();
 			CategoryTableResponse table = new CategoryTableResponse();
 			table.setCategorisation(dsCat.getName());
