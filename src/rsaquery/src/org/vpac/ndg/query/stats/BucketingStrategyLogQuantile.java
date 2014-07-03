@@ -11,7 +11,7 @@ package org.vpac.ndg.query.stats;
  *
  * @author Alex Fraser
  */
-public class BucketingStrategyFalseLog extends BucketingStrategyLog {
+public class BucketingStrategyLogQuantile extends BucketingStrategyLog {
 
 	private static final long serialVersionUID = 1L;
 

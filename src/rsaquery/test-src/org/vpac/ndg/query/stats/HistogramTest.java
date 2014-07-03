@@ -52,12 +52,11 @@ public class HistogramTest extends TestCase {
 
 	@Test
 	public void test_logBounds() throws Exception {
-		double[] bounds;
-		BucketingStrategyLog bs = new BucketingStrategyLog();
-		bs.setBase(BASE);
-		bs.setN(BUCKETS_PER_ORDER_OF_MAGNITUDE);
-		bs.setScale(SCALE);
+		String descriptor = String.format("log?base=%g&n=%g&scale=%g",
+				BASE, BUCKETS_PER_ORDER_OF_MAGNITUDE, SCALE);
+		BucketingStrategy bs = new BucketingStrategyFactory().create(descriptor);
 
+		double[] bounds;
 		bounds = bs.computeBucketBounds(0.0);
 		assertEquals(0.0, bounds[0], EPSILON);
 		assertEquals(SCALE, bounds[1], EPSILON);
@@ -97,7 +96,7 @@ public class HistogramTest extends TestCase {
 		double lb;
 		int i;
 
-		BucketingStrategyFalseLog bs = new BucketingStrategyFalseLog();
+		BucketingStrategyLog bs = new BucketingStrategyLogQuantile();
 		bs.setBase(BASE);
 		bs.setN(BUCKETS_PER_ORDER_OF_MAGNITUDE);
 		bs.setScale(SCALE);
@@ -136,12 +135,11 @@ public class HistogramTest extends TestCase {
 
 	@Test
 	public void test_falseLogBounds() throws Exception {
-		double[] bounds;
-		BucketingStrategyFalseLog bs = new BucketingStrategyFalseLog();
-		bs.setBase(BASE);
-		bs.setN(BUCKETS_PER_ORDER_OF_MAGNITUDE);
-		bs.setScale(SCALE);
+		String descriptor = String.format("logQuantile?base=%g&n=%g&scale=%g",
+				BASE, BUCKETS_PER_ORDER_OF_MAGNITUDE, SCALE);
+		BucketingStrategy bs = new BucketingStrategyFactory().create(descriptor);
 
+		double[] bounds;
 		bounds = bs.computeBucketBounds(0.0);
 		assertEquals(0.0, bounds[0], EPSILON);
 		assertEquals(SCALE, bounds[1], EPSILON);

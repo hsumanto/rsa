@@ -20,7 +20,6 @@
 package org.vpac.ndg.query;
 
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -128,47 +127,7 @@ public class FilterFactory {
 
 		Filter filter = f.getInnerFilter();
 		for (LiteralDefinition ld : ls) {
-			Field field;
-			try {
-				field = filter.getClass().getField(ld.name);
-			} catch (NoSuchFieldException e) {
-				throw new QueryConfigurationException(String.format(
-						"Filter %s has no field called %s.",
-						filter.getClass().getName(), ld.name));
-			}
-			Object value = null;
-			Class<?> type = field.getType();
-			try {
-				if (type == Boolean.TYPE || type.isAssignableFrom(Boolean.class))
-					value = Boolean.parseBoolean(ld.value);
-				else if (type == Byte.TYPE || type.isAssignableFrom(Byte.class))
-					value = Byte.parseByte(ld.value);
-				else if (type == Short.TYPE || type.isAssignableFrom(Short.class))
-					value = Short.parseShort(ld.value);
-				else if (type == Integer.TYPE || type.isAssignableFrom(Integer.class))
-					value = Integer.parseInt(ld.value);
-				else if (type == Long.TYPE || type.isAssignableFrom(Long.class))
-					value = Long.parseLong(ld.value);
-				else if (type == Float.TYPE || type.isAssignableFrom(Float.class))
-					value = Float.parseFloat(ld.value);
-				else if (type == Double.TYPE || type.isAssignableFrom(Double.class))
-					value = Double.parseDouble(ld.value);
-			} catch (NumberFormatException e) {
-				throw new QueryConfigurationException(String.format(
-						"Type mismatch: field %s.%s should be a %s.",
-						filter.getClass().getName(), ld.name, type.getName()), e);
-			}
-
-			if (value == null && type.isAssignableFrom(String.class))
-				value = ld.value;
-
-			if (value == null) {
-				throw new QueryConfigurationException(String.format(
-						"Can't assign literal %s.%s: no known conversion to type %s.",
-						filter.getClass().getName(), ld.name, type.getName()));
-			}
-
-			f.setParameter(ld.name, value);
+			Reflection.setSimpleField(filter, ld.name, ld.value);
 		}
 	}
 
