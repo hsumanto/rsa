@@ -96,6 +96,12 @@ public class FilterFactory {
 			throw new QueryConfigurationException(String.format(
 					"Could not find filter class \"%s\".", fd.classname));
 		}
+		if (!Filter.class.isAssignableFrom(cls)) {
+			// This doubles as a security check: it prevents people from
+			// instantiating any old class.
+			throw new QueryConfigurationException(String.format(
+					"%s is not a Filter.", fd.classname));
+		}
 
 		try {
 			f = (Filter) cls.getConstructor().newInstance();
