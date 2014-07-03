@@ -24,4 +24,8 @@ public class BucketingStrategyCategorical implements BucketingStrategy,
 		return new double[] {value - epsilon, value + epsilon};
 	}
 
+	@Override
+	public boolean isCategorical() {
+		return true;
+	}
 }

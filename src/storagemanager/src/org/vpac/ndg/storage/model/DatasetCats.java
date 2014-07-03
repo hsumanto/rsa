@@ -17,11 +17,15 @@ public class DatasetCats implements Serializable {
 	private String bandId;
 	private String name;
 	private Cats cats;
-	
+
+	// No need to store domain (categorical/continuous) here, nor resolution,
+	// because they are in the dataset.
+
 	public DatasetCats() {
 	}
 	
-	public DatasetCats(String datasetId, String timeSliceId, String bandId, String name, Cats cats) {
+	public DatasetCats(String datasetId, String timeSliceId, String bandId,
+			String name, Cats cats) {
 		this.datasetId = datasetId;
 		this.timeSliceId = timeSliceId;
 		this.bandId = bandId;
@@ -76,4 +80,5 @@ public class DatasetCats implements Serializable {
 	public void setName(String name) {
 		this.name = name;
 	}
+
 }

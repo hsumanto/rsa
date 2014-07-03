@@ -66,6 +66,11 @@ public class BucketingStrategyLog implements BucketingStrategy, Serializable {
 	}
 
 	@Override
+	public boolean isCategorical() {
+		return false;
+	}
+
+	@Override
 	public double[] computeBucketBounds(double value) {
 		boolean negative = value < 0;
 

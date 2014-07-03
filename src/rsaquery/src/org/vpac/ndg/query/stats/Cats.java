@@ -112,7 +112,7 @@ public class Cats implements Foldable<Cats>, Serializable {
 	 *            match.
 	 * @return A new set of categories.
 	 */
-	public Cats filterByCategory(List<Integer> filterCats) {
+	public Cats filterByCategoryExtrinsic(List<Integer> filterCats) {
 		if (filterCats == null)
 			return copy();
 
@@ -121,6 +121,19 @@ public class Cats implements Foldable<Cats>, Serializable {
 		for (Integer key : categories.keySet()) {
 			if (filterCats.contains(key))
 				res.categories.put(key, categories.get(key).copy());
+		}
+		return res;
+	}
+
+	public Cats filterByCategoryIntrinsic(List<Double> filterCats) {
+		if (filterCats == null)
+			return copy();
+
+		Cats res = new Cats();
+		res.setBucketingStrategy(bs);
+		for (Entry<Integer, Hist> entry : categories.entrySet()) {
+			Hist hist = entry.getValue().filterByValue(filterCats);
+			res.categories.put(entry.getKey(), hist);
 		}
 		return res;
 	}
@@ -136,7 +149,7 @@ public class Cats implements Foldable<Cats>, Serializable {
 	 * @return A new set of categories containing only buckets that match one of
 	 *         the lower-upper bound pairs.
 	 */
-	public Cats filterByRange(List<Double> lower, List<Double> upper) {
+	public Cats filterByRangeIntrinsic(List<Double> lower, List<Double> upper) {
 		if (lower == null && upper != null)
 			throw new IndexOutOfBoundsException("Lower and upper bounds don't match");
 
@@ -198,9 +211,14 @@ public class Cats implements Foldable<Cats>, Serializable {
 		this.categories = categories;
 	}
 
+	public BucketingStrategy getBucketingStrategy() {
+		return bs;
+	}
+
 	public void setBucketingStrategy(BucketingStrategy bs) {
 		this.bs = bs;
 		for (Hist hist : categories.values())
 			hist.setBucketingStrategy(bs);
 	}
+
 }

@@ -27,6 +27,7 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.vpac.ndg.common.datamodel.CellSize;
+import org.vpac.ndg.query.stats.Bucket;
 import org.vpac.ndg.query.stats.Cats;
 import org.vpac.ndg.query.stats.Hist;
 import org.vpac.ndg.query.stats.Stats;
@@ -73,5 +74,15 @@ public class CategoryTableResponse {
 			rows.add(new TableRow(entry.getKey(), s.getCount() * cellArea));
 		}
 		setRows(rows);
+	}
+
+	public void setRows(Hist hist, CellSize resolution) {
+		double cellArea = resolution.toDouble() * resolution.toDouble();
+		List<TableRow> rows = new ArrayList<TableRow>();
+		for (Bucket b : hist.getBuckets()) {
+			rows.add(new TableRow(b.getLower(),
+					b.getStats().getCount() * cellArea));
+		}
+		this.setRows(rows);
 	}
 }

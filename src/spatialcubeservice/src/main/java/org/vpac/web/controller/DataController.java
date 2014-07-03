@@ -83,6 +83,7 @@ import org.vpac.ndg.query.sampling.ArrayAdapterImpl;
 import org.vpac.ndg.query.sampling.NodataStrategy;
 import org.vpac.ndg.query.sampling.NodataStrategyFactory;
 import org.vpac.ndg.query.stats.Cats;
+import org.vpac.ndg.query.stats.Hist;
 import org.vpac.ndg.storage.dao.DatasetDao;
 import org.vpac.ndg.storage.dao.JobProgressDao;
 import org.vpac.ndg.storage.dao.StatisticsDao;
@@ -326,8 +327,12 @@ public class DataController {
 		return "List";
 	}
 
-	@RequestMapping(value="/Task/{taskId}/hist", method = RequestMethod.GET)
-	public String getHistogramByTaskId(@PathVariable String taskId,
+	@RequestMapping(value="/Task/{taskId}/table/{catType}", method = RequestMethod.GET)
+	public String getTableByTaskId(
+			@PathVariable String taskId,
+			@PathVariable String catType,
+			@RequestParam(required = false) List<Double> lower,
+			@RequestParam(required = false) List<Double> upper,
 			@RequestParam(value="cat", required = false) List<Integer> categories,
 			@RequestParam(required = false) String filter,
 			ModelMap model) throws ResourceNotFoundException {
@@ -335,48 +340,61 @@ public class DataController {
 		log.info("Data getTaskById");
 		log.debug("Task ID: {}", taskId);
 
-		List<TaskCats> tCats = statisticsDao.searchCats(taskId, filter);
-		
-		if (tCats.size() > 0) {
-			TaskCats tCat = tCats.get(0);
-			Cats cats = tCat.getCats();
-			cats = cats.filterByCategory(categories);
+		List<TaskCats> tCats;
+
+		if (catType.equals("value"))
+			tCats = statisticsDao.searchCats(taskId, filter);
+		else
+			tCats = statisticsDao.searchCats(taskId, catType);
+
+		if (tCats.size() == 0)
+			throw new ResourceNotFoundException("No data found.");
+
+		TaskCats tCat = tCats.get(0);
+		Cats cats = tCat.getCats();
+		if (catType.equals("value")) {
+			// Viewing intrinsic data; use extrinsic filter. Extrinsic filters
+			// are always categorical.
+			cats = cats.filterByCategoryExtrinsic(categories);
 			cats = cats.optimise();
-			RangeTableResponse table = new RangeTableResponse();
-			table.setCategorisation("value");
-			table.setRows(cats, tCat.getOutputResolution());
-			model.addAttribute(ControllerHelper.RESPONSE_ROOT, table);
-		} else
-			throw new ResourceNotFoundException("No data not found.");
-		
-		return "List";
-	}
+			Hist hist = cats.summarise();
 
-	@RequestMapping(value="/Task/{taskId}/cats/{catType}", method = RequestMethod.GET)
-	public String getCategoryByTaskId(@PathVariable String taskId,
-			@PathVariable String catType,
-			@RequestParam(required = false) List<Double> lower,
-			@RequestParam(required = false) List<Double> upper,
-			ModelMap model ) throws ResourceNotFoundException {
+			if (tCat.isCategorical()) {
+				CategoryTableResponse table = new CategoryTableResponse();
+				table.setCategorisation(catType);
+				table.setRows(hist, tCat.getOutputResolution());
+				model.addAttribute(ControllerHelper.RESPONSE_ROOT, table);
+			} else {
+				RangeTableResponse table = new RangeTableResponse();
+				table.setCategorisation(catType);
+				table.setRows(hist, tCat.getOutputResolution());
+				model.addAttribute(ControllerHelper.RESPONSE_ROOT, table);
+			}
 
-		log.info("Data getTaskById");
-		log.debug("Task ID: {}", taskId);
-
-		List<TaskCats> tCats = statisticsDao.searchCats(taskId, catType);
-
-		if (tCats.size() > 0) {
-			TaskCats tCat = tCats.get(0);
-			Cats cats = tCat.getCats();
-			cats = cats.filterByRange(lower, upper);
-			cats = cats.optimise();
-			CategoryTableResponse table = new CategoryTableResponse();
-			table.setCategorisation(tCat.getName());
-			table.setRows(cats, tCat.getOutputResolution());
-			model.addAttribute(ControllerHelper.RESPONSE_ROOT, table);
 		} else {
-			throw new ResourceNotFoundException("No data not found.");
+			// Viewing extrinsic categories; use intrinsic filter. Intrinsic
+			// filters may be a set of values (categories) or ranges.
+			if (tCat.isCategorical()) {
+				// TODO: should allow input to be list of doubles instead of
+				// casting here.
+				List<Double> realCategories = null;
+				if (categories != null) {
+					realCategories = new ArrayList<Double>();
+					for (Integer value : categories)
+						realCategories.add(value.doubleValue());
+				}
+				cats = cats.filterByCategoryIntrinsic(realCategories);
+			} else {
+				cats = cats.filterByRangeIntrinsic(lower, upper);
+			}
+			cats = cats.optimise();
+
+			CategoryTableResponse table = new CategoryTableResponse();
+			table.setCategorisation(catType);
+			table.setRows(cats, tCat.getOutputResolution());
+			model.addAttribute(ControllerHelper.RESPONSE_ROOT, table);
 		}
-		
+
 		return "List";
 	}
 	

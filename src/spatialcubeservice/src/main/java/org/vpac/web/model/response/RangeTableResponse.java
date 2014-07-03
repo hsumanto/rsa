@@ -27,7 +27,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import org.vpac.ndg.common.datamodel.CellSize;
 import org.vpac.ndg.query.stats.Bucket;
-import org.vpac.ndg.query.stats.Cats;
 import org.vpac.ndg.query.stats.Hist;
 
 @XmlRootElement(name = "RangeTable")
@@ -63,11 +62,10 @@ public class RangeTableResponse {
 		this.categorisation = categorisation;
 	}
 
-	public void setRows(Cats cats, CellSize resolution) {
-		Hist summary = cats.summarise();
+	public void setRows(Hist hist, CellSize resolution) {
 		double cellArea = resolution.toDouble() * resolution.toDouble();
 		List<TableRowRanged> rows = new ArrayList<TableRowRanged>();
-		for (Bucket b : summary.getBuckets()) {
+		for (Bucket b : hist.getBuckets()) {
 			rows.add(new TableRowRanged(b.getLower(), b.getUpper(),
 					b.getStats().getCount() * cellArea));
 		}

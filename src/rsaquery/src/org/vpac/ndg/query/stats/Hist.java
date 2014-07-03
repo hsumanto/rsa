@@ -179,6 +179,32 @@ public class Hist implements Foldable<Hist>, Serializable {
 		return res;
 	}
 
+	/**
+	 * Create a new histogram containing only buckets that can contain certain
+	 * values. This is especially useful for categorical data, where each bucket
+	 * will only contain an exact value (not a range).
+	 *
+	 * @param values The values to search for. If null, all buckets will match.
+	 * @return A new histogram containing only buckets that can contain one or
+	 *         more of the values.
+	 */
+	public Hist filterByValue(List<Double> values) {
+		if (values == null)
+			return copy();
+
+		Hist res = new Hist();
+		res.setBucketingStrategy(bucketingStrategy);
+		for (Bucket b : buckets) {
+			for (Double value : values) {
+				if (b.canContain(value)) {
+					res.buckets.add(b.copy());
+					continue;
+				}
+			}
+		}
+		return res;
+	}
+
 	public List<Bucket> getBuckets() {
 		return buckets;
 	}
