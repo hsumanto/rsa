@@ -2,8 +2,8 @@ package org.vpac.worker;
 
 import java.io.Serializable;
 
+import org.vpac.ndg.common.datamodel.CellSize;
 import org.vpac.ndg.query.math.BoxReal;
-import org.vpac.ndg.task.Task;
 
 import ucar.nc2.NetcdfFileWriter.Version;
 
@@ -18,14 +18,16 @@ public class Job {
 		public final Version netcdfVersion;
 		public final BoxReal bound;
 		public final String jobProgressId;
+		public final CellSize outputResolution;
 
 		public Work(String workId, String queryDefinitionString, Version ver,
-				BoxReal bound, String jobProgressId) {
+				BoxReal bound, String jobProgressId, CellSize outputResolution) {
 			this.workId = workId;
 			this.queryDefinitionString = queryDefinitionString;
 			this.netcdfVersion = ver;
 			this.jobProgressId = jobProgressId;
 			this.bound = bound;
+			this.outputResolution = outputResolution;
 			// this.job = job;
 		}
 
@@ -33,7 +35,7 @@ public class Job {
 		public String toString() {
 			return "Work{" + "workId='" + workId + '\'' + ", qd="
 					+ queryDefinitionString + ", ver=" + netcdfVersion
-					+ ", job=" + jobProgressId + ", bound=" + bound + '}';
+					+ ", job=" + jobProgressId + ", bound=" + bound + ", outputResolution=" + outputResolution + '}';
 		}
 
 	}

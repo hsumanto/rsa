@@ -254,11 +254,9 @@ public class Master extends UntypedActor {
 			Foldable<?> value = resultMap.get(key);
 			ActorSelection database = getContext().system().actorSelection("akka://Workers/user/database");
 			if (VectorCats.class.isAssignableFrom(value.getClass())) {
-				// TODO : replace hard coding
-				CellSize outputResolution = CellSize.m25; 
 				SaveCats msg = new SaveCats(
 						currentWorkInfo.work.jobProgressId, key,
-						outputResolution, (VectorCats) value);
+						currentWorkInfo.work.outputResolution, (VectorCats) value);
 				database.tell(msg, getSelf());
 			} else {
 				log.debug("Ignorning unrecognised query result {}", value.getClass());
