@@ -1,5 +1,7 @@
 package org.vpac.ndg.query.stats;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -7,6 +9,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.vpac.ndg.query.QueryConfigurationException;
+import org.vpac.ndg.query.QueryRuntimeException;
 import org.vpac.ndg.query.Reflection;
 
 public class BucketingStrategyFactory {
@@ -48,7 +51,16 @@ public class BucketingStrategyFactory {
 		Matcher matcher = PARAM.matcher(query);
 		Map<String, String> map = new HashMap<String, String>();
 		while (matcher.find()) {
-			map.put(matcher.group(1), matcher.group(2));
+			String name;
+			String value;
+			try {
+				name = URLDecoder.decode(matcher.group(1), "UTF-8");
+				value = URLDecoder.decode(matcher.group(2), "UTF-8");
+			} catch (UnsupportedEncodingException e) {
+				throw new QueryRuntimeException("UTF-8 is not a recognised"
+						+ " encoding. Can't decode parameters.");
+			}
+			map.put(name, value);
 		}
 		return map;
 	}
