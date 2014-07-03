@@ -116,7 +116,6 @@ public class Master extends UntypedActor {
 			double totalArea = 0;
 			double completedArea = 0;
 			int completedWork = 0;
-			TaskState taskState = TaskState.RUNNING;
 			List<WorkInfo> allTaskWorks = getAllTaskWork(currentWorkInfo.work.jobProgressId);
 			int totalNoOfWork = allTaskWorks.size();
 			for(WorkInfo w : allTaskWorks) {
@@ -129,17 +128,9 @@ public class Master extends UntypedActor {
 
 			if (totalNoOfWork == completedWork) {
 				foldResults(currentWorkInfo);
-				taskState = TaskState.FINISHED;
-				updateDatabase(currentWorkInfo.work.jobProgressId, completedArea, totalArea, TaskState.FINISHED);
+				updateTaskProgress(currentWorkInfo.work.jobProgressId, completedArea, totalArea, TaskState.FINISHED);
 				removeWork(currentWorkInfo.work.jobProgressId);
 			}
-//			ActorSelection database = getContext().system().actorSelection("akka://Workers/user/database");
-//			double fraction = completedArea / totalArea;
-//			JobUpdate update = new JobUpdate(currentWorkInfo.work.jobProgressId, fraction, taskState);
-//			database.tell(update, getSelf());
-//			if (totalNoOfWork == completedWork)
-				
-			
 			
 			WorkerState state = workers.get(workerId);
 			if (state != null && state.status.isBusy()
@@ -187,7 +178,7 @@ public class Master extends UntypedActor {
 				totalArea += wi.area;
 				completedArea += wi.processedArea;
 			}
-			updateDatabase(taskId, completedArea, totalArea, TaskState.RUNNING);	
+			updateTaskProgress(taskId, completedArea, totalArea, TaskState.RUNNING);	
 		} else if (message instanceof Work) {
 			Work work = (Work) message;
 			// idempotent
@@ -226,7 +217,7 @@ public class Master extends UntypedActor {
 		}
 	}
 	
-	private void updateDatabase(String taskId, double completedArea, double totalArea, TaskState state) {
+	private void updateTaskProgress(String taskId, double completedArea, double totalArea, TaskState state) {
 		ActorSelection database = getContext().system().actorSelection("akka://Workers/user/database");
 		double fraction = completedArea / totalArea;
 		JobUpdate update = new JobUpdate(taskId, fraction, state);
@@ -246,10 +237,8 @@ public class Master extends UntypedActor {
 	private void foldResults(WorkInfo currentWorkInfo) {
 		HashMap<String, Foldable<?>> resultMap = new HashMap<>();
 
-		for (WorkInfo w : workProgress.values()) {
-			if (!w.work.jobProgressId.equals(currentWorkInfo.work.jobProgressId))
-				continue;
-
+		List<WorkInfo> list = getAllTaskWork(currentWorkInfo.work.jobProgressId);
+		for (WorkInfo w : list) {
 			Map<String, Foldable<?>> map = (Map<String, Foldable<?>>) w.result;
 			for (Entry<String, ?> v : map.entrySet()) {
 				VectorCats baseResult = (VectorCats) resultMap.get(v.getKey());
@@ -265,6 +254,7 @@ public class Master extends UntypedActor {
 			Foldable<?> value = resultMap.get(key);
 			ActorSelection database = getContext().system().actorSelection("akka://Workers/user/database");
 			if (VectorCats.class.isAssignableFrom(value.getClass())) {
+				// TODO : replace hard coding
 				CellSize outputResolution = CellSize.m25; 
 				SaveCats msg = new SaveCats(
 						currentWorkInfo.work.jobProgressId, key,
@@ -282,7 +272,6 @@ public class Master extends UntypedActor {
 			Entry<String, WorkInfo> entry = iter.next();
 			if (entry.getValue().work.jobProgressId.equals(jobProgressId))
 				iter.remove();
-			
 		}
 	}
 	
