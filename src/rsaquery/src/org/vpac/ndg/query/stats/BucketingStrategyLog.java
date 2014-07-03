@@ -12,14 +12,38 @@ public class BucketingStrategyLog implements BucketingStrategy, Serializable {
 	static final double SCALE = 0.1;
 	static final double EPSILON = 1.0e-9;
 
-	private double base;
-	private double root;
-	private double scale;
+	protected double base;
+	protected double root;
+	protected double scale;
 
 	public BucketingStrategyLog() {
 		base = BASE;
 		root = BUCKETS_PER_ORDER_OF_MAGNITUDE;
 		scale = SCALE;
+	}
+
+	public double getScale() {
+		return scale;
+	}
+
+	public void setScale(double scale) {
+		this.scale = scale;
+	}
+
+	public double getRoot() {
+		return root;
+	}
+
+	public void setRoot(double root) {
+		this.root = root;
+	}
+
+	public double getBase() {
+		return base;
+	}
+
+	public void setBase(double base) {
+		this.base = base;
 	}
 
 	@Override
@@ -43,15 +67,15 @@ public class BucketingStrategyLog implements BucketingStrategy, Serializable {
 
 		if (value < scale) {
 			lower = 0.0;
-			upper = lowerBound(0, base, root, scale);
+			upper = lowerBound(0);
 		} else {
-			int i = indexOf(value, base, root, scale);
+			int i = indexOf(value);
 			if (i < 0) {
 				lower = 0.0;
-				upper = lowerBound(0, base, root, scale);
+				upper = lowerBound(0);
 			} else {
-				lower = lowerBound(i, base, root, scale);
-				upper = lowerBound(i + 1, base, root, scale);
+				lower = lowerBound(i);
+				upper = lowerBound(i + 1);
 			}
 		}
 
@@ -78,7 +102,7 @@ public class BucketingStrategyLog implements BucketingStrategy, Serializable {
 	 * @param scale The scaling factor.
 	 * @return The lower bound of the bucket.
 	 */
-	static double lowerBound(int i, double base, double root, double scale) {
+	double lowerBound(int i) {
 		return Math.pow(base, i / root) * scale;
 	}
 
@@ -90,13 +114,13 @@ public class BucketingStrategyLog implements BucketingStrategy, Serializable {
 	 * @param scale The scaling factor (lower bound of bucket 0).
 	 * @return The "index" of the bucket.
 	 */
-	static int indexOf(double value, double base, double root, double scale) {
+	int indexOf(double value) {
 		double index = logN(base, value / scale) * root;
 		index += EPSILON;
 		return (int) index;
 	}
 
-	static double logN(double base, double value) {
+	double logN(double base, double value) {
 		// The log to any base can be found from the natural logarithm
 		// http://www.themathpage.com/aPreCalc/logarithms.htm#change
 		// http://blog.dreasgrech.com/2010/02/finding-logarithm-of-any-base-in-java.html
