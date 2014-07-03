@@ -13,15 +13,9 @@ public class BucketingStrategyCategorical implements BucketingStrategy,
 
 	private static final long serialVersionUID = 1L;
 
-	static final double EPSILON = 1.0e-9;
-
 	@Override
 	public double[] computeBucketBounds(double value) {
-		if (Double.isInfinite(value) || Double.isNaN(value))
-			return new double[] {value, value};
-
-		double epsilon = value * EPSILON;
-		return new double[] {value - epsilon, value + epsilon};
+		return new double[] {value, value};
 	}
 
 	@Override

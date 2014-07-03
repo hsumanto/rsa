@@ -17,6 +17,8 @@ public class Bucket implements Foldable<Bucket>, Serializable {
 	private double upper;
 	private Stats stats;
 
+	private static final double EPSILON = 1e-9;
+
 	public Bucket() {
 	}
 
@@ -39,10 +41,17 @@ public class Bucket implements Foldable<Bucket>, Serializable {
 	}
 
 	public boolean canContain(double value) {
-		if (lower == upper && value == 0)
+		if (lower == upper) {
 			// Special case for categorical (zero-range) buckets.
-			return true;
-		else if (value < lower)
+			if (Double.isInfinite(value))
+				return value == lower;
+			else if (value < lower - lower * EPSILON)
+				return false;
+			else if (value > upper + upper * EPSILON)
+				return false;
+			else
+				return true;
+		} else if (value < lower)
 			return false;
 		else if (value >= upper)
 			return false;
