@@ -112,27 +112,27 @@ public class Cats implements Foldable<Cats>, Serializable {
 	 *            match.
 	 * @return A new set of categories.
 	 */
-	public Cats filterByCategoryExtrinsic(List<Integer> filterCats) {
-		if (filterCats == null)
+	public Cats filterExtrinsic(List<Integer> values) {
+		if (values == null)
 			return copy();
 
 		Cats res = new Cats();
 		res.setBucketingStrategy(bs);
 		for (Integer key : categories.keySet()) {
-			if (filterCats.contains(key))
+			if (values.contains(key))
 				res.categories.put(key, categories.get(key).copy());
 		}
 		return res;
 	}
 
-	public Cats filterByCategoryIntrinsic(List<Double> filterCats) {
-		if (filterCats == null)
+	public Cats filterIntrinsic(List<Double> values) {
+		if (values == null)
 			return copy();
 
 		Cats res = new Cats();
 		res.setBucketingStrategy(bs);
 		for (Entry<Integer, Hist> entry : categories.entrySet()) {
-			Hist hist = entry.getValue().filterByValue(filterCats);
+			Hist hist = entry.getValue().filter(values);
 			res.categories.put(entry.getKey(), hist);
 		}
 		return res;
@@ -149,7 +149,7 @@ public class Cats implements Foldable<Cats>, Serializable {
 	 * @return A new set of categories containing only buckets that match one of
 	 *         the lower-upper bound pairs.
 	 */
-	public Cats filterByRangeIntrinsic(List<Double> lower, List<Double> upper) {
+	public Cats filterIntrinsic(List<Double> lower, List<Double> upper) {
 		if (lower == null && upper != null)
 			throw new IndexOutOfBoundsException("Lower and upper bounds don't match");
 
@@ -162,7 +162,7 @@ public class Cats implements Foldable<Cats>, Serializable {
 		Cats res = new Cats();
 		res.setBucketingStrategy(bs);
 		for (Entry<Integer, Hist> entry : categories.entrySet()) {
-			Hist hist = entry.getValue().filterByRange(lower, upper);
+			Hist hist = entry.getValue().filter(lower, upper);
 			res.categories.put(entry.getKey(), hist);
 		}
 		return res;

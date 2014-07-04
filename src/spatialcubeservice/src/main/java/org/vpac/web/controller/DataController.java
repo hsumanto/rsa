@@ -82,8 +82,6 @@ import org.vpac.ndg.query.sampling.ArrayAdapter;
 import org.vpac.ndg.query.sampling.ArrayAdapterImpl;
 import org.vpac.ndg.query.sampling.NodataStrategy;
 import org.vpac.ndg.query.sampling.NodataStrategyFactory;
-import org.vpac.ndg.query.stats.Cats;
-import org.vpac.ndg.query.stats.Hist;
 import org.vpac.ndg.storage.dao.DatasetDao;
 import org.vpac.ndg.storage.dao.JobProgressDao;
 import org.vpac.ndg.storage.dao.StatisticsDao;
@@ -106,14 +104,13 @@ import org.vpac.web.model.request.DataExportRequest;
 import org.vpac.web.model.request.FileRequest;
 import org.vpac.web.model.request.PagingRequest;
 import org.vpac.web.model.request.TaskSearchRequest;
-import org.vpac.web.model.response.CategoryTableResponse;
 import org.vpac.web.model.response.CleanUpResponse;
 import org.vpac.web.model.response.DatasetPlotResponse;
 import org.vpac.web.model.response.ExportResponse;
 import org.vpac.web.model.response.FileInfoResponse;
 import org.vpac.web.model.response.ImportResponse;
 import org.vpac.web.model.response.QueryResponse;
-import org.vpac.web.model.response.RangeTableResponse;
+import org.vpac.web.model.response.TabularResponse;
 import org.vpac.web.model.response.TaskCollectionResponse;
 import org.vpac.web.model.response.TaskResponse;
 import org.vpac.web.util.ControllerHelper;
@@ -333,7 +330,7 @@ public class DataController {
 			@PathVariable String catType,
 			@RequestParam(required = false) List<Double> lower,
 			@RequestParam(required = false) List<Double> upper,
-			@RequestParam(value="cat", required = false) List<Integer> categories,
+			@RequestParam(value="cat", required = false) List<String> categories,
 			@RequestParam(required = false) String filter,
 			ModelMap model) throws ResourceNotFoundException {
 
@@ -341,63 +338,39 @@ public class DataController {
 		log.debug("Task ID: {}", taskId);
 
 		List<TaskCats> tCats;
-
 		if (catType.equals("value"))
 			tCats = statisticsDao.searchCats(taskId, filter);
 		else
 			tCats = statisticsDao.searchCats(taskId, catType);
 
-		if (tCats.size() == 0)
-			throw new ResourceNotFoundException("No data found.");
+		if (tCats.size() == 0) {
+			throw new ResourceNotFoundException(
+					"No data found for this task ID.");
+		}
 
 		TaskCats tCat = tCats.get(0);
-		Cats cats = tCat.getCats();
-		if (catType.equals("value")) {
-			// Viewing intrinsic data; use extrinsic filter. Extrinsic filters
-			// are always categorical.
-			cats = cats.filterByCategoryExtrinsic(categories);
-			cats = cats.optimise();
-			Hist hist = cats.summarise();
 
-			if (tCat.isCategorical()) {
-				CategoryTableResponse table = new CategoryTableResponse();
-				table.setCategorisation(catType);
-				table.setRows(hist, tCat.getOutputResolution());
-				model.addAttribute(ControllerHelper.RESPONSE_ROOT, table);
-			} else {
-				RangeTableResponse table = new RangeTableResponse();
-				table.setCategorisation(catType);
-				table.setRows(hist, tCat.getOutputResolution());
-				model.addAttribute(ControllerHelper.RESPONSE_ROOT, table);
-			}
+		TabularResponse<?> response;
+		if (catType.equals("value")) {
+			// Viewing intrinsic data; use extrinsic filter.
+			List<Integer> values = helper.stringsToInts(categories);
+			response = TabularResponse.tabulateIntrinsic(tCat.getCats(),
+					values, tCat.getOutputResolution(), tCat.isCategorical());
 
 		} else {
-			// Viewing extrinsic categories; use intrinsic filter. Intrinsic
-			// filters may be a set of values (categories) or ranges.
-			if (tCat.isCategorical()) {
-				// TODO: should allow input to be list of doubles instead of
-				// casting here.
-				List<Double> realCategories = null;
-				if (categories != null) {
-					realCategories = new ArrayList<Double>();
-					for (Integer value : categories)
-						realCategories.add(value.doubleValue());
-				}
-				cats = cats.filterByCategoryIntrinsic(realCategories);
-			} else {
-				cats = cats.filterByRangeIntrinsic(lower, upper);
-			}
-			cats = cats.optimise();
-
-			CategoryTableResponse table = new CategoryTableResponse();
-			table.setCategorisation(catType);
-			table.setRows(cats, tCat.getOutputResolution());
-			model.addAttribute(ControllerHelper.RESPONSE_ROOT, table);
+			// Viewing extrinsic categories; use intrinsic filter.
+			List<Double> values = helper.stringsToDoubles(categories);
+			response = TabularResponse.tabulateExtrinsic(tCat.getCats(), lower,
+					upper, values, tCat.getOutputResolution(),
+					tCat.isCategorical());
 		}
+
+		response.setCategorisation(catType);
+		model.addAttribute(ControllerHelper.RESPONSE_ROOT, response);
 
 		return "List";
 	}
-	
+
 	@RequestMapping(value = "/Download/{taskId}", method = RequestMethod.GET)
 	public void downloadFile(@PathVariable("taskId") String taskId, HttpServletResponse response) throws TaskException, FileNotFoundException {
 		// get your file as InputStream

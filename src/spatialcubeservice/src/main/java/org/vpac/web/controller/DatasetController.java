@@ -46,9 +46,12 @@ import org.vpac.ndg.common.datamodel.CellSize;
 import org.vpac.ndg.query.Query;
 import org.vpac.ndg.query.QueryConfigurationException;
 import org.vpac.ndg.query.QueryDefinition;
+import org.vpac.ndg.query.QueryDefinition.FilterDefinition;
+import org.vpac.ndg.query.QueryDefinition.LiteralDefinition;
 import org.vpac.ndg.query.filter.Foldable;
 import org.vpac.ndg.query.io.DatasetProvider;
 import org.vpac.ndg.query.io.ProviderRegistry;
+import org.vpac.ndg.query.stats.Categories;
 import org.vpac.ndg.query.stats.Cats;
 import org.vpac.ndg.query.stats.VectorCats;
 import org.vpac.ndg.storage.dao.BandDao;
@@ -62,11 +65,10 @@ import org.vpac.ndg.storage.util.DatasetUtil;
 import org.vpac.web.exception.ResourceNotFoundException;
 import org.vpac.web.model.request.DatasetRequest;
 import org.vpac.web.model.request.PagingRequest;
-import org.vpac.web.model.response.CategoryTableResponse;
 import org.vpac.web.model.response.DatasetCollectionResponse;
 import org.vpac.web.model.response.DatasetResponse;
 import org.vpac.web.model.response.QueryResponse;
-import org.vpac.web.model.response.RangeTableResponse;
+import org.vpac.web.model.response.TabularResponse;
 import org.vpac.web.util.ControllerHelper;
 
 import ucar.nc2.NetcdfFileWriter;
@@ -148,7 +150,6 @@ public class DatasetController {
 
 	@RequestMapping(value = "/{datasetId}/**/categorise", method = RequestMethod.GET)
 	public String createCategories(@PathVariable String datasetId,
-//			@RequestParam(required = false) String[] regions,
 			HttpServletRequest request, ModelMap model)
 			throws ResourceNotFoundException, IOException, QueryConfigurationException {
 		log.info("datasetId:" + datasetId);
@@ -164,14 +165,22 @@ public class DatasetController {
 				.getResourceAsStream("categorise.xml"));
 		qd.inputs.get(0).href= "rsa:" + ds.getName() + "/" + ds.getResolution().toHumanString();
 		qd.filters.get(0).samplers.get(0).ref = "#ds/" + band.getName();
-		// if(minX != null)
-		// qd.output.grid.bounds = String.format("%f %f %f %f", minX, minY,
-		// maxX, maxY);
-		//
-		// if(startDate != null) {
-		// qd.output.grid.timeMin = startDate;
-		// qd.output.grid.timeMax = endDate;
-		// }
+
+		// Configure the filters to collect the appropriate kind of statistics.
+		String bucketingStrategy;
+		if (band.isContinuous())
+			bucketingStrategy = "logQuantile";
+		else
+			bucketingStrategy = "categorical";
+		for (FilterDefinition fd : qd.filters) {
+			if (!fd.classname.equals(Categories.class.getName()))
+				continue;
+			for (LiteralDefinition ld : fd.literals) {
+				if (ld.name.equals("buckets")) {
+					ld.value = bucketingStrategy;
+				}
+			}
+		}
 
 		final Version ver = Version.netcdf4_classic;
 
@@ -237,68 +246,58 @@ public class DatasetController {
 		return returnValue;
 	}
 
-	@RequestMapping(value = "/{datasetId}/**/hist", method = RequestMethod.GET)
-	public String getHistogram(@PathVariable String datasetId,
-			@RequestParam(value="cat", required = false) List<Integer> categories,
-			@RequestParam(required = false) String filter,
-			HttpServletRequest request, ModelMap model)
-			throws ResourceNotFoundException {
-		log.info("datasetId: {}", datasetId);
-		log.info("categories: {}", categories);
-		log.info("filter: {}", filter);
-		String requestURL = request.getRequestURI().toString();
-		String timeSliceId = findPathVariable(requestURL, "TimeSlice");
-		String bandId = findPathVariable(requestURL, "Band");
-
-		List<DatasetCats> dsCats = statisticsDao.searchCats(datasetId, timeSliceId, bandId, filter);
-		Dataset ds =  datasetDao.retrieve(datasetId);
-
-		if (dsCats.size() > 0) {
-			DatasetCats dsCat = dsCats.get(0);
-			Cats cats = dsCat.getCats();
-			cats = cats.filterByCategoryExtrinsic(categories);
-			cats = cats.optimise();
-			RangeTableResponse table = new RangeTableResponse();
-			table.setCategorisation("value");
-			table.setRows(cats.summarise(), ds.getResolution());
-			model.addAttribute(ControllerHelper.RESPONSE_ROOT, table);
-		} else {
-			throw new ResourceNotFoundException("No data found for this dataset, band, time slice and categorisation.");
-		}
-
-		return "List";
-	}
-
-	@RequestMapping(value = "/{datasetId}/**/cats/{type}", method = RequestMethod.GET)
-	public String getCategory(@PathVariable String datasetId,
-			@PathVariable String type,
+	@RequestMapping(value = "/{datasetId}/**/table/{catType}", method = RequestMethod.GET)
+	public String getTable(
+			@PathVariable String datasetId,
+			@PathVariable String catType,
 			@RequestParam(required = false) List<Double> lower,
 			@RequestParam(required = false) List<Double> upper,
-			HttpServletRequest request, ModelMap model)
-			throws ResourceNotFoundException {
-		log.info("datasetId:" + datasetId);
-		log.info("type:" + type);
-		log.info("lower:" + lower);
-		log.info("upper:" + upper);
+			@RequestParam(value="cat", required = false) List<String> categories,
+			@RequestParam(required = false) String filter,
+			HttpServletRequest request,
+			ModelMap model) throws ResourceNotFoundException {
+
+		log.info("Data getTaskById");
+		log.info("datasetId: {}", datasetId);
+		log.info("filter: {}", filter);
+
 		String requestURL = request.getRequestURI().toString();
 		String timeSliceId = findPathVariable(requestURL, "TimeSlice");
 		String bandId = findPathVariable(requestURL, "Band");
 
-		List<DatasetCats> dsCats = statisticsDao.searchCats(datasetId, timeSliceId, bandId, type);
-		Dataset ds =  datasetDao.retrieve(datasetId);
-		
-		if (dsCats.size() > 0) {
-			DatasetCats dsCat = dsCats.get(0);
-			Cats cats = dsCat.getCats();
-			cats = cats.filterByRangeIntrinsic(lower, upper);
-			cats = cats.optimise();
-			CategoryTableResponse table = new CategoryTableResponse();
-			table.setCategorisation(dsCat.getName());
-			table.setRows(cats, ds.getResolution());
-			model.addAttribute(ControllerHelper.RESPONSE_ROOT, table);
-		} else {
-			throw new ResourceNotFoundException("No data found for this dataset, band, time slice and categorisation.");
+		List<DatasetCats> dsCats;
+		if (catType.equals("value"))
+			dsCats = statisticsDao.searchCats(datasetId, timeSliceId, bandId, filter);
+		else
+			dsCats = statisticsDao.searchCats(datasetId, timeSliceId, bandId, catType);
+
+		if (dsCats.size() == 0) {
+			throw new ResourceNotFoundException(
+					"No data found for this dataset, band, time slice and"
+					+ " categorisation.");
 		}
+
+		Dataset ds =  datasetDao.retrieve(datasetId);
+		Band band =  bandDao.retrieve(bandId);
+		DatasetCats dsCat = dsCats.get(0);
+
+		TabularResponse<?> response;
+		if (catType.equals("value")) {
+			// Viewing intrinsic data; use extrinsic filter.
+			List<Integer> values = helper.stringsToInts(categories);
+			response = TabularResponse.tabulateIntrinsic(dsCat.getCats(),
+					values, ds.getResolution(), !band.isContinuous());
+
+		} else {
+			// Viewing extrinsic categories; use intrinsic filter.
+			List<Double> values = helper.stringsToDoubles(categories);
+			response = TabularResponse.tabulateExtrinsic(dsCat.getCats(),
+					lower, upper, values, ds.getResolution(),
+					!band.isContinuous());
+		}
+
+		response.setCategorisation(catType);
+		model.addAttribute(ControllerHelper.RESPONSE_ROOT, response);
 
 		return "List";
 	}

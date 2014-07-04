@@ -156,7 +156,7 @@ public class Hist implements Foldable<Hist>, Serializable {
 	 * @return A new histogram containing only buckets that match one of the
 	 *         lower-upper bound pairs.
 	 */
-	public Hist filterByRange(List<Double> lower, List<Double> upper) {
+	public Hist filter(List<Double> lower, List<Double> upper) {
 		if (lower == null && upper != null)
 			throw new IndexOutOfBoundsException("Lower and upper bounds don't match");
 
@@ -188,7 +188,7 @@ public class Hist implements Foldable<Hist>, Serializable {
 	 * @return A new histogram containing only buckets that can contain one or
 	 *         more of the values.
 	 */
-	public Hist filterByValue(List<Double> values) {
+	public Hist filter(List<Double> values) {
 		if (values == null)
 			return copy();
 

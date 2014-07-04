@@ -21,7 +21,9 @@ package org.vpac.web.util;
 
 import java.beans.PropertyEditorSupport;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import org.springframework.web.bind.WebDataBinder;
 import org.vpac.ndg.Utils;
@@ -84,5 +86,29 @@ public class ControllerHelper {
 					}
 
 		});
+	}
+
+	public List<Integer> stringsToInts(List<String> inputs) {
+		List<Integer> values;
+		if (inputs == null) {
+			values = null;
+		} else {
+			values = new ArrayList<>(inputs.size());
+			for (String category : inputs)
+				values.add(Integer.parseInt(category));
+		}
+		return values;
+	}
+
+	public List<Double> stringsToDoubles(List<String> inputs) {
+		List<Double> values;
+		if (inputs == null) {
+			values = null;
+		} else {
+			values = new ArrayList<>(inputs.size());
+			for (String category : inputs)
+				values.add(Double.parseDouble(category));
+		}
+		return values;
 	}
 }
