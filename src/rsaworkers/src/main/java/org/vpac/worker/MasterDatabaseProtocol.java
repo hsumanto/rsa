@@ -13,8 +13,8 @@ public abstract class MasterDatabaseProtocol {
 		public final String jobId;
 		public final double fraction;
 		public final TaskState state;
-		
-		public JobUpdate(String jobId, double  fraction, TaskState state) {
+
+		public JobUpdate(String jobId, double fraction, TaskState state) {
 			this.jobId = jobId;
 			this.fraction = fraction;
 			this.state = state;
@@ -22,7 +22,8 @@ public abstract class MasterDatabaseProtocol {
 
 		@Override
 		public String toString() {
-			return "JobUpdate{" + "jobId=" + jobId + ",fraction=" + fraction + ",state=" + state + '}';
+			return "JobUpdate{" + "jobId=" + jobId + ",fraction=" + fraction
+					+ ",state=" + state + '}';
 		}
 	}
 
@@ -32,8 +33,9 @@ public abstract class MasterDatabaseProtocol {
 		public final String key;
 		public final CellSize outputResolution;
 		public final VectorCats cats;
-		
-		public SaveCats(String jobId, String key, CellSize outputResolution, VectorCats cats) {
+
+		public SaveCats(String jobId, String key, CellSize outputResolution,
+				VectorCats cats) {
 			this.jobId = jobId;
 			this.key = key;
 			this.outputResolution = outputResolution;
@@ -42,7 +44,9 @@ public abstract class MasterDatabaseProtocol {
 
 		@Override
 		public String toString() {
-			return "JobUpdate{" + "jobId=" + jobId + ",key=" + key + ",outputResolution=" + outputResolution.toHumanString() + '}';
+			return "JobUpdate{" + "jobId=" + jobId + ",key=" + key
+					+ ",outputResolution=" + outputResolution.toHumanString()
+					+ '}';
 		}
 	}
 }

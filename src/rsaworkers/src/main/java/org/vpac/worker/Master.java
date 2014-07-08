@@ -60,7 +60,7 @@ public class Master extends UntypedActor {
 	private Queue<Work> pendingWork = new LinkedList<Work>();
 	private Set<String> workIds = new LinkedHashSet<String>();
 	private Map<String, WorkInfo> workProgress = new HashMap<String, WorkInfo>();
-	
+
 	public Master(FiniteDuration workTimeout) {
 		this.workTimeout = workTimeout;
 		mediator.tell(new Put(getSelf()), getSelf());
@@ -118,20 +118,21 @@ public class Master extends UntypedActor {
 			int completedWork = 0;
 			List<WorkInfo> allTaskWorks = getAllTaskWork(currentWorkInfo.work.jobProgressId);
 			int totalNoOfWork = allTaskWorks.size();
-			for(WorkInfo w : allTaskWorks) {
-					if(w.result != null) {
-						completedArea += w.processedArea;
-						completedWork++;
-					}
-					totalArea += w.area;
+			for (WorkInfo w : allTaskWorks) {
+				if (w.result != null) {
+					completedArea += w.processedArea;
+					completedWork++;
+				}
+				totalArea += w.area;
 			}
 
 			if (totalNoOfWork == completedWork) {
 				foldResults(currentWorkInfo);
-				updateTaskProgress(currentWorkInfo.work.jobProgressId, completedArea, totalArea, TaskState.FINISHED);
+				updateTaskProgress(currentWorkInfo.work.jobProgressId,
+						completedArea, totalArea, TaskState.FINISHED);
 				removeWork(currentWorkInfo.work.jobProgressId);
 			}
-			
+
 			WorkerState state = workers.get(workerId);
 			if (state != null && state.status.isBusy()
 					&& state.status.getWork().workId.equals(workId)) {
@@ -174,11 +175,12 @@ public class Master extends UntypedActor {
 			List<WorkInfo> allTaskWork = getAllTaskWork(taskId);
 			double totalArea = 0;
 			double completedArea = 0;
-			for(WorkInfo wi : allTaskWork) {
+			for (WorkInfo wi : allTaskWork) {
 				totalArea += wi.area;
 				completedArea += wi.processedArea;
 			}
-			updateTaskProgress(taskId, completedArea, totalArea, TaskState.RUNNING);	
+			updateTaskProgress(taskId, completedArea, totalArea,
+					TaskState.RUNNING);
 		} else if (message instanceof Work) {
 			Work work = (Work) message;
 			// idempotent
@@ -216,18 +218,20 @@ public class Master extends UntypedActor {
 			unhandled(message);
 		}
 	}
-	
-	private void updateTaskProgress(String taskId, double completedArea, double totalArea, TaskState state) {
-		ActorSelection database = getContext().system().actorSelection("akka://Workers/user/database");
+
+	private void updateTaskProgress(String taskId, double completedArea,
+			double totalArea, TaskState state) {
+		ActorSelection database = getContext().system().actorSelection(
+				"akka://Workers/user/database");
 		double fraction = completedArea / totalArea;
 		JobUpdate update = new JobUpdate(taskId, fraction, state);
 		database.tell(update, getSelf());
 	}
-	
+
 	private List<WorkInfo> getAllTaskWork(String taskId) {
 		List<WorkInfo> list = new ArrayList();
-		for(WorkInfo wi : workProgress.values()) {
-			if(wi.work.jobProgressId.equals(taskId))
+		for (WorkInfo wi : workProgress.values()) {
+			if (wi.work.jobProgressId.equals(taskId))
 				list.add(wi);
 		}
 		System.out.println("count:" + list.size());
@@ -252,27 +256,30 @@ public class Master extends UntypedActor {
 
 		for (String key : resultMap.keySet()) {
 			Foldable<?> value = resultMap.get(key);
-			ActorSelection database = getContext().system().actorSelection("akka://Workers/user/database");
+			ActorSelection database = getContext().system().actorSelection(
+					"akka://Workers/user/database");
 			if (VectorCats.class.isAssignableFrom(value.getClass())) {
-				SaveCats msg = new SaveCats(
-						currentWorkInfo.work.jobProgressId, key,
-						currentWorkInfo.work.outputResolution, (VectorCats) value);
+				SaveCats msg = new SaveCats(currentWorkInfo.work.jobProgressId,
+						key, currentWorkInfo.work.outputResolution,
+						(VectorCats) value);
 				database.tell(msg, getSelf());
 			} else {
-				log.debug("Ignorning unrecognised query result {}", value.getClass());
+				log.debug("Ignorning unrecognised query result {}",
+						value.getClass());
 			}
 		}
 	}
 
 	private void removeWork(String jobProgressId) {
-		Iterator<Entry<String, WorkInfo>> iter = workProgress.entrySet().iterator();
-		while(iter.hasNext()) {
+		Iterator<Entry<String, WorkInfo>> iter = workProgress.entrySet()
+				.iterator();
+		while (iter.hasNext()) {
 			Entry<String, WorkInfo> entry = iter.next();
 			if (entry.getValue().work.jobProgressId.equals(jobProgressId))
 				iter.remove();
 		}
 	}
-	
+
 	private void notifyWorkers() {
 		if (!pendingWork.isEmpty()) {
 			// could pick a few random instead of all
@@ -406,14 +413,13 @@ public class Master extends UntypedActor {
 			return "CleanupTick";
 		}
 	};
-	
+
 	private class WorkInfo {
 		public Work work;
 		public Object result;
 		public double processedArea;
 		public double area;
 
-		
 		public WorkInfo(Work work, Object result) {
 			this.work = work;
 			this.result = result;

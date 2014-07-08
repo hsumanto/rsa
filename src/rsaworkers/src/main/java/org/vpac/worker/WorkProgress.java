@@ -34,9 +34,9 @@ public class WorkProgress implements Progress, Serializable {
 	private int currentStep;
 	private long currentProgress;
 	private double fraction;
-	
+
 	private String workId;
-	
+
 	public String getWorkId() {
 		return workId;
 	}
@@ -62,7 +62,7 @@ public class WorkProgress implements Progress, Serializable {
 	@Override
 	public void addProcessedQuanta(long processedQuanta) {
 		totalProcessedQuanta += processedQuanta;
-		fraction = ((double)totalProcessedQuanta / (double)totalQuanta);
+		fraction = ((double) totalProcessedQuanta / (double) totalQuanta);
 	}
 
 	@Override
@@ -73,7 +73,7 @@ public class WorkProgress implements Progress, Serializable {
 	public void finished() {
 		this.currentProgress = 100;
 	}
-	
+
 	public void setErrorMessage(String message) {
 	}
 
@@ -81,4 +81,3 @@ public class WorkProgress implements Progress, Serializable {
 		return fraction;
 	}
 }
-

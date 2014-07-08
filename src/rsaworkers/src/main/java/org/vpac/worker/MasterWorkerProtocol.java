@@ -75,7 +75,7 @@ public abstract class MasterWorkerProtocol {
 			return instance;
 		}
 	}
-	
+
 	// Messages from Workers
 	public static final class ProgressCheckPoint implements Serializable {
 
@@ -87,10 +87,11 @@ public abstract class MasterWorkerProtocol {
 			this.workId = taskId;
 			this.progress = progress;
 		}
-		
+
 		@Override
 		public String toString() {
-			return "ProgressCheckPoint{" + "workId=" + workId + ",progress=" + progress + "}";
+			return "ProgressCheckPoint{" + "workId=" + workId + ",progress="
+					+ progress + "}";
 		}
 	}
 }
