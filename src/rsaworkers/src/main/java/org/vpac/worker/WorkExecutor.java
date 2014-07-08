@@ -81,6 +81,7 @@ public class WorkExecutor extends UntypedActor {
 			Work work = (Work) message;
 			WorkProgress wp = new WorkProgress(work.workId);
 			Collection<Path> tempFiles = new ArrayList<>();
+			// heart beat to master to check progress.
 			Cancellable cancel = getContext()
 					.system()
 					.scheduler()
@@ -182,6 +183,8 @@ public class WorkExecutor extends UntypedActor {
 			q.setMemento(qd, new File(".").getAbsolutePath());
 			try {
 				q.setProgress(wp);
+				// Memory leak point - Jin : when I comment out this there not much memory is used
+				// We should have a look inside of this method.
 				q.run();
 				output = q.getAccumulatedOutput();
 			} finally {

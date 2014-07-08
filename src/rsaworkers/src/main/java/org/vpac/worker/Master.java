@@ -1,7 +1,6 @@
 package org.vpac.worker;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -12,7 +11,6 @@ import java.util.Map.Entry;
 import java.util.Queue;
 import java.util.Set;
 
-import org.vpac.ndg.common.datamodel.CellSize;
 import org.vpac.ndg.common.datamodel.TaskState;
 import org.vpac.ndg.query.filter.Foldable;
 import org.vpac.ndg.query.math.VectorReal;
