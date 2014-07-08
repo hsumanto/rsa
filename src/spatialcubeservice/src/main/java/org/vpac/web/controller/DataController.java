@@ -639,96 +639,24 @@ public class DataController {
 */
 	
 	@RequestMapping(value = "/DQuery-test", method = RequestMethod.GET)
-	public String distributedQueryTest() throws IllegalAccessException, UnsupportedEncodingException {
+	public String distributedQueryTest() throws IllegalAccessException, IOException, QueryConfigurationException {
 		
-		String query = "<?xml version='1.0' encoding='UTF-8'?>" +
-		"<query xmlns='http://www.vpac.org/namespaces/rsaquery-0.2'>" +
-//	    "<input id='ep' href='epiphany:1064?AGELOWER=35'/>" +
-		    "<input id='ep' href='epiphany:1064?" + URLEncoder.encode("AGELOWER=1&AGEUPPER=111&GENDER=F&YEAR=2006&QUERY=Count&GEOMETRY=SA2%20Vic&VIEWMETHOD=Box%20Plot", "UTF-8")+ "'/>" +
-		    "<input id='dem' href='rsa:vic/25m'/>" +
-		    "<input id='cat' href='rsa:vic_region/25m'/>" +
-		    "<filter id='Maximise' cls='org.vpac.ndg.query.MaximiseForTime'>" +
-				"<sampler name='toKeep' ref='#dem/Band1' />" +
-				"<sampler name='toMaximise' ref='#dem/Band1' />" +
-				"<sampler name='intime' ref='#dem/time' />" +
-		    "</filter>" +
-		    "<filter id='Add' cls='org.vpac.ndg.query.AddBinary'>" +
-		        "<sampler name='inputA' ref='#ep/Band1' />" +
-		        "<sampler name='inputB' ref='#Maximise/output'></sampler>" +
-		    "</filter>" +
-		    "<filter id='MaximiseCat' cls='org.vpac.ndg.query.MaximiseForTime'>" +
-				"<sampler name='toKeep' ref='#cat/region' />" +
-				"<sampler name='toMaximise' ref='#cat/region' />" +
-				"<sampler name='intime' ref='#cat/time' />" +
-		    "</filter>" +
-		    "<filter id='Cats' cls='org.vpac.ndg.query.stats.Categories'>" +
-		        "<sampler name='input' ref='#Add/output' />" +
-		        "<sampler name='categories' ref='#MaximiseCat/output'><slice dimension='time' value='0'/></sampler>" +
-		    "</filter>" +
-		    "<output id='outfile'>" +
-		        "<grid ref='#dem' />" +
-		        "<variable name='Sum' ref='#Cats/output' />" +
-		    "</output>" +
-	    "</query>";
+		final QueryDefinition qd = QueryDefinition.fromXML(Thread
+				.currentThread().getContextClassLoader()
+				.getResourceAsStream("test.xml"));
+
+		String threads = "1";
+		Double minX = 2125500.0;
+		Double minY = 2250100.0;
+		Double maxX = 2960500.0;
+		Double maxY = 2825000.0;
+		String startDate = "";
+		String endDate = "";
+		String netcdfVersion = null;
+		ModelMap model = new ModelMap();
 		
-		QueryDefinition qd1 = QueryDefinition.fromString(query);
-		String baseRsaDatasetRef = qd1.output.grid.ref.replace("#", "");
-		String baseRsaDatasetName = "";
-		CellSize baseRsaDatasetResolution = null;		
-		
-		DatasetInputDefinition diGrid = null;
-		for (DatasetInputDefinition di : qd1.inputs) {
-			if (di.id.equals(baseRsaDatasetRef)) {
-				diGrid = di;
-				break;
-			}
-		}
-		
-		Box extent = null;
-		if(diGrid == null)
-			throw new IllegalArgumentException("No input reference of output grid");
-
-		if (diGrid.href.startsWith("rsa")) {
-			String[] baseRsaDataset = diGrid.href.replace("rsa:", "").split("/");
-			baseRsaDatasetName = baseRsaDataset[0];
-			baseRsaDatasetResolution = CellSize.fromHumanString(baseRsaDataset[1]);
-
-			String datasetId = datasetDao.findDatasetByName(baseRsaDatasetName, baseRsaDatasetResolution).getId();
-			List<TimeSlice> tsList = datasetDao.getTimeSlices(datasetId);
-			Dataset ds = datasetDao.retrieve(datasetId);
-			if(ds == null || tsList == null)
-				throw new IllegalAccessException("No dataset or timeslice");
-			
-			extent = timeSliceUtil.aggregateBounds(tsList);
-		} else if (diGrid.href.startsWith("epiphany")) {
-			baseRsaDatasetResolution = CellSize.m25;
-			extent = new Box(2125500.0, 2250100.0, 2960500.0, 2825000.0);
-		} else {
-			throw new IllegalArgumentException("Output grid reference should be rsa or epiphany");
-		}
-
-		List<Tile> tiles = tileManager.getTiles(extent, baseRsaDatasetResolution);
-
-		Version ver = Version.netcdf4_classic;
-		ActorRef frontend = ActorCreator.getFrontend();
-
-		JobProgress job = new JobProgress("Query (distributed)");
-		jobProgressDao.save(job);
-		
-		for(Tile t : tiles) {
-			Box bound = tileManager.getNngGrid().getBounds(t.getIndex(), baseRsaDatasetResolution);
-			bound.intersect(extent);
-			BoxReal bb = new BoxReal(2);
-			bb.getMin().setX(bound.getXMin());
-			bb.getMin().setY(bound.getYMin());
-			bb.getMax().setX(bound.getXMax());
-			bb.getMax().setY(bound.getYMax());
-			log.info("message" + bb);
-			frontend.tell(new org.vpac.worker.Job.Work(
-					UUID.randomUUID().toString(), qd1.toXML(), ver, bb,
-					job.getId(), baseRsaDatasetResolution), ActorRef.noSender());
-		}
-		return "Success";
+		return query(qd, threads, minX, minY, maxX, maxY, startDate, endDate,
+				netcdfVersion, model);
 	}
 
 	@RequestMapping(value = "/WmtsDatasetGenerate", method = RequestMethod.POST)
@@ -782,8 +710,8 @@ public class DataController {
 			@RequestParam(required = false) String netcdfVersion,
 			ModelMap model)
 			throws IOException, QueryConfigurationException, IllegalAccessException {
-		QueryDefinition qd1 = QueryDefinition.fromXML(file.getInputStream());
-		return query(qd1, threads, minX, minY, maxX, maxY, startDate, endDate,
+		QueryDefinition qd = QueryDefinition.fromXML(file.getInputStream());
+		return query(qd, threads, minX, minY, maxX, maxY, startDate, endDate,
 				netcdfVersion, model);
 	}
 
@@ -799,12 +727,12 @@ public class DataController {
 			@RequestParam(required = false) String netcdfVersion,
 			ModelMap model)
 			throws IOException, QueryConfigurationException, IllegalAccessException {
-		QueryDefinition qd1 = QueryDefinition.fromString(query);
-		return query(qd1, threads, minX, minY, maxX, maxY, startDate, endDate,
+		QueryDefinition qd = QueryDefinition.fromString(query);
+		return query(qd, threads, minX, minY, maxX, maxY, startDate, endDate,
 				netcdfVersion, model);
 	}
 
-	public String query(QueryDefinition qd1, String threads,
+	public String query(QueryDefinition qd, String threads,
 			Double minX, Double minY, Double maxX, Double maxY,
 			String startDate, String endDate, String netcdfVersion,
 			ModelMap model)
@@ -812,12 +740,12 @@ public class DataController {
 
 		Resolve resolve = new Resolve();
 
-		String baseRsaDatasetRef = resolve.decompose(qd1.output.grid.ref).getNodeId();
+		String baseRsaDatasetRef = resolve.decompose(qd.output.grid.ref).getNodeId();
 		String baseRsaDatasetName = "";
 		CellSize baseRsaDatasetResolution = null;		
 		
 		DatasetInputDefinition diGrid = null;
-		for (DatasetInputDefinition di : qd1.inputs) {
+		for (DatasetInputDefinition di : qd.inputs) {
 			if (di.id.equals(baseRsaDatasetRef)) {
 				diGrid = di;
 				break;
@@ -833,11 +761,13 @@ public class DataController {
 			baseRsaDatasetName = baseRsaDataset[0];
 			baseRsaDatasetResolution = CellSize.fromHumanString(baseRsaDataset[1]);
 
-			String datasetId = datasetDao.findDatasetByName(baseRsaDatasetName, baseRsaDatasetResolution).getId();
+			Dataset dataset = datasetDao.findDatasetByName(baseRsaDatasetName, baseRsaDatasetResolution);
+			if(dataset == null)
+				throw new IllegalAccessException("No dataset found");
+			String datasetId = dataset.getId();
 			List<TimeSlice> tsList = datasetDao.getTimeSlices(datasetId);
-			Dataset ds = datasetDao.retrieve(datasetId);
-			if(ds == null || tsList == null)
-				throw new IllegalAccessException("No dataset or timeslice");
+			if(tsList == null)
+				throw new IllegalAccessException("No timeslice on this dataset");
 			
 			extent = timeSliceUtil.aggregateBounds(tsList);
 		} else if (diGrid.href.startsWith("epiphany")) {
@@ -870,7 +800,7 @@ public class DataController {
 			bb.getMax().setY(bound.getYMax());
 			log.info("message" + bb);
 			frontend.tell(new org.vpac.worker.Job.Work(
-					UUID.randomUUID().toString(), qd1.toXML(), ver, bb,
+					UUID.randomUUID().toString(), qd.toXML(), ver, bb,
 					job.getId(), baseRsaDatasetResolution), ActorRef.noSender());
 		}
 		model.addAttribute(ControllerHelper.RESPONSE_ROOT, new QueryResponse(job.getId()));
