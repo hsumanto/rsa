@@ -64,6 +64,9 @@ public class TabularResponse <T> {
 		this.tableType = tableType;
 	}
 
+	/**
+	 * Data suitable for displaying as a bar chart. Each row has an ID.
+	 */
 	public static class TabularResponseCategorical extends TabularResponse<TableRow> {
 		public TabularResponseCategorical() {
 			setTableType("categories");
@@ -91,6 +94,10 @@ public class TabularResponse <T> {
 		}
 	}
 
+	/**
+	 * Data suitable for displaying as a histogram. Each row has a lower and
+	 * upper bound.
+	 */
 	public static class TabularResponseContinuous extends TabularResponse<TableRowRanged> {
 		public TabularResponseContinuous() {
 			setTableType("histogram");
@@ -107,6 +114,10 @@ public class TabularResponse <T> {
 		}
 	}
 
+	/**
+	 * @return A table of data, with each row representing a bucket in the
+	 * histograms of the Cats object.
+	 */
 	public static TabularResponse<?> tabulateIntrinsic(Cats cats,
 			List<Integer> categories, CellSize resolution, boolean categorical) {
 		cats = cats.filterExtrinsic(categories);
@@ -123,6 +134,10 @@ public class TabularResponse <T> {
 		}
 	}
 
+	/**
+	 * @return A table of data, with each row representing a category of the
+	 * provided Cats object.
+	 */
 	public static TabularResponse<?> tabulateExtrinsic(Cats cats,
 			List<Double> lower, List<Double> upper, List<Double> values,
 			CellSize resolution, boolean categorical) {
