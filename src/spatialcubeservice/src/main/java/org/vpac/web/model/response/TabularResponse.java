@@ -72,25 +72,47 @@ public class TabularResponse <T> {
 			setTableType("categories");
 		}
 
-		public void setRows(Cats cats, CellSize resolution) {
+		public void setRows(Cats cats, Cats unfilteredCats, CellSize resolution) {
 			double cellArea = resolution.toDouble() * resolution.toDouble();
 			List<TableRow> rows = new ArrayList<TableRow>();
 			for (Entry<Integer, Hist> entry : cats.getCategories().entrySet()) {
+				TableRow row = new TableRow();
+				row.setId(entry.getKey());
+
 				Hist hist = entry.getValue();
 				Stats s = hist.summarise();
-				rows.add(new TableRow(entry.getKey(), s.getCount() * cellArea));
+				row.setArea(s.getCount() * cellArea);
+
+				Hist unfilteredHist = unfilteredCats.get(entry.getKey());
+				if (unfilteredHist != null) {
+					s = unfilteredHist.summarise();
+					row.setRawArea(s.getCount() * cellArea);
+				}
+
+				rows.add(row);
 			}
 			setRows(rows);
 		}
 
-		public void setRows(Hist hist, CellSize resolution) {
+		public void setRows(Hist hist, Hist unfilteredHist, CellSize resolution) {
 			double cellArea = resolution.toDouble() * resolution.toDouble();
 			List<TableRow> rows = new ArrayList<TableRow>();
 			for (Bucket b : hist.getBuckets()) {
-				rows.add(new TableRow(b.getLower(),
-						b.getStats().getCount() * cellArea));
+				TableRow row = new TableRow();
+				row.setId(b.getLower());
+
+				Stats s = b.getStats();
+				row.setArea(s.getCount() * cellArea);
+
+				Bucket ub = unfilteredHist.getBucket(b.getLower());
+				if (ub != null) {
+					s = ub.getStats();
+					row.setRawArea(s.getCount() * cellArea);
+				}
+
+				rows.add(row);
 			}
-			this.setRows(rows);
+			setRows(rows);
 		}
 	}
 
@@ -103,12 +125,24 @@ public class TabularResponse <T> {
 			setTableType("histogram");
 		}
 
-		public void setRows(Hist hist, CellSize resolution) {
+		public void setRows(Hist hist, Hist unfilteredHist, CellSize resolution) {
 			double cellArea = resolution.toDouble() * resolution.toDouble();
 			List<TableRowRanged> rows = new ArrayList<TableRowRanged>();
 			for (Bucket b : hist.getBuckets()) {
-				rows.add(new TableRowRanged(b.getLower(), b.getUpper(),
-						b.getStats().getCount() * cellArea));
+				TableRowRanged row = new TableRowRanged();
+				row.setLower(b.getLower());
+				row.setUpper(b.getUpper());
+
+				Stats s = b.getStats();
+				row.setArea(s.getCount() * cellArea);
+
+				Bucket ub = unfilteredHist.getBucket(b.getLower());
+				if (ub != null) {
+					s = ub.getStats();
+					row.setRawArea(s.getCount() * cellArea);
+				}
+
+				rows.add(row);
 			}
 			this.setRows(rows);
 		}
@@ -120,16 +154,17 @@ public class TabularResponse <T> {
 	 */
 	public static TabularResponse<?> tabulateIntrinsic(Cats cats,
 			List<Integer> categories, CellSize resolution, boolean categorical) {
-		cats = cats.filterExtrinsic(categories);
-		Hist hist = cats.summarise();
+		Cats filteredCats = cats.filterExtrinsic(categories);
+		Hist filteredHist = filteredCats.summarise();
+		Hist unfilteredHist = cats.summarise();
 
 		if (categorical) {
 			TabularResponseCategorical table = new TabularResponseCategorical();
-			table.setRows(hist, resolution);
+			table.setRows(filteredHist, unfilteredHist, resolution);
 			return table;
 		} else {
 			TabularResponseContinuous table = new TabularResponseContinuous();
-			table.setRows(hist, resolution);
+			table.setRows(filteredHist, unfilteredHist, resolution);
 			return table;
 		}
 	}
@@ -141,14 +176,14 @@ public class TabularResponse <T> {
 	public static TabularResponse<?> tabulateExtrinsic(Cats cats,
 			List<Double> lower, List<Double> upper, List<Double> values,
 			CellSize resolution, boolean categorical) {
+		Cats filteredCats;
 		if (categorical)
-			cats = cats.filterIntrinsic(values);
+			filteredCats = cats.filterIntrinsic(values);
 		else
-			cats = cats.filterIntrinsic(lower, upper);
-		cats = cats.optimise();
+			filteredCats = cats.filterIntrinsic(lower, upper);
 
 		TabularResponseCategorical table = new TabularResponseCategorical();
-		table.setRows(cats, resolution);
+		table.setRows(filteredCats, cats, resolution);
 		return table;
 	}
 }

@@ -44,10 +44,45 @@ public class Hist implements Foldable<Hist>, Serializable {
 			return;
 
 		double v = value.doubleValue();
-		getBucket(v).getStats().update(value);
+		getOrCreateBucket(v).getStats().update(value);
 	}
 
-	private Bucket getBucket(double value) {
+	/**
+	 * @param value Some intrinsic value of the data contained in this
+	 *            histogram.
+	 * @return The bucket that the value can fit in.
+	 */
+	public Bucket getBucket(double value) {
+		if (mruBucket != null && mruBucket.canContain(value))
+			return mruBucket;
+
+		int i = -1;
+		for (int j = 0; j < buckets.size(); j++) {
+			Bucket b = buckets.get(j);
+			if (b.getLower() <= value)
+				i = j;
+			else
+				break;
+		}
+
+		Bucket b = null;
+		if (i < 0 || !buckets.get(i).canContain(value)) {
+			b = null;
+		} else {
+			b = buckets.get(i);
+		}
+		mruBucket = b;
+
+		return mruBucket;
+	}
+
+	/**
+	 * @param value Some intrinsic value of the data contained in this
+	 *            histogram.
+	 * @return The bucket that the value can fit in. If no such bucket currently
+	 *         exists, it will be created according to the bucketing strategy.
+	 */
+	public Bucket getOrCreateBucket(double value) {
 		if (mruBucket != null && mruBucket.canContain(value))
 			return mruBucket;
 
