@@ -8,6 +8,16 @@ public class TableRowRanged {
 	private double lower;
 	private double upper;
 	private double area;
+	private Double rawArea;
+
+	public TableRowRanged() {
+	}
+
+	public TableRowRanged(double lower, double upper, double area) {
+		this.lower = lower;
+		this.upper = upper;
+		this.area = area;
+	}
 
 	public double getLower() {
 		return lower;
@@ -36,12 +46,12 @@ public class TableRowRanged {
 		this.area = area;
 	}
 
-	public TableRowRanged() {
+	public Double getRawArea() {
+		return rawArea;
 	}
 
-	public TableRowRanged(double lower, double upper, double area) {
-		this.lower = lower;
-		this.upper = upper;
-		this.area = area;
+	@XmlAttribute
+	public void setRawArea(Double rawArea) {
+		this.rawArea = rawArea;
 	}
 }
