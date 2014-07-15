@@ -181,7 +181,6 @@ public class TabularResponse <T> {
 			filteredCats = cats.filterIntrinsic(values);
 		else
 			filteredCats = cats.filterIntrinsic(lower, upper);
-		filteredCats = filteredCats.optimise();
 
 		TabularResponseCategorical table = new TabularResponseCategorical();
 		table.setRows(filteredCats, cats, resolution);
