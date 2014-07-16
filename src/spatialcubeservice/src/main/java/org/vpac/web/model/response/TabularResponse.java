@@ -37,31 +37,41 @@ public class TabularResponse <T> {
 	private String tableType;
 	private String categorisation;
 	private List<T> table;
+	private List<TableColumn> columns;
 
 	public TabularResponse() {
 	}
 
+	@XmlAttribute
 	public String getCategorisation() {
 		return categorisation;
 	}
-	@XmlAttribute
 	public void setCategorisation(String categorisation) {
 		this.categorisation = categorisation;
 	}
+
+	@XmlAttribute
 	public List<T> getRows() {
 		return table;
 	}
-	@XmlAttribute
 	public void setRows(List<T> table) {
 		this.table = table;
 	}
 
+	@XmlAttribute
 	public String getTableType() {
 		return tableType;
 	}
-
 	public void setTableType(String tableType) {
 		this.tableType = tableType;
+	}
+
+	@XmlAttribute
+	public List<TableColumn> getColumns() {
+		return columns;
+	}
+	public void setColumns(List<TableColumn> columns) {
+		this.columns = columns;
 	}
 
 	/**
@@ -70,6 +80,12 @@ public class TabularResponse <T> {
 	public static class TabularResponseCategorical extends TabularResponse<TableRow> {
 		public TabularResponseCategorical() {
 			setTableType("categories");
+
+			List<TableColumn> columns = new ArrayList<TableColumn>();
+			columns.add(new TableColumn("id", "id", null, "category"));
+			columns.add(new TableColumn("area", "Area", "m^2", "area"));
+			columns.add(new TableColumn("fraction", "Filter", null, "fraction"));
+			setColumns(columns);
 		}
 
 		public void setRows(Cats cats, Cats unfilteredCats, CellSize resolution) {
@@ -81,12 +97,13 @@ public class TabularResponse <T> {
 
 				Hist hist = entry.getValue();
 				Stats s = hist.summarise();
-				row.setArea(s.getCount() * cellArea);
+				long count = s.getCount();
+				row.setArea(count * cellArea);
 
 				Hist unfilteredHist = unfilteredCats.get(entry.getKey());
 				if (unfilteredHist != null) {
 					s = unfilteredHist.summarise();
-					row.setRawArea(s.getCount() * cellArea);
+					row.setFraction((double)count / (double)s.getCount());
 				}
 
 				rows.add(row);
@@ -102,12 +119,13 @@ public class TabularResponse <T> {
 				row.setId(b.getLower());
 
 				Stats s = b.getStats();
-				row.setArea(s.getCount() * cellArea);
+				long count = s.getCount();
+				row.setArea(count * cellArea);
 
 				Bucket ub = unfilteredHist.getBucket(b.getLower());
 				if (ub != null) {
 					s = ub.getStats();
-					row.setRawArea(s.getCount() * cellArea);
+					row.setFraction((double)count / (double)s.getCount());
 				}
 
 				rows.add(row);
@@ -123,6 +141,13 @@ public class TabularResponse <T> {
 	public static class TabularResponseContinuous extends TabularResponse<TableRowRanged> {
 		public TabularResponseContinuous() {
 			setTableType("histogram");
+
+			List<TableColumn> columns = new ArrayList<TableColumn>();
+			columns.add(new TableColumn("lower", "Lower Bound", null, "length"));
+			columns.add(new TableColumn("upper", "Upper Bound", null, "length"));
+			columns.add(new TableColumn("area", "Area", "m^2", "area"));
+			columns.add(new TableColumn("fraction", "Filter", null, "fraction"));
+			setColumns(columns);
 		}
 
 		public void setRows(Hist hist, Hist unfilteredHist, CellSize resolution) {
@@ -134,12 +159,13 @@ public class TabularResponse <T> {
 				row.setUpper(b.getUpper());
 
 				Stats s = b.getStats();
-				row.setArea(s.getCount() * cellArea);
+				long count = s.getCount();
+				row.setArea(count * cellArea);
 
 				Bucket ub = unfilteredHist.getBucket(b.getLower());
 				if (ub != null) {
 					s = ub.getStats();
-					row.setRawArea(s.getCount() * cellArea);
+					row.setFraction((double)count / (double)s.getCount());
 				}
 
 				rows.add(row);

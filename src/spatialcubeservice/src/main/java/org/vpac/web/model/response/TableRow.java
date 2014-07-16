@@ -7,7 +7,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 public class TableRow {
 	private double id;
 	private double area;
-	private Double rawArea;
+	private Double fraction;
 
 	public TableRow() {
 	}
@@ -35,11 +35,11 @@ public class TableRow {
 		this.area = area;
 	}
 
-	public Double getRawArea() {
-		return rawArea;
+	public Double getFraction() {
+		return fraction;
 	}
 
-	public void setRawArea(Double rawArea) {
-		this.rawArea = rawArea;
+	public void setFraction(Double fraction) {
+		this.fraction = fraction;
 	}
 }
