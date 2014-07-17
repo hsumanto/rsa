@@ -82,9 +82,13 @@ public class TabularResponse <T> {
 			setTableType("categories");
 
 			List<TableColumn> columns = new ArrayList<TableColumn>();
-			columns.add(new TableColumn("id", "id", null, "category"));
-			columns.add(new TableColumn("area", "Area", "m^2", "area"));
-			columns.add(new TableColumn("fraction", "Filter", null, "fraction"));
+			columns.add(new TableColumn()
+					.key("id").name("Category").type("category"));
+			columns.add(new TableColumn()
+					.key("area").name("Area").units("m^2").type("area")
+					.portionOf("rawArea"));
+			columns.add(new TableColumn().key("rawArea")
+					.name("Unfiltered Area").units("m^2").type("area"));
 			setColumns(columns);
 		}
 
@@ -97,13 +101,12 @@ public class TabularResponse <T> {
 
 				Hist hist = entry.getValue();
 				Stats s = hist.summarise();
-				long count = s.getCount();
-				row.setArea(count * cellArea);
+				row.setArea(s.getCount() * cellArea);
 
 				Hist unfilteredHist = unfilteredCats.get(entry.getKey());
 				if (unfilteredHist != null) {
 					s = unfilteredHist.summarise();
-					row.setFraction((double)count / (double)s.getCount());
+					row.setRawArea(s.getCount() * cellArea);
 				}
 
 				rows.add(row);
@@ -119,13 +122,12 @@ public class TabularResponse <T> {
 				row.setId(b.getLower());
 
 				Stats s = b.getStats();
-				long count = s.getCount();
-				row.setArea(count * cellArea);
+				row.setArea(s.getCount() * cellArea);
 
 				Bucket ub = unfilteredHist.getBucket(b.getLower());
 				if (ub != null) {
 					s = ub.getStats();
-					row.setFraction((double)count / (double)s.getCount());
+					row.setRawArea(s.getCount() * cellArea);
 				}
 
 				rows.add(row);
@@ -143,10 +145,16 @@ public class TabularResponse <T> {
 			setTableType("histogram");
 
 			List<TableColumn> columns = new ArrayList<TableColumn>();
-			columns.add(new TableColumn("lower", "Lower Bound", null, "length"));
-			columns.add(new TableColumn("upper", "Upper Bound", null, "length"));
-			columns.add(new TableColumn("area", "Area", "m^2", "area"));
-			columns.add(new TableColumn("fraction", "Filter", null, "fraction"));
+			columns.add(new TableColumn()
+					.key("lower").name("Lower Bound").type("length"));
+			columns.add(new TableColumn()
+					.key("upper").name("Upper Bound").type("length"));
+			columns.add(new TableColumn()
+					.key("area").name("Area").units("m^2").type("area")
+					.portionOf("rawArea"));
+			columns.add(new TableColumn()
+					.key("rawArea").name("Unfiltered Area").units("m^2")
+					.type("area"));
 			setColumns(columns);
 		}
 
@@ -159,13 +167,12 @@ public class TabularResponse <T> {
 				row.setUpper(b.getUpper());
 
 				Stats s = b.getStats();
-				long count = s.getCount();
-				row.setArea(count * cellArea);
+				row.setArea(s.getCount() * cellArea);
 
 				Bucket ub = unfilteredHist.getBucket(b.getLower());
 				if (ub != null) {
 					s = ub.getStats();
-					row.setFraction((double)count / (double)s.getCount());
+					row.setRawArea(s.getCount() * cellArea);
 				}
 
 				rows.add(row);

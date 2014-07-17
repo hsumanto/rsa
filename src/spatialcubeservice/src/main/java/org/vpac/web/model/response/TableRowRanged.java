@@ -8,7 +8,7 @@ public class TableRowRanged {
 	private double lower;
 	private double upper;
 	private double area;
-	private Double fraction;
+	private Double rawArea;
 
 	public TableRowRanged() {
 	}
@@ -46,12 +46,12 @@ public class TableRowRanged {
 		this.area = area;
 	}
 
-	public Double getFraction() {
-		return fraction;
+	public Double getRawArea() {
+		return rawArea;
 	}
 
 	@XmlAttribute
-	public void setFraction(Double fraction) {
-		this.fraction = fraction;
+	public void setRawArea(Double rawArea) {
+		this.rawArea = rawArea;
 	}
 }
