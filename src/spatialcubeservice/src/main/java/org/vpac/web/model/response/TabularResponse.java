@@ -146,9 +146,9 @@ public class TabularResponse <T> {
 
 			List<TableColumn> columns = new ArrayList<TableColumn>();
 			columns.add(new TableColumn()
-					.key("lower").name("Lower Bound").type("length"));
+					.key("lower").name("Lower Bound").type("lowerBound"));
 			columns.add(new TableColumn()
-					.key("upper").name("Upper Bound").type("length"));
+					.key("upper").name("Upper Bound").type("upperBound"));
 			columns.add(new TableColumn()
 					.key("area").name("Area").units("m^2").type("area")
 					.portionOf("rawArea"));
