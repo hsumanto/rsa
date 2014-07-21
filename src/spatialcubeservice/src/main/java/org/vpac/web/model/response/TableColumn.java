@@ -7,6 +7,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 public class TableColumn {
 	private String key;
 	private String name;
+	private String description;
 	private String units;
 	private String type;
 	private String portionOf;
@@ -35,6 +36,18 @@ public class TableColumn {
 	}
 	public TableColumn name(String name) {
 		this.name = name;
+		return this;
+	}
+
+	@XmlAttribute
+	public String getDescription() {
+		return description;
+	}
+	public void setDescription(String description) {
+		this.description = description;
+	}
+	public TableColumn description(String description) {
+		this.description = description;
 		return this;
 	}
 

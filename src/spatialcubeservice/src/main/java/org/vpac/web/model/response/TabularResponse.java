@@ -83,12 +83,15 @@ public class TabularResponse <T> {
 
 			List<TableColumn> columns = new ArrayList<TableColumn>();
 			columns.add(new TableColumn()
-					.key("id").name("Category").type("category"));
+					.key("id").name("Category").type("category")
+					.description("The category of the data in this row."));
 			columns.add(new TableColumn()
 					.key("area").name("Area").units("m^2").type("area")
-					.portionOf("rawArea"));
+					.portionOf("rawArea")
+					.description("The area of land in this category that matches the filters."));
 			columns.add(new TableColumn().key("rawArea")
-					.name("Unfiltered Area").units("m^2").type("area"));
+					.name("Unfiltered Area").units("m^2").type("area")
+					.description("The area of land that is in this category."));
 			setColumns(columns);
 		}
 
@@ -146,15 +149,19 @@ public class TabularResponse <T> {
 
 			List<TableColumn> columns = new ArrayList<TableColumn>();
 			columns.add(new TableColumn()
-					.key("lower").name("Lower Bound").type("lowerBound"));
+					.key("lower").name("Lower Bound").type("lowerBound")
+					.description("The lower bound of the values in this row."));
 			columns.add(new TableColumn()
-					.key("upper").name("Upper Bound").type("upperBound"));
+					.key("upper").name("Upper Bound").type("upperBound")
+					.description("The upper bound of the values in this row."));
 			columns.add(new TableColumn()
 					.key("area").name("Area").units("m^2").type("area")
-					.portionOf("rawArea"));
+					.portionOf("rawArea")
+					.description("The area of land in this category that matches the filters."));
 			columns.add(new TableColumn()
 					.key("rawArea").name("Unfiltered Area").units("m^2")
-					.type("area"));
+					.type("area")
+					.description("The area of land that is in this category."));
 			setColumns(columns);
 		}
 
