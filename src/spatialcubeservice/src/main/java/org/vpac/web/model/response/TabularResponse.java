@@ -84,14 +84,14 @@ public class TabularResponse <T> {
 			List<TableColumn> columns = new ArrayList<TableColumn>();
 			columns.add(new TableColumn()
 					.key("id").name("Category").type("category")
-					.description("The category of the data in this row."));
+					.description("The category of the data."));
 			columns.add(new TableColumn()
 					.key("area").name("Area").units("m^2").type("area")
 					.portionOf("rawArea")
-					.description("The area of land in this category that matches the filters."));
+					.description("The area of land that matches the filters."));
 			columns.add(new TableColumn().key("rawArea")
 					.name("Unfiltered Area").units("m^2").type("area")
-					.description("The area of land that is in this category."));
+					.description("The area of available land."));
 			setColumns(columns);
 		}
 
@@ -150,18 +150,18 @@ public class TabularResponse <T> {
 			List<TableColumn> columns = new ArrayList<TableColumn>();
 			columns.add(new TableColumn()
 					.key("lower").name("Lower Bound").type("lowerBound")
-					.description("The lower bound of the values in this row."));
+					.description("The lower bound of the grouping (value range)."));
 			columns.add(new TableColumn()
 					.key("upper").name("Upper Bound").type("upperBound")
-					.description("The upper bound of the values in this row."));
+					.description("The upper bound of the grouping (value range)."));
 			columns.add(new TableColumn()
 					.key("area").name("Area").units("m^2").type("area")
 					.portionOf("rawArea")
-					.description("The area of land in this category that matches the filters."));
+					.description("The area of land that matches the filters."));
 			columns.add(new TableColumn()
 					.key("rawArea").name("Unfiltered Area").units("m^2")
 					.type("area")
-					.description("The area of land that is in this category."));
+					.description("The area of available land."));
 			setColumns(columns);
 		}
 
