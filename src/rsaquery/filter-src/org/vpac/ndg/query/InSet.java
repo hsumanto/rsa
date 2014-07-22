@@ -25,7 +25,7 @@ import org.vpac.ndg.query.math.BoxReal;
 
 @Description(name = "In Set", description = "Generates a mask of pixels that are contained in a set.")
 @InheritDimensions(from = "input")
-public class InSet extends InRange {
+public class InSet extends In {
 
 	// Comma-separated list of IDs.
 	public String ids;
