@@ -81,7 +81,7 @@ public class GroupImpl implements HasRank, HasDimensions, HasBounds {
 			source = (PixelSource) field.get(filter);
 		} catch (IllegalAccessException e) {
 			throw new QueryConfigurationException(String.format(
-					"Could not access reduction field %s.",
+					"Could not access field %s.",
 					d.memberStr(field)), e);
 		}
 		if (source == null) {

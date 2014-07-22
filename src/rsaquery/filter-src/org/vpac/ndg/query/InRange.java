@@ -19,101 +19,23 @@
 
 package org.vpac.ndg.query;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.vpac.ndg.query.QueryConfigurationException;
-import org.vpac.ndg.query.filter.CellType;
 import org.vpac.ndg.query.filter.Description;
-import org.vpac.ndg.query.filter.Filter;
 import org.vpac.ndg.query.filter.InheritDimensions;
 import org.vpac.ndg.query.math.BoxReal;
-import org.vpac.ndg.query.math.ElementByte;
-import org.vpac.ndg.query.math.ScalarElement;
-import org.vpac.ndg.query.math.VectorReal;
-import org.vpac.ndg.query.sampling.CellScalar;
-import org.vpac.ndg.query.sampling.PixelSourceScalar;
 
 @Description(name = "In Range", description = "Generates a mask of pixels that are within a set of ranges.")
 @InheritDimensions(from = "input")
-public class InRange implements Filter {
-
-	// Input fields.
-	public PixelSourceScalar input;
+public class InRange extends In {
 
 	// Comma-separated list of lower bounds. Parallel array with `upper`.
 	public String lower;
 	// Comma-separated list of upper bounds. Parallel array with `lower`.
 	public String upper;
 
-	// Output fields.
-	@CellType("byte")
-	public CellScalar output;
-
-	List<Double> lowerBounds;
-	List<Double> upperBounds;
-	public double EPSILON = 0.00001;
-	ScalarElement match = new ElementByte((byte) 1);
-	ScalarElement fail = new ElementByte((byte) 0);
-
 	@Override
 	public void initialise(BoxReal bounds) throws QueryConfigurationException {
 		String[] lbs = lower.split(",");
 		String[] ubs = upper.split(",");
 		setBounds(lbs, ubs);
-	}
-
-	protected void setBounds(String[] lbs, String[] ubs)
-			throws QueryConfigurationException {
-
-		if (lbs.length != ubs.length) {
-			throw new QueryConfigurationException("Literal inputs 'lower' and"
-					+ " 'upper' are parallel arrays and must have the same"
-					+ " number of elements.");
-		}
-
-		try {
-			lowerBounds = new ArrayList<Double>(lbs.length);
-			for (String lb : lbs) {
-				// Shift value a little bit to account for loss of numerical
-				// precision.
-				double v = Double.parseDouble(lb);
-				double epsilon;
-				if (v > 0)
-					epsilon = EPSILON;
-				else
-					epsilon = -EPSILON;
-				v -= v * epsilon;
-				lowerBounds.add(v);
-			}
-			upperBounds = new ArrayList<Double>(ubs.length);
-			for (String ub : ubs) {
-				double v = Double.parseDouble(ub);
-				double epsilon;
-				if (v > 0)
-					epsilon = EPSILON;
-				else
-					epsilon = -EPSILON;
-				v += v * epsilon;
-				upperBounds.add(v);
-			}
-		} catch (NumberFormatException e) {
-			throw new QueryConfigurationException("Failed to parse bounds.", e);
-		}
-	}
-
-	@Override
-	public void kernel(VectorReal coords) throws IOException {
-		ScalarElement elem = input.getScalarPixel(coords);
-		for (int i = 0; i < lowerBounds.size(); i++) {
-			double lb = lowerBounds.get(i);
-			double ub = upperBounds.get(i);
-			if (elem.compareTo(lb) >= 0 && elem.compareTo(ub) <= 0) {
-				output.set(match);
-				return;
-			}
-		}
-		output.set(fail);
 	}
 }

@@ -59,6 +59,8 @@ public class FilterUtils {
 					.replace("/", ".");
 			Reflections reflections = new Reflections(pack);
 			for (Class<? extends Filter> clazz : reflections.getSubTypesOf(Filter.class)) {
+				if (Modifier.isAbstract(clazz.getModifiers()))
+					continue;
 				filters.put(clazz.getName(), clazz);
 			}
 		}
