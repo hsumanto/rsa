@@ -199,7 +199,6 @@ public class Master extends UntypedActor {
 					.entrySet().iterator();
 			while (iterator.hasNext()) {
 				Map.Entry<String, WorkerState> entry = iterator.next();
-				String workerId = entry.getKey();
 				WorkerState state = entry.getValue();
 				if (state.status.isBusy()) {
 					if (state.status.getDeadLine().isOverdue()) {
@@ -227,12 +226,11 @@ public class Master extends UntypedActor {
 	}
 
 	private List<WorkInfo> getAllTaskWork(String taskId) {
-		List<WorkInfo> list = new ArrayList();
+		List<WorkInfo> list = new ArrayList<>();
 		for (WorkInfo wi : workProgress.values()) {
 			if (wi.work.jobProgressId.equals(taskId))
 				list.add(wi);
 		}
-		System.out.println("count:" + list.size());
 		return list;
 	}
 
