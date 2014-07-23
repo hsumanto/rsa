@@ -50,6 +50,7 @@ public class CategoriesTest extends TestCase {
 		ElementInt value = new ElementInt();
 
 		Cats cats = new Cats();
+		cats.setBucketingStrategy(new BucketingStrategyLog());
 		for (Pair<Integer, Integer> p : permutations) {
 			category.set(p.a);
 			value.set(p.a * p.b);
@@ -85,6 +86,7 @@ public class CategoriesTest extends TestCase {
 		int nperms = permutations.size();
 
 		Cats cats = new Cats();
+		cats.setBucketingStrategy(new BucketingStrategyLog());
 		for (int i = 0; i < NUM_ELEMENTS; i++) {
 			Pair<Integer, Integer> p = permutations.get(i % nperms);
 			category.set(p.a);

@@ -181,7 +181,11 @@ public class HistogramTest extends TestCase {
 	public void test_population() throws Exception {
 		List<Integer> permutations = MockData.permute(DIE_1_SIDES, DIE_2_SIDES);
 
+		String descriptor = String.format("log?base=%g&n=%g&scale=%g",
+				BASE, BUCKETS_PER_ORDER_OF_MAGNITUDE, SCALE);
+		BucketingStrategy bs = new BucketingStrategyFactory().create(descriptor);
 		Hist hist = new Hist();
+		hist.setBucketingStrategy(bs);
 		for (ElementInt value : ListTranslator.ints(permutations)) {
 			hist.update(value);
 		}
@@ -233,7 +237,10 @@ public class HistogramTest extends TestCase {
 		double sdev = MockData.stddev(permutations);
 		log.info("Middle (i=1) baseline mean: {}, StdDev: {}", m, sdev);
 
-		VectorHist stats = foldVStatsRecursively(inputs);
+		String descriptor = String.format("log?base=%g&n=%g&scale=%g",
+				BASE, BUCKETS_PER_ORDER_OF_MAGNITUDE, SCALE);
+		BucketingStrategy bs = new BucketingStrategyFactory().create(descriptor);
+		VectorHist stats = foldVStatsRecursively(inputs, bs);
 		log.info("Histogram: {}", stats);
 
 		int numLessThanTen = 0;
@@ -261,19 +268,22 @@ public class HistogramTest extends TestCase {
 		assertEquals("Elements in first bucket of third component", 1, s.getCount());
 	}
 
-	private VectorHist foldVStatsRecursively(List<VectorElement> inputs) {
+	private VectorHist foldVStatsRecursively(List<VectorElement> inputs,
+			BucketingStrategy bs) {
 		if (inputs.size() <= 20)
-			return calculateVStatsIteratively(inputs);
+			return calculateVStatsIteratively(inputs, bs);
 
 		VectorHist left = foldVStatsRecursively(inputs.subList(
-				0, inputs.size() / 2));
+				0, inputs.size() / 2), bs);
 		VectorHist right = foldVStatsRecursively(inputs.subList(
-				inputs.size() / 2, inputs.size()));
+				inputs.size() / 2, inputs.size()), bs);
 		return left.fold(right);
 	}
 
-	private VectorHist calculateVStatsIteratively(List<VectorElement> inputs) {
+	private VectorHist calculateVStatsIteratively(List<VectorElement> inputs,
+			BucketingStrategy bs) {
 		VectorHist hist = new VectorHist(inputs.get(0).size());
+		hist.setBucketingStrategy(bs);
 		for (VectorElement value : inputs) {
 			hist.update(value);
 		}
