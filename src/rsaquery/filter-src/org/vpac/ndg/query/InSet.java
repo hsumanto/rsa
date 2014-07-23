@@ -31,7 +31,7 @@ public class InSet extends In {
 	public String ids;
 
 	@Override
-	public void initialise(BoxReal bounds) throws QueryConfigurationException {
+	public void initialise(BoxReal bounds) throws QueryException {
 		String[] keys = ids.split(",");
 		setBounds(keys, keys);
 	}

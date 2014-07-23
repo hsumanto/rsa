@@ -46,10 +46,10 @@ public abstract class In implements Filter {
 	private ScalarElement fail = new ElementByte((byte) 0);
 
 	protected void setBounds(String[] lbs, String[] ubs)
-			throws QueryConfigurationException {
+			throws QueryException {
 
 		if (lbs.length != ubs.length) {
-			throw new QueryConfigurationException("Literal inputs 'lower' and"
+			throw new QueryBindingException("Literal inputs 'lower' and"
 					+ " 'upper' are parallel arrays and must have the same"
 					+ " number of elements.");
 		}
@@ -80,7 +80,7 @@ public abstract class In implements Filter {
 				upperBounds.add(v);
 			}
 		} catch (NumberFormatException e) {
-			throw new QueryConfigurationException("Failed to parse bounds.", e);
+			throw new QueryBindingException("Failed to parse bounds.", e);
 		}
 	}
 

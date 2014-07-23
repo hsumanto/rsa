@@ -50,7 +50,7 @@ public class AddMultiple implements Filter {
 	private ScalarElement total;
 	
 	@Override
-	public void initialise(BoxReal bounds) throws QueryConfigurationException {
+	public void initialise(BoxReal bounds) throws QueryException {
 		total = (ScalarElement) output.getPrototype().getElement().copy();
 	}
 

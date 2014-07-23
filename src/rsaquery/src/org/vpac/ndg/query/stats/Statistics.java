@@ -20,7 +20,7 @@ package org.vpac.ndg.query.stats;
 
 import java.io.IOException;
 
-import org.vpac.ndg.query.QueryConfigurationException;
+import org.vpac.ndg.query.QueryException;
 import org.vpac.ndg.query.filter.Accumulator;
 import org.vpac.ndg.query.filter.CellType;
 import org.vpac.ndg.query.filter.Description;
@@ -49,7 +49,7 @@ public class Statistics implements Filter, Accumulator<VectorStats> {
 	private VectorStats stats;
 
 	@Override
-	public void initialise(BoxReal bounds) throws QueryConfigurationException {
+	public void initialise(BoxReal bounds) throws QueryException {
 		stats = new VectorStats(input.getPrototype().getElement().size());
 	}
 

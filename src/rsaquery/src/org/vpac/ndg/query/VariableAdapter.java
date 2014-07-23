@@ -75,7 +75,7 @@ public class VariableAdapter implements HasShape, HasRank, HasPrototype {
 	WarpFactory warpFactory;
 
 	public VariableAdapter(Variable variable, String name, DatasetMeta owner)
-			throws QueryConfigurationException {
+			throws QueryException {
 
 		log.debug("Wrapping variable #{}.{}", owner.getName(), variable.getFullName());
 
@@ -110,7 +110,7 @@ public class VariableAdapter implements HasShape, HasRank, HasPrototype {
 	}
 
 	public AttributeDefinition[] getAttributeMementos()
-			throws QueryConfigurationException {
+			throws QueryException {
 		List<Attribute> attributes = this.variable.getAttributes();
 		List<AttributeDefinition> ads = new ArrayList<AttributeDefinition>();
 		for (Attribute attr : attributes)
@@ -124,7 +124,7 @@ public class VariableAdapter implements HasShape, HasRank, HasPrototype {
 	 * "serialise" an attribute so that it can be constructed again later.
 	 */
 	private AttributeDefinition attributeToMemento(Attribute ain)
-			throws QueryConfigurationException {
+			throws QueryException {
 		AttributeDefinition ad = new AttributeDefinition();
 		ad.name = ain.getFullName();
 		ad._type = ain.getDataType();
@@ -155,7 +155,7 @@ public class VariableAdapter implements HasShape, HasRank, HasPrototype {
 	}
 
 	public BoxReal calculateBounds(QueryCoordinateSystem context)
-			throws QueryConfigurationException {
+			throws QueryException {
 		Warp warp = createWarpTo(context);
 		VectorReal start = VectorReal.createEmpty(getRank());
 		VectorReal end = getShape().toReal();
@@ -166,17 +166,17 @@ public class VariableAdapter implements HasShape, HasRank, HasPrototype {
 	}
 
 	public Warp createWarpTo(QueryCoordinateSystem context) throws
-			QueryConfigurationException {
+			QueryException {
 		return createWarp(context, true);
 	}
 
 	public Warp createWarpFrom(QueryCoordinateSystem context) throws
-			QueryConfigurationException {
+			QueryException {
 		return createWarp(context, false);
 	}
 
 	private Warp createWarp(QueryCoordinateSystem context, boolean invert)
-			throws QueryConfigurationException {
+			throws QueryException {
 
 		List<String> dimensions = Arrays.asList(
 				variable.getDimensionsString().split(" "));
@@ -238,7 +238,7 @@ public class VariableAdapter implements HasShape, HasRank, HasPrototype {
 	}
 
 	public VariableAdapter slice(int dim, int value)
-			throws InvalidRangeException, QueryConfigurationException {
+			throws InvalidRangeException, QueryException {
 		return new VariableAdapter(variable.slice(dim, value), name, owner);
 	}
 

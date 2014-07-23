@@ -24,7 +24,7 @@ import java.io.IOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.vpac.ndg.query.Diagnostics;
-import org.vpac.ndg.query.QueryConfigurationException;
+import org.vpac.ndg.query.QueryException;
 import org.vpac.ndg.query.VariableAdapter;
 import org.vpac.ndg.query.coordinates.QueryCoordinateSystem;
 import org.vpac.ndg.query.coordinates.Warp;
@@ -62,7 +62,7 @@ public class SamplerScalar implements PixelSourceScalar, Diagnostics {
 
 
 	public SamplerScalar(VariableAdapter band, QueryCoordinateSystem context)
-			throws QueryConfigurationException {
+			throws QueryException {
 		name = band.getName();
 		pageCache = band.getPageCache();
 		warp = new WarpIdentity();

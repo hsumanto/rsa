@@ -21,7 +21,8 @@
 
 package org.vpac.ndg.query.sampling;
 
-import org.vpac.ndg.query.QueryConfigurationException;
+import org.vpac.ndg.query.QueryBindingException;
+import org.vpac.ndg.query.QueryException;
 import org.vpac.ndg.query.math.ElementByte;
 import org.vpac.ndg.query.math.ElementDouble;
 import org.vpac.ndg.query.math.ElementFloat;
@@ -61,11 +62,11 @@ public abstract class ArrayAdapterImpl implements ArrayAdapter {
 	 *        array is unsigned.
 	 * @param nodataStrategy The strategy to use to identify nodata values.
 	 * @return The new adapter.
-	 * @throws QueryConfigurationException If the adapter could not be created,
+	 * @throws QueryException If the adapter could not be created,
 	 *         e.g if the data type has no matching adapter implementation.
 	 */
 	public static ArrayAdapter createAndPromote(Array array, DataType type,
-			NodataStrategy nodataStrategy) throws QueryConfigurationException {
+			NodataStrategy nodataStrategy) throws QueryException {
 
 		// Promote type if unsigned.
 		Class<? extends ArrayAdapter> aproto = findClass(type, array.isUnsigned());
@@ -77,10 +78,10 @@ public abstract class ArrayAdapterImpl implements ArrayAdapter {
 		} catch (RuntimeException e) {
 			throw e;
 		} catch (Exception e) {
-			if (QueryConfigurationException.class.isAssignableFrom(e.getCause().getClass()))
-				throw (QueryConfigurationException) e;
+			if (QueryException.class.isAssignableFrom(e.getCause().getClass()))
+				throw (QueryException) e;
 			else
-				throw new QueryConfigurationException(String.format(
+				throw new QueryBindingException(String.format(
 						"Could not create array adapter: %s", e.getMessage()),
 						e);
 		}
@@ -90,11 +91,11 @@ public abstract class ArrayAdapterImpl implements ArrayAdapter {
 	 * Create a new array adapter with no backing array. The backing array will
 	 * be created when resize() is called.
 	 * 
-	 * @throws QueryConfigurationException If the adapter could not be created,
+	 * @throws QueryException If the adapter could not be created,
 	 *         e.g if the data type has no matching adapter implementation.
 	 */
 	public static ArrayAdapter create(DataType type,
-			NodataStrategy nodataStrategy) throws QueryConfigurationException {
+			NodataStrategy nodataStrategy) throws QueryException {
 
 		Class<? extends ArrayAdapter> aproto = findClass(type, false);
 
@@ -105,17 +106,17 @@ public abstract class ArrayAdapterImpl implements ArrayAdapter {
 		} catch (RuntimeException e) {
 			throw e;
 		} catch (Exception e) {
-			if (QueryConfigurationException.class.isAssignableFrom(e.getCause().getClass()))
-				throw (QueryConfigurationException) e;
+			if (QueryException.class.isAssignableFrom(e.getCause().getClass()))
+				throw (QueryException) e;
 			else
-				throw new QueryConfigurationException(String.format(
+				throw new QueryBindingException(String.format(
 						"Could not create array adapter: %s", e.getMessage()),
 						e);
 		}
 	}
 
 	public static Class<? extends ArrayAdapter> findClass(DataType type,
-			boolean promote) throws QueryConfigurationException {
+			boolean promote) throws QueryException {
 
 		// TODO: Add boolean array adaptor. This will be a special case
 		// because arithmetic doesn't make much sense on booleans, so
@@ -137,7 +138,7 @@ public abstract class ArrayAdapterImpl implements ArrayAdapter {
 			case DOUBLE:
 				return ArrayAdapterDouble.class;
 			default:
-				throw new QueryConfigurationException(String.format(
+				throw new QueryBindingException(String.format(
 						"No promoted element type matches %s.", type));
 			}
 		} else {
@@ -157,7 +158,7 @@ public abstract class ArrayAdapterImpl implements ArrayAdapter {
 			case DOUBLE:
 				return ArrayAdapterDouble.class;
 			default:
-				throw new QueryConfigurationException(String.format(
+				throw new QueryBindingException(String.format(
 						"No element type matches %s.", type));
 			}
 		}

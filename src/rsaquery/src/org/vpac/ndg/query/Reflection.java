@@ -13,11 +13,11 @@ public class Reflection {
 	 * @param owner The object that owns the field.
 	 * @param name The name of the field.
 	 * @param value The value to set it to.
-	 * @throws QueryConfigurationException If the field could not be accessed,
+	 * @throws QueryException If the field could not be accessed,
 	 *             or if the value could not be converted.
 	 */
 	public static void setSimpleField(Object owner, String name, String value)
-			throws QueryConfigurationException {
+			throws QueryException {
 
 		try {
 			String setterName = String.format("set%s%s",
@@ -52,14 +52,14 @@ public class Reflection {
 			field.set(owner, parsedValue);
 			return;
 		} catch (ReflectiveOperationException e) {
-			throw new QueryConfigurationException(String.format(
+			throw new QueryBindingException(String.format(
 					"Field %s.%s can not be assigned, and setter could not"
 							+ " be called.", owner.getClass().getName(), name), e);
 		}
 	}
 
 	private static Object parse(Object owner, String name, String value,
-			Class<?> type) throws QueryConfigurationException {
+			Class<?> type) throws QueryException {
 		Object parsedValue = null;
 		try {
 			if (type == Boolean.TYPE || type.isAssignableFrom(Boolean.class))
@@ -77,7 +77,7 @@ public class Reflection {
 			else if (type == Double.TYPE || type.isAssignableFrom(Double.class))
 				parsedValue = Double.parseDouble(value);
 		} catch (NumberFormatException e) {
-			throw new QueryConfigurationException(String.format(
+			throw new QueryBindingException(String.format(
 					"Type mismatch: field %s.%s should be a %s.",
 					owner.getClass().getName(), name, type.getName()), e);
 		}
@@ -86,7 +86,7 @@ public class Reflection {
 			parsedValue = value;
 
 		if (parsedValue == null) {
-			throw new QueryConfigurationException(String.format(
+			throw new QueryBindingException(String.format(
 					"Can't assign field %s.%s: no known conversion to type %s.",
 					owner.getClass().getName(), name, type.getName()));
 		}

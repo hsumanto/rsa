@@ -23,7 +23,7 @@ import java.io.IOException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vpac.ndg.query.QueryConfigurationException;
+import org.vpac.ndg.query.QueryException;
 import org.vpac.ndg.query.VariableAdapter;
 import org.vpac.ndg.query.coordinates.HasShape;
 import org.vpac.ndg.query.math.BoxInt;
@@ -145,7 +145,7 @@ public class Page implements HasShape {
 
 		} catch (InvalidRangeException e) {
 			throw new IOException("Could not read array: Invalid section.", e);
-		} catch (QueryConfigurationException e) {
+		} catch (QueryException e) {
 			throw new IOException("Could not read array: congfiguration error.", e);
 		}
 	}

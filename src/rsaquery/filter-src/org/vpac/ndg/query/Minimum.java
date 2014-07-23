@@ -21,7 +21,7 @@ package org.vpac.ndg.query;
 
 import java.io.IOException;
 
-import org.vpac.ndg.query.QueryConfigurationException;
+import org.vpac.ndg.query.QueryException;
 import org.vpac.ndg.query.filter.CellType;
 import org.vpac.ndg.query.filter.Description;
 import org.vpac.ndg.query.filter.Filter;
@@ -51,7 +51,7 @@ public class Minimum implements Filter {
 	Element<?> min;
 
 	@Override
-	public void initialise(BoxReal bounds) throws QueryConfigurationException {
+	public void initialise(BoxReal bounds) throws QueryException {
 		min = inputA.getPrototype().getElement().copy();
 	}
 

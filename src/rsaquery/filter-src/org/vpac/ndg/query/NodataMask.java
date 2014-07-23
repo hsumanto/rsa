@@ -49,7 +49,7 @@ public class NodataMask implements Filter {
 	Element<?> zero;
 
 	@Override
-	public void initialise(BoxReal bounds) throws QueryConfigurationException {
+	public void initialise(BoxReal bounds) throws QueryException {
 		one = input.getPrototype().getElement().copy();
 		one.set(1);
 		zero = input.getPrototype().getElement().copy();

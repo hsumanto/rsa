@@ -60,7 +60,7 @@ public class MeanOverTime implements Filter {
 	Reduction reduction;
 
 	@Override
-	public void initialise(BoxReal bounds) throws QueryConfigurationException {
+	public void initialise(BoxReal bounds) throws QueryException {
 		// Don't just create an ElementFloat here. Using asFloat() allows the
 		// element to be a vector type.
 		val = input.getPrototype().getElement().asFloat();

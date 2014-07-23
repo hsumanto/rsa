@@ -25,7 +25,7 @@ import java.util.Arrays;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.vpac.ndg.query.Diagnostics;
-import org.vpac.ndg.query.QueryConfigurationException;
+import org.vpac.ndg.query.QueryException;
 import org.vpac.ndg.query.QueryDefinition.CacheDefinition;
 import org.vpac.ndg.query.VariableAdapter;
 import org.vpac.ndg.query.math.VectorInt;
@@ -76,7 +76,7 @@ public class PageCache implements Diagnostics {
 	}
 
 	public synchronized void configure(CacheDefinition cd)
-			throws QueryConfigurationException {
+			throws QueryException {
 
 		if (cd == null) {
 			configure();
@@ -168,8 +168,7 @@ public class PageCache implements Diagnostics {
 	 * @param cd The cache definition.
 	 * @return The typical sampling window. Unspecified axes will be set to 1.
 	 */
-	private VectorInt findWindow(CacheDefinition cd)
-			throws QueryConfigurationException {
+	private VectorInt findWindow(CacheDefinition cd) throws QueryException {
 		VectorInt window = VectorInt.createEmpty(band.getRank(), 1);
 		if (cd.window == null)
 			return window;
@@ -202,7 +201,7 @@ public class PageCache implements Diagnostics {
 			} catch (IndexOutOfBoundsException e) {
 				log.debug("Skipping missing dimension {}", axes[i]);
 			} catch (NumberFormatException e) {
-				throw new QueryConfigurationException(String.format("Cache " +
+				throw new QueryException(String.format("Cache " +
 						"specified invalid window shape %s", lengths[i]), e);
 			}
 		}

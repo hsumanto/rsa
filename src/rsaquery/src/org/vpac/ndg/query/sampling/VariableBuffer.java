@@ -25,7 +25,8 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vpac.ndg.query.QueryConfigurationException;
+import org.vpac.ndg.query.QueryDimensionalityException;
+import org.vpac.ndg.query.QueryException;
 import org.vpac.ndg.query.VariableAdapter;
 import org.vpac.ndg.query.coordinates.HasRank;
 import org.vpac.ndg.query.math.BoxInt;
@@ -47,7 +48,7 @@ public abstract class VariableBuffer implements HasRank, Binding {
 	private int dimensions;
 
 	public VariableBuffer(List<VariableAdapter> variables)
-			throws QueryConfigurationException {
+			throws QueryException {
 
 		indices = new ArrayList<Index>();
 		this.variables = variables;
@@ -63,7 +64,7 @@ public abstract class VariableBuffer implements HasRank, Binding {
 			if (dimensions == -1) {
 				dimensions = variable.getRank();
 			} else if (dimensions != variable.getRank()) {
-				throw new QueryConfigurationException(String.format("Can not " +
+				throw new QueryDimensionalityException(String.format("Can not " +
 						"create variable binding: variables have different " +
 						"dimensions. e.g. variable %s", variable));
 			}

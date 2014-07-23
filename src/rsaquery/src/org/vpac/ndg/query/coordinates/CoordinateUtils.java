@@ -29,7 +29,9 @@ import org.slf4j.LoggerFactory;
 import org.vpac.ndg.query.DatasetInput;
 import org.vpac.ndg.query.DatasetMeta;
 import org.vpac.ndg.query.DatasetStore;
-import org.vpac.ndg.query.QueryConfigurationException;
+import org.vpac.ndg.query.QueryBindingException;
+import org.vpac.ndg.query.QueryDimensionalityException;
+import org.vpac.ndg.query.QueryException;
 import org.vpac.ndg.query.QueryDefinition.GridDefinition;
 import org.vpac.ndg.query.math.BoxReal;
 import org.vpac.ndg.query.math.Swizzle;
@@ -65,15 +67,15 @@ public class CoordinateUtils {
 	 * </p>
 	 */
 	public GridProjected initialiseGrid(GridDefinition gd)
-			throws QueryConfigurationException {
+			throws QueryException {
 
 		if (gd == null) {
-			throw new QueryConfigurationException("Output dataset lacks a " +
+			throw new QueryBindingException("Output dataset lacks a " +
 					"grid definition.");
 		}
 
 		if (gd.ref == null) {
-			throw new QueryConfigurationException("Grid definition lacks a " +
+			throw new QueryBindingException("Grid definition lacks a " +
 					"reference to a coordinate system. Defintion of new " +
 					"coordinate systems is not implemented.");
 		}
@@ -140,11 +142,11 @@ public class CoordinateUtils {
 	 *            dimensions like time will be ignored.
 	 * @return A grid with the same number of grid dimensions as are available
 	 *         in <em>dimensions<em>.
-	 * @throws QueryConfigurationException if there are more requested spatial
+	 * @throws QueryException if there are more requested spatial
 	 *             dimensions than are available in the grid.
 	 */
 	public GridProjected adaptGrid(GridProjected grid, String[] dimensions)
-			throws QueryConfigurationException {
+			throws QueryException {
 
 		int rank = 0;
 		for (String dim : dimensions) {
@@ -156,7 +158,7 @@ public class CoordinateUtils {
 		if (grid.getRank() == rank) {
 			return grid;
 		} else if (grid.getRank() < rank) {
-			throw new QueryConfigurationException(String.format(
+			throw new QueryDimensionalityException(String.format(
 					"Output requests more dimensions (%s) than were " +
 					"specified by the grid (%s).", rank, grid.getRank()));
 		}
@@ -216,7 +218,7 @@ public class CoordinateUtils {
 	 * @return A list of unique time coordinates across all input datasets.
 	 */
 	public TimeAxis collateTime(Collection<DatasetInput> ds)
-			throws QueryConfigurationException {
+			throws QueryException {
 		// Collect all elements into one long list.
 		List<CalendarDate> combinedTc = new ArrayList<CalendarDate>();
 		CalendarDateUnit units = null;
@@ -236,7 +238,7 @@ public class CoordinateUtils {
 				// combine different units. But it could also get quite messy,
 				// e.g. what should be done when combining days with
 				// milliseconds, and what would that imply about the precision?
-				throw new QueryConfigurationException(String.format(
+				throw new QueryBindingException(String.format(
 						"Can't combine datasets with different temporal units."));
 			}
 

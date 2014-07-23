@@ -53,7 +53,7 @@ public class SumOverTime implements Filter {
 	Element<?> val;
 
 	@Override
-	public void initialise(BoxReal bounds) throws QueryConfigurationException {
+	public void initialise(BoxReal bounds) throws QueryException {
 		reduction = new Reduction(input.getBounds());
 		val = input.getPrototype().getElement().copy();
 	}

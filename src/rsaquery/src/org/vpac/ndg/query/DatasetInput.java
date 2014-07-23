@@ -89,7 +89,7 @@ public class DatasetInput implements DatasetMeta, HasCoordinateSystem {
 	 * @see #getGrid()
 	 * @see #open(BoxReal boundsHint, DateTime minTime, DateTime maxTime)
 	 */
-	public void peekGrid() throws IOException, QueryConfigurationException {
+	public void peekGrid() throws IOException, QueryException {
 		log.debug("Inspecting grid of {}", def.id);
 		DatasetProvider provider = ProviderRegistry.getInstance();
 		DatasetMetadata meta = provider.queryMetadata(def.href, referential);
@@ -123,7 +123,7 @@ public class DatasetInput implements DatasetMeta, HasCoordinateSystem {
 	 * @see #peekGrid()
 	 */
 	public void open(BoxReal boundsHint, DateTime minTime, DateTime maxTime)
-			throws IOException, QueryConfigurationException {
+			throws IOException, QueryException {
 		DatasetProvider provider = ProviderRegistry.getInstance();
 		dataset = provider.open(def.href, referential, boundsHint, minTime,
 				maxTime, requestedBands);
@@ -189,7 +189,7 @@ public class DatasetInput implements DatasetMeta, HasCoordinateSystem {
 
 	@Override
 	public VariableAdapter getVariableAdapter(String name)
-			throws QueryConfigurationException {
+			throws QueryException {
 
 		VariableAdapter var = adapters.get(name);
 
@@ -200,7 +200,7 @@ public class DatasetInput implements DatasetMeta, HasCoordinateSystem {
 
 		Variable innerVar = findVariable(name);
 		if (innerVar == null) {
-			throw new QueryConfigurationException(String.format(
+			throw new QueryBindingException(String.format(
 					"Variable \"%s\" can't be found in dataset \"%s\".", name,
 					def.id));
 		}

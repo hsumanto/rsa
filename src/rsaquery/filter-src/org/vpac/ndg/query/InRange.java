@@ -33,7 +33,7 @@ public class InRange extends In {
 	public String upper;
 
 	@Override
-	public void initialise(BoxReal bounds) throws QueryConfigurationException {
+	public void initialise(BoxReal bounds) throws QueryException {
 		String[] lbs = lower.split(",");
 		String[] ubs = upper.split(",");
 		setBounds(lbs, ubs);

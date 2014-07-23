@@ -51,7 +51,7 @@ public class GreaterOrEqual implements Filter {
 	ScalarElement fail = new ElementByte((byte) 0);
 
 	@Override
-	public void initialise(BoxReal bounds) throws QueryConfigurationException {
+	public void initialise(BoxReal bounds) throws QueryException {
 		val = (ScalarElement) input.getPrototype().getElement().copy();
 	}
 

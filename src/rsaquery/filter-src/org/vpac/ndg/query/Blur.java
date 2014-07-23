@@ -67,7 +67,7 @@ public class Blur implements Filter {
 		0.00000067f, 0.00002292f, 0.00019117f, 0.00038771f, 0.00019117f, 0.00002292f, 0.00000067f};
 
 	@Override
-	public void initialise(BoxReal bounds) throws QueryConfigurationException {
+	public void initialise(BoxReal bounds) throws QueryException {
 		VectorInt shape = VectorInt.createEmpty(input.getRank(), 1);
 		shape.setX(7);
 		shape.setY(7);

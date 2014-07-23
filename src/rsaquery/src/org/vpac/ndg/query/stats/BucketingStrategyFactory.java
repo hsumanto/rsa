@@ -8,7 +8,8 @@ import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.vpac.ndg.query.QueryConfigurationException;
+import org.vpac.ndg.query.QueryBindingException;
+import org.vpac.ndg.query.QueryException;
 import org.vpac.ndg.query.QueryRuntimeException;
 import org.vpac.ndg.query.Reflection;
 
@@ -17,10 +18,10 @@ public class BucketingStrategyFactory {
 	static final Pattern URL = Pattern.compile("(\\w+)\\??(.*)");
 	static final Pattern PARAM = Pattern.compile("(\\w+)=([^&]*)");
 
-	BucketingStrategy create(String descriptor) throws QueryConfigurationException {
+	BucketingStrategy create(String descriptor) throws QueryException {
 		Matcher matcher = URL.matcher(descriptor);
 		if (!matcher.matches()) {
-			throw new QueryConfigurationException(
+			throw new QueryBindingException(
 					"Could not parse bucketing strategy descriptor.");
 		}
 
@@ -36,7 +37,7 @@ public class BucketingStrategyFactory {
 		} else if (path.equals("logQuantile")) {
 			bs = new BucketingStrategyLogQuantile();
 		} else {
-			throw new QueryConfigurationException(String.format(
+			throw new QueryBindingException(String.format(
 					"No known bucketing strategy matches the path %s", path));
 		}
 

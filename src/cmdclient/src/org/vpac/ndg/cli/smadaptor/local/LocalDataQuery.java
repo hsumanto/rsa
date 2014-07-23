@@ -28,7 +28,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.vpac.ndg.cli.smadaptor.DataQuery;
 import org.vpac.ndg.geometry.Box;
 import org.vpac.ndg.query.Query;
-import org.vpac.ndg.query.QueryConfigurationException;
+import org.vpac.ndg.query.QueryException;
 import org.vpac.ndg.query.QueryDefinition;
 import org.vpac.ndg.storage.dao.JobProgressDao;
 
@@ -123,7 +123,7 @@ public class LocalDataQuery implements DataQuery {
 	}
 
 	private void execute(QueryDefinition qd, QueryProgress qp, Version version)
-			throws IOException, QueryConfigurationException {
+			throws IOException, QueryException {
 		NetcdfFileWriter outputDataset = NetcdfFileWriter.createNew(
 				version, outputPath.toString());
 

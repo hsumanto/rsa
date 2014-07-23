@@ -111,9 +111,9 @@ public class Query implements Closeable {
 		tilingStrategy = new TilingStrategyStride(TILE_SIZE * TILE_SIZE * 3);
 	}
 
-	public void setNumThreads(int numThreads) throws QueryConfigurationException {
+	public void setNumThreads(int numThreads) throws QueryException {
 		if (numThreads < 1) {
-			throw new QueryConfigurationException(
+			throw new QueryException(
 					"Number of threads must be one or more.");
 		}
 		this.numThreads = numThreads;
@@ -125,7 +125,7 @@ public class Query implements Closeable {
 	 * @param uri The specified uri.
 	 */
 	public void setMemento(QueryDefinition qdOrig, String uri) throws IOException,
-			SecurityException, QueryConfigurationException {
+			SecurityException, QueryException {
 
 		log.info("Configuring query based on memento");
 
@@ -176,7 +176,7 @@ public class Query implements Closeable {
 		// connected to others that were created for the same thread context.
 		List<FilterFactory> factories = new ArrayList<FilterFactory>(numThreads);
 		if (numThreads < 1) {
-			throw new QueryConfigurationException(
+			throw new QueryException(
 					"Invalid number of threads: must be greater than zero.");
 		}
 		for (int i = 0; i < numThreads; i++) {
@@ -214,9 +214,9 @@ public class Query implements Closeable {
 	 * bounds, and placed in the dataset store.
 	 */
 	private void initialiseInputs(QueryDefinition qd) throws IOException,
-			QueryConfigurationException {
+			QueryException {
 		if (qd.inputs == null || qd.inputs.size() == 0) {
-			throw new QueryConfigurationException("No inputs specified.");
+			throw new QueryBindingException("No inputs specified.");
 		}
 		for (DatasetInputDefinition did : qd.inputs) {
 			DatasetInput di = new DatasetInput(did, referential, qd.cache);
@@ -237,7 +237,7 @@ public class Query implements Closeable {
 	}
 
 	private void openInputs(QueryDefinition qd, GridProjected outputGrid, DateTime[] temporalBounds)
-			throws IOException, QueryConfigurationException {
+			throws IOException, QueryException {
 
 		// STEP 2: Open input datasets fully, using output grid as a hint about
 		// what to open. Actual bounds are determined here.
@@ -267,7 +267,7 @@ public class Query implements Closeable {
 	}
 
 	private QueryCoordinateSystem constructCoordinateSystem(
-			GridProjected outputGrid) throws QueryConfigurationException {
+			GridProjected outputGrid) throws QueryException {
 		TimeAxis timeAxis = coordinateUtils.collateTime(datasetStore.getInputDatasets());
 		QueryCoordinateSystem csys = new QueryCoordinateSystem(outputGrid, timeAxis);
 		return csys;
@@ -276,9 +276,9 @@ public class Query implements Closeable {
 
 	/**
 	 * Run the configured filters over the input datasets.
-	 * @throws QueryConfigurationException 
+	 * @throws QueryException 
 	 */
-	public void run() throws IOException, QueryConfigurationException,
+	public void run() throws IOException, QueryException,
 			QueryRuntimeException {
 
 		progress.setNsteps(bindings.keys().size());
@@ -322,7 +322,7 @@ public class Query implements Closeable {
 
 	protected void process(VectorInt imageShape,
 			Collection<Binding> localBindings)
-			throws QueryConfigurationException, IOException {
+			throws QueryException, IOException {
 
 		// Rasterise output into a set of tiles.
 		VectorInt tileShape = tilingStrategy.getTileShape(imageShape);

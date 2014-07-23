@@ -23,7 +23,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.vpac.ndg.query.QueryConfigurationException;
+import org.vpac.ndg.query.QueryException;
 import org.vpac.ndg.query.VariableAdapter;
 import org.vpac.ndg.query.math.ScalarElement;
 import org.vpac.ndg.query.math.VectorInt;
@@ -36,7 +36,7 @@ public class VariableBufferScalar extends VariableBuffer {
 	private ArrayList<PixelSourceScalar> sources;
 
 	public VariableBufferScalar(List<VariableAdapter> variables)
-			throws QueryConfigurationException {
+			throws QueryException {
 
 		super(variables);
 		sources = new ArrayList<PixelSourceScalar>();

@@ -72,7 +72,7 @@ public class QueryDefinitionPreprocessor {
 	}
 
 	public void setQueryDefinition(QueryDefinition qdOrig)
-			throws QueryConfigurationException {
+			throws QueryException {
 
 		qd = qdOrig.copy();
 
@@ -84,7 +84,7 @@ public class QueryDefinitionPreprocessor {
 		// Datasets
 		for (DatasetInputDefinition did : qd.inputs) {
 			if (ids.contains(did.id)) {
-				throw new QueryConfigurationException(String.format(
+				throw new QueryBindingException(String.format(
 						"Duplicate ID \"%s\"", did.id));
 			}
 			ids.add(did.id);
@@ -94,7 +94,7 @@ public class QueryDefinitionPreprocessor {
 		// Filters
 		for (FilterDefinition fd : qd.filters) {
 			if (ids.contains(fd.id)) {
-				throw new QueryConfigurationException(String.format(
+				throw new QueryBindingException(String.format(
 						"Duplicate ID \"%s\"", fd.id));
 			}
 			ids.add(fd.id);
@@ -104,7 +104,7 @@ public class QueryDefinitionPreprocessor {
 	}
 
 	public void guessGrid(Collection<DatasetInput> inputDatasets)
-			throws QueryConfigurationException {
+			throws QueryException {
 
 		if (qd.output.grid != null && qd.output.grid.ref != null)
 			return;
@@ -121,20 +121,20 @@ public class QueryDefinitionPreprocessor {
 				qd.output.grid.ref = String.format("#%s", di.getName());
 				log.info("Grid reference not specified. Using grid defined by {}", qd.output.grid.ref);
 			} else if (!srs.equals(csys.getGrid().getSrs())) {
-				throw new QueryConfigurationException("Input datasets have " +
+				throw new QueryBindingException("Input datasets have " +
 						"differing coordinate systems. Please select one by " +
 						"specifying the grid parameter the output dataset.");
 			}
 		}
 	}
 
-	public void gatherFilterInfo() throws QueryConfigurationException {
+	public void gatherFilterInfo() throws QueryException {
 		for (FilterDefinition fd : qd.filters) {
 			Class<?> cls;
 			try {
 				cls = loader.loadClass(fd.classname);
 			} catch (ClassNotFoundException e) {
-				throw new QueryConfigurationException(String.format(
+				throw new QueryBindingException(String.format(
 						"Could not find filter class \"%s\".", fd.classname));
 			}
 
@@ -165,13 +165,13 @@ public class QueryDefinitionPreprocessor {
 
 		int calculateDepth(List<FilterComparator> path,
 				Map<String, FilterComparator> fcs)
-				throws QueryConfigurationException {
+				throws QueryException {
 
 			if (this.depth != null)
 				return this.depth;
 
 			if (path.contains(this)) {
-				throw new QueryConfigurationException(String.format(
+				throw new QueryBindingException(String.format(
 						"Circular reference to filter #%s", fd.id));
 			}
 
@@ -214,9 +214,9 @@ public class QueryDefinitionPreprocessor {
 	 * is the order in which filters should be instantiated to ensure
 	 * dependencies are available.
 	 * @param fds The filter definitions to sort.
-	 * @throws QueryConfigurationException If the order could not be determined.
+	 * @throws QueryException If the order could not be determined.
 	 */
-	public void sortFilters() throws QueryConfigurationException {
+	public void sortFilters() throws QueryException {
 
 		Map<String, FilterComparator> fcs = new HashMap<String, FilterComparator>();
 		// Create filter comparators.
@@ -235,14 +235,14 @@ public class QueryDefinitionPreprocessor {
 				NodeReference nr = resolve.decompose(vd.ref);
 				FilterComparator fc = fcs.get(nr.getNodeId());
 				if (fc == null) {
-					throw new QueryConfigurationException(String.format(
+					throw new QueryBindingException(String.format(
 							"Variable \"%s\" is bound to non-existant filter " +
 							"\"%s\"", vd.name, nr.getNodeId()));
 				}
 				fc.downstreamConnections.add(qd.output.id);
 			}
 		} catch (Exception e) {
-			throw new QueryConfigurationException(String.format(
+			throw new QueryBindingException(String.format(
 					"Could not configure output dataset: %s", e.getMessage()),
 					e);
 		}
@@ -270,14 +270,14 @@ public class QueryDefinitionPreprocessor {
 								}
 							}
 						} catch (Exception e) {
-							throw new QueryConfigurationException(String.format(
+							throw new QueryBindingException(String.format(
 									"Could not configure sampler \"%s\": %s", sd1.name,
 									e.getMessage()), e);
 						}
 					}
 				}
 			} catch (Exception e) {
-				throw new QueryConfigurationException(String.format(
+				throw new QueryBindingException(String.format(
 						"Could not configure filter \"%s\": %s", fd.id,
 						e.getMessage()), e);
 			}
@@ -308,7 +308,7 @@ public class QueryDefinitionPreprocessor {
 	}
 
 	public void expandReferences(DatasetStore datasetStore)
-			throws QueryConfigurationException {
+			throws QueryException {
 		// Only filters support expansion at the moment. Output dataset variable
 		// expansion may be implemented later.
 		for (FilterDefinition fd : qd.filters) {
@@ -335,11 +335,11 @@ public class QueryDefinitionPreprocessor {
 	 * @param sd A sampler definition.
 	 * @return A list of all references that are declared by a
 	 *         SamplerDefinition.
-	 * @throws QueryConfigurationException If the sampler is poorly defined, or
+	 * @throws QueryException If the sampler is poorly defined, or
 	 *         if the datasets referred to are undefined.
 	 */
 	private List<NodeReference> expandReferences(DatasetStore datasetStore, SamplerDefinition sd)
-			throws QueryConfigurationException {
+			throws QueryException {
 
 		List<NodeReference> refs = new ArrayList<NodeReference>();
 		if (sd.ref != null) {
@@ -359,11 +359,11 @@ public class QueryDefinitionPreprocessor {
 	 * 
 	 * @param ref e.g. <em>#input/Band[0-9]+</em>
 	 * @return e.g. <em>[#input/Band10, #input/Band20, #input/Band30]</em>
-	 * @throws QueryConfigurationException If the expression is invalid or if
+	 * @throws QueryException If the expression is invalid or if
 	 *         the dataset can't be found.
 	 */
 	private List<NodeReference> expandReference(DatasetStore datasetStore, String ref)
-			throws QueryConfigurationException {
+			throws QueryException {
 
 		NodeReference nr = resolve.decompose(ref);
 		List<String> outputNames = null;
@@ -374,9 +374,9 @@ public class QueryDefinitionPreprocessor {
 		try {
 			dataset = (DatasetInput) datasetStore.getDataset(nr.getNodeId());
 		} catch (ClassCastException e) {
-			throw new QueryConfigurationException(String.format(
+			throw new QueryBindingException(String.format(
 					"Dataset \"%s\" is not an input dataset.", nr.getNodeId()));
-		} catch (QueryConfigurationException e) {
+		} catch (QueryException e) {
 			// Will check for null below.
 		}
 		fd = filterMap.get(nr.getNodeId());
@@ -388,7 +388,7 @@ public class QueryDefinitionPreprocessor {
 			isDatasetReference = false;
 			outputNames = filterOutputMap.get(fd.classname);
 		} else {
-			throw new QueryConfigurationException(String.format(
+			throw new QueryBindingException(String.format(
 					"\"%s\" is not a filter or dataset id.", nr.getNodeId()));
 		}
 
@@ -397,7 +397,7 @@ public class QueryDefinitionPreprocessor {
 		try {
 			re = Pattern.compile(nr.getSocketName());
 		} catch (PatternSyntaxException e) {
-			throw new QueryConfigurationException(String.format(
+			throw new QueryBindingException(String.format(
 					"Could not compile regular expression from \"%s\"", nr), e);
 		}
 		for (String varName : outputNames) {

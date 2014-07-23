@@ -69,7 +69,7 @@ import org.vpac.ndg.geometry.Tile;
 import org.vpac.ndg.geometry.TileManager;
 import org.vpac.ndg.lock.ProcessUpdateTimer;
 import org.vpac.ndg.query.Query;
-import org.vpac.ndg.query.QueryConfigurationException;
+import org.vpac.ndg.query.QueryException;
 import org.vpac.ndg.query.QueryDefinition;
 import org.vpac.ndg.query.QueryDefinition.DatasetInputDefinition;
 import org.vpac.ndg.query.Resolve;
@@ -430,7 +430,7 @@ public class DataController {
 			@RequestParam(required = false) Date end,
 			@RequestParam(required = false) boolean omitNodata,
 			Model model)
-			throws IOException, InvalidRangeException, QueryConfigurationException {
+			throws IOException, InvalidRangeException, QueryException {
 		Dataset ds = null;
 		if(datasetId.contains("/")) {
 			String[] splittedDatasetId = datasetId.split("/");
@@ -637,7 +637,7 @@ public class DataController {
 */
 	
 	@RequestMapping(value = "/DQuery-test", method = RequestMethod.GET)
-	public String distributedQueryTest() throws IllegalAccessException, IOException, QueryConfigurationException {
+	public String distributedQueryTest() throws IllegalAccessException, IOException, QueryException {
 		
 		final QueryDefinition qd = QueryDefinition.fromXML(Thread
 				.currentThread().getContextClassLoader()
@@ -707,7 +707,7 @@ public class DataController {
 			@RequestParam(required = false) String endDate,
 			@RequestParam(required = false) String netcdfVersion,
 			ModelMap model)
-			throws IOException, QueryConfigurationException, IllegalAccessException {
+			throws IOException, QueryException, IllegalAccessException {
 		QueryDefinition qd = QueryDefinition.fromXML(file.getInputStream());
 		return query(qd, threads, minX, minY, maxX, maxY, startDate, endDate,
 				netcdfVersion, model);
@@ -724,7 +724,7 @@ public class DataController {
 			@RequestParam(required = false) String endDate,
 			@RequestParam(required = false) String netcdfVersion,
 			ModelMap model)
-			throws IOException, QueryConfigurationException, IllegalAccessException {
+			throws IOException, QueryException, IllegalAccessException {
 		QueryDefinition qd = QueryDefinition.fromString(query);
 		return query(qd, threads, minX, minY, maxX, maxY, startDate, endDate,
 				netcdfVersion, model);
@@ -734,7 +734,7 @@ public class DataController {
 			Double minX, Double minY, Double maxX, Double maxY,
 			String startDate, String endDate, String netcdfVersion,
 			ModelMap model)
-			throws IOException, QueryConfigurationException, IllegalAccessException {
+			throws IOException, QueryException, IllegalAccessException {
 
 		Resolve resolve = new Resolve();
 
@@ -817,7 +817,7 @@ public class DataController {
 			@RequestParam(required = false) String endDate,
 			@RequestParam(required = false) String netcdfVersion,
 			ModelMap model)
-			throws IOException, QueryConfigurationException {
+			throws IOException, QueryException {
 
 		final QueryDefinition qd = QueryDefinition.fromString(query);
 		if(minX != null)
@@ -1064,7 +1064,7 @@ public class DataController {
 
 	private void executeQuery(QueryDefinition qd, QueryProgress qp,
 			Integer threads, Path outputPath, Version netcdfVersion)
-			throws IOException, QueryConfigurationException {
+			throws IOException, QueryException {
 		NetcdfFileWriter outputDataset = NetcdfFileWriter.createNew(
 				netcdfVersion, outputPath.toString());
 

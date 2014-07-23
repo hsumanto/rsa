@@ -74,7 +74,7 @@ public class FilterAdapter implements HasBounds, HasRank, Diagnostics {
 	PixelSourceFactory pixelSourceFactory;
 
 	public FilterAdapter(String name, Filter innerFilter)
-			throws QueryConfigurationException {
+			throws QueryException {
 
 		this.name = name;
 		this.innerFilter = innerFilter;
@@ -85,23 +85,28 @@ public class FilterAdapter implements HasBounds, HasRank, Diagnostics {
 		pixelSourceFactory = new PixelSourceFactory();
 	}
 
-	public void initialise() throws QueryConfigurationException {
+	/**
+	 * Prepare the filter to run. This should be called after all fields have
+	 * been bound.
+	 * @see Filter#initialise(BoxReal)
+	 */
+	public void initialise() throws QueryException {
 		innerFilter.initialise(bounds);
 	}
 
-	Cell createCell(String name) throws QueryConfigurationException {
+	Cell createCell(String name) throws QueryException {
 		Field f;
 		try {
 			f = innerFilter.getClass().getField(name);
 		} catch (NoSuchFieldException e) {
-			throw new QueryConfigurationException(String.format(
+			throw new QueryBindingException(String.format(
 					"Could not create output socket %s in filter %s", name,
 					innerFilter.getClass()), e);
 		}
 
 		CellType cellType = f.getAnnotation(CellType.class);
 		if (cellType == null) {
-			throw new QueryConfigurationException(String.format(
+			throw new QueryBindingException(String.format(
 					"Could not create output socket %s in filter %s: no type "
 							+ "defined (missing @CellType annotation).", name,
 					innerFilter.getClass()));
@@ -110,8 +115,8 @@ public class FilterAdapter implements HasBounds, HasRank, Diagnostics {
 		Prototype prototype;
 		try {
 			prototype = getPrototype(cellType.value()).copy();
-		} catch (QueryConfigurationException e) {
-			throw new QueryConfigurationException(String.format(
+		} catch (QueryException e) {
+			throw new QueryBindingException(String.format(
 					"Could not create output socket %s in filter %s: %s", name,
 					innerFilter.getClass(), e.getMessage()), e);
 		}
@@ -124,7 +129,7 @@ public class FilterAdapter implements HasBounds, HasRank, Diagnostics {
 	}
 
 	Prototype getPrototype(String inheritDecl)
-			throws QueryConfigurationException {
+			throws QueryException {
 
 		if (inheritDecl.contains(",")) {
 			// Vector
@@ -142,7 +147,7 @@ public class FilterAdapter implements HasBounds, HasRank, Diagnostics {
 	}
 
 	Prototype getPrototypeSingle(String typeDecl)
-			throws QueryConfigurationException {
+			throws QueryException {
 
 		Type type;
 		try {
@@ -166,25 +171,25 @@ public class FilterAdapter implements HasBounds, HasRank, Diagnostics {
 		try {
 			tf = innerFilter.getClass().getField(typeDecl);
 		} catch (NoSuchFieldException e) {
-			throw new QueryConfigurationException(String.format(
+			throw new FilterDefinitionException(String.format(
 					"Could not find field %s to inherit type from.", typeDecl),
 					e);
 		}
 		if (!HasPrototype.class.isAssignableFrom(tf.getType())) {
-			throw new QueryConfigurationException(String.format(
+			throw new FilterDefinitionException(String.format(
 					"Inherited field %s has no prototype.", typeDecl));
 		}
 
 		HasPrototype typeSource;
 		try {
 			if (tf.get(innerFilter) == null) {
-				throw new QueryConfigurationException(String.format(
+				throw new FilterDefinitionException(String.format(
 						"Inherited field %s accessed before assignment.",
 						typeDecl));
 			}
 			typeSource = (HasPrototype) tf.get(innerFilter);
 		} catch (IllegalAccessException e) {
-			throw new QueryConfigurationException(String.format(
+			throw new FilterDefinitionException(String.format(
 					"Inherited field %s is not accessible.", typeDecl));
 		}
 
@@ -198,11 +203,11 @@ public class FilterAdapter implements HasBounds, HasRank, Diagnostics {
 	 * @param name
 	 *            The name of the output socket.
 	 * @return A sampler that fetches filtered values from this filter.
-	 * @throws QueryConfigurationException
+	 * @throws QueryException
 	 *             if the field does not exist, or if it is inaccessible.
 	 */
 	public PixelSource getOutputSocket(String name)
-			throws QueryConfigurationException {
+			throws QueryException {
 
 		PixelSource socket = outputSockets.get(name);
 
@@ -217,14 +222,14 @@ public class FilterAdapter implements HasBounds, HasRank, Diagnostics {
 		try {
 			f = innerFilter.getClass().getField(name);
 		} catch (NoSuchFieldException e) {
-			throw new QueryConfigurationException(String.format(
+			throw new QueryBindingException(String.format(
 					"Could not create output socket %s in filter %s", name,
 					innerFilter.getClass()), e);
 		}
 		try {
 			f.set(innerFilter, cell);
 		} catch (IllegalAccessException e) {
-			throw new QueryConfigurationException(String.format(
+			throw new QueryBindingException(String.format(
 					"Could not assign output socket %s in filter %s", name,
 					innerFilter.getClass()), e);
 		}
@@ -265,7 +270,7 @@ public class FilterAdapter implements HasBounds, HasRank, Diagnostics {
 		return bounds;
 	}
 
-	public void gatherInputConstraints() throws QueryConfigurationException {
+	public void gatherInputConstraints() throws QueryException {
 		// This is a two-step process:
 		// 1. Gather all constraints for each group. This means iterating over
 		// all public fields.
@@ -293,7 +298,7 @@ public class FilterAdapter implements HasBounds, HasRank, Diagnostics {
 		}
 	}
 
-	public void applyInputConstraints() throws QueryConfigurationException {
+	public void applyInputConstraints() throws QueryException {
 		// 1. <See above>
 		// 2. Coerce inputs to fit constraints, where the constraints are
 		// lenient (e.g. where dimensional promotion is allowed).
@@ -306,12 +311,12 @@ public class FilterAdapter implements HasBounds, HasRank, Diagnostics {
 	 * Finds the effective shape of this filter by applying a reduction to one
 	 * of the inputs.
 	 */
-	void inferShapeFromInputs() throws QueryConfigurationException {
+	void inferShapeFromInputs() throws QueryException {
 		InheritDimensions reduces = innerFilter.getClass().getAnnotation(
 				InheritDimensions.class);
 
 		if (reduces == null) {
-			throw new QueryConfigurationException(String.format(
+			throw new FilterDefinitionException(String.format(
 					"Could not determine dimensionality of filter %s. Class "
 							+ "should be annotated with @InheritDimensions.",
 					innerFilter.getClass().getName()));
@@ -330,28 +335,28 @@ public class FilterAdapter implements HasBounds, HasRank, Diagnostics {
 				value = field.get(innerFilter);
 			} catch (NoSuchFieldException e) {
 				// Try group instead.
-				throw new QueryConfigurationException(String.format(
+				throw new FilterDefinitionException(String.format(
 						"Could not find reduction field or group %s.",
 						d.memberStr(reduces.from())));
 			} catch (IllegalAccessException e) {
-				throw new QueryConfigurationException(String.format(
+				throw new FilterDefinitionException(String.format(
 						"Could not access reduction field %s.",
 						d.memberStr(reduces.from())));
 			}
 		}
 
 		if (value == null) {
-			throw new QueryConfigurationException(String.format(
+			throw new QueryBindingException(String.format(
 					"Reduction field %s is null. Path is %s.",
 					d.memberStr(reduces.from()), d.pathStr(reduces.from())));
 		}
 		if (!HasBounds.class.isAssignableFrom(value.getClass())) {
-			throw new QueryConfigurationException(String.format(
+			throw new FilterDefinitionException(String.format(
 					"Reduction field %s has no bounds. Path is %s.",
 					d.memberStr(reduces.from()), d.pathStr(reduces.from())));
 		}
 		if (!HasDimensions.class.isAssignableFrom(value.getClass())) {
-			throw new QueryConfigurationException(String.format(
+			throw new FilterDefinitionException(String.format(
 					"Reduction field %s has no prototype. Path is %s.",
 					d.memberStr(reduces.from()), d.pathStr(reduces.from())));
 		}
@@ -386,11 +391,11 @@ public class FilterAdapter implements HasBounds, HasRank, Diagnostics {
 		return bounds.getRank();
 	}
 
-	Class<?> getFieldType(String name) throws QueryConfigurationException {
+	Class<?> getFieldType(String name) throws QueryException {
 		try {
 			return innerFilter.getClass().getField(name).getType();
 		} catch (NoSuchFieldException e) {
-			throw new QueryConfigurationException(String.format(
+			throw new QueryBindingException(String.format(
 					"Could not access field \"%s\" of filter \"%s\"", name,
 					this.name));
 		}
@@ -403,27 +408,26 @@ public class FilterAdapter implements HasBounds, HasRank, Diagnostics {
 	 *            The name of the field.
 	 * @param value
 	 *            The value to set it to.
-	 * @throws QueryConfigurationException
+	 * @throws QueryException
 	 *             If the value is the wrong type, if it doesn't meet its
 	 *             constraints, or if the field can not be set to the given
 	 *             value.
 	 */
 	// Package scope: allows Query to access.
-	void setParameter(String name, Object value)
-			throws QueryConfigurationException {
+	void setParameter(String name, Object value) throws QueryException {
 
 		Field f;
 
 		try {
 			f = innerFilter.getClass().getField(name);
 		} catch (NoSuchFieldException e) {
-			throw new QueryConfigurationException(String.format(
+			throw new QueryBindingException(String.format(
 					"Parameter %s#%s is not defined.", innerFilter.getClass(),
 					name), e);
 		}
 
 		if (value == null) {
-			throw new QueryConfigurationException(String.format(
+			throw new QueryBindingException(String.format(
 					"Parameter %s#%s should not be null.",
 					innerFilter.getClass(), name));
 		}
@@ -435,7 +439,7 @@ public class FilterAdapter implements HasBounds, HasRank, Diagnostics {
 		try {
 			f.set(innerFilter, value);
 		} catch (IllegalAccessException e) {
-			throw new QueryConfigurationException(String.format(
+			throw new QueryBindingException(String.format(
 					"Parameter %s#%s can not be assigned.",
 					innerFilter.getClass(), name), e);
 		}
@@ -443,20 +447,19 @@ public class FilterAdapter implements HasBounds, HasRank, Diagnostics {
 				String.format("%s.%s", this.name, f.getName()));
 	}
 
-	void checkConstraints(Rank con, String name, Object value)
-			throws QueryConfigurationException {
+	void checkConstraints(Rank con, String name, Object value) throws QueryException {
 
 		if (con == null)
 			return;
 
 		if (con.is() >= 0) {
 			if (!HasRank.class.isAssignableFrom(value.getClass()))
-				throw new QueryConfigurationException(String.format(
+				throw new QueryDimensionalityException(String.format(
 						"Parameter %s.%s is has no dimensions; should be %dD.",
 						getName(), name, con.is()));
 			HasRank shaped = (HasRank) value;
 			if (shaped.getRank() != con.is()) {
-				throw new QueryConfigurationException(String.format(
+				throw new QueryDimensionalityException(String.format(
 						"Parameter %s.%s is %dD; should be %dD.", getName(),
 						name, shaped.getRank(), con.is()));
 			}
@@ -464,12 +467,12 @@ public class FilterAdapter implements HasBounds, HasRank, Diagnostics {
 	}
 
 	/**
-	 * @throws QueryConfigurationException
+	 * @throws QueryException
 	 *             If any of the uniform or vaying fields are null or can't be
 	 *             accessed.
 	 */
 	// Package scope: allows Query to access.
-	void verifyConfiguration() throws QueryConfigurationException {
+	void verifyConfiguration() throws QueryException {
 
 		for (Field f : innerFilter.getClass().getFields()) {
 			if ((f.getModifiers() | Modifier.PUBLIC) == 0)
@@ -480,7 +483,7 @@ public class FilterAdapter implements HasBounds, HasRank, Diagnostics {
 			try {
 				value = f.get(innerFilter);
 			} catch (IllegalAccessException e) {
-				throw new QueryConfigurationException(String.format(
+				throw new QueryBindingException(String.format(
 						"Parameter \"%s\" is not accessible.", f.getName()), e);
 			}
 
@@ -489,12 +492,12 @@ public class FilterAdapter implements HasBounds, HasRank, Diagnostics {
 					try {
 						f.set(innerFilter, createCell(f.getName()));
 					} catch (IllegalAccessException e) {
-						throw new QueryConfigurationException(String.format(
+						throw new QueryBindingException(String.format(
 								"Could not initialise unbound cell %s.",
 								f.getName()));
 					}
 				} else {
-					throw new QueryConfigurationException(String.format(
+					throw new QueryBindingException(String.format(
 							"Public filter field %s.%s is unbound.", getName(),
 							f.getName()));
 				}

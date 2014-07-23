@@ -52,7 +52,7 @@ public class NormaliseRange implements Filter {
 	Element<?> fraction;
 
 	@Override
-	public void initialise(BoxReal bounds) throws QueryConfigurationException {
+	public void initialise(BoxReal bounds) throws QueryException {
 		offset = input.getPrototype().getElement().asFloat();
 		fraction = offset.copy();
 	}

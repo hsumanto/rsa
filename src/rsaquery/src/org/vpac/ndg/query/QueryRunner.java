@@ -116,7 +116,7 @@ public class QueryRunner {
 		try {
 			run(config, output);
 			System.out.println("Query finished.");
-		} catch (QueryConfigurationException e) {
+		} catch (QueryException e) {
 			System.err.println("Configuration error: " + e.getMessage());
 			System.exit(1);
 		} catch (IOException e) {

@@ -48,7 +48,7 @@ public class AddUnary implements Filter {
 	public Cell output;
 
 	@Override
-	public void initialise(BoxReal bounds) throws QueryConfigurationException {
+	public void initialise(BoxReal bounds) throws QueryException {
 	}
 
 	@Override

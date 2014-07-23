@@ -27,7 +27,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.vpac.ndg.AppContext;
 import org.vpac.ndg.configuration.NdgConfigManager;
 import org.vpac.ndg.query.Query;
-import org.vpac.ndg.query.QueryConfigurationException;
+import org.vpac.ndg.query.QueryException;
 import org.vpac.ndg.query.QueryDefinition;
 import org.vpac.ndg.query.QueryDefinition.DatasetInputDefinition;
 import org.vpac.ndg.query.filter.Foldable;
@@ -166,7 +166,7 @@ public class WorkExecutor extends UntypedActor {
 
 	private Map<String, Foldable<?>> executeQuery(QueryDefinition qd,
 			WorkProgress wp, Path outputPath, Version netcdfVersion)
-			throws IOException, QueryConfigurationException {
+			throws IOException, QueryException {
 
 		/*
 		 * NetcdfFileWriter outputDataset = NetcdfFileWriter.createNew(

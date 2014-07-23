@@ -72,12 +72,12 @@ public class BindingStore {
 	 * @param source The input.
 	 * @param variables The output(s). Note that even a scalar input can have
 	 *        multiple outputs (the same value will be written to each one).
-	 * @throws QueryConfigurationException If the shapes of the variables are
+	 * @throws QueryException If the shapes of the variables are
 	 *         inconsistent.
 	 */
 	public void bind(String id, PixelSourceScalar source,
 			List<VariableAdapter> variables)
-			throws QueryConfigurationException {
+			throws QueryException {
 
 		VariableBufferScalar binding = scalarMap.get(id);
 		if (binding == null) {
@@ -95,12 +95,12 @@ public class BindingStore {
 	 * @param source The input.
 	 * @param variables The output(s). The number of outputs should match the
 	 *        rank of the source.
-	 * @throws QueryConfigurationException If the shapes of the variables are
+	 * @throws QueryException If the shapes of the variables are
 	 *         inconsistent.
 	 */
 	public void bind(String id, PixelSourceVector source,
 			List<VariableAdapter> variables)
-			throws QueryConfigurationException {
+			throws QueryException {
 		// TODO: check that the source is the same size as the variables?
 		VariableBufferVector binding = vectorMap.get(id);
 		if (binding == null) {
@@ -113,21 +113,22 @@ public class BindingStore {
 	}
 
 	private void ensureUniqueVars(List<VariableAdapter> variables)
-			throws QueryConfigurationException {
+			throws QueryException {
 		for (VariableAdapter var : variables) {
 			if (uniqueVars.contains(var)) {
-				throw new QueryConfigurationException(String.format(
+				throw new QueryBindingException(String.format(
 						"Variable %s can't be bound more than once.", var));
 			}
 		}
 		uniqueVars.addAll(variables);
 	}
 
-	private VectorInt getShape(List<VariableAdapter> variables) throws QueryConfigurationException {
+	private VectorInt getShape(List<VariableAdapter> variables)
+			throws QueryException {
 		VectorInt shape = null;
 		for (VariableAdapter var : variables) {
 			if (shape != null && !shape.equals(var.getShape())) {
-				throw new QueryConfigurationException(String.format(
+				throw new QueryBindingException(String.format(
 						"Cell is being bound to variables with different " +
 						"shapes."));
 			} else {
