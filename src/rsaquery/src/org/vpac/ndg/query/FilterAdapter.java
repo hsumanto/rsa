@@ -83,6 +83,23 @@ public class FilterAdapter implements HasBounds, HasRank, Diagnostics {
 		outputSockets = new HashMap<String, PixelSource>();
 		cellFactory = new CellFactory();
 		pixelSourceFactory = new PixelSourceFactory();
+
+		// Sanity check for fields before we try assigning anything to them.
+		Map<String, Field> fields = new HashMap<String, Field>();
+		for (Field field : innerFilter.getClass().getFields()) {
+			Field otherField = fields.get(field.getName());
+			if (otherField != null) {
+				throw new FilterDefinitionException(String.format(
+						"Filter field %s is declared multiple times, by %s and"
+						+ " %s. One field will hide the other, which makes"
+						+ " proper binding impossible. Check class"
+						+ " inheritance.",
+						d.memberStr(field.getName()),
+						field.getDeclaringClass().getName(),
+						otherField.getDeclaringClass().getName()));
+			}
+			fields.put(field.getName(), field);
+		}
 	}
 
 	/**

@@ -42,20 +42,24 @@ public class QueryRunner {
 		return run(config, output, 1);
 	}
 
-	/**
-	 * Run a query from XML.
-	 *
-	 * @return {@link Query#getAccumulatedOutput() Accumulated metadata}. Note
-	 *         that primary data is written to the output file.
-	 */
 	public static Map<String, Foldable<?>> run(File config, File output,
 			int threads) throws Exception {
 		QueryDefinition qd = QueryDefinition.fromXML(config);
 		File projectRoot = config.getParentFile();
 		if (projectRoot == null)
 			projectRoot = new File(".");
+		return run(qd, projectRoot, output, threads);
+	}
 
-		log.debug("Running query {}", config);
+	/**
+	 * Run a query from XML.
+	 *
+	 * @return {@link Query#getAccumulatedOutput() Accumulated metadata}. Note
+	 *         that primary data is written to the output file.
+	 */
+	public static Map<String, Foldable<?>> run(QueryDefinition qd,
+			File projectRoot, File output, int threads) throws Exception {
+
 		log.debug("Opening output file {}", output);
 
 		NetcdfFileWriter outputDataset = NetcdfFileWriter.createNew(
