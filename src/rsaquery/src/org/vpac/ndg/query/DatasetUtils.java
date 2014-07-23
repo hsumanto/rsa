@@ -51,7 +51,7 @@ public class DatasetUtils {
 	 * @param ds The dataset to process.
 	 * @return The coordinate values in milliseconds since the epoch.
 	 * @throws IOException If the data could not be read.
-	 * @throws QueryConfigurationException If the units are not recognised.
+	 * @throws QueryException If the units are not recognised.
 	 */
 	public TimeAxis findTimeCoordinates(NetcdfDataset ds) throws IOException {
 

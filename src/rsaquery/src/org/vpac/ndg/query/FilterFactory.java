@@ -69,7 +69,7 @@ public class FilterFactory {
 	 * @throws IOException 
 	 */
 	public List<FilterAdapter> createFilters(List<FilterDefinition> fds)
-			throws QueryConfigurationException, IOException {
+			throws QueryException, IOException {
 
 		List<FilterAdapter> filters = new ArrayList<FilterAdapter>();
 
@@ -86,27 +86,27 @@ public class FilterFactory {
 	}
 
 	public FilterAdapter createFilter(FilterDefinition fd)
-			throws QueryConfigurationException, IOException {
+			throws QueryException, IOException {
 
 		Filter f;
 		Class<?> cls;
 		try {
 			cls = loader.loadClass(fd.classname);
 		} catch (ClassNotFoundException e) {
-			throw new QueryConfigurationException(String.format(
+			throw new QueryBindingException(String.format(
 					"Could not find filter class \"%s\".", fd.classname));
 		}
 		if (!Filter.class.isAssignableFrom(cls)) {
 			// This doubles as a security check: it prevents people from
 			// instantiating any old class.
-			throw new QueryConfigurationException(String.format(
+			throw new QueryBindingException(String.format(
 					"%s is not a Filter.", fd.classname));
 		}
 
 		try {
 			f = (Filter) cls.getConstructor().newInstance();
 		} catch (Exception e) {
-			throw new QueryConfigurationException(String.format(
+			throw new FilterDefinitionException(String.format(
 					"Could not instantiate filter \"%s\": %s", fd.id,
 					e.getMessage()));
 		}
@@ -126,7 +126,7 @@ public class FilterFactory {
 	}
 
 	private void setLiterals(FilterAdapter f, List<LiteralDefinition> ls)
-			throws QueryConfigurationException {
+			throws QueryException {
 
 		if (ls == null)
 			return;
@@ -141,14 +141,14 @@ public class FilterFactory {
 	// OUTPUTS
 
 	public void bindFilters(List<VariableBindingDefinition> variableBindingDefs)
-			throws QueryConfigurationException {
+			throws QueryException {
 		for (VariableBindingDefinition vbd : variableBindingDefs) {
 			bind(vbd);
 		}
 	}
 
 	public void bind(VariableBindingDefinition vbd)
-			throws QueryConfigurationException {
+			throws QueryException {
 
 		List<VariableAdapter> variables = collectOutputVariables(vbd.toRefs);
 		PixelSource socket = filterStore.findOutputSocket(vbd.fromRef);
@@ -167,13 +167,13 @@ public class FilterFactory {
 	}
 
 	private List<VariableAdapter> collectOutputVariables(List<String> toRefs)
-			throws QueryConfigurationException {
+			throws QueryException {
 		List<VariableAdapter> variables = new ArrayList<VariableAdapter>();
 		for (String ref : toRefs) {
 			NodeReference nr = resolve.decompose(ref);
 			DatasetMeta ds = datasetStore.getDataset(nr.getNodeId());
 			if (!DatasetOutput.class.isAssignableFrom(ds.getClass())) {
-				throw new QueryConfigurationException(String.format(
+				throw new QueryBindingException(String.format(
 						"Can't bind output to input variable %s", ref));
 			}
 			VariableAdapter pvar = ds.getVariableAdapter(nr.getSocketName());
@@ -186,7 +186,7 @@ public class FilterFactory {
 	// INPUTS
 
 	private void setSamplers(FilterAdapter f, List<SamplerDefinition> ss)
-			throws QueryConfigurationException, IOException {
+			throws QueryException, IOException {
 
 		if (ss == null)
 			return;
@@ -198,7 +198,7 @@ public class FilterFactory {
 			}
 
 			if (refs.size() == 0) {
-				throw new QueryConfigurationException(String.format(
+				throw new QueryBindingException(String.format(
 						"Can't configure sampler \"%s.%s\": no " +
 						"sockets match references.", f.getName(), sd.name));
 			}
@@ -216,7 +216,7 @@ public class FilterFactory {
 			if (PixelSourceScalar.class.isAssignableFrom(type)) {
 				// Ensure scalar source for scalar fields.
 				if (!isScalar) {
-					throw new QueryConfigurationException(String.format(
+					throw new QueryBindingException(String.format(
 							"Can't assign vector source to scalar field " +
 							"\"%s.%s\"", f.getName(), sd.name));
 				}
@@ -257,7 +257,7 @@ public class FilterFactory {
 	}
 
 	private List<PixelSource> gatherPixelSources(List<NodeReference> refs)
-			throws QueryConfigurationException {
+			throws QueryException {
 		List<PixelSource> sources = new ArrayList<PixelSource>(refs.size());
 		for (NodeReference nr : refs) {
 			sources.add(getPixelSource(nr));
@@ -266,7 +266,7 @@ public class FilterFactory {
 	}
 
 	private PixelSource getPixelSource(NodeReference nr)
-			throws QueryConfigurationException {
+			throws QueryException {
 
 		DatasetInput inputDataset = null;
 		FilterAdapter inputFilter = null;
@@ -274,7 +274,7 @@ public class FilterFactory {
 		// Dataset
 		try {
 			inputDataset = (DatasetInput) datasetStore.getDataset(nr.getNodeId());
-		} catch (QueryConfigurationException e) {
+		} catch (QueryException e) {
 			// Will test for null below.
 		} catch (ClassCastException e) {
 			log.warn("Found dataset \"{}\", but it is not an input dataset.", nr.getNodeId());
@@ -283,7 +283,7 @@ public class FilterFactory {
 		// Filter
 		try {
 			inputFilter = filterStore.getFilter(nr.getNodeId());
-		} catch (QueryConfigurationException e) {
+		} catch (QueryException e) {
 			// Will test for null below.
 		}
 
@@ -308,7 +308,7 @@ public class FilterFactory {
 			return inputFilter.getOutputSocket(nr.getSocketName());
 
 		} else {
-			throw new QueryConfigurationException(String.format(
+			throw new QueryBindingException(String.format(
 					"\"%s\" is not a filter or dataset id.", nr.getNodeId()));
 		}
 	}

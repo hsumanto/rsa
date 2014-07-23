@@ -70,7 +70,7 @@ import org.vpac.ndg.geometry.BoxInt;
 import org.vpac.ndg.geometry.Point;
 import org.vpac.ndg.geometry.Tile;
 import org.vpac.ndg.geometry.TileManager;
-import org.vpac.ndg.query.QueryConfigurationException;
+import org.vpac.ndg.query.QueryException;
 import org.vpac.ndg.query.QueryRuntimeException;
 import org.vpac.ndg.query.io.DatasetProvider;
 import org.vpac.ndg.query.io.ProviderRegistry;
@@ -1173,7 +1173,7 @@ public class Client {
 	 * @throws TaskInitialisationException
 	 * @throws TaskException
 	 * @throws IOException 
-	 * @throws QueryConfigurationException 
+	 * @throws QueryException 
 	 */
 	public void queryData(List<String> remainingArgs) throws IOException,
 			TaskInitialisationException, TaskException {

@@ -19,7 +19,7 @@
 
 package org.vpac.ndg.query.iteration;
 
-import org.vpac.ndg.query.QueryConfigurationException;
+import org.vpac.ndg.query.QueryException;
 import org.vpac.ndg.query.coordinates.HasShape;
 import org.vpac.ndg.query.math.VectorInt;
 import org.vpac.ndg.query.math.VectorReal;
@@ -33,7 +33,7 @@ public class Image<T> implements HasShape {
 	VectorInt shape;
 	T[] image;
 
-	public Image(T[] image, VectorInt shape) throws QueryConfigurationException {
+	public Image(T[] image, VectorInt shape) throws QueryException {
 		this.shape = shape;
 		this.image = image;
 	}

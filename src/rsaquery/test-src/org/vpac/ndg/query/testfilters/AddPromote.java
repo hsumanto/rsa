@@ -2,7 +2,7 @@ package org.vpac.ndg.query.testfilters;
 
 import java.io.IOException;
 
-import org.vpac.ndg.query.QueryConfigurationException;
+import org.vpac.ndg.query.QueryException;
 import org.vpac.ndg.query.filter.CellType;
 import org.vpac.ndg.query.filter.Filter;
 import org.vpac.ndg.query.filter.InheritDimensions;
@@ -31,7 +31,7 @@ public class AddPromote implements Filter {
 	public Cell output;
 
 	@Override
-	public void initialise(BoxReal bounds) throws QueryConfigurationException {
+	public void initialise(BoxReal bounds) throws QueryException {
 	}
 
 	@Override

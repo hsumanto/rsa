@@ -21,7 +21,7 @@ package org.vpac.ndg.query.filter;
 
 import java.io.IOException;
 
-import org.vpac.ndg.query.QueryConfigurationException;
+import org.vpac.ndg.query.QueryException;
 import org.vpac.ndg.query.math.BoxReal;
 import org.vpac.ndg.query.math.Element;
 import org.vpac.ndg.query.math.VectorReal;
@@ -53,7 +53,7 @@ public interface Filter {
 	 * @param bounds The extents that this filter will operate over, in global
 	 * cell space.
 	 */
-	void initialise(BoxReal bounds) throws QueryConfigurationException;
+	void initialise(BoxReal bounds) throws QueryException;
 
 	/**
 	 * Process a single pixel. This is the heart of a filter. This method

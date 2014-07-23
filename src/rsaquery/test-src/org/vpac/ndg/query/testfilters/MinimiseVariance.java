@@ -22,7 +22,7 @@ package org.vpac.ndg.query.testfilters;
 import java.io.IOException;
 
 import org.vpac.ndg.query.MinimiseForTime;
-import org.vpac.ndg.query.QueryConfigurationException;
+import org.vpac.ndg.query.QueryException;
 import org.vpac.ndg.query.Variance;
 import org.vpac.ndg.query.filter.CellType;
 import org.vpac.ndg.query.filter.Filter;
@@ -80,7 +80,7 @@ public class MinimiseVariance implements Filter {
 	Swizzle tcs = SwizzleFactory.compile("t");
 
 	@Override
-	public void initialise(BoxReal bounds) throws QueryConfigurationException {
+	public void initialise(BoxReal bounds) throws QueryException {
 		reduction = new Reduction(input.getBounds(), false);
 
 		VectorInt rectShape = VectorInt.createEmpty(input.getRank(), windowSize);

@@ -24,8 +24,9 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-import org.vpac.ndg.query.QueryConfigurationException;
+import org.vpac.ndg.query.QueryException;
 import org.vpac.ndg.query.QueryDefinition.AttributeDefinition;
+import org.vpac.ndg.query.QueryDimensionalityException;
 import org.vpac.ndg.query.QueryRuntimeException;
 import org.vpac.ndg.query.StringUtils;
 import org.vpac.ndg.query.math.Element;
@@ -82,7 +83,7 @@ public class Prototype implements HasDimensions {
 	 * @see #combine(Prototype[], String[])
 	 */
 	public static Prototype combine(Collection<? extends HasPrototype> sources,
-			String[] dimensions) throws QueryConfigurationException {
+			String[] dimensions) throws QueryException {
 
 		Prototype[] prototypes = new Prototype[sources.size()];
 		int i = 0;
@@ -104,7 +105,7 @@ public class Prototype implements HasDimensions {
 	 * @return The new prototype.
 	 */
 	public static Prototype combine(Prototype[] prototypes, String[] dimensions)
-			throws QueryConfigurationException {
+			throws QueryException {
 
 		List<Type> types = new ArrayList<Type>();
 		List<NodataStrategy> ndss = new ArrayList<NodataStrategy>();
@@ -117,7 +118,7 @@ public class Prototype implements HasDimensions {
 			} else if (dims == null) {
 				dims = pt.getDimensions();
 			} else if (!Arrays.equals(dims, pt.getDimensions())) {
-				throw new QueryConfigurationException(
+				throw new QueryDimensionalityException(
 						"Can't create prototype: components have " +
 						"differing dimensionality.");
 			}
@@ -194,7 +195,7 @@ public class Prototype implements HasDimensions {
 	 * number of components.
 	 * @param type The type to convert to (byte, short, int, ...)
 	 */
-	public void convert(String type) throws QueryConfigurationException {
+	public void convert(String type) throws QueryException {
 		// Convert to specified type - this keeps the same number of components.
 		if (type.equals(""))
 			return;

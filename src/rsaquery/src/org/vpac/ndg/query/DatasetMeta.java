@@ -48,6 +48,6 @@ public interface DatasetMeta extends HasGridProjected, HasCoordinateSystem {
 	Variable findVariable(String name);
 
 	VariableAdapter getVariableAdapter(String name)
-			throws QueryConfigurationException;
+			throws QueryException;
 
 }

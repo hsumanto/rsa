@@ -21,7 +21,8 @@ package org.vpac.ndg.query.iteration;
 
 import java.util.Iterator;
 
-import org.vpac.ndg.query.QueryConfigurationException;
+import org.vpac.ndg.query.QueryDimensionalityException;
+import org.vpac.ndg.query.QueryException;
 import org.vpac.ndg.query.math.VectorInt;
 import org.vpac.ndg.query.math.VectorReal;
 
@@ -40,10 +41,10 @@ public class Kernel<T> implements Iterable<KernelPair<T>> {
 	KernelIterator iter;
 	KernelPair<T> pair;
 
-	public Kernel(VectorInt shape, T[] image) throws QueryConfigurationException {
+	public Kernel(VectorInt shape, T[] image) throws QueryException {
 		this.shape = shape;
 		if (image.length != shape.volume()) {
-			throw new QueryConfigurationException(String.format("Kernel " +
+			throw new QueryDimensionalityException(String.format("Kernel " +
 					"shape %s does not match number of kernel elements %d",
 					shape, image.length));
 		}

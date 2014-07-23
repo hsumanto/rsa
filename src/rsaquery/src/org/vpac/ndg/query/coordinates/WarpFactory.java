@@ -21,7 +21,7 @@ package org.vpac.ndg.query.coordinates;
 
 import java.util.Collections;
 
-import org.vpac.ndg.query.QueryConfigurationException;
+import org.vpac.ndg.query.QueryException;
 import org.vpac.ndg.query.coordinates.WarpSpatial.WarpSpatialGeoxyToGeoxy;
 import org.vpac.ndg.query.coordinates.WarpSpatial.WarpSpatialGeoxyToLatlon;
 import org.vpac.ndg.query.coordinates.WarpSpatial.WarpSpatialLatlonToGeoxy;
@@ -69,7 +69,7 @@ public class WarpFactory {
 	 *        through unmodified.
 	 */
 	public Warp createGridWarp(GridProjected from, GridProjected to,
-			int ndimensions) throws QueryConfigurationException {
+			int ndimensions) throws QueryException {
 
 		if (from.getSrs() == null || to.getSrs() == null) {
 			// No projection - just translate

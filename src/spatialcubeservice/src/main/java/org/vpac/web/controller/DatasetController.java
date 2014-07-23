@@ -44,7 +44,7 @@ import org.vpac.ndg.FileUtils;
 import org.vpac.ndg.Utils;
 import org.vpac.ndg.common.datamodel.CellSize;
 import org.vpac.ndg.query.Query;
-import org.vpac.ndg.query.QueryConfigurationException;
+import org.vpac.ndg.query.QueryException;
 import org.vpac.ndg.query.QueryDefinition;
 import org.vpac.ndg.query.QueryDefinition.FilterDefinition;
 import org.vpac.ndg.query.QueryDefinition.LiteralDefinition;
@@ -151,7 +151,7 @@ public class DatasetController {
 	@RequestMapping(value = "/{datasetId}/**/categorise", method = RequestMethod.GET)
 	public String createCategories(@PathVariable String datasetId,
 			HttpServletRequest request, ModelMap model)
-			throws ResourceNotFoundException, IOException, QueryConfigurationException {
+			throws ResourceNotFoundException, IOException, QueryException {
 		log.info("datasetId:" + datasetId);
 		String requestURL = request.getRequestURI().toString();
 		String timeSliceId = findPathVariable(requestURL, "TimeSlice");

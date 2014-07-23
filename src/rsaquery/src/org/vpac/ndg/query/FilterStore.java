@@ -46,37 +46,37 @@ public class FilterStore {
 	/**
 	 * @param ref A reference, e.g. <em>#blur</em>.
 	 * @return The matching filter
-	 * @throws QueryConfigurationException If the filter can't be found, or if
+	 * @throws QueryException If the filter can't be found, or if
 	 *         the reference is invalid.
 	 */
 	public FilterAdapter findFilter(String ref)
-			throws QueryConfigurationException {
+			throws QueryException {
 		return getFilter(resolve.decompose(ref).getNodeId());
 	}
 
 	/**
 	 * @param id The name of the dataset, e.g. <em>infile</em>.
 	 * @return The matching dataset.
-	 * @throws QueryConfigurationException If the dataset can't be found.
+	 * @throws QueryException If the dataset can't be found.
 	 */
 	public FilterAdapter getFilter(String id) throws
-			QueryConfigurationException {
+			QueryException {
 
 		FilterAdapter filter = filters.get(id);
 		if (filter == null) {
-			throw new QueryConfigurationException(String.format(
+			throw new QueryBindingException(String.format(
 					"Filter \"%s\" is not defined (yet).", id));
 		}
 		return filter;
 	}
 
 	public PixelSource findOutputSocket(String ref)
-			throws QueryConfigurationException {
+			throws QueryException {
 
 		NodeReference nr = resolve.decompose(ref);
 
 		if (nr.getSocketName() == null)
-			throw new QueryConfigurationException(String.format(
+			throw new QueryBindingException(String.format(
 					"Socket name not specified in \"%s\".", ref));
 
 		FilterAdapter filter = getFilter(nr.getNodeId());

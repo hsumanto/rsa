@@ -21,7 +21,7 @@ package org.vpac.ndg.cli.query;
 
 import java.io.IOException;
 
-import org.vpac.ndg.query.QueryConfigurationException;
+import org.vpac.ndg.query.QueryException;
 import org.vpac.ndg.query.filter.CellType;
 import org.vpac.ndg.query.filter.Filter;
 import org.vpac.ndg.query.filter.InheritDimensions;
@@ -61,7 +61,7 @@ public class Ndvi implements Filter {
 	Element<?> temp;
 
 	@Override
-	public void initialise(BoxReal bounds) throws QueryConfigurationException {
+	public void initialise(BoxReal bounds) throws QueryException {
 		ndvi = output.getPrototype().getElement().copy();
 		temp = ndvi.copy();
 	}

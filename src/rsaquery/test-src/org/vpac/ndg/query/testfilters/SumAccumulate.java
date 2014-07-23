@@ -20,7 +20,7 @@ package org.vpac.ndg.query.testfilters;
 
 import java.io.IOException;
 
-import org.vpac.ndg.query.QueryConfigurationException;
+import org.vpac.ndg.query.QueryException;
 import org.vpac.ndg.query.filter.Accumulator;
 import org.vpac.ndg.query.filter.CellType;
 import org.vpac.ndg.query.filter.Description;
@@ -52,7 +52,7 @@ public class SumAccumulate implements Filter,
 	private IntAdder adder;
 
 	@Override
-	public void initialise(BoxReal bounds) throws QueryConfigurationException {
+	public void initialise(BoxReal bounds) throws QueryException {
 		adder = new IntAdder(0);
 	}
 

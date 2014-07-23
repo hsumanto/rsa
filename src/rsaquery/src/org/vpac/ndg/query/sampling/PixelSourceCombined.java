@@ -22,7 +22,7 @@ package org.vpac.ndg.query.sampling;
 import java.io.IOException;
 import java.util.List;
 
-import org.vpac.ndg.query.QueryConfigurationException;
+import org.vpac.ndg.query.QueryException;
 import org.vpac.ndg.query.math.BoxReal;
 import org.vpac.ndg.query.math.Element;
 import org.vpac.ndg.query.math.VectorElement;
@@ -36,7 +36,7 @@ public class PixelSourceCombined implements PixelSourceVector {
 	private VectorElement elem;
 
 	public PixelSourceCombined(List<PixelSource> children)
-			throws QueryConfigurationException {
+			throws QueryException {
 		this.children = children.toArray(new PixelSource[children.size()]);
 
 		prototype = Prototype.combine(children, null);

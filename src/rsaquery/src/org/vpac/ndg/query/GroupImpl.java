@@ -62,7 +62,7 @@ public class GroupImpl implements HasRank, HasDimensions, HasBounds {
 		dimensions = null;
 	}
 
-	void add(Field field) throws QueryConfigurationException {
+	void add(Field field) throws QueryException {
 		Rank rank = field.getAnnotation(Rank.class);
 		if (rank == null)
 			rank = getDefaultRankConstraint();
@@ -75,17 +75,17 @@ public class GroupImpl implements HasRank, HasDimensions, HasBounds {
 	}
 
 	private PixelSource getValue(Field field)
-			throws QueryConfigurationException {
+			throws QueryException {
 		PixelSource source;
 		try {
 			source = (PixelSource) field.get(filter);
 		} catch (IllegalAccessException e) {
-			throw new QueryConfigurationException(String.format(
-					"Could not access reduction field %s.",
+			throw new QueryBindingException(String.format(
+					"Could not access field %s.",
 					d.memberStr(field)), e);
 		}
 		if (source == null) {
-			throw new QueryConfigurationException(String.format(
+			throw new QueryBindingException(String.format(
 					"Field %s has not been attached to an input.",
 					d.pathStr(field)));
 		}
@@ -93,7 +93,7 @@ public class GroupImpl implements HasRank, HasDimensions, HasBounds {
 	}
 
 	private void foldClassConstraints(Field field, Rank rank)
-			throws QueryConfigurationException {
+			throws QueryException {
 
 		// Lower-bound starts very small, and grows as each new constraint
 		// is considered. Vice-versa for upper bound.
@@ -107,7 +107,7 @@ public class GroupImpl implements HasRank, HasDimensions, HasBounds {
 		}
 		if (rank.is() >= 0) {
 			if (rankLower > rank.is()) {
-				throw new QueryConfigurationException(String.format(
+				throw new QueryDimensionalityException(String.format(
 						"Rank constraints on %s can't be met: `is`"
 						+ " parameter is less than group \"%s\" lower"
 						+ " bound. The lower bound was set by %s.",
@@ -115,7 +115,7 @@ public class GroupImpl implements HasRank, HasDimensions, HasBounds {
 						d.memberStr(rankUpperField)));
 			}
 			if (rankUpper < rank.is()) {
-				throw new QueryConfigurationException(String.format(
+				throw new QueryDimensionalityException(String.format(
 						"Rank constraints on %s can't be met: `is`"
 						+ " parameter is greater than group \"%s\" upper"
 						+ " bound. The upper bound was set by %s.",
@@ -126,7 +126,7 @@ public class GroupImpl implements HasRank, HasDimensions, HasBounds {
 			rankLowerField = rankUpperField = field;
 		}
 		if (rankUpper < rankLower) {
-			throw new QueryConfigurationException(String.format(
+			throw new QueryDimensionalityException(String.format(
 					"Rank constraints on %s (group %s) can't be met: lower"
 					+ " bound is greater than upper bound in group %s.",
 					d.memberStr(field), this.name));
@@ -134,11 +134,11 @@ public class GroupImpl implements HasRank, HasDimensions, HasBounds {
 	}
 
 	private void foldInstanceConstraints(Field field, PixelSource source,
-			Rank rank) throws QueryConfigurationException {
+			Rank rank) throws QueryException {
 
 		if (!rank.promote()) {
 			if (source.getRank() < rankLower) {
-				throw new QueryConfigurationException(String.format(
+				throw new QueryDimensionalityException(String.format(
 						"Field %s can't have fewer dimensions than %s. Path is %s.",
 						d.memberStr(field), d.memberStr(rankLowerField),
 						d.pathStr(field)));
@@ -150,7 +150,7 @@ public class GroupImpl implements HasRank, HasDimensions, HasBounds {
 		}
 		if (!rank.demote()) {
 			if (source.getRank() > rankUpper) {
-				throw new QueryConfigurationException(String.format(
+				throw new QueryDimensionalityException(String.format(
 						"Field %s can't have more dimensions than %s. Path is"
 						+ " %s",
 						d.memberStr(field), d.memberStr(rankUpperField),
@@ -183,7 +183,7 @@ public class GroupImpl implements HasRank, HasDimensions, HasBounds {
 		return field.getAnnotation(Rank.class);
 	}
 
-	void coerce() throws QueryConfigurationException {
+	void coerce() throws QueryException {
 		int targetRank = getRank();
 
 		// Reorder dimensions first.
@@ -201,7 +201,7 @@ public class GroupImpl implements HasRank, HasDimensions, HasBounds {
 					dimensions = dims;
 					dimsField = field;
 				} else if (!Arrays.equals(dimensions, dims)) {
-					throw new QueryConfigurationException(String.format(
+					throw new QueryDimensionalityException(String.format(
 							"Could not determine dimensions of group %s:"
 							+ " can't decide between candidates %s"
 							+ " specified by %s and %s specified by %s.",
@@ -237,7 +237,7 @@ public class GroupImpl implements HasRank, HasDimensions, HasBounds {
 			try {
 				field.set(filter, wrap);
 			} catch (IllegalAccessException e) {
-				throw new QueryConfigurationException(String.format(
+				throw new QueryBindingException(String.format(
 						"Could not set field %s.", d.memberStr(field)), e);
 			}
 		}

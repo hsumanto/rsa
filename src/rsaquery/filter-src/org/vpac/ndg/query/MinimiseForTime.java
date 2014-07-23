@@ -77,7 +77,7 @@ public class MinimiseForTime implements Filter {
 	Swizzle tcs = SwizzleFactory.compile("t");
 
 	@Override
-	public void initialise(BoxReal bounds) throws QueryConfigurationException {
+	public void initialise(BoxReal bounds) throws QueryException {
 		reduction = new Reduction(toMinimise.getBounds());
 	}
 

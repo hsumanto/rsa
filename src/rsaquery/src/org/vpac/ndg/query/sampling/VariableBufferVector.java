@@ -23,7 +23,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.vpac.ndg.query.QueryConfigurationException;
+import org.vpac.ndg.query.QueryException;
 import org.vpac.ndg.query.VariableAdapter;
 import org.vpac.ndg.query.math.VectorElement;
 import org.vpac.ndg.query.math.VectorInt;
@@ -36,7 +36,7 @@ public class VariableBufferVector extends VariableBuffer {
 	private ArrayList<PixelSourceVector> sources;
 
 	public VariableBufferVector(List<VariableAdapter> variables)
-			throws QueryConfigurationException {
+			throws QueryException {
 
 		super(variables);
 		this.sources = new ArrayList<PixelSourceVector>();

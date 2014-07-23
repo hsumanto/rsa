@@ -37,6 +37,7 @@ import org.vpac.ndg.query.stats.Stats;
 import org.vpac.ndg.query.stats.VectorCats;
 import org.vpac.ndg.query.stats.VectorHist;
 import org.vpac.ndg.query.stats.VectorStats;
+import org.vpac.ndg.query.testfilters.BrokenInheritanceFilter;
 
 import ucar.ma2.Array;
 import ucar.ma2.DataType;
@@ -562,6 +563,23 @@ public class QueryTest extends TestCase {
 		hist = cats.get(2);
 		s = hist.summarise();
 		assertEquals("Number of pixels where 196 <= x", 5393, s.getCount());
+	}
+
+	@Test(expected=FilterDefinitionException.class)
+	public void test_brokenInheritance() throws Exception {
+		File config = new File("data/config/activefire.xml");
+		File outputFile = new File("data/output/broken_inheritance.nc");
+
+		QueryDefinition qd = QueryDefinition.fromXML(config);
+		qd.filters.get(0).classname = BrokenInheritanceFilter.class.getName();
+		File projectRoot = config.getParentFile();
+
+		try {
+			QueryRunner.run(qd, projectRoot, outputFile, 1);
+		} catch (FilterDefinitionException e) {
+			System.out.format("Exception received (good): %s\n", e.getMessage());
+			throw e;
+		}
 	}
 
 

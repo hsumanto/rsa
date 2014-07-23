@@ -19,23 +19,23 @@
 
 package org.vpac.ndg.query;
 
-public class QueryConfigurationException extends Exception {
+public class QueryException extends Exception {
 
 	private static final long serialVersionUID = -8844585640720514816L;
 
-	public QueryConfigurationException() {
+	public QueryException() {
 		super();
 	}
 
-	public QueryConfigurationException(String s) {
+	public QueryException(String s) {
 		super(s);
 	}
 
-	public QueryConfigurationException(Throwable e) {
+	public QueryException(Throwable e) {
 		super(e);
 	}
 
-	public QueryConfigurationException(String s, Throwable e) {
+	public QueryException(String s, Throwable e) {
 		super(s, e);
 	}
 }

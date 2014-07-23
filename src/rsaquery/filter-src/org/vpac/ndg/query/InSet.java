@@ -19,40 +19,19 @@
 
 package org.vpac.ndg.query;
 
-import java.util.List;
-
-import org.vpac.ndg.query.QueryConfigurationException;
-import org.vpac.ndg.query.filter.CellType;
 import org.vpac.ndg.query.filter.Description;
 import org.vpac.ndg.query.filter.InheritDimensions;
 import org.vpac.ndg.query.math.BoxReal;
-import org.vpac.ndg.query.math.ElementByte;
-import org.vpac.ndg.query.math.ScalarElement;
-import org.vpac.ndg.query.sampling.CellScalar;
-import org.vpac.ndg.query.sampling.PixelSourceScalar;
 
 @Description(name = "In Set", description = "Generates a mask of pixels that are contained in a set.")
 @InheritDimensions(from = "input")
-public class InSet extends InRange {
-
-	// Input fields.
-	public PixelSourceScalar input;
+public class InSet extends In {
 
 	// Comma-separated list of IDs.
 	public String ids;
 
-	// Output fields.
-	@CellType("byte")
-	public CellScalar output;
-
-	List<Double> lowerBounds;
-	List<Double> upperBounds;
-	public double EPSILON = 0.00001;
-	ScalarElement match = new ElementByte((byte) 1);
-	ScalarElement fail = new ElementByte((byte) 0);
-
 	@Override
-	public void initialise(BoxReal bounds) throws QueryConfigurationException {
+	public void initialise(BoxReal bounds) throws QueryException {
 		String[] keys = ids.split(",");
 		setBounds(keys, keys);
 	}

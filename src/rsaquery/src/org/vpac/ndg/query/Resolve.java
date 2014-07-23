@@ -27,14 +27,14 @@ public class Resolve {
 	private static final Pattern REF_PATTERN = Pattern.compile(
 			"#(\\w+)(?:/(.+))?");
 
-	public NodeReference decompose(String ref) throws QueryConfigurationException {
+	public NodeReference decompose(String ref) throws QueryException {
 		if (ref == null) {
-			throw new QueryConfigurationException(String.format(
+			throw new QueryBindingException(String.format(
 					"Invalid reference (null)."));
 		}
 		Matcher matcher = REF_PATTERN.matcher(ref);
 		if (!matcher.matches()) {
-			throw new QueryConfigurationException(String.format(
+			throw new QueryBindingException(String.format(
 					"Invalid reference \"%s\".", ref));
 		}
 

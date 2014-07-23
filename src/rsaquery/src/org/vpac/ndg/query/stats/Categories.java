@@ -20,7 +20,8 @@ package org.vpac.ndg.query.stats;
 
 import java.io.IOException;
 
-import org.vpac.ndg.query.QueryConfigurationException;
+import org.vpac.ndg.query.QueryBindingException;
+import org.vpac.ndg.query.QueryException;
 import org.vpac.ndg.query.filter.Accumulator;
 import org.vpac.ndg.query.filter.CellType;
 import org.vpac.ndg.query.filter.Description;
@@ -57,11 +58,11 @@ public class Categories implements Filter, Accumulator<VectorCats> {
 	private VectorCats stats;
 
 	@Override
-	public void initialise(BoxReal bounds) throws QueryConfigurationException {
+	public void initialise(BoxReal bounds) throws QueryException {
 		if ((!ElementInt.class.isAssignableFrom(categories.getPrototype().getElement().getClass())) &&
 				(!ElementShort.class.isAssignableFrom(categories.getPrototype().getElement().getClass())) &&
 				(!ElementByte.class.isAssignableFrom(categories.getPrototype().getElement().getClass())))
-			throw new QueryConfigurationException("Categories must be byte, short or integer.");
+			throw new QueryBindingException("Categories must be byte, short or integer.");
 		stats = new VectorCats(input.getPrototype().getElement().size());
 		BucketingStrategy bs = new BucketingStrategyFactory().create(buckets);
 		stats.setBucketingStrategy(bs);

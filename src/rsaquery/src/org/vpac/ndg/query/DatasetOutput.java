@@ -108,7 +108,7 @@ public class DatasetOutput implements DatasetMeta {
 	public List<VariableBindingDefinition> configure(
 			QueryCoordinateSystem csys, QueryDefinition qdef,
 			FilterStore filterStore) throws IOException,
-			QueryConfigurationException {
+			QueryException {
 
 		// These operations are quite tightly coupled. Be careful when changing
 		// the order. For example, variable definitions should be dereferenced
@@ -140,7 +140,7 @@ public class DatasetOutput implements DatasetMeta {
 	}
 
 	private String[] gatherDimensions(List<VariableDefinition> vds,
-			FilterStore filterStore) throws QueryConfigurationException {
+			FilterStore filterStore) throws QueryException {
 
 		Set<String> dims = new HashSet<String>();
 		for (VariableDefinition vd : vds) {
@@ -152,12 +152,14 @@ public class DatasetOutput implements DatasetMeta {
 	}
 
 	private Prototype findPrototype(String ref, DatasetStore ds, FilterStore fs)
-			throws QueryConfigurationException {
+			throws QueryException {
 
 		try {
 			return fs.findOutputSocket(ref).getPrototype();
-		} catch (QueryConfigurationException e) {
-			throw new QueryConfigurationException(String.format(
+		} catch (FilterDefinitionException e) {
+			throw e;
+		} catch (QueryException e) {
+			throw new QueryBindingException(String.format(
 					"Could not find prototype for output socket %s", ref), e);
 		}
 	}
@@ -262,10 +264,10 @@ public class DatasetOutput implements DatasetMeta {
 	protected List<VariableDefinition> dereferenceVariables(
 			List<VariableDefinition> vds, FilterStore filterStore,
 			List<VariableBindingDefinition> bindingDefs)
-			throws QueryConfigurationException {
+			throws QueryException {
 
 		if (vds == null) {
-			throw new QueryConfigurationException("No output variables declared.");
+			throw new QueryBindingException("No output variables declared.");
 		}
 
 		List<VariableDefinition> newVds = new ArrayList<VariableDefinition>();
@@ -391,7 +393,7 @@ public class DatasetOutput implements DatasetMeta {
 	 *        definitions should be fully-defined.
 	 */
 	protected void declareVariables(List<VariableDefinition> vds)
-			throws QueryConfigurationException {
+			throws QueryException {
 
 		if (vds == null)
 			return;
@@ -399,11 +401,10 @@ public class DatasetOutput implements DatasetMeta {
 		for (VariableDefinition vd : vds) {
 
 			if (vd.name == null) {
-				throw new QueryConfigurationException(
-						"Variable is under-defined.");
+				throw new QueryBindingException("Variable is under-defined.");
 			}
 			if (vd.dimensions == null || vd.type == null) {
-				throw new QueryConfigurationException(String.format(
+				throw new QueryBindingException(String.format(
 						"Variable \"%s\" is under-defined.", vd.name));
 			}
 
@@ -454,7 +455,7 @@ public class DatasetOutput implements DatasetMeta {
 	 */
 	protected List<VariableDefinition> createDimensions(GridDefinition gd,
 			String[] dimensions, QueryCoordinateSystem csys)
-			throws QueryConfigurationException {
+			throws QueryException {
 
 		List<VariableDefinition> varDefs = new ArrayList<VariableDefinition>();
 		GridProjected grid = csys.getGrid();
@@ -491,7 +492,7 @@ public class DatasetOutput implements DatasetMeta {
 			log.debug("Inferred length of {} dimension is {}", name, length);
 
 			if (length.compareTo(0) <= 0) {
-				throw new QueryConfigurationException(String.format(
+				throw new QueryDimensionalityException(String.format(
 						"Dimension \"%s\" has invalid length (%d). Check " +
 						"bounding box.", name, length));
 			}
@@ -511,7 +512,7 @@ public class DatasetOutput implements DatasetMeta {
 				for (AttributeDefinition ad : sourceVar.getAttributeMementos()) {
 					procAttrs.put(ad.name, ad);
 				}
-			} catch (QueryConfigurationException e) {
+			} catch (QueryException e) {
 				log.warn("Could not find coordinate axis \"{}\" in grid " +
 						"source dataset. Some metadata may be missing from " +
 						"output dataset, so it may not be recognised as " +
@@ -525,7 +526,7 @@ public class DatasetOutput implements DatasetMeta {
 	}
 
 	private int getVectorIndex(VectorReal range, String name)
-			throws QueryConfigurationException {
+			throws QueryException {
 		String dim;
 		if (name.equals("lon"))
 			dim = "x";
@@ -536,7 +537,7 @@ public class DatasetOutput implements DatasetMeta {
 
 		int i = range.indexOf(dim);
 		if (i < 0) {
-			throw new QueryConfigurationException(String.format(
+			throw new QueryDimensionalityException(String.format(
 					"Can not determine length of dimension \"%s\": " +
 					"Can not find dimension in specified grid.", name));
 		}
@@ -548,14 +549,14 @@ public class DatasetOutput implements DatasetMeta {
 	 * metadata that will be used by other programs to display the gridded data.
 	 */
 	protected void createCoordinateSystemMetadata(GridDefinition gd,
-			QueryCoordinateSystem csys) throws QueryConfigurationException,
+			QueryCoordinateSystem csys) throws QueryException,
 			IOException {
 
 		if (gd == null)
 			return;
 
 		if (gd.ref == null) {
-			throw new QueryConfigurationException("Grid definition lacks a "
+			throw new QueryBindingException("Grid definition lacks a "
 					+ "reference to a coordinate system. Defintion of new "
 					+ "coordinate systems is not implemented.");
 		}
@@ -666,7 +667,7 @@ public class DatasetOutput implements DatasetMeta {
 	 */
 	protected void populateDimensions(List<VariableDefinition> vs,
 			QueryCoordinateSystem csys) throws IOException,
-			QueryConfigurationException {
+			QueryException {
 
 		if (vs == null)
 			return;
@@ -715,7 +716,7 @@ public class DatasetOutput implements DatasetMeta {
 			try {
 				target.write(target.findVariable(vardef.name), array);
 			} catch (InvalidRangeException e) {
-				throw new QueryConfigurationException(String.format(
+				throw new QueryDimensionalityException(String.format(
 						"Variable \"%s\" can not be copied from \"%s\": "
 								+ "shape mismatch.", vardef.name, vardef.ref),
 						e);
@@ -724,7 +725,7 @@ public class DatasetOutput implements DatasetMeta {
 	}
 
 	private void adoptCoordinateSystem(String[] dimensions,
-			QueryCoordinateSystem csys) throws QueryConfigurationException {
+			QueryCoordinateSystem csys) throws QueryException {
 
 		boolean hasTime = false;
 		for (String dim : dimensions) {
@@ -752,7 +753,7 @@ public class DatasetOutput implements DatasetMeta {
 
 	@Override
 	public VariableAdapter getVariableAdapter(String name)
-			throws QueryConfigurationException {
+			throws QueryException {
 
 		VariableAdapter var = adapters.get(name);
 
@@ -763,7 +764,7 @@ public class DatasetOutput implements DatasetMeta {
 
 		Variable innerVar = findVariable(name);
 		if (innerVar == null) {
-			throw new QueryConfigurationException(String.format(
+			throw new QueryBindingException(String.format(
 					"Variable \"%s\" can't be found in dataset \"%s\".", name,
 					def.id));
 		}

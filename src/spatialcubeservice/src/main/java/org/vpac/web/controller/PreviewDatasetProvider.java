@@ -46,7 +46,7 @@ import org.vpac.ndg.query.DatasetUtils;
 import org.vpac.ndg.query.GridUtils;
 import org.vpac.ndg.query.PassThrough;
 import org.vpac.ndg.query.Query;
-import org.vpac.ndg.query.QueryConfigurationException;
+import org.vpac.ndg.query.QueryException;
 import org.vpac.ndg.query.QueryDefinition;
 import org.vpac.ndg.query.QueryDefinition.CacheDefinition;
 import org.vpac.ndg.query.QueryDefinition.DatasetInputDefinition;
@@ -176,7 +176,7 @@ public class PreviewDatasetProvider implements DatasetProvider {
 			if (lock.readLock().tryLock()) {
 				try {
 					runPreviewQuery(ds);
-				} catch (QueryConfigurationException e) {
+				} catch (QueryException e) {
 					throw new IOException("Failed to create preview file.", e);
 				} finally {
 					try {
@@ -194,7 +194,7 @@ public class PreviewDatasetProvider implements DatasetProvider {
 	}
 
 	private void runPreviewQuery(Dataset ds) throws IOException,
-			QueryConfigurationException {
+			QueryException {
 
 		QueryDefinition qd = new QueryDefinition();
 		// Data Input Definition
@@ -291,7 +291,7 @@ public class PreviewDatasetProvider implements DatasetProvider {
 
 	private void executeQuery(QueryDefinition qd, Path outputPath,
 			Version netcdfVersion) throws IOException,
-			QueryConfigurationException {
+			QueryException {
 		NetcdfFileWriter outputDataset = NetcdfFileWriter.createNew(
 				netcdfVersion, outputPath.toString());
 

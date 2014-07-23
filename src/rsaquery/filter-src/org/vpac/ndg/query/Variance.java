@@ -65,7 +65,7 @@ public class Variance implements Filter {
 	Element<?> n;
 
 	@Override
-	public void initialise(BoxReal bounds) throws QueryConfigurationException {
+	public void initialise(BoxReal bounds) throws QueryException {
 		// Create a window to iterate over. Ignore the highest dimension so that
 		// this filter can be used in conjunction with a reduction. It would be
 		// possible to make this configurable, e.g. by ignoring the first n

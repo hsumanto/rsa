@@ -76,7 +76,7 @@ public class MaximiseForTime implements Filter {
 	VectorReal tco = VectorReal.createEmpty(1);
 
 	@Override
-	public void initialise(BoxReal bounds) throws QueryConfigurationException {
+	public void initialise(BoxReal bounds) throws QueryException {
 		reduction = new Reduction(toMaximise.getBounds());
 	}
 
