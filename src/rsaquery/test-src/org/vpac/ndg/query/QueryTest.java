@@ -38,6 +38,7 @@ import org.vpac.ndg.query.stats.VectorCats;
 import org.vpac.ndg.query.stats.VectorHist;
 import org.vpac.ndg.query.stats.VectorStats;
 import org.vpac.ndg.query.testfilters.BrokenInheritanceFilter;
+import org.vpac.ndg.query.testfilters.InheritanceFilter;
 
 import ucar.ma2.Array;
 import ucar.ma2.DataType;
@@ -563,6 +564,39 @@ public class QueryTest extends TestCase {
 		hist = cats.get(2);
 		s = hist.summarise();
 		assertEquals("Number of pixels where 196 <= x", 5393, s.getCount());
+	}
+
+	@Test
+	public void test_inheritance() throws Exception {
+		File config = new File("data/config/activefire.xml");
+		File outputFile = new File("data/output/inheritance.nc");
+		File expectedFile = new File("data/expected/on_fire.nc");
+
+		QueryDefinition qd = QueryDefinition.fromXML(config);
+		qd.filters.get(0).classname = InheritanceFilter.class.getName();
+		File projectRoot = config.getParentFile();
+
+		QueryRunner.run(qd, projectRoot, outputFile, 1);
+
+		NetcdfFile dataset = null;
+		NetcdfFile expected = null;
+		try {
+			dataset = NetcdfFile.open(outputFile.getPath());
+			expected = NetcdfFile.open(expectedFile.getPath());
+			Variable vex;
+			Variable vac;
+			vex = expected.findVariable("temp");
+			vac = dataset.findVariable("temp");
+			assertArray(vex.getDataType(), vex.read(), vac.read());
+			vex = expected.findVariable("time");
+			vac = dataset.findVariable("time");
+			assertArray(vex.getDataType(), vex.read(), vac.read());
+		} finally {
+			if (dataset != null)
+				dataset.close();
+			if (expected != null)
+				expected.close();
+		}
 	}
 
 	@Test(expected=FilterDefinitionException.class)

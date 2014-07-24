@@ -25,13 +25,18 @@ import java.util.List;
 
 import org.vpac.ndg.query.filter.CellType;
 import org.vpac.ndg.query.filter.Filter;
+import org.vpac.ndg.query.filter.InheritDimensions;
 import org.vpac.ndg.query.math.ElementByte;
 import org.vpac.ndg.query.math.ScalarElement;
 import org.vpac.ndg.query.math.VectorReal;
 import org.vpac.ndg.query.sampling.CellScalar;
 import org.vpac.ndg.query.sampling.PixelSourceScalar;
 
-//@InheritDimensions(from = "input")
+/**
+ * Generates a mask of pixels that are within a set of bounds.
+ * @author Alex Fraser
+ */
+@InheritDimensions(from = "input")
 public abstract class In implements Filter {
 
 	public PixelSourceScalar input;

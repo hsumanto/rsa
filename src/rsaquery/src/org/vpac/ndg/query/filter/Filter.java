@@ -21,22 +21,90 @@ package org.vpac.ndg.query.filter;
 
 import java.io.IOException;
 
+import org.vpac.ndg.query.QueryDefinition;
 import org.vpac.ndg.query.QueryException;
 import org.vpac.ndg.query.math.BoxReal;
 import org.vpac.ndg.query.math.Element;
 import org.vpac.ndg.query.math.VectorReal;
 import org.vpac.ndg.query.sampling.Cell;
+import org.vpac.ndg.query.sampling.CellScalar;
+import org.vpac.ndg.query.sampling.CellVector;
 import org.vpac.ndg.query.sampling.PixelSource;
+import org.vpac.ndg.query.sampling.PixelSourceScalar;
+import org.vpac.ndg.query.sampling.PixelSourceVector;
 
 /**
  * Encapsulates a function to run over pixels in an image.
  *
- * <p>The framework will create a pool of instances of the filter, which will be
- * used to iterate over the data in a stream processing fashion.</p>
+ * <p>
+ * The framework will create a pool of instances of the filter, which will be
+ * used to iterate over the data in a stream processing fashion.
+ * </p>
  *
- * <p><img src="doc-files/Filter_class.png" /></p>
+ * <p>
+ * <img src="doc-files/Filter_class.png" />
+ * </p>
  *
- * @see <a href="http://en.wikipedia.org/wiki/Stream_processing">Stream processing</a>
+ * <h3>Binding</h3>
+ *
+ * <p>
+ * The query engine binds inputs and outputs by name, according to a
+ * user-supplied {@link QueryDefinition}. All <em>public</em> filter fields
+ * will be made available to be bound as an input or output. Any public fields
+ * that have not been bound will result in an error.
+ * </p>
+ *
+ * <p>
+ * Inputs are bound to {@link PixelSource} fields. You may use
+ * {@link PixelSourceScalar} or {@link PixelSourceVector} if your filter
+ * requires one of those types in particular.
+ * </p>
+ *
+ * <p>
+ * Outputs are bound to {@link Cell} fields. You may use {@link CellScalar} or
+ * {@link CellVector} if your filter outputs one of those types in particular.
+ * </p>
+ *
+ * <p>
+ * Literal (constant) values can be bound to fields of class {@link String} and
+ * numbers (double, int, etc.)
+ * </p>
+ *
+ * <h3>Dimensionality</h3>
+ *
+ * <p>
+ * All outputs ({@link Cell Cells}) of a filter must have the same shape
+ * (number and length of dimensions). The shape is inherited from one of the
+ * inputs. Filter classes must be annotated with {@link InheritDimensions}.
+ * </p>
+ *
+ * <p>
+ * Constraints may be placed on the dimensionality of the inputs using the
+ * {@link Rank} annotation. In the following example, <em>inputA</em> and
+ * <em>inputB</em> must have the same dimensionality, but <em>inputB</em> will
+ * be automatically promoted if it has too few dimensions.
+ * </p>
+ *
+ * <pre>
+ * <code>
+ * public PixelSource inputA;
+ *
+ * {@literal @}Rank(promote = true, group = "inputA")
+ * public PixelSource inputB;
+ * </code>
+ * </pre>
+ *
+ * <h3>Inheritance</h3>
+ *
+ * <p>
+ * Because queries are configured and bound using public fields, care must be
+ * taken when extending filter classes. Never use the same field name in a
+ * subclass, because it will hide the field in the parent class and result in
+ * binding errors (the query will refuse to run).
+ * </p>
+ *
+ * @see <a href="http://en.wikipedia.org/wiki/Stream_processing">Stream
+ *      processing</a>
  * @see PixelSource Input fields
  * @see Cell Output fields
  *

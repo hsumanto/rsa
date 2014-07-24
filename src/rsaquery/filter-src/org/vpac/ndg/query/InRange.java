@@ -20,11 +20,9 @@
 package org.vpac.ndg.query;
 
 import org.vpac.ndg.query.filter.Description;
-import org.vpac.ndg.query.filter.InheritDimensions;
 import org.vpac.ndg.query.math.BoxReal;
 
 @Description(name = "In Range", description = "Generates a mask of pixels that are within a set of ranges.")
-@InheritDimensions(from = "input")
 public class InRange extends In {
 
 	// Comma-separated list of lower bounds. Parallel array with `upper`.

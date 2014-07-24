@@ -20,11 +20,9 @@
 package org.vpac.ndg.query;
 
 import org.vpac.ndg.query.filter.Description;
-import org.vpac.ndg.query.filter.InheritDimensions;
 import org.vpac.ndg.query.math.BoxReal;
 
 @Description(name = "In Set", description = "Generates a mask of pixels that are contained in a set.")
-@InheritDimensions(from = "input")
 public class InSet extends In {
 
 	// Comma-separated list of IDs.

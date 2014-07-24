@@ -5,7 +5,7 @@ import org.vpac.ndg.query.sampling.PixelSourceScalar;
 
 /**
  * A filter that can not run because it hides a field of its parent.
- * @author alex
+ * @author Alex Fraser
  */
 public class BrokenInheritanceFilter extends ActiveFire {
 	@Rank(is = 3)
