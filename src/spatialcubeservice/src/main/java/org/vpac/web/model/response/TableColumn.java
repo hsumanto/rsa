@@ -11,6 +11,8 @@ public class TableColumn {
 	private String units;
 	private String type;
 	private String portionOf;
+	private Double min;
+	private Double max;
 
 	public TableColumn() {
 	}
@@ -86,4 +88,29 @@ public class TableColumn {
 		this.portionOf = portionOf;
 		return this;
 	}
+
+	@XmlAttribute
+	public Double getMin() {
+		return min;
+	}
+	public void setMin(Double min) {
+		this.min = min;
+	}
+	public TableColumn min(Double min) {
+		this.min = min;
+		return this;
+	}
+
+	@XmlAttribute
+	public Double getMax() {
+		return max;
+	}
+	public void setMax(Double max) {
+		this.max = max;
+	}
+	public TableColumn max(Double max) {
+		this.max = max;
+		return this;
+	}
+
 }

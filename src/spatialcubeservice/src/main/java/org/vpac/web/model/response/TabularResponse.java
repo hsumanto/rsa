@@ -185,6 +185,13 @@ public class TabularResponse <T> {
 				rows.add(row);
 			}
 			this.setRows(rows);
+
+			// Set min and max of value column. These can't be determined from
+			// the data in the rows because it is grouped into buckets.
+			Stats s = unfilteredHist.summarise();
+			getColumns().get(0)
+				.min(s.getMin())
+				.max(s.getMax());
 		}
 	}
 
