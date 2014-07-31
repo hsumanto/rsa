@@ -43,12 +43,12 @@ public class VrtColouriser extends Task {
     
     //these colours are simply repeated to make up the total NUMBER_OF_COLOURS count
     private static final Color[] catagoricalColours = 
-        {new Color(166,206,227),
-         new Color(31,120,180),
+        {new Color(31,120,180),
+         new Color(227,26,28),
          new Color(178,223,138),
          new Color(51,160,44),
          new Color(251,154,153),
-         new Color(227,26,28),
+         new Color(166,206,227),
          new Color(253,191,111),
          new Color(255,127,0),
          new Color(202,178,214),
