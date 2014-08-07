@@ -92,6 +92,10 @@ public abstract class In implements Filter {
 	@Override
 	public void kernel(VectorReal coords) throws IOException {
 		ScalarElement elem = input.getScalarPixel(coords);
+		if (!elem.isValid()) {
+			output.unset();
+			return;
+		}
 		for (int i = 0; i < lowerBounds.size(); i++) {
 			double lb = lowerBounds.get(i);
 			double ub = upperBounds.get(i);
