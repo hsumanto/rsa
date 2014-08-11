@@ -75,7 +75,7 @@ public class Master extends UntypedActor {
 	}
 
 	@Override
-	public void onReceive(Object message) {
+	public void onReceive(Object message) throws Exception {
 		if (message instanceof RegisterWorker) {
 			RegisterWorker msg = (RegisterWorker) message;
 			String workerId = msg.workerId;
@@ -127,7 +127,7 @@ public class Master extends UntypedActor {
 			if (totalNoOfWork == completedWork) {
 				foldResults(currentWorkInfo);
 				updateTaskProgress(currentWorkInfo.work.jobProgressId,
-						completedArea, totalArea, TaskState.FINISHED);
+						completedArea, totalArea, TaskState.FINISHED, null);
 				removeWork(currentWorkInfo.work.jobProgressId);
 			}
 
@@ -178,7 +178,7 @@ public class Master extends UntypedActor {
 				completedArea += wi.processedArea;
 			}
 			updateTaskProgress(taskId, completedArea, totalArea,
-					TaskState.RUNNING);
+					TaskState.RUNNING, null);
 		} else if (message instanceof Work) {
 			Work work = (Work) message;
 			// idempotent
@@ -194,6 +194,12 @@ public class Master extends UntypedActor {
 				getSender().tell(new Ack(work.workId), getSelf());
 				notifyWorkers();
 			}
+		} else if (message instanceof Job.Error) {
+			Job.Error error = (Job.Error) message;
+			updateTaskProgress(error.work.jobProgressId,
+					0, 0, TaskState.EXECUTION_ERROR, error.exception.getMessage());
+			removeWork(error.work.jobProgressId);
+			System.out.println("Error:" + error.exception.getMessage());
 		} else if (message == CleanupTick) {
 			Iterator<Map.Entry<String, WorkerState>> iterator = workers
 					.entrySet().iterator();
@@ -212,16 +218,17 @@ public class Master extends UntypedActor {
 				}
 			}
 		} else {
+			System.out.println("unhandled:" + message);
 			unhandled(message);
 		}
 	}
 
 	private void updateTaskProgress(String taskId, double completedArea,
-			double totalArea, TaskState state) {
+			double totalArea, TaskState state, String errorMessage) {
 		ActorSelection database = getContext().system().actorSelection(
 				"akka://Workers/user/database");
 		double fraction = completedArea / totalArea;
-		JobUpdate update = new JobUpdate(taskId, fraction, state);
+		JobUpdate update = new JobUpdate(taskId, fraction, state, errorMessage);
 		database.tell(update, getSelf());
 	}
 

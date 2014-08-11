@@ -1,0 +1,21 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<query>
+    <input id="ep" href="epiphany:1064?AGELOWER=35"/>
+    <input id="dem" href="rsa:vic21/25m"/>
+    <input id="cat" href="rsa:boundaries/100m"/>
+
+    <filter id="Add" cls="org.vpac.ndg.query.AddBinary">
+        <sampler name="inputA" ref="#ep/Band1" />
+        <sampler name="inputB" ref="#dem/Band1" />
+    </filter>
+
+    <filter id="Cats" cls="org.vpac.ndg.query.stats.Categories">
+        <sampler name="input" ref="#Add/output" />
+        <sampler name="categories" ref="#cat/SA4" />
+    </filter>
+
+    <output id="outfile">
+        <grid ref="#cat" />
+        <variable name="Sum" ref="#Cats/output" />
+    </output>
+</query>

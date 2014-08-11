@@ -53,7 +53,9 @@ public class DatabaseActor extends UntypedActor {
 		if (message instanceof JobUpdate) {
 			JobUpdate job = (JobUpdate) message;
 			JobProgress progress = jobProgressDao.retrieve(job.jobId);
+			progress.setErrorMessage(job.errorMessage);
 			progress.setCurrentStepProgress(100 * job.fraction);
+			progress.setState(job.state);
 			if (job.state == TaskState.FINISHED)
 				progress.setCompleted();
 			jobProgressDao.save(progress);

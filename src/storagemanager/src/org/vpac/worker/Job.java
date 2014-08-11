@@ -53,4 +53,20 @@ public class Job {
 			return "WorkComplete{" + "result=" + result + '}';
 		}
 	}
+	
+	public static final class Error implements Serializable {
+		private static final long serialVersionUID = 1L;
+		public final Exception exception;
+		public final Work work;
+		public Error(Work w, Exception e) {
+			this.exception = e;
+			this.work = w;
+		}
+
+		@Override
+		public String toString() {
+			return "Error{" + "message=" + exception.getMessage() + '}';
+		}
+
+	}
 }

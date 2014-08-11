@@ -6,6 +6,7 @@ import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import akka.japi.Function;
 
+import java.io.IOException;
 import java.util.UUID;
 
 import org.vpac.worker.Job.Work;
@@ -128,6 +129,8 @@ public class Worker extends UntypedActor {
 				sendToMaster((ProgressCheckPoint) message);
 			} else if (message instanceof Work) {
 				log.info("Yikes. Master told me to do work, while I'm working.");
+			} else if (message instanceof Job.Error) {
+				sendToMaster((Job.Error) message);
 			} else {
 				unhandled(message);
 			}

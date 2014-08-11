@@ -76,7 +76,7 @@ public class WorkExecutor extends UntypedActor {
 	private LoggingAdapter log = Logging.getLogger(getContext().system(), this);
 
 	@Override
-	public void onReceive(Object message) throws Exception {
+	public void onReceive(Object message) {
 		if (message instanceof Work) {
 			Work work = (Work) message;
 			WorkProgress wp = new WorkProgress(work.workId);
@@ -93,7 +93,7 @@ public class WorkExecutor extends UntypedActor {
 									work.workId, wp),
 							getContext().system().dispatcher(), null);
 
-			Map<String, Foldable<?>> output;
+			Map<String, Foldable<?>> output = null;
 			try {
 				QueryDefinition qd = preprocessQueryDef(work, tempFiles);
 				Path queryPath = getOutputPath(work);
@@ -101,7 +101,7 @@ public class WorkExecutor extends UntypedActor {
 			} catch (Exception e) {
 				wp.setErrorMessage(e.getMessage());
 				log.error(e, "Task {} exited abnormally", work.workId);
-				throw e;
+				getSender().tell(new Job.Error(work, e), getSelf());
 			} finally {
 				for (Path path : tempFiles) {
 					try {
@@ -127,9 +127,9 @@ public class WorkExecutor extends UntypedActor {
 
 	private QueryDefinition preprocessQueryDef(Work work,
 			Collection<Path> tempFiles) throws IOException {
-		final QueryDefinition qd1 = QueryDefinition
+		final QueryDefinition qd = QueryDefinition
 				.fromString(work.queryDefinitionString);
-		qd1.output.grid.bounds = String.format("%f %f %f %f", work.bound
+		qd.output.grid.bounds = String.format("%f %f %f %f", work.bound
 				.getMin().getX(), work.bound.getMin().getY(), work.bound
 				.getMax().getX(), work.bound.getMax().getY());
 
@@ -137,14 +137,14 @@ public class WorkExecutor extends UntypedActor {
 		// This is required because the query engine needs to know some metadata
 		// early in the query configuration process, before the files are
 		// opened.
-		for (DatasetInputDefinition di : qd1.inputs) {
+		for (DatasetInputDefinition di : qd.inputs) {
 			if (di.href.startsWith("epiphany")) {
 				Path epiphanyTempFile = fetchEpiphanyData(di, work);
 				tempFiles.add(epiphanyTempFile);
 				di.href = epiphanyTempFile.toString();
 			}
 		}
-		return qd1;
+		return qd;
 	}
 
 	private Path getOutputPath(Work work) throws IOException {
@@ -190,6 +190,8 @@ public class WorkExecutor extends UntypedActor {
 			} finally {
 				q.close();
 			}
+		} catch(Exception e) {
+			throw e;
 		} finally {
 			try {
 				outputDataset.close();

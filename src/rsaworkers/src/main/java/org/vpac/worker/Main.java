@@ -47,8 +47,6 @@ public class Main {
 				.getBean("rsaDatasetProvider");
 		DatasetProvider fileDatasetProvider = (DatasetProvider) appContext
 				.getBean("fileDatasetProvider");
-		// DatasetProvider epiphanyProvider =
-		// (DatasetProvider)appContext.getBean("epiphanyDatasetProvider");
 		ProviderRegistry.getInstance().clearProivders();
 		ProviderRegistry.getInstance().addProvider(dataProvider);
 		ProviderRegistry.getInstance().addProvider(fileDatasetProvider);
