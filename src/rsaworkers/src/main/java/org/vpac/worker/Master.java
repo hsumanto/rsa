@@ -108,6 +108,15 @@ public class Master extends UntypedActor {
 			String workerId = msg.workerId;
 			String workId = msg.workId;
 			WorkInfo currentWorkInfo = workProgress.get(workId);
+			if (currentWorkInfo == null) {
+				log.debug("Discarding WorkIsDone message because the"
+						+ " associated WorkInfo object does not exist. The job"
+						+ " probably failed on another worker.");
+				// Acknowledge that the work has finished, even though we're
+				// going to ignore it. Got to keep the workers happy.
+				acknowledgeWorkCompletion(msg, workerId, workId);
+				return;
+			}
 			currentWorkInfo.result = msg.result;
 			workProgress.put(workId, currentWorkInfo);
 
@@ -131,27 +140,7 @@ public class Master extends UntypedActor {
 				removeWork(currentWorkInfo.work.jobProgressId);
 			}
 
-			WorkerState state = workers.get(workerId);
-			if (state != null && state.status.isBusy()
-					&& state.status.getWork().workId.equals(workId)) {
-				Work work = state.status.getWork();
-				Object result = msg.result;
-				log.debug("Work is done: {} => {} by worker {}", work, result,
-						workerId);
-				System.out.println("Work is done: " + work + " => " + result
-						+ " by worker " + workerId);
-				// TODO store in Eventsourced
-				workers.put(workerId, state.copyWithStatus(Idle.instance));
-				mediator.tell(new DistributedPubSubMediator.Publish(
-						ResultsTopic, new WorkResult(workId, result)),
-						getSelf());
-				getSender().tell(new Ack(workId), getSelf());
-			} else {
-				if (workIds.contains(workId)) {
-					// previous Ack was lost, confirm again that this is done
-					getSender().tell(new Ack(workId), getSelf());
-				}
-			}
+			acknowledgeWorkCompletion(msg, workerId, workId);
 		} else if (message instanceof WorkFailed) {
 			WorkFailed msg = (WorkFailed) message;
 			String workerId = msg.workerId;
@@ -168,6 +157,12 @@ public class Master extends UntypedActor {
 		} else if (message instanceof ProgressCheckPoint) {
 			ProgressCheckPoint check = (ProgressCheckPoint) message;
 			WorkInfo work = workProgress.get(check.workId);
+			if (work == null) {
+				log.debug("Discarding ProgressCheckPoint message because the"
+						+ " associated WorkInfo object does not exist. The job"
+						+ " probably failed on another worker.");
+				return;
+			}
 			work.processedArea = work.area * check.progress.getFraction();
 			String taskId = work.work.jobProgressId;
 			List<WorkInfo> allTaskWork = getAllTaskWork(taskId);
@@ -199,6 +194,13 @@ public class Master extends UntypedActor {
 			updateTaskProgress(error.work.jobProgressId,
 					0, 0, TaskState.EXECUTION_ERROR, error.exception.getMessage());
 			removeWork(error.work.jobProgressId);
+
+			// On error, the worker transitions to its idle state - so update
+			// the local copy of that state.
+			WorkerState state = workers.get(error.workerId);
+			if (state != null && state.status.isBusy()) {
+				workers.put(error.workerId, state.copyWithStatus(Idle.instance));
+			}
 			System.out.println("Error:" + error.exception.getMessage());
 		} else if (message == CleanupTick) {
 			Iterator<Map.Entry<String, WorkerState>> iterator = workers
@@ -220,6 +222,32 @@ public class Master extends UntypedActor {
 		} else {
 			System.out.println("unhandled:" + message);
 			unhandled(message);
+		}
+	}
+
+	private void acknowledgeWorkCompletion(
+			WorkIsDone msg, String workerId, String workId) {
+
+		WorkerState state = workers.get(workerId);
+		if (state != null && state.status.isBusy()
+				&& state.status.getWork().workId.equals(workId)) {
+			Work work = state.status.getWork();
+			Object result = msg.result;
+			log.debug("Work is done: {} => {} by worker {}", work, result,
+					workerId);
+			System.out.println("Work is done: " + work + " => " + result
+					+ " by worker " + workerId);
+			// TODO store in Eventsourced
+			workers.put(workerId, state.copyWithStatus(Idle.instance));
+			mediator.tell(new DistributedPubSubMediator.Publish(
+					ResultsTopic, new WorkResult(workId, result)),
+					getSelf());
+			getSender().tell(new Ack(workId), getSelf());
+		} else {
+			if (workIds.contains(workId)) {
+				// previous Ack was lost, confirm again that this is done
+				getSender().tell(new Ack(workId), getSelf());
+			}
 		}
 	}
 
@@ -274,12 +302,21 @@ public class Master extends UntypedActor {
 	}
 
 	private void removeWork(String jobProgressId) {
+		// Remove jobs that are currently being worked on. This allows Master
+		// to ignore future WorkCompleted messages for this job.
 		Iterator<Entry<String, WorkInfo>> iter = workProgress.entrySet()
 				.iterator();
 		while (iter.hasNext()) {
 			Entry<String, WorkInfo> entry = iter.next();
 			if (entry.getValue().work.jobProgressId.equals(jobProgressId))
 				iter.remove();
+		}
+		// Remove jobs that haven't started yet.
+		Iterator<Work> iter2 = pendingWork.iterator();
+		while (iter2.hasNext()) {
+			Work work = iter2.next();
+			if (work.jobProgressId.equals(jobProgressId))
+				iter2.remove();
 		}
 	}
 

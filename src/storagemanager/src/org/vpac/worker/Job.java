@@ -58,9 +58,17 @@ public class Job {
 		private static final long serialVersionUID = 1L;
 		public final Exception exception;
 		public final Work work;
+		public final String workerId;
 		public Error(Work w, Exception e) {
 			this.exception = e;
 			this.work = w;
+			this.workerId = null;
+		}
+
+		public Error(Work w, Exception e, String workerId) {
+			this.exception = e;
+			this.work = w;
+			this.workerId = workerId;
 		}
 
 		@Override

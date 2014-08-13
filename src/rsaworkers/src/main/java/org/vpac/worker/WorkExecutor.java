@@ -102,7 +102,14 @@ public class WorkExecutor extends UntypedActor {
 				wp.setErrorMessage(e.getMessage());
 				log.error(e, "Task {} exited abnormally", work.workId);
 				getSender().tell(new Job.Error(work, e), getSelf());
+				// Error handling has been delegated to `sender`, so just
+				// return.
+				return;
 			} finally {
+				// Query is no longer running, so no more progress updates are
+				// required.
+				cancel.cancel();
+
 				for (Path path : tempFiles) {
 					try {
 						Files.delete(path);
@@ -120,7 +127,6 @@ public class WorkExecutor extends UntypedActor {
 				result.put(v.getKey(), v.getValue());
 			}
 
-			cancel.cancel();
 			getSender().tell(new Job.WorkComplete(result), getSelf());
 		}
 	}

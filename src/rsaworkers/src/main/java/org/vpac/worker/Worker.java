@@ -130,7 +130,13 @@ public class Worker extends UntypedActor {
 			} else if (message instanceof Work) {
 				log.info("Yikes. Master told me to do work, while I'm working.");
 			} else if (message instanceof Job.Error) {
-				sendToMaster((Job.Error) message);
+				Job.Error err = (Job.Error) message;
+				// Add workerId to allow master to set status of this worker.
+				err = new Job.Error(err.work, err.exception, workerId);
+				sendToMaster(err);
+				sendToMaster(new WorkerRequestsWork(workerId));
+				getContext().setReceiveTimeout(Duration.Undefined());
+				getContext().become(idle);
 			} else {
 				unhandled(message);
 			}
