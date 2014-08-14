@@ -19,6 +19,7 @@
 
 package org.vpac.web.controller;
 
+import java.io.IOException;
 import java.util.List;
 
 import javax.validation.Valid;
@@ -34,6 +35,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.vpac.ndg.storage.dao.BandDao;
 import org.vpac.ndg.storage.dao.DatasetDao;
 import org.vpac.ndg.storage.model.Band;
+import org.vpac.ndg.storage.util.BandUtil;
 import org.vpac.web.exception.ResourceNotFoundException;
 import org.vpac.web.model.request.BandRequest;
 import org.vpac.web.model.request.BandSearchRequest;
@@ -54,7 +56,9 @@ public class BandController {
 	DatasetDao datasetDao; 
 	@Autowired
 	BandDao bandDao; 
-
+    @Autowired
+    BandUtil bandUtil;
+    
 	@RequestMapping(method = RequestMethod.GET)
 	public String searchBand(@Valid BandSearchRequest request, @Valid PagingRequest page, ModelMap model) {
 
@@ -95,6 +99,21 @@ public class BandController {
 		return "Success";
 	}
 
+	@RequestMapping(value = "/Delete/{id}", method = RequestMethod.POST)
+	public String deleteBand(@PathVariable String id, ModelMap model)
+	            throws ResourceNotFoundException, IOException {
+	    Band band = bandDao.retrieve(id);
+	    if (band == null) {
+	        // Capture if dataset not exist
+	        throw new ResourceNotFoundException(String.format(
+	                "Dataset with ID = \"%s\" not found.", id));
+	    }
+	    bandUtil.delete(band);
+	    model.addAttribute(ControllerHelper.RESPONSE_ROOT, new BandResponse(band));
+	    return "Success";
+	}
+	
+	
 	@RequestMapping(value="/Form", method = RequestMethod.GET)
 	public String createTestForm() {
 		return "BandForm";
