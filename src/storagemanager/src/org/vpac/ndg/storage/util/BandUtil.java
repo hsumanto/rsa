@@ -256,7 +256,7 @@ public class BandUtil {
 		List<Path> bandTilePaths = getBandTilePaths(ds, band);
 		// Delete all dataset tiles from storagepool
 		FileUtils.deleteIfExists(blankBandTilePath);
-		for(Path p : bandTilePaths) {
+		for (Path p : bandTilePaths) {
 			FileUtils.deleteIfExists(p);
 		}
 
@@ -267,10 +267,13 @@ public class BandUtil {
 		List<Path> bandFiles = new ArrayList<Path>();
 
 		List<TimeSlice> tsList = datasetUtil.getDatasetDao().getTimeSlices(ds.getId());
-		for(TimeSlice ts : tsList) {
+		for (TimeSlice ts : tsList) {
 			Path tsPath = timeSliceUtil.getFileLocation(ts);
-			for(File f : tsPath.toFile().listFiles()) {
-				if(f.getName().startsWith(band.getName() + "_"))
+			File[] files = tsPath.toFile().listFiles();
+			if (files == null)
+				continue;
+			for (File f : files) {
+				if (f.getName().startsWith(band.getName() + "_"))
 					bandFiles.add(f.toPath());
 			}
 		}
@@ -287,7 +290,7 @@ public class BandUtil {
 		// Delete all dataset tiles from storagepool
 		FileUtils.deleteIfExists(blankBandTilePath);
 		createBlankTile(ds, newBand);
-		for(Path p : bandTilePaths) {
+		for (Path p : bandTilePaths) {
 			Path newBandFile = Paths.get(p.toString().replace(oldBand.getName(), newBand.getName()));
 			FileUtils.move(p, newBandFile);
 		}
