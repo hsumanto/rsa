@@ -6,8 +6,21 @@ package org.vpac.ndg.query.stats;
  * characteristics.
  *
  * <p>
- * Each order of magnitude is divided into <em>n</em> equal-sized buckets.
+ * Each order of magnitude is divided into <em>n</em> equal-sized buckets -
+ * except for the first bucket in each, which is smaller than the others by
+ * the size of the previous order of magnitude.
  * </p>
+ *
+ * <p>
+ * For example, the following is a list of bucket bounds and the size of each
+ * bucket (second line). Notice that the size of bucket 1.0-3.3 is 2.3, while
+ * the others in that order of magnitude are 3.3.
+ * </p>
+ *
+ * <pre>
+ * 0.00, 0.33, 0.66, 1.0, 3.3, 6.6, 10, 33, 66, 100
+ *   0.33, 0.33, 0.33, 2.3, 3.3, 3.3, 23, 33, 33
+ * </pre>
  *
  * @author Alex Fraser
  */
