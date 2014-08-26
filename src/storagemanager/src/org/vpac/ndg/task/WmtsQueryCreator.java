@@ -63,6 +63,7 @@ public class WmtsQueryCreator extends Application {
     
     private String queryJobProgressId;
 
+    private boolean continuous = true;
 
     JobProgressDao jobProgressDao;
     NdgConfigManager ndgConfigManager;
@@ -217,7 +218,7 @@ public class WmtsQueryCreator extends Application {
         vrtColourer.setTarget(vrtWithColourFile);
         
         
-        if (true) {
+        if (continuous) {
             vrtColourer.setColourTableType(ColourTableType.CONTINUOUS);
         } else {
             vrtColourer.setColourTableType(ColourTableType.CATAGORICAL);
@@ -313,6 +314,18 @@ public class WmtsQueryCreator extends Application {
     
     public String getQueryJobProgressId() {
         return queryJobProgressId;
+    }
+
+    public boolean isContinuous() {
+        return continuous;
+    }
+
+    /**
+     * specifies whether this query result is to be rendered using a continuous colour range.
+     * @param continuous
+     */
+    public void setContinuous(boolean continuous) {
+        this.continuous = continuous;
     }
 
     /**

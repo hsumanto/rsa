@@ -662,12 +662,17 @@ public class DataController {
 	                                  @RequestParam(required = false) String timesliceId,
 	                                  @RequestParam(required = false) String bandId,
 	                                  @RequestParam(required = false) String queryJobProgressId,
+	                                  @RequestParam(required = false) Boolean continuous,
 	                                  ModelMap model) throws TaskInitialisationException, IllegalAccessException {
 	    
 	    if (queryJobProgressId != null) {
 	        //then generate tiles for the query results
 	        WmtsQueryCreator bandCreator = new WmtsQueryCreator();
 	        bandCreator.setQueryJobProgressId(queryJobProgressId);
+
+	        if (continuous != null) {
+	            bandCreator.setContinuous(continuous.booleanValue());
+	        }
 
 	        bandCreator.configure();
 	        model.addAttribute(ControllerHelper.RESPONSE_ROOT, new ExportResponse(bandCreator.getTaskId()));
