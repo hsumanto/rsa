@@ -27,6 +27,7 @@ import org.vpac.ndg.query.filter.CellType;
 import org.vpac.ndg.query.filter.Description;
 import org.vpac.ndg.query.filter.Filter;
 import org.vpac.ndg.query.filter.InheritDimensions;
+import org.vpac.ndg.query.filter.Rank;
 import org.vpac.ndg.query.math.BoxReal;
 import org.vpac.ndg.query.math.Element;
 import org.vpac.ndg.query.math.ElementByte;
@@ -47,7 +48,9 @@ import org.vpac.ndg.query.sampling.PixelSourceScalar;
 @InheritDimensions(from = "input")
 public class Categories implements Filter, Accumulator<VectorCats> {
 
+	@Rank(promote = true)
 	public PixelSource input;
+	@Rank(group = "input", promote = true)
 	public PixelSourceScalar categories;
 
 	public String buckets = "logQuantile";
