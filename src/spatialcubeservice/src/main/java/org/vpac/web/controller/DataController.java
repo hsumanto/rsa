@@ -774,7 +774,7 @@ public class DataController {
 			
 			extent = timeSliceUtil.aggregateBounds(tsList);
 		} else if (diGrid.href.startsWith("epiphany")) {
-			baseRsaDatasetResolution = CellSize.m25;
+			baseRsaDatasetResolution = CellSize.m100;
 			extent = new Box(2125500.0, 2250100.0, 2960500.0, 2825000.0);
 		} else {
 			throw new IllegalArgumentException("Output grid reference should be rsa or epiphany");
