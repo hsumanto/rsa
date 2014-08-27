@@ -1,15 +1,12 @@
 package org.vpac.worker;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.net.HttpURLConnection;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -27,9 +24,9 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.vpac.ndg.AppContext;
 import org.vpac.ndg.configuration.NdgConfigManager;
 import org.vpac.ndg.query.Query;
-import org.vpac.ndg.query.QueryException;
 import org.vpac.ndg.query.QueryDefinition;
 import org.vpac.ndg.query.QueryDefinition.DatasetInputDefinition;
+import org.vpac.ndg.query.QueryException;
 import org.vpac.ndg.query.filter.Foldable;
 import org.vpac.worker.Job.Work;
 
@@ -70,8 +67,6 @@ public class WorkExecutor extends UntypedActor {
 	}
 
 	private NdgConfigManager ndgConfigManager;
-	// Dataset identifier looks like "epiphany:id"
-	private static final Pattern DATASET_PATTERN = Pattern.compile("^([^/]+)");
 
 	private LoggingAdapter log = Logging.getLogger(getContext().system(), this);
 
@@ -208,25 +203,46 @@ public class WorkExecutor extends UntypedActor {
 		return output;
 	}
 
+	// Dataset identifier looks like "epiphany:id?query"
+	private static final Pattern EP_PATTERN = Pattern.compile(
+			"epiphany:([^?]+)(?:\\?(.*))?");
+
 	private Path fetchEpiphanyData(DatasetInputDefinition di, Work w)
 			throws IOException {
 		String epiphanyHost = ndgConfigManager.getConfig().getEpiphanyIp();
 		String epiphanyPort = ndgConfigManager.getConfig().getEpiphanyPort();
-		String query = di.href.contains("?") ? di.href.substring(di.href
-				.indexOf("?") + 1) : "";
-		String datasetId = findDataset(di.href);
+
+		Matcher matcher = EP_PATTERN.matcher(di.href);
+		if (!matcher.matches()) {
+			throw new IOException(String.format(
+					"Invalid format for dataset reference: %s", di.href));
+		}
+		String datasetId = matcher.group(1);
+		String query = matcher.group(2);
+
+		// http://172.31.25.104:8000/map/wcs/1060?VIEWMETHOD=none
+		//    &FORMAT=application/x-netcdf&SERVICE=WCS&VERSION=1.1.1&REQUEST=GetMap
+		//    &SRS=EPSG%3A3111
+		//    &BBOX=2125506.0544,2250071.3640,2960417.7309,2824982.3383
+		//    &WIDTH=1452&HEIGHT=1000
+		//    &LAYERS=1060&YEAR=2011
+		//    &AGELOWER=15&AGEUPPER=25
 		String url = "http://"
-				+ epiphanyHost
-				+ ":"
-				+ epiphanyPort
-				+ "/map/wcs/"
+				+ epiphanyHost;
+		if (epiphanyPort != null)
+			url += ":" + epiphanyPort;
+		url += "/map/wcs/"
 				+ datasetId
-				+ "?LAYERS="
-				+ datasetId
-				+ "&FORMAT=application%2Fx-netCDF&SERVICE=WCS&VERSION=1.1.1&REQUEST=GetMap&STYLES=&YEAR=none&QUERY=none&GEOMETRY=none&VIEWMETHOD=none&COLOURSCHEME=ColourBrewer%20Blues&LEGENDEXTENT=STATIC&NUMBERFILTERS=none&VISTYPE=none&SRS=EPSG%3A3111&BBOX="
+				+ "?FORMAT=application/x-netcdf&SERVICE=WCS&VERSION=1.1.1&REQUEST=GetMap"
+				+ "&SRS=EPSG:3111&BBOX="
 				+ w.bound.getMin().getX() + "," + w.bound.getMin().getY() + ","
-				+ w.bound.getMax().getX() + "," + w.bound.getMax().getY() + "&"
-				+ query + "&WIDTH=5000&HEIGHT=5000";
+				+ w.bound.getMax().getX() + "," + w.bound.getMax().getY()
+				+ "&WIDTH=5000&HEIGHT=5000"
+				+ "&LAYERS=" + datasetId;
+		if (query != null)
+			url += "&" + query;
+
+		System.out.println("Fetching: " + url);
 		URL connectionUrl = new URL(url);
 		HttpURLConnection connection = (HttpURLConnection) connectionUrl
 				.openConnection();
@@ -247,21 +263,4 @@ public class WorkExecutor extends UntypedActor {
 		return path;
 	}
 
-	private String findDataset(String uri) throws IOException {
-
-		URI parsedUri;
-		try {
-			parsedUri = new URI(uri);
-		} catch (URISyntaxException e) {
-			throw new IOException("Could not open dataset", e);
-		}
-
-		String path = parsedUri.getSchemeSpecificPart();
-		Matcher matcher = DATASET_PATTERN.matcher(path);
-		if (!matcher.matches()) {
-			throw new FileNotFoundException(String.format(
-					"Invalid dataset name %s", path));
-		}
-		return matcher.group(1);
-	}
 }
