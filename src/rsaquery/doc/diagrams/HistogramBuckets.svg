@@ -16,7 +16,40 @@
    inkscape:version="0.48.4 r9939"
    sodipodi:docname="HistogramBuckets.svg">
   <defs
-     id="defs4" />
+     id="defs4">
+    <filter
+       inkscape:collect="always"
+       id="filter4219">
+      <feGaussianBlur
+         inkscape:collect="always"
+         stdDeviation="1.2975168"
+         id="feGaussianBlur4221" />
+    </filter>
+    <filter
+       inkscape:collect="always"
+       id="filter4223">
+      <feGaussianBlur
+         inkscape:collect="always"
+         stdDeviation="1.2975168"
+         id="feGaussianBlur4225" />
+    </filter>
+    <filter
+       inkscape:collect="always"
+       id="filter4227">
+      <feGaussianBlur
+         inkscape:collect="always"
+         stdDeviation="1.2975168"
+         id="feGaussianBlur4229" />
+    </filter>
+    <filter
+       inkscape:collect="always"
+       id="filter4231">
+      <feGaussianBlur
+         inkscape:collect="always"
+         stdDeviation="1.2975168"
+         id="feGaussianBlur4233" />
+    </filter>
+  </defs>
   <sodipodi:namedview
      id="base"
      pagecolor="#ffffff"
@@ -25,16 +58,21 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="1"
-     inkscape:cx="276.03256"
-     inkscape:cy="601.80774"
+     inkscape:cx="367.51534"
+     inkscape:cy="297.87391"
      inkscape:document-units="px"
-     inkscape:current-layer="layer1"
+     inkscape:current-layer="layer2"
      showgrid="false"
      inkscape:window-width="1346"
-     inkscape:window-height="857"
-     inkscape:window-x="75"
-     inkscape:window-y="34"
-     inkscape:window-maximized="0" />
+     inkscape:window-height="1148"
+     inkscape:window-x="325"
+     inkscape:window-y="24"
+     inkscape:window-maximized="0"
+     inkscape:snap-bbox="true">
+    <inkscape:grid
+       type="xygrid"
+       id="grid4236" />
+  </sodipodi:namedview>
   <metadata
      id="metadata7">
     <rdf:RDF>
@@ -50,11 +88,61 @@
   <g
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
-     id="layer1">
+     id="layer1"
+     style="display:inline">
+    <rect
+       ry="2.3898306"
+       rx="2.3034289"
+       y="881.38885"
+       x="286.92258"
+       height="67.946625"
+       width="233.70793"
+       id="rect4017"
+       style="color:#000000;fill:#d5ffd5;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1.00000012;marker:none;visibility:visible;display:inline;overflow:visible;filter:url(#filter4227);enable-background:accumulate"
+       transform="matrix(1.03751,0,0,1,17.008923,0)"
+       inkscape:export-filename="/home/adfries/Desktop/logQuantile_lb.png"
+       inkscape:export-xdpi="180"
+       inkscape:export-ydpi="180" />
+    <rect
+       style="color:#000000;fill:#d5d6ff;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1.00000012;marker:none;visibility:visible;display:inline;overflow:visible;filter:url(#filter4219);enable-background:accumulate"
+       id="rect3985"
+       width="39.533813"
+       height="38.744591"
+       x="249.11865"
+       y="896.87042"
+       rx="2.3898306"
+       ry="2.3898306"
+       inkscape:export-filename="/home/adfries/Desktop/logQuantile_lb.png"
+       inkscape:export-xdpi="180"
+       inkscape:export-ydpi="180" />
+    <rect
+       ry="2.3898306"
+       rx="2.3898306"
+       y="756.36218"
+       x="180"
+       height="54"
+       width="152"
+       id="rect3184"
+       style="color:#000000;fill:#d5d6ff;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1.00000012;marker:none;visibility:visible;display:inline;overflow:visible;filter:url(#filter4223);enable-background:accumulate"
+       inkscape:export-filename="/home/adfries/Desktop/logQuantile_index.png"
+       inkscape:export-xdpi="180"
+       inkscape:export-ydpi="180" />
+    <rect
+       style="color:#000000;fill:#d5ffd5;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1.00000012;marker:none;visibility:visible;display:inline;overflow:visible;filter:url(#filter4231);enable-background:accumulate"
+       id="rect3182"
+       width="233"
+       height="102"
+       x="371"
+       y="732.36218"
+       rx="2.3898306"
+       ry="2.3898306"
+       inkscape:export-filename="/home/adfries/Desktop/logQuantile_index.png"
+       inkscape:export-xdpi="180"
+       inkscape:export-ydpi="180" />
     <text
        xml:space="preserve"
        style="font-size:27.81230927px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-indent:0;text-align:start;text-decoration:none;line-height:125%;letter-spacing:0px;word-spacing:0px;text-transform:none;direction:ltr;block-progression:tb;writing-mode:lr-tb;text-anchor:start;baseline-shift:baseline;color:#000000;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1px;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;font-family:Bitstream Vera Sans;-inkscape-font-specification:Sans"
-       x="329.33655"
+       x="240.24109"
        y="377.21075"
        id="text2989"
        sodipodi:linespacing="125%"
@@ -63,14 +151,14 @@
        inkscape:export-filename="/home/adfries/text2989.png"><tspan
          sodipodi:role="line"
          id="tspan2991"
-         x="329.33655"
+         x="240.24109"
          y="377.21075"
          style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Bitstream Vera Serif;-inkscape-font-specification:Bitstream Vera Serif Italic">s10<tspan
    style="font-size:18.0782547px;font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;baseline-shift:super;font-family:Bitstream Vera Serif;-inkscape-font-specification:Bitstream Vera Serif Italic"
    id="tspan2993" /></tspan></text>
     <g
        id="g3798"
-       transform="matrix(1.3954606,0,0,1.3954606,-11.568893,-161.81998)"
+       transform="matrix(1.3954606,0,0,1.3954606,-100.66435,-161.81998)"
        inkscape:export-filename="/home/adfries/text2989.png"
        inkscape:export-xdpi="90"
        inkscape:export-ydpi="90">
@@ -102,12 +190,12 @@
            sodipodi:role="line"
            id="tspan3009"
            x="284.69971"
-           y="377.36218">b</tspan></text>
+           y="377.36218">λ</tspan></text>
     </g>
     <text
        xml:space="preserve"
        style="font-size:27.81230927px;font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;text-indent:0;text-align:start;text-decoration:none;line-height:125%;letter-spacing:0px;word-spacing:0px;text-transform:none;direction:ltr;block-progression:tb;writing-mode:lr-tb;text-anchor:start;baseline-shift:baseline;color:#000000;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1px;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;font-family:Bitstream Vera Serif;-inkscape-font-specification:Bitstream Vera Serif Italic"
-       x="178.85208"
+       x="89.75663"
        y="377.21075"
        id="text3805"
        sodipodi:linespacing="125%"
@@ -116,42 +204,40 @@
        inkscape:export-ydpi="90"><tspan
          sodipodi:role="line"
          id="tspan3807"
-         x="178.85208"
+         x="89.75663"
          y="377.21075">lower(i) =</tspan></text>
     <text
        xml:space="preserve"
        style="font-size:14px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-indent:0;text-align:start;text-decoration:none;line-height:125%;letter-spacing:0px;word-spacing:0px;text-transform:none;direction:ltr;block-progression:tb;writing-mode:lr-tb;text-anchor:start;baseline-shift:baseline;color:#000000;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1px;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;font-family:Bitstream Vera Sans;-inkscape-font-specification:Sans"
-       x="178"
+       x="88.904549"
        y="296.36218"
        id="text3828"
        sodipodi:linespacing="125%"><tspan
          sodipodi:role="line"
          id="tspan3830"
-         x="178"
+         x="88.904549"
          y="296.36218">Function for generating histogram buckets:</tspan></text>
     <text
        sodipodi:linespacing="125%"
        id="text3832"
        y="448.36218"
-       x="178"
+       x="88.904549"
        style="font-size:14px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-indent:0;text-align:start;text-decoration:none;line-height:125%;letter-spacing:0px;word-spacing:0px;text-transform:none;direction:ltr;block-progression:tb;writing-mode:lr-tb;text-anchor:start;baseline-shift:baseline;color:#000000;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1px;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;font-family:Bitstream Vera Sans;-inkscape-font-specification:Sans"
        xml:space="preserve"><tspan
          y="448.36218"
-         x="178"
+         x="88.904549"
          id="tspan3834"
          sodipodi:role="line">Where <tspan
    style="font-style:italic"
-   id="tspan3844">i</tspan> is the bucket index, <tspan
-   style="font-style:italic"
-   id="tspan3842">b</tspan> is the number</tspan><tspan
+   id="tspan3844">i</tspan> is the bucket index, λ is the number</tspan><tspan
          y="465.86218"
-         x="178"
+         x="88.904549"
          sodipodi:role="line"
          id="tspan3836">of buckets per order of magnitude, and <tspan
    style="font-style:italic"
    id="tspan3840">s</tspan></tspan><tspan
          y="483.36218"
-         x="178"
+         x="88.904549"
          sodipodi:role="line"
          id="tspan3838">is a scaling factor.</tspan></text>
     <text
@@ -160,34 +246,36 @@
        sodipodi:linespacing="125%"
        id="text3010"
        y="602.21075"
-       x="347.53757"
+       x="258.44211"
        style="font-size:27.81230927px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-indent:0;text-align:start;text-decoration:none;line-height:125%;letter-spacing:0px;word-spacing:0px;text-transform:none;direction:ltr;block-progression:tb;writing-mode:lr-tb;text-anchor:start;baseline-shift:baseline;color:#000000;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1px;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;font-family:Bitstream Vera Sans;-inkscape-font-specification:Sans"
        xml:space="preserve"
        inkscape:export-filename="/home/adfries/text2989.png"><tspan
          style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Bitstream Vera Serif;-inkscape-font-specification:Bitstream Vera Serif Italic"
          y="602.21075"
-         x="347.53757"
+         x="258.44211"
          id="tspan3012"
-         sodipodi:role="line">b·log<tspan
+         sodipodi:role="line"><tspan
+   style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:cmex10;-inkscape-font-specification:cmex10 Italic"
+   id="tspan3150">λ</tspan>·log<tspan
    style="font-size:12px;baseline-shift:sub"
    id="tspan3032">10</tspan></tspan></text>
     <text
        sodipodi:linespacing="125%"
        id="text3028"
        y="602.21075"
-       x="178.85208"
+       x="89.75663"
        style="font-size:27.81230927px;font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;text-indent:0;text-align:start;text-decoration:none;line-height:125%;letter-spacing:0px;word-spacing:0px;text-transform:none;direction:ltr;block-progression:tb;writing-mode:lr-tb;text-anchor:start;baseline-shift:baseline;color:#000000;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1px;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;font-family:Bitstream Vera Serif;-inkscape-font-specification:Bitstream Vera Serif Italic"
        xml:space="preserve"
        inkscape:export-filename="/home/adfries/text2989.png"
        inkscape:export-xdpi="90"
        inkscape:export-ydpi="90"><tspan
          y="602.21075"
-         x="178.85208"
+         x="89.75663"
          id="tspan3030"
          sodipodi:role="line">index(x) =</tspan></text>
     <g
        id="g3034"
-       transform="matrix(2.1646914,0,0,2.1646914,-175.38116,-204.8408)"
+       transform="matrix(2.1646914,0,0,2.1646914,-264.47661,-204.8408)"
        inkscape:export-filename="/home/adfries/text2989.png"
        inkscape:export-xdpi="90"
        inkscape:export-ydpi="90">
@@ -223,7 +311,7 @@
     </g>
     <path
        style="fill:none;stroke:#000000;stroke-width:2.5;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
-       d="m 338,589.36218 0,22 8,0"
+       d="m 248.90455,589.36218 0,22 8,0"
        id="path3046"
        inkscape:connector-curvature="0"
        inkscape:export-filename="/home/adfries/text2989.png"
@@ -232,7 +320,7 @@
     <path
        inkscape:connector-curvature="0"
        id="path3048"
-       d="m 472,589.36218 0,22 -8,0"
+       d="m 382.90455,589.36218 0,22 -8,0"
        style="fill:none;stroke:#000000;stroke-width:2.5;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
        inkscape:export-filename="/home/adfries/text2989.png"
        inkscape:export-xdpi="90"
@@ -241,12 +329,508 @@
        sodipodi:linespacing="125%"
        id="text3818"
        y="522.36218"
-       x="178"
+       x="88.904549"
        style="font-size:14px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-indent:0;text-align:start;text-decoration:none;line-height:125%;letter-spacing:0px;word-spacing:0px;text-transform:none;direction:ltr;block-progression:tb;writing-mode:lr-tb;text-anchor:start;baseline-shift:baseline;color:#000000;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1px;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;font-family:Bitstream Vera Sans;-inkscape-font-specification:Sans"
        xml:space="preserve"><tspan
          y="522.36218"
-         x="178"
+         x="88.904549"
          id="tspan3820"
          sodipodi:role="line">To find the index of a value:</tspan></text>
+    <text
+       inkscape:export-filename="/home/adfries/Desktop/logQuantile_index.png"
+       xml:space="preserve"
+       style="font-size:27.81230927px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-indent:0;text-align:start;text-decoration:none;line-height:125%;letter-spacing:0px;word-spacing:0px;text-transform:none;direction:ltr;block-progression:tb;writing-mode:lr-tb;text-anchor:start;baseline-shift:baseline;color:#000000;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1px;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;font-family:Bitstream Vera Sans;-inkscape-font-specification:Sans"
+       x="228.44211"
+       y="791.21075"
+       id="text3017"
+       sodipodi:linespacing="125%"
+       inkscape:export-xdpi="180"
+       inkscape:export-ydpi="180"><tspan
+         sodipodi:role="line"
+         id="tspan3019"
+         x="228.44211"
+         y="791.21075"
+         style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Bitstream Vera Serif;-inkscape-font-specification:Bitstream Vera Serif Italic">log<tspan
+   style="font-size:65.00091553%;baseline-shift:sub"
+   id="tspan3132">B</tspan></tspan></text>
+    <text
+       inkscape:export-ydpi="180"
+       inkscape:export-xdpi="180"
+       inkscape:export-filename="/home/adfries/Desktop/logQuantile_index.png"
+       xml:space="preserve"
+       style="font-size:27.81230927px;font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;text-indent:0;text-align:end;text-decoration:none;line-height:125%;letter-spacing:0px;word-spacing:0px;text-transform:none;direction:ltr;block-progression:tb;writing-mode:lr-tb;text-anchor:end;baseline-shift:baseline;color:#000000;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1px;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;font-family:Bitstream Vera Serif;-inkscape-font-specification:Bitstream Vera Serif Italic"
+       x="171.81084"
+       y="791.21075"
+       id="text3023"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan3025"
+         x="171.81084"
+         y="791.21075">i(x) =</tspan></text>
+    <path
+       inkscape:export-ydpi="180"
+       inkscape:export-xdpi="180"
+       inkscape:export-filename="/home/adfries/Desktop/logQuantile_index.png"
+       inkscape:connector-curvature="0"
+       id="path3039"
+       d="m 218.90455,766.36214 0,34 8,0"
+       style="fill:none;stroke:#000000;stroke-width:2.5;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
+    <path
+       inkscape:export-ydpi="180"
+       inkscape:export-xdpi="180"
+       inkscape:export-filename="/home/adfries/Desktop/logQuantile_index.png"
+       style="fill:none;stroke:#000000;stroke-width:2.5;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       d="m 322.90455,767.36214 0,34 -8,0"
+       id="path3041"
+       inkscape:connector-curvature="0" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:2.5;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       d="m 386.90455,744.3622 0,80 8,0"
+       id="path3069"
+       inkscape:connector-curvature="0"
+       inkscape:export-filename="/home/adfries/Desktop/logQuantile_index.png"
+       inkscape:export-xdpi="180"
+       inkscape:export-ydpi="180" />
+    <path
+       inkscape:connector-curvature="0"
+       id="path3071"
+       d="m 590.90455,744.3622 0,80 -8,0"
+       style="fill:none;stroke:#000000;stroke-width:2.5;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       inkscape:export-filename="/home/adfries/Desktop/logQuantile_index.png"
+       inkscape:export-xdpi="180"
+       inkscape:export-ydpi="180" />
+    <text
+       xml:space="preserve"
+       style="font-size:27.81230927px;font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;text-indent:0;text-align:start;text-decoration:none;line-height:125%;letter-spacing:0px;word-spacing:0px;text-transform:none;direction:ltr;block-progression:tb;writing-mode:lr-tb;text-anchor:start;baseline-shift:baseline;color:#000000;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1px;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;font-family:Bitstream Vera Serif;-inkscape-font-specification:Bitstream Vera Serif Italic"
+       x="337.16629"
+       y="791.21075"
+       id="text3073"
+       sodipodi:linespacing="125%"
+       inkscape:export-filename="/home/adfries/Desktop/logQuantile_index.png"
+       inkscape:export-xdpi="180"
+       inkscape:export-ydpi="180"><tspan
+         sodipodi:role="line"
+         id="tspan3075"
+         x="337.16629"
+         y="791.21075"
+         style="font-size:27.81230927px;font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;text-indent:0;text-align:start;text-decoration:none;line-height:125%;letter-spacing:0px;word-spacing:0px;text-transform:none;direction:ltr;block-progression:tb;writing-mode:lr-tb;text-anchor:start;baseline-shift:baseline;color:#000000;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1px;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;font-family:Bitstream Vera Serif;-inkscape-font-specification:Bitstream Vera Serif Italic">+</tspan></text>
+    <path
+       inkscape:connector-curvature="0"
+       id="path3083"
+       d="m 396.73298,785.4673 182.06197,0"
+       style="fill:none;stroke:#000000;stroke-width:2.26375198px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       inkscape:export-filename="/home/adfries/Desktop/logQuantile_index.png"
+       inkscape:export-xdpi="180"
+       inkscape:export-ydpi="180" />
+    <text
+       inkscape:export-filename="/home/adfries/Desktop/logQuantile_index.png"
+       xml:space="preserve"
+       style="font-size:27.81230927px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-indent:0;text-align:start;text-decoration:none;line-height:125%;letter-spacing:0px;word-spacing:0px;text-transform:none;direction:ltr;block-progression:tb;writing-mode:lr-tb;text-anchor:start;baseline-shift:baseline;color:#000000;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1px;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;font-family:Bitstream Vera Sans;-inkscape-font-specification:Sans"
+       x="190.44211"
+       y="791.21075"
+       id="text3097"
+       sodipodi:linespacing="125%"
+       inkscape:export-xdpi="180"
+       inkscape:export-ydpi="180"><tspan
+         sodipodi:role="line"
+         id="tspan3099"
+         x="190.44211"
+         y="791.21075"
+         style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:cmex10;-inkscape-font-specification:cmex10 Italic">λ</tspan></text>
+    <text
+       inkscape:export-ydpi="180"
+       inkscape:export-xdpi="180"
+       sodipodi:linespacing="125%"
+       id="text3108"
+       y="778.21075"
+       x="397.44214"
+       style="font-size:27.81230927px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-indent:0;text-align:start;text-decoration:none;line-height:125%;letter-spacing:0px;word-spacing:0px;text-transform:none;direction:ltr;block-progression:tb;writing-mode:lr-tb;text-anchor:start;baseline-shift:baseline;color:#000000;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1px;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;font-family:Bitstream Vera Sans;-inkscape-font-specification:Sans"
+       xml:space="preserve"
+       inkscape:export-filename="/home/adfries/Desktop/logQuantile_index.png"><tspan
+         style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Bitstream Vera Serif;-inkscape-font-specification:Bitstream Vera Serif Italic"
+         y="778.21075"
+         x="397.44214"
+         id="tspan3110"
+         sodipodi:role="line"><tspan
+   style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:cmex10;-inkscape-font-specification:cmex10 Italic"
+   id="tspan3180">λ</tspan>·B</tspan></text>
+    <text
+       inkscape:export-filename="/home/adfries/Desktop/logQuantile_index.png"
+       xml:space="preserve"
+       style="font-size:19.38050842px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-indent:0;text-align:start;text-decoration:none;line-height:125%;letter-spacing:0px;word-spacing:0px;text-transform:none;direction:ltr;block-progression:tb;writing-mode:lr-tb;text-anchor:start;baseline-shift:baseline;color:#000000;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1px;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;font-family:Bitstream Vera Sans;-inkscape-font-specification:Sans"
+       x="452.68506"
+       y="761.08405"
+       id="text3120"
+       sodipodi:linespacing="125%"
+       inkscape:export-xdpi="180"
+       inkscape:export-ydpi="180"><tspan
+         sodipodi:role="line"
+         id="tspan3122"
+         x="452.68506"
+         y="761.08405"
+         style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Bitstream Vera Serif;-inkscape-font-specification:Bitstream Vera Serif Italic">log<tspan
+   style="font-size:65.00091553%;baseline-shift:sub"
+   id="tspan3136">B  </tspan>   % 1.0</tspan></text>
+    <text
+       inkscape:export-filename="/home/adfries/Desktop/logQuantile_index.png"
+       xml:space="preserve"
+       style="font-size:27.81230927px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-indent:0;text-align:start;text-decoration:none;line-height:125%;letter-spacing:0px;word-spacing:0px;text-transform:none;direction:ltr;block-progression:tb;writing-mode:lr-tb;text-anchor:start;baseline-shift:baseline;color:#000000;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1px;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;font-family:Bitstream Vera Sans;-inkscape-font-specification:Sans"
+       x="476.35657"
+       y="819.21075"
+       id="text3126"
+       sodipodi:linespacing="125%"
+       inkscape:export-xdpi="180"
+       inkscape:export-ydpi="180"><tspan
+         sodipodi:role="line"
+         id="tspan3128"
+         x="476.35657"
+         y="819.21075"
+         style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Bitstream Vera Serif;-inkscape-font-specification:Bitstream Vera Serif Italic">B</tspan></text>
+    <g
+       inkscape:export-ydpi="180"
+       inkscape:export-xdpi="180"
+       inkscape:export-filename="/home/adfries/Desktop/logQuantile_index.png"
+       transform="matrix(2.1646914,0,0,2.1646914,-322.47661,-16.8408)"
+       id="g3156">
+      <text
+         xml:space="preserve"
+         style="font-size:10px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-indent:0;text-align:start;text-decoration:none;line-height:125%;letter-spacing:0px;word-spacing:0px;text-transform:none;direction:ltr;block-progression:tb;writing-mode:lr-tb;text-anchor:start;baseline-shift:baseline;color:#000000;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1px;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;font-family:Bitstream Vera Sans;-inkscape-font-specification:Sans"
+         x="286.25"
+         y="365.36218"
+         id="text3158"
+         sodipodi:linespacing="125%"><tspan
+           sodipodi:role="line"
+           id="tspan3160"
+           x="286.25"
+           y="365.36218"
+           style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Bitstream Vera Serif;-inkscape-font-specification:Bitstream Vera Serif Italic">x</tspan></text>
+      <path
+         style="fill:none;stroke:#000000;stroke-width:1.08477044px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+         d="m 284.67963,367.86218 9.69835,0"
+         id="path3162"
+         inkscape:connector-curvature="0" />
+      <text
+         sodipodi:linespacing="125%"
+         id="text3164"
+         y="375.72891"
+         x="286.55762"
+         style="font-size:10px;font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;text-indent:0;text-align:start;text-decoration:none;line-height:125%;letter-spacing:0px;word-spacing:0px;text-transform:none;direction:ltr;block-progression:tb;writing-mode:lr-tb;text-anchor:start;baseline-shift:baseline;color:#000000;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1px;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;font-family:Bitstream Vera Serif;-inkscape-font-specification:Bitstream Vera Serif Italic"
+         xml:space="preserve"><tspan
+           y="375.72891"
+           x="286.55762"
+           id="tspan3166"
+           sodipodi:role="line"
+           style="font-size:10px;font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;text-indent:0;text-align:start;text-decoration:none;line-height:125%;letter-spacing:0px;word-spacing:0px;text-transform:none;direction:ltr;block-progression:tb;writing-mode:lr-tb;text-anchor:start;baseline-shift:baseline;color:#000000;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1px;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;font-family:Bitstream Vera Serif;-inkscape-font-specification:Bitstream Vera Serif Italic">s</tspan></text>
+    </g>
+    <g
+       id="g3168"
+       transform="matrix(1.4227911,0,0,1.4227911,93.32489,229.01764)"
+       inkscape:export-filename="/home/adfries/Desktop/logQuantile_index.png"
+       inkscape:export-xdpi="180"
+       inkscape:export-ydpi="180">
+      <text
+         sodipodi:linespacing="125%"
+         id="text3170"
+         y="365.36218"
+         x="286.25"
+         style="font-size:10px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-indent:0;text-align:start;text-decoration:none;line-height:125%;letter-spacing:0px;word-spacing:0px;text-transform:none;direction:ltr;block-progression:tb;writing-mode:lr-tb;text-anchor:start;baseline-shift:baseline;color:#000000;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1px;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;font-family:Bitstream Vera Sans;-inkscape-font-specification:Sans"
+         xml:space="preserve"><tspan
+           style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Bitstream Vera Serif;-inkscape-font-specification:Bitstream Vera Serif Italic"
+           y="365.36218"
+           x="286.25"
+           id="tspan3172"
+           sodipodi:role="line">x</tspan></text>
+      <path
+         inkscape:connector-curvature="0"
+         id="path3174"
+         d="m 284.67963,367.86218 9.69835,0"
+         style="fill:none;stroke:#000000;stroke-width:1.08477044px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+      <text
+         xml:space="preserve"
+         style="font-size:10px;font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;text-indent:0;text-align:start;text-decoration:none;line-height:125%;letter-spacing:0px;word-spacing:0px;text-transform:none;direction:ltr;block-progression:tb;writing-mode:lr-tb;text-anchor:start;baseline-shift:baseline;color:#000000;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1px;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;font-family:Bitstream Vera Serif;-inkscape-font-specification:Bitstream Vera Serif Italic"
+         x="286.55762"
+         y="375.72891"
+         id="text3176"
+         sodipodi:linespacing="125%"><tspan
+           style="font-size:10px;font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;text-indent:0;text-align:start;text-decoration:none;line-height:125%;letter-spacing:0px;word-spacing:0px;text-transform:none;direction:ltr;block-progression:tb;writing-mode:lr-tb;text-anchor:start;baseline-shift:baseline;color:#000000;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1px;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;font-family:Bitstream Vera Serif;-inkscape-font-specification:Bitstream Vera Serif Italic"
+           sodipodi:role="line"
+           id="tspan3178"
+           x="286.55762"
+           y="375.72891">s</tspan></text>
+    </g>
+    <path
+       style="fill:none;stroke:#000000;stroke-width:1.49961877;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       d="m 258.07044,901.56227 0,29.46151 3.78209,0"
+       id="path3971"
+       inkscape:connector-curvature="0"
+       inkscape:export-filename="/home/adfries/Desktop/logQuantile_lb.png"
+       inkscape:export-xdpi="180"
+       inkscape:export-ydpi="180" />
+    <path
+       inkscape:connector-curvature="0"
+       id="path3973"
+       d="m 280.76296,901.56226 0,29.46152 -3.7821,0"
+       style="fill:none;stroke:#000000;stroke-width:1.49961877;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       inkscape:export-filename="/home/adfries/Desktop/logQuantile_lb.png"
+       inkscape:export-xdpi="180"
+       inkscape:export-ydpi="180" />
+    <g
+       id="g4061"
+       transform="matrix(0.58720587,0,0,0.58703931,126.78172,360.69093)"
+       inkscape:export-filename="/home/adfries/Desktop/logQuantile_lb.png"
+       inkscape:export-xdpi="180"
+       inkscape:export-ydpi="180">
+      <text
+         transform="scale(0.99868146,1.0013203)"
+         inkscape:export-filename="/home/adfries/text2989.png"
+         xml:space="preserve"
+         style="font-size:22.42131424px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-indent:0;text-align:start;text-decoration:none;line-height:125%;letter-spacing:0px;word-spacing:0px;text-transform:none;direction:ltr;block-progression:tb;writing-mode:lr-tb;text-anchor:start;baseline-shift:baseline;color:#000000;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1px;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;font-family:Bitstream Vera Sans;-inkscape-font-specification:Sans"
+         x="237.60118"
+         y="967.58142"
+         id="text3975"
+         sodipodi:linespacing="125%"
+         inkscape:export-xdpi="90"
+         inkscape:export-ydpi="90"><tspan
+           sodipodi:role="line"
+           id="tspan3977"
+           x="237.60118"
+           y="967.58142"
+           style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:cmex10;-inkscape-font-specification:cmex10 Italic">λ</tspan></text>
+      <text
+         transform="scale(0.99868146,1.0013203)"
+         inkscape:export-ydpi="90"
+         inkscape:export-xdpi="90"
+         inkscape:export-filename="/home/adfries/text2989.png"
+         xml:space="preserve"
+         style="font-size:22.42131424px;font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;text-indent:0;text-align:start;text-decoration:none;line-height:125%;letter-spacing:0px;word-spacing:0px;text-transform:none;direction:ltr;block-progression:tb;writing-mode:lr-tb;text-anchor:start;baseline-shift:baseline;color:#000000;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1px;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;font-family:Bitstream Vera Serif;-inkscape-font-specification:Bitstream Vera Serif Italic"
+         x="238.269"
+         y="937.7533"
+         id="text3979"
+         sodipodi:linespacing="125%"><tspan
+           sodipodi:role="line"
+           id="tspan3981"
+           x="238.269"
+           y="937.7533">i</tspan></text>
+      <path
+         inkscape:connector-curvature="0"
+         id="path3983"
+         d="m 231.09496,945.65632 22.33533,0"
+         style="fill:none;stroke:#000000;stroke-width:2.31281495px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+    </g>
+    <text
+       transform="scale(0.84691137,1.1807611)"
+       sodipodi:linespacing="125%"
+       id="text3987"
+       y="792.37201"
+       x="374.62744"
+       style="font-size:53.3027916px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-indent:0;text-align:start;text-decoration:none;line-height:125%;letter-spacing:0px;word-spacing:0px;text-transform:none;direction:ltr;block-progression:tb;writing-mode:lr-tb;text-anchor:start;baseline-shift:baseline;color:#000000;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1px;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;font-family:Bitstream Vera Sans;-inkscape-font-specification:Sans"
+       xml:space="preserve"
+       inkscape:export-filename="/home/adfries/Desktop/logQuantile_lb.png"
+       inkscape:export-xdpi="180"
+       inkscape:export-ydpi="180"><tspan
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Sawasdee;-inkscape-font-specification:Sawasdee"
+         y="792.37201"
+         x="374.62744"
+         id="tspan3989"
+         sodipodi:role="line">{</tspan></text>
+    <text
+       sodipodi:linespacing="125%"
+       id="text3991"
+       y="920.98077"
+       x="294.42969"
+       style="font-size:16.32923508px;font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;text-indent:0;text-align:start;text-decoration:none;line-height:125%;letter-spacing:0px;word-spacing:0px;text-transform:none;direction:ltr;block-progression:tb;writing-mode:lr-tb;text-anchor:start;baseline-shift:baseline;color:#000000;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1px;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;font-family:Bitstream Vera Serif;-inkscape-font-specification:Bitstream Vera Serif Italic"
+       xml:space="preserve"
+       transform="scale(1.0001418,0.99985822)"
+       inkscape:export-filename="/home/adfries/Desktop/logQuantile_lb.png"
+       inkscape:export-xdpi="180"
+       inkscape:export-ydpi="180"><tspan
+         style="font-size:16.32923508px;font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;text-indent:0;text-align:start;text-decoration:none;line-height:125%;letter-spacing:0px;word-spacing:0px;text-transform:none;direction:ltr;block-progression:tb;writing-mode:lr-tb;text-anchor:start;baseline-shift:baseline;color:#000000;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1px;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;font-family:Bitstream Vera Serif;-inkscape-font-specification:Bitstream Vera Serif Italic"
+         y="920.98077"
+         x="294.42969"
+         id="tspan3993"
+         sodipodi:role="line">+</tspan></text>
+    <text
+       sodipodi:linespacing="125%"
+       id="text3995"
+       y="902.19281"
+       x="332.00336"
+       style="font-size:16.32923508px;font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;text-indent:0;text-align:start;text-decoration:none;line-height:125%;letter-spacing:0px;word-spacing:0px;text-transform:none;direction:ltr;block-progression:tb;writing-mode:lr-tb;text-anchor:start;baseline-shift:baseline;color:#000000;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1px;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;font-family:Bitstream Vera Serif;-inkscape-font-specification:Bitstream Vera Serif Italic"
+       xml:space="preserve"
+       inkscape:export-filename="/home/adfries/Desktop/logQuantile_lb.png"
+       inkscape:export-xdpi="180"
+       inkscape:export-ydpi="180"
+       transform="scale(1.0001418,0.99985822)"><tspan
+         y="902.19281"
+         x="332.00336"
+         id="tspan3997"
+         sodipodi:role="line">i % <tspan
+   id="tspan4031"
+   style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Bitstream Vera Serif;-inkscape-font-specification:Bitstream Vera Serif Italic">λ = 0</tspan></tspan></text>
+    <text
+       inkscape:export-ydpi="180"
+       inkscape:export-xdpi="180"
+       inkscape:export-filename="/home/adfries/Desktop/logQuantile_lb.png"
+       xml:space="preserve"
+       style="font-size:16.32923508px;font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;text-indent:0;text-align:start;text-decoration:none;line-height:125%;letter-spacing:0px;word-spacing:0px;text-transform:none;direction:ltr;block-progression:tb;writing-mode:lr-tb;text-anchor:start;baseline-shift:baseline;color:#000000;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1px;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;font-family:Bitstream Vera Serif;-inkscape-font-specification:Bitstream Vera Serif Italic"
+       x="332.00336"
+       y="936.24597"
+       id="text4001"
+       sodipodi:linespacing="125%"
+       transform="scale(1.0001418,0.99985822)"><tspan
+         sodipodi:role="line"
+         id="tspan4003"
+         x="332.00336"
+         y="936.24597">i % <tspan
+   id="tspan4037"
+   style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Bitstream Vera Serif;-inkscape-font-specification:Bitstream Vera Serif Italic">λ ≠ 0</tspan></tspan></text>
+    <text
+       inkscape:export-ydpi="180"
+       inkscape:export-xdpi="180"
+       inkscape:export-filename="/home/adfries/Desktop/logQuantile_lb.png"
+       xml:space="preserve"
+       style="font-size:16.32923508px;font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;text-indent:0;text-align:start;text-decoration:none;line-height:125%;letter-spacing:0px;word-spacing:0px;text-transform:none;direction:ltr;block-progression:tb;writing-mode:lr-tb;text-anchor:start;baseline-shift:baseline;color:#000000;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1px;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;font-family:Bitstream Vera Serif;-inkscape-font-specification:Bitstream Vera Serif Italic"
+       x="442.96948"
+       y="902.19281"
+       id="text4007"
+       sodipodi:linespacing="125%"
+       transform="scale(1.0001418,0.99985822)"><tspan
+         sodipodi:role="line"
+         id="tspan4009"
+         x="442.96948"
+         y="902.19281">0</tspan></text>
+    <text
+       inkscape:export-ydpi="180"
+       inkscape:export-xdpi="180"
+       sodipodi:linespacing="125%"
+       id="text4019"
+       y="937.42017"
+       x="442.96948"
+       style="font-size:16.32923508px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-indent:0;text-align:start;text-decoration:none;line-height:125%;letter-spacing:0px;word-spacing:0px;text-transform:none;direction:ltr;block-progression:tb;writing-mode:lr-tb;text-anchor:start;baseline-shift:baseline;color:#000000;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1px;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;font-family:Bitstream Vera Sans;-inkscape-font-specification:Sans"
+       xml:space="preserve"
+       inkscape:export-filename="/home/adfries/Desktop/logQuantile_lb.png"
+       transform="scale(1.0001418,0.99985822)"><tspan
+         style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Bitstream Vera Serif;-inkscape-font-specification:Bitstream Vera Serif Italic"
+         y="937.42017"
+         x="442.96948"
+         id="tspan4021"
+         sodipodi:role="line">1 + log<tspan
+   id="tspan4023"
+   style="font-size:10.614151px;baseline-shift:sub">B</tspan></tspan></text>
+    <g
+       id="g4053"
+       transform="matrix(0.80654357,0,0,0.8063148,21.123235,148.12606)"
+       inkscape:export-filename="/home/adfries/Desktop/logQuantile_lb.png"
+       inkscape:export-xdpi="180"
+       inkscape:export-ydpi="180">
+      <text
+         inkscape:export-ydpi="90"
+         inkscape:export-xdpi="90"
+         sodipodi:linespacing="125%"
+         id="text4041"
+         y="985.82269"
+         x="632.26495"
+         style="font-size:16.94117928px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-indent:0;text-align:start;text-decoration:none;line-height:125%;letter-spacing:0px;word-spacing:0px;text-transform:none;direction:ltr;block-progression:tb;writing-mode:lr-tb;text-anchor:start;baseline-shift:baseline;color:#000000;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1px;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;font-family:Bitstream Vera Sans;-inkscape-font-specification:Sans"
+         xml:space="preserve"
+         inkscape:export-filename="/home/adfries/text2989.png"
+         transform="scale(0.99868145,1.0013203)"><tspan
+           style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:cmex10;-inkscape-font-specification:cmex10 Italic"
+           y="985.82269"
+           x="632.26495"
+           id="tspan4043"
+           sodipodi:role="line">λ</tspan></text>
+      <text
+         sodipodi:linespacing="125%"
+         id="text4045"
+         y="963.28503"
+         x="615.4231"
+         style="font-size:16.94117928px;font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;text-indent:0;text-align:start;text-decoration:none;line-height:125%;letter-spacing:0px;word-spacing:0px;text-transform:none;direction:ltr;block-progression:tb;writing-mode:lr-tb;text-anchor:start;baseline-shift:baseline;color:#000000;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1px;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;font-family:Bitstream Vera Serif;-inkscape-font-specification:Bitstream Vera Serif Italic"
+         xml:space="preserve"
+         inkscape:export-filename="/home/adfries/text2989.png"
+         inkscape:export-xdpi="90"
+         inkscape:export-ydpi="90"
+         transform="scale(0.99868145,1.0013203)"><tspan
+           y="963.28503"
+           x="615.4231"
+           id="tspan4047"
+           sodipodi:role="line">i % <tspan
+   id="tspan4051"
+   style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:cmex10;-inkscape-font-specification:cmex10 Italic">λ</tspan></tspan></text>
+      <path
+         style="fill:none;stroke:#000000;stroke-width:2.31281495px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+         d="m 613.55044,969.59281 43.27931,0"
+         id="path4049"
+         inkscape:connector-curvature="0" />
+    </g>
+    <text
+       sodipodi:linespacing="125%"
+       id="text4068"
+       y="959.21075"
+       x="171.81084"
+       style="font-size:27.81230927px;font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;text-indent:0;text-align:end;text-decoration:none;line-height:125%;letter-spacing:0px;word-spacing:0px;text-transform:none;direction:ltr;block-progression:tb;writing-mode:lr-tb;text-anchor:end;baseline-shift:baseline;color:#000000;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1px;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;font-family:Bitstream Vera Serif;-inkscape-font-specification:Bitstream Vera Serif Italic"
+       xml:space="preserve"
+       inkscape:export-filename="/home/adfries/Desktop/logQuantile_lb.png"
+       inkscape:export-xdpi="180"
+       inkscape:export-ydpi="180"><tspan
+         y="959.21075"
+         x="171.81084"
+         id="tspan4070"
+         sodipodi:role="line">b(i) =</tspan></text>
+    <text
+       inkscape:export-ydpi="180"
+       inkscape:export-xdpi="180"
+       inkscape:export-filename="/home/adfries/Desktop/logQuantile_lb.png"
+       xml:space="preserve"
+       style="font-size:44.7146492px;font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;text-indent:0;text-align:start;text-decoration:none;line-height:125%;letter-spacing:0px;word-spacing:0px;text-transform:none;direction:ltr;block-progression:tb;writing-mode:lr-tb;text-anchor:start;baseline-shift:baseline;color:#000000;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1px;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;font-family:Bitstream Vera Serif;-inkscape-font-specification:Bitstream Vera Serif Italic"
+       x="205.78719"
+       y="962.53265"
+       id="text4072"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan4074"
+         x="205.78719"
+         y="962.53265">B</tspan></text>
+    <text
+       inkscape:export-ydpi="180"
+       inkscape:export-xdpi="180"
+       inkscape:export-filename="/home/adfries/Desktop/logQuantile_index.png"
+       sodipodi:linespacing="125%"
+       id="text4242"
+       y="962.53265"
+       x="177.48654"
+       style="font-size:38.77395248px;font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;text-indent:0;text-align:start;text-decoration:none;line-height:125%;letter-spacing:0px;word-spacing:0px;text-transform:none;direction:ltr;block-progression:tb;writing-mode:lr-tb;text-anchor:start;baseline-shift:baseline;color:#000000;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1px;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;font-family:Bitstream Vera Serif;-inkscape-font-specification:Bitstream Vera Serif Italic"
+       xml:space="preserve"><tspan
+         style="font-size:38.77395248px;font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;text-indent:0;text-align:start;text-decoration:none;line-height:125%;letter-spacing:0px;word-spacing:0px;text-transform:none;direction:ltr;block-progression:tb;writing-mode:lr-tb;text-anchor:start;baseline-shift:baseline;color:#000000;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1px;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;font-family:Bitstream Vera Serif;-inkscape-font-specification:Bitstream Vera Serif Italic"
+         y="962.53265"
+         x="177.48654"
+         id="tspan4244"
+         sodipodi:role="line">s·</tspan></text>
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="layer2"
+     inkscape:label="guillotine"
+     style="opacity:0.2057613;display:none">
+    <rect
+       style="color:#000000;fill:#de4aee;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1.00000012;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
+       id="index"
+       width="540"
+       height="120"
+       x="70"
+       y="722.36218"
+       rx="2.3898306"
+       ry="2.3898306"
+       inkscape:export-xdpi="180"
+       inkscape:export-ydpi="180" />
+    <rect
+       ry="2.3898306"
+       rx="2.3898306"
+       y="872.36218"
+       x="70"
+       height="100"
+       width="540"
+       id="lowerbound"
+       style="color:#000000;fill:#de4aee;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1.00000012;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
+       inkscape:export-xdpi="180"
+       inkscape:export-ydpi="180" />
   </g>
 </svg>
