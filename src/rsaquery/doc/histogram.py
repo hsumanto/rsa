@@ -1,8 +1,8 @@
 import math
 
 SCALE = 0.1
-N = 5
-BASE = 10
+N = 5.0
+BASE = 10.0
 
 def logN(base, value):
     return math.log(value) / math.log(base)
@@ -16,7 +16,7 @@ def index(x):
 
 def bound(i):
     whole = math.floor(i / N)
-    if i % N == 0:
+    if i % N <= 0:
         fraction = 0
     else:
         fraction = 1 + logN(BASE, (i % N) / N)
