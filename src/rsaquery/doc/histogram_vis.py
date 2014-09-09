@@ -16,10 +16,14 @@ fig.patch.set_facecolor('white')
 plt.subplot(211)
 #plt.plot(r, log)
 plt.plot(log, r)
+plt.ylabel("value")
+plt.xlabel("lower bound")
 
 plt.subplot(212)
 #plt.plot(r, logQuantile)
 plt.plot(logQuantile, r)
+plt.ylabel("value")
+plt.xlabel("lower bound")
 
 plt.annotate('order of magnitude', xy=(100, 100), xytext=(50, 500),
             arrowprops=dict(facecolor='black', shrink=0.05),
