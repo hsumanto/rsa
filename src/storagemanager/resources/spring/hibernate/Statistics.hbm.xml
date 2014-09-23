@@ -45,7 +45,10 @@
 			<generator class="uuid" />
 		</id>
 		<list name="buckets" cascade="all" lazy="false">
-			<key column="bucket_id" />
+			<key>
+				<!-- http://stackoverflow.com/a/26004532/320036 -->
+				<column name="bucket_id" index="hist_id_idx" />
+			</key>
 			<list-index column="idx" />
 			<one-to-many class="org.vpac.ndg.query.stats.Bucket" />
 		</list>
