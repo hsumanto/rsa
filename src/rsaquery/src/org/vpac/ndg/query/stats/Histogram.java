@@ -43,7 +43,7 @@ public class Histogram implements Filter, Accumulator<VectorHist> {
 
 	public PixelSource input;
 
-	public String buckets = "logQuantile";
+	public String buckets = "logRegular";
 
 	@CellType("input")
 	public Cell output;

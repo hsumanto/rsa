@@ -100,7 +100,7 @@
        id="rect4017"
        style="color:#000000;fill:#d5ffd5;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1.00000012;marker:none;visibility:visible;display:inline;overflow:visible;filter:url(#filter4227);enable-background:accumulate"
        transform="matrix(1.03751,0,0,1,17.008923,0)"
-       inkscape:export-filename="/home/adfries/Desktop/logQuantile_lb.png"
+       inkscape:export-filename="/home/adfries/Desktop/logRegular_lb.png"
        inkscape:export-xdpi="180"
        inkscape:export-ydpi="180" />
     <rect
@@ -112,7 +112,7 @@
        y="896.87042"
        rx="2.3898306"
        ry="2.3898306"
-       inkscape:export-filename="/home/adfries/Desktop/logQuantile_lb.png"
+       inkscape:export-filename="/home/adfries/Desktop/logRegular_lb.png"
        inkscape:export-xdpi="180"
        inkscape:export-ydpi="180" />
     <rect
@@ -124,7 +124,7 @@
        width="152"
        id="rect3184"
        style="color:#000000;fill:#d5d6ff;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1.00000012;marker:none;visibility:visible;display:inline;overflow:visible;filter:url(#filter4223);enable-background:accumulate"
-       inkscape:export-filename="/home/adfries/Desktop/logQuantile_index.png"
+       inkscape:export-filename="/home/adfries/Desktop/logRegular_index.png"
        inkscape:export-xdpi="180"
        inkscape:export-ydpi="180" />
     <rect
@@ -136,7 +136,7 @@
        y="732.36218"
        rx="2.3898306"
        ry="2.3898306"
-       inkscape:export-filename="/home/adfries/Desktop/logQuantile_index.png"
+       inkscape:export-filename="/home/adfries/Desktop/logRegular_index.png"
        inkscape:export-xdpi="180"
        inkscape:export-ydpi="180" />
     <text
@@ -337,7 +337,7 @@
          id="tspan3820"
          sodipodi:role="line">To find the index of a value:</tspan></text>
     <text
-       inkscape:export-filename="/home/adfries/Desktop/logQuantile_index.png"
+       inkscape:export-filename="/home/adfries/Desktop/logRegular_index.png"
        xml:space="preserve"
        style="font-size:27.81230927px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-indent:0;text-align:start;text-decoration:none;line-height:125%;letter-spacing:0px;word-spacing:0px;text-transform:none;direction:ltr;block-progression:tb;writing-mode:lr-tb;text-anchor:start;baseline-shift:baseline;color:#000000;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1px;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;font-family:Bitstream Vera Sans;-inkscape-font-specification:Sans"
        x="228.44211"
@@ -356,7 +356,7 @@
     <text
        inkscape:export-ydpi="180"
        inkscape:export-xdpi="180"
-       inkscape:export-filename="/home/adfries/Desktop/logQuantile_index.png"
+       inkscape:export-filename="/home/adfries/Desktop/logRegular_index.png"
        xml:space="preserve"
        style="font-size:27.81230927px;font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;text-indent:0;text-align:end;text-decoration:none;line-height:125%;letter-spacing:0px;word-spacing:0px;text-transform:none;direction:ltr;block-progression:tb;writing-mode:lr-tb;text-anchor:end;baseline-shift:baseline;color:#000000;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1px;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;font-family:Bitstream Vera Serif;-inkscape-font-specification:Bitstream Vera Serif Italic"
        x="171.81084"
@@ -370,7 +370,7 @@
     <path
        inkscape:export-ydpi="180"
        inkscape:export-xdpi="180"
-       inkscape:export-filename="/home/adfries/Desktop/logQuantile_index.png"
+       inkscape:export-filename="/home/adfries/Desktop/logRegular_index.png"
        inkscape:connector-curvature="0"
        id="path3039"
        d="m 218.90455,766.36214 0,34 8,0"
@@ -378,7 +378,7 @@
     <path
        inkscape:export-ydpi="180"
        inkscape:export-xdpi="180"
-       inkscape:export-filename="/home/adfries/Desktop/logQuantile_index.png"
+       inkscape:export-filename="/home/adfries/Desktop/logRegular_index.png"
        style="fill:none;stroke:#000000;stroke-width:2.5;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
        d="m 322.90455,767.36214 0,34 -8,0"
        id="path3041"
@@ -388,7 +388,7 @@
        d="m 386.90455,744.3622 0,80 8,0"
        id="path3069"
        inkscape:connector-curvature="0"
-       inkscape:export-filename="/home/adfries/Desktop/logQuantile_index.png"
+       inkscape:export-filename="/home/adfries/Desktop/logRegular_index.png"
        inkscape:export-xdpi="180"
        inkscape:export-ydpi="180" />
     <path
@@ -396,7 +396,7 @@
        id="path3071"
        d="m 590.90455,744.3622 0,80 -8,0"
        style="fill:none;stroke:#000000;stroke-width:2.5;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
-       inkscape:export-filename="/home/adfries/Desktop/logQuantile_index.png"
+       inkscape:export-filename="/home/adfries/Desktop/logRegular_index.png"
        inkscape:export-xdpi="180"
        inkscape:export-ydpi="180" />
     <text
@@ -406,7 +406,7 @@
        y="791.21075"
        id="text3073"
        sodipodi:linespacing="125%"
-       inkscape:export-filename="/home/adfries/Desktop/logQuantile_index.png"
+       inkscape:export-filename="/home/adfries/Desktop/logRegular_index.png"
        inkscape:export-xdpi="180"
        inkscape:export-ydpi="180"><tspan
          sodipodi:role="line"
@@ -419,11 +419,11 @@
        id="path3083"
        d="m 396.73298,785.4673 182.06197,0"
        style="fill:none;stroke:#000000;stroke-width:2.26375198px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       inkscape:export-filename="/home/adfries/Desktop/logQuantile_index.png"
+       inkscape:export-filename="/home/adfries/Desktop/logRegular_index.png"
        inkscape:export-xdpi="180"
        inkscape:export-ydpi="180" />
     <text
-       inkscape:export-filename="/home/adfries/Desktop/logQuantile_index.png"
+       inkscape:export-filename="/home/adfries/Desktop/logRegular_index.png"
        xml:space="preserve"
        style="font-size:27.81230927px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-indent:0;text-align:start;text-decoration:none;line-height:125%;letter-spacing:0px;word-spacing:0px;text-transform:none;direction:ltr;block-progression:tb;writing-mode:lr-tb;text-anchor:start;baseline-shift:baseline;color:#000000;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1px;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;font-family:Bitstream Vera Sans;-inkscape-font-specification:Sans"
        x="190.44211"
@@ -446,7 +446,7 @@
        x="397.44214"
        style="font-size:27.81230927px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-indent:0;text-align:start;text-decoration:none;line-height:125%;letter-spacing:0px;word-spacing:0px;text-transform:none;direction:ltr;block-progression:tb;writing-mode:lr-tb;text-anchor:start;baseline-shift:baseline;color:#000000;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1px;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;font-family:Bitstream Vera Sans;-inkscape-font-specification:Sans"
        xml:space="preserve"
-       inkscape:export-filename="/home/adfries/Desktop/logQuantile_index.png"><tspan
+       inkscape:export-filename="/home/adfries/Desktop/logRegular_index.png"><tspan
          style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Bitstream Vera Serif;-inkscape-font-specification:Bitstream Vera Serif Italic"
          y="778.21075"
          x="397.44214"
@@ -455,7 +455,7 @@
    style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:cmex10;-inkscape-font-specification:cmex10 Italic"
    id="tspan3180">λ</tspan>·B</tspan></text>
     <text
-       inkscape:export-filename="/home/adfries/Desktop/logQuantile_index.png"
+       inkscape:export-filename="/home/adfries/Desktop/logRegular_index.png"
        xml:space="preserve"
        style="font-size:19.38050842px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-indent:0;text-align:start;text-decoration:none;line-height:125%;letter-spacing:0px;word-spacing:0px;text-transform:none;direction:ltr;block-progression:tb;writing-mode:lr-tb;text-anchor:start;baseline-shift:baseline;color:#000000;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1px;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;font-family:Bitstream Vera Sans;-inkscape-font-specification:Sans"
        x="452.68506"
@@ -472,7 +472,7 @@
    style="font-size:65.00091553%;baseline-shift:sub"
    id="tspan3136">B  </tspan>   % 1.0</tspan></text>
     <text
-       inkscape:export-filename="/home/adfries/Desktop/logQuantile_index.png"
+       inkscape:export-filename="/home/adfries/Desktop/logRegular_index.png"
        xml:space="preserve"
        style="font-size:27.81230927px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-indent:0;text-align:start;text-decoration:none;line-height:125%;letter-spacing:0px;word-spacing:0px;text-transform:none;direction:ltr;block-progression:tb;writing-mode:lr-tb;text-anchor:start;baseline-shift:baseline;color:#000000;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1px;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;font-family:Bitstream Vera Sans;-inkscape-font-specification:Sans"
        x="476.35657"
@@ -489,7 +489,7 @@
     <g
        inkscape:export-ydpi="180"
        inkscape:export-xdpi="180"
-       inkscape:export-filename="/home/adfries/Desktop/logQuantile_index.png"
+       inkscape:export-filename="/home/adfries/Desktop/logRegular_index.png"
        transform="matrix(2.1646914,0,0,2.1646914,-322.47661,-16.8408)"
        id="g3156">
       <text
@@ -525,7 +525,7 @@
     <g
        id="g3168"
        transform="matrix(1.4227911,0,0,1.4227911,93.32489,229.01764)"
-       inkscape:export-filename="/home/adfries/Desktop/logQuantile_index.png"
+       inkscape:export-filename="/home/adfries/Desktop/logRegular_index.png"
        inkscape:export-xdpi="180"
        inkscape:export-ydpi="180">
       <text
@@ -563,7 +563,7 @@
        d="m 258.07044,901.56227 0,29.46151 3.78209,0"
        id="path3971"
        inkscape:connector-curvature="0"
-       inkscape:export-filename="/home/adfries/Desktop/logQuantile_lb.png"
+       inkscape:export-filename="/home/adfries/Desktop/logRegular_lb.png"
        inkscape:export-xdpi="180"
        inkscape:export-ydpi="180" />
     <path
@@ -571,13 +571,13 @@
        id="path3973"
        d="m 280.76296,901.56226 0,29.46152 -3.7821,0"
        style="fill:none;stroke:#000000;stroke-width:1.49961877;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
-       inkscape:export-filename="/home/adfries/Desktop/logQuantile_lb.png"
+       inkscape:export-filename="/home/adfries/Desktop/logRegular_lb.png"
        inkscape:export-xdpi="180"
        inkscape:export-ydpi="180" />
     <g
        id="g4061"
        transform="matrix(0.58720587,0,0,0.58703931,126.78172,360.69093)"
-       inkscape:export-filename="/home/adfries/Desktop/logQuantile_lb.png"
+       inkscape:export-filename="/home/adfries/Desktop/logRegular_lb.png"
        inkscape:export-xdpi="180"
        inkscape:export-ydpi="180">
       <text
@@ -625,7 +625,7 @@
        x="374.62744"
        style="font-size:53.3027916px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-indent:0;text-align:start;text-decoration:none;line-height:125%;letter-spacing:0px;word-spacing:0px;text-transform:none;direction:ltr;block-progression:tb;writing-mode:lr-tb;text-anchor:start;baseline-shift:baseline;color:#000000;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1px;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;font-family:Bitstream Vera Sans;-inkscape-font-specification:Sans"
        xml:space="preserve"
-       inkscape:export-filename="/home/adfries/Desktop/logQuantile_lb.png"
+       inkscape:export-filename="/home/adfries/Desktop/logRegular_lb.png"
        inkscape:export-xdpi="180"
        inkscape:export-ydpi="180"><tspan
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Sawasdee;-inkscape-font-specification:Sawasdee"
@@ -641,7 +641,7 @@
        style="font-size:16.32923508px;font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;text-indent:0;text-align:start;text-decoration:none;line-height:125%;letter-spacing:0px;word-spacing:0px;text-transform:none;direction:ltr;block-progression:tb;writing-mode:lr-tb;text-anchor:start;baseline-shift:baseline;color:#000000;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1px;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;font-family:Bitstream Vera Serif;-inkscape-font-specification:Bitstream Vera Serif Italic"
        xml:space="preserve"
        transform="scale(1.0001418,0.99985822)"
-       inkscape:export-filename="/home/adfries/Desktop/logQuantile_lb.png"
+       inkscape:export-filename="/home/adfries/Desktop/logRegular_lb.png"
        inkscape:export-xdpi="180"
        inkscape:export-ydpi="180"><tspan
          style="font-size:16.32923508px;font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;text-indent:0;text-align:start;text-decoration:none;line-height:125%;letter-spacing:0px;word-spacing:0px;text-transform:none;direction:ltr;block-progression:tb;writing-mode:lr-tb;text-anchor:start;baseline-shift:baseline;color:#000000;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1px;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;font-family:Bitstream Vera Serif;-inkscape-font-specification:Bitstream Vera Serif Italic"
@@ -656,7 +656,7 @@
        x="456.98563"
        style="font-size:16.32923508px;font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;text-indent:0;text-align:start;text-decoration:none;line-height:125%;letter-spacing:0px;word-spacing:0px;text-transform:none;direction:ltr;block-progression:tb;writing-mode:lr-tb;text-anchor:start;baseline-shift:baseline;color:#000000;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1px;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;font-family:Bitstream Vera Serif;-inkscape-font-specification:Bitstream Vera Serif Italic"
        xml:space="preserve"
-       inkscape:export-filename="/home/adfries/Desktop/logQuantile_lb.png"
+       inkscape:export-filename="/home/adfries/Desktop/logRegular_lb.png"
        inkscape:export-xdpi="180"
        inkscape:export-ydpi="180"
        transform="scale(1.0001418,0.99985822)"><tspan
@@ -669,7 +669,7 @@
     <text
        inkscape:export-ydpi="180"
        inkscape:export-xdpi="180"
-       inkscape:export-filename="/home/adfries/Desktop/logQuantile_lb.png"
+       inkscape:export-filename="/home/adfries/Desktop/logRegular_lb.png"
        xml:space="preserve"
        style="font-size:16.32923508px;font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;text-indent:0;text-align:start;text-decoration:none;line-height:125%;letter-spacing:0px;word-spacing:0px;text-transform:none;direction:ltr;block-progression:tb;writing-mode:lr-tb;text-anchor:start;baseline-shift:baseline;color:#000000;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1px;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;font-family:Bitstream Vera Serif;-inkscape-font-specification:Bitstream Vera Serif Italic"
        x="456.98563"
@@ -686,7 +686,7 @@
     <text
        inkscape:export-ydpi="180"
        inkscape:export-xdpi="180"
-       inkscape:export-filename="/home/adfries/Desktop/logQuantile_lb.png"
+       inkscape:export-filename="/home/adfries/Desktop/logRegular_lb.png"
        xml:space="preserve"
        style="font-size:16.32923508px;font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;text-indent:0;text-align:start;text-decoration:none;line-height:125%;letter-spacing:0px;word-spacing:0px;text-transform:none;direction:ltr;block-progression:tb;writing-mode:lr-tb;text-anchor:start;baseline-shift:baseline;color:#000000;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1px;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;font-family:Bitstream Vera Serif;-inkscape-font-specification:Bitstream Vera Serif Italic"
        x="331.98523"
@@ -707,7 +707,7 @@
        x="331.98523"
        style="font-size:16.32923508px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-indent:0;text-align:start;text-decoration:none;line-height:125%;letter-spacing:0px;word-spacing:0px;text-transform:none;direction:ltr;block-progression:tb;writing-mode:lr-tb;text-anchor:start;baseline-shift:baseline;color:#000000;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1px;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;font-family:Bitstream Vera Sans;-inkscape-font-specification:Sans"
        xml:space="preserve"
-       inkscape:export-filename="/home/adfries/Desktop/logQuantile_lb.png"
+       inkscape:export-filename="/home/adfries/Desktop/logRegular_lb.png"
        transform="scale(1.0001418,0.99985822)"><tspan
          style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Bitstream Vera Serif;-inkscape-font-specification:Bitstream Vera Serif Italic"
          y="937.42017"
@@ -719,7 +719,7 @@
     <g
        id="g4053"
        transform="matrix(0.80654357,0,0,0.8063148,-89.876765,148.12606)"
-       inkscape:export-filename="/home/adfries/Desktop/logQuantile_lb.png"
+       inkscape:export-filename="/home/adfries/Desktop/logRegular_lb.png"
        inkscape:export-xdpi="180"
        inkscape:export-ydpi="180">
       <text
@@ -768,7 +768,7 @@
        x="171.81084"
        style="font-size:27.81230927px;font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;text-indent:0;text-align:end;text-decoration:none;line-height:125%;letter-spacing:0px;word-spacing:0px;text-transform:none;direction:ltr;block-progression:tb;writing-mode:lr-tb;text-anchor:end;baseline-shift:baseline;color:#000000;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1px;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;font-family:Bitstream Vera Serif;-inkscape-font-specification:Bitstream Vera Serif Italic"
        xml:space="preserve"
-       inkscape:export-filename="/home/adfries/Desktop/logQuantile_lb.png"
+       inkscape:export-filename="/home/adfries/Desktop/logRegular_lb.png"
        inkscape:export-xdpi="180"
        inkscape:export-ydpi="180"><tspan
          y="959.21075"
@@ -778,7 +778,7 @@
     <text
        inkscape:export-ydpi="180"
        inkscape:export-xdpi="180"
-       inkscape:export-filename="/home/adfries/Desktop/logQuantile_lb.png"
+       inkscape:export-filename="/home/adfries/Desktop/logRegular_lb.png"
        xml:space="preserve"
        style="font-size:44.7146492px;font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;text-indent:0;text-align:start;text-decoration:none;line-height:125%;letter-spacing:0px;word-spacing:0px;text-transform:none;direction:ltr;block-progression:tb;writing-mode:lr-tb;text-anchor:start;baseline-shift:baseline;color:#000000;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1px;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;font-family:Bitstream Vera Serif;-inkscape-font-specification:Bitstream Vera Serif Italic"
        x="205.78719"
@@ -792,7 +792,7 @@
     <text
        inkscape:export-ydpi="180"
        inkscape:export-xdpi="180"
-       inkscape:export-filename="/home/adfries/Desktop/logQuantile_index.png"
+       inkscape:export-filename="/home/adfries/Desktop/logRegular_index.png"
        sodipodi:linespacing="125%"
        id="text4242"
        y="962.53265"

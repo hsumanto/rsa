@@ -53,7 +53,7 @@ public class Categories implements Filter, Accumulator<VectorCats> {
 	@Rank(group = "input", promote = true)
 	public PixelSourceScalar categories;
 
-	public String buckets = "logQuantile";
+	public String buckets = "logRegular";
 
 	@CellType("input")
 	public Cell output;

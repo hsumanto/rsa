@@ -169,7 +169,7 @@ public class DatasetController {
 		// Configure the filters to collect the appropriate kind of statistics.
 		String bucketingStrategy;
 		if (band.isContinuous())
-			bucketingStrategy = "logQuantile";
+			bucketingStrategy = "logRegular";
 		else
 			bucketingStrategy = "categorical";
 		for (FilterDefinition fd : qd.filters) {

@@ -34,8 +34,8 @@ public class BucketingStrategyFactory {
 			bs = new BucketingStrategyCategorical();
 		} else if (path.equals("log")) {
 			bs = new BucketingStrategyLog();
-		} else if (path.equals("logQuantile")) {
-			bs = new BucketingStrategyLogQuantile();
+		} else if (path.equals("logRegular")) {
+			bs = new BucketingStrategyLogRegular();
 		} else {
 			throw new QueryBindingException(String.format(
 					"No known bucketing strategy matches the path %s", path));

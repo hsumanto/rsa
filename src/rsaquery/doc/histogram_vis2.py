@@ -30,7 +30,7 @@ ys = chain(*zip(bounds, bounds[:-1], [float('NaN')] * len(bounds)))
 ys = list(ys)
 
 plt.subplot(212)
-#plt.plot(r, logQuantile)
+#plt.plot(r, logRegular)
 plt.plot(xs, ys)
 plt.xlabel("value")
 plt.ylabel("lower bound")

@@ -96,7 +96,7 @@ public class HistogramTest extends TestCase {
 		double lb;
 		int i;
 
-		BucketingStrategyLog bs = new BucketingStrategyLogQuantile();
+		BucketingStrategyLog bs = new BucketingStrategyLogRegular();
 		bs.setBase(BASE);
 		bs.setN(BUCKETS_PER_ORDER_OF_MAGNITUDE);
 		bs.setScale(SCALE);
@@ -135,7 +135,7 @@ public class HistogramTest extends TestCase {
 
 	@Test
 	public void test_falseLogBounds() throws Exception {
-		String descriptor = String.format("logQuantile?base=%g&n=%g&scale=%g",
+		String descriptor = String.format("logRegular?base=%g&n=%g&scale=%g",
 				BASE, BUCKETS_PER_ORDER_OF_MAGNITUDE, SCALE);
 		BucketingStrategy bs = new BucketingStrategyFactory().create(descriptor);
 

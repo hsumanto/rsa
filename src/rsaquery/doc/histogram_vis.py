@@ -4,10 +4,10 @@ import matplotlib.pyplot as plt
 import histogram
 
 r = range(1, 1000)
-logQuantile = map(histogram.lb, r)
+logRegular = map(histogram.lb, r)
 log = map(histogram.lbLog, r)
 
-#plt.plot(r, log, r, logQuantile)
+#plt.plot(r, log, r, logRegular)
 #plt.show()
 
 fig = plt.figure(1)
@@ -20,8 +20,8 @@ plt.ylabel("value")
 plt.xlabel("lower bound")
 
 plt.subplot(212)
-#plt.plot(r, logQuantile)
-plt.plot(logQuantile, r)
+#plt.plot(r, logRegular)
+plt.plot(logRegular, r)
 plt.ylabel("value")
 plt.xlabel("lower bound")
 

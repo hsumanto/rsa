@@ -2,7 +2,7 @@ package org.vpac.ndg.query.stats;
 
 
 /**
- * Creates histogram buckets that have both logarithmic and quantile
+ * Creates histogram buckets that have both logarithmic and regular
  * characteristics.
  *
  * <p>
@@ -24,13 +24,13 @@ package org.vpac.ndg.query.stats;
  *
  * @author Alex Fraser
  */
-public class BucketingStrategyLogQuantile extends BucketingStrategyLog {
+public class BucketingStrategyLogRegular extends BucketingStrategyLog {
 
 	private static final long serialVersionUID = 1L;
 
 	static final double BUCKETS_PER_ORDER_OF_MAGNITUDE = 5.0;
 
-	public BucketingStrategyLogQuantile() {
+	public BucketingStrategyLogRegular() {
 		super();
 		setN(BUCKETS_PER_ORDER_OF_MAGNITUDE);
 	}
