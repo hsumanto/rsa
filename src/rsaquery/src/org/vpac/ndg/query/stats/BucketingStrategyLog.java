@@ -111,11 +111,13 @@ public class BucketingStrategyLog implements BucketingStrategy, Serializable {
 			double temp = lower;
 			lower = -upper;
 			upper = -temp;
+			value = -value;
 		}
 
 		// Adjust for rounding errors. This may cause some buckets to overlap
 		// by a small fraction.
-		// TODO: try to do this without buckets overlapping.
+		// TODO: try to do this without buckets overlapping. Overlapping
+		// buckets will be MERGED during a fold!
 		if (lower > value)
 			lower = value;
 		if (upper < value)
