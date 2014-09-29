@@ -25,6 +25,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
@@ -51,8 +52,10 @@ import org.vpac.ndg.query.QueryDefinition.LiteralDefinition;
 import org.vpac.ndg.query.filter.Foldable;
 import org.vpac.ndg.query.io.DatasetProvider;
 import org.vpac.ndg.query.io.ProviderRegistry;
+import org.vpac.ndg.query.stats.Bucket;
 import org.vpac.ndg.query.stats.Categories;
 import org.vpac.ndg.query.stats.Cats;
+import org.vpac.ndg.query.stats.Hist;
 import org.vpac.ndg.query.stats.VectorCats;
 import org.vpac.ndg.storage.dao.BandDao;
 import org.vpac.ndg.storage.dao.DatasetDao;
@@ -280,6 +283,29 @@ public class DatasetController {
 		Dataset ds =  datasetDao.retrieve(datasetId);
 		Band band =  bandDao.retrieve(bandId);
 		DatasetCats dsCat = dsCats.get(0);
+
+		int nbuckets = 0;
+		int nhists = 0;
+		for (Entry<Integer, Hist> e : dsCat.getCats().getCategories().entrySet()) {
+			Hist hist = e.getValue();
+			int cat = e.getKey();
+			nhists++;
+			nbuckets += hist.getBuckets().size();
+//			System.out.format("%d\n", cat);
+//			for (Bucket b : hist.getBuckets()) {
+//				System.out.format("\t%s %d\n", b.toString(), b.getStats().getCount());
+//			}
+		}
+		int bucketSize = 4 + 8 * 8;
+		int histSizeWithOverhead = 30 * 2 + 4;
+		int bucketSizeWithOverhead = 30 * 4 + 4 + 8 * 8;
+		System.out.format("Dataset %s / %s\n", ds.getName(), dsCat.getName());
+		System.out.format("%d buckets in %d histograms\n", nbuckets, nhists);
+		System.out.format("%dB of data\n", bucketSize * nbuckets);
+		System.out.format("%dB including overheads\n",
+				bucketSizeWithOverhead * nbuckets
+				+ histSizeWithOverhead * nhists);
+		System.out.println();
 
 		TabularResponse<?> response;
 		if (catType.equals("value")) {
