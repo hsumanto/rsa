@@ -8,8 +8,7 @@
 FROM ubuntu:12.10
 
 # Update System
-RUN sudo apt-get update && sudo apt-get upgrade -y -o DPkg::Options::=--force-confold
-
+RUN apt-get update && apt-get upgrade -y
 #COPY ./ /data/dump/
 
 # Expose ports.
