@@ -7,10 +7,8 @@
 # Pull base image.
 FROM ubuntu:12.10
 
-# Install postgres.
-RUN \
-  apt-get update && \
-  apt-get install -y postgresql-9.1
+# Update System
+RUN sudo apt-get update && sudo apt-get upgrade -y -o DPkg::Options::=--force-confold
 
 #COPY ./ /data/dump/
 
