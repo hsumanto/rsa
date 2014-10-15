@@ -5,7 +5,7 @@
 #
 
 # Pull base image.
-FROM ubuntu:12.10
+FROM ubuntu:latest
 
 # Install postgres.
 RUN \
