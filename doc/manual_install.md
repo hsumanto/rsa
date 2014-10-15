@@ -83,13 +83,13 @@ as well as Sun's Java.
 	$ make
 	$ sudo make install
  	   
-#### Installing HDF5 (required for netCDF)
+#### Installing [HDF5](http://www.hdfgroup.org/HDF5/) (required for netCDF)
 		
 	$ ./configure --prefix=/usr/local --with-zlib=/usr/local
 	$ make
 	$ sudo make install
 
-#### Installing netCDF
+#### Installing [netCDF](http://www.unidata.ucar.edu/software/netcdf/)
 
 	$ CPPFLAGS=-I/usr/local/include LDFLAGS=-L/usr/local/lib ./configure
 	$ make
