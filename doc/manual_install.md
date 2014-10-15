@@ -73,7 +73,7 @@ Centos/RedHat:
 **Note:** The OpenJDK distribution has been tested to work successfully
 as well as Sun's Java.	
 
-#### Installing zlib (required for netCDF)   
+#### Installing [zlib](http://www.zlib.net) (required for netCDF)   
 
 	$ ./configure
 	$ make
