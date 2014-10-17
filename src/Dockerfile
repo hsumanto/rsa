@@ -51,7 +51,7 @@ RUN export PATH=$GDAL_DIR/bin:$PATH
 RUN export LD_LIBRARY_PATH=$GDAL_DIR/lib:$LD_LIBRARY_PATH
 
 RUN export JAVA_HOME=/usr/lib/jvm/java-7-openjdk-amd
-RUN cd /root/gdal-trunk/gdal/swig/java && \ make JAVA_HOME=$JAVA_HOME && cp *.jar *.so /usr/local/lib/ && \
+RUN cd /root/gdal-trunk/gdal/swig/java && make JAVA_HOME=$JAVA_HOME && cp *.jar *.so /usr/local/lib/ && \
 	cd /usr/local/lib && ln -s libgdalconstjni.so libgdalconstjni.so.1 && ln -s libgdaljni.so && \
 	libgdaljni.so.1 && ln -s libogrjni.so libogrjni.so.1 && ln -s libosrjni.so libosrjni.so.1
 
