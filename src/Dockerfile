@@ -51,7 +51,7 @@ RUN export PATH=$GDAL_DIR/bin:$PATH
 RUN export LD_LIBRARY_PATH=$GDAL_DIR/lib:$LD_LIBRARY_PATH
 
 RUN export JAVA_HOME=/usr/lib/jvm/java-7-openjdk-amd
-RUN cd swig/java
+RUN cd /root/gdal-trunk/gdal/swig/java
 RUN make JAVA_HOME=$JAVA_HOME
 RUN cp *.jar *.so /usr/local/lib/
 RUN cd /usr/local/lib
@@ -63,8 +63,6 @@ RUN ln -s libosrjni.so libosrjni.so.1
 RUN cd /usr/lib
 RUN ln -s libproj.so.0 libproj.so
 RUN ldconfig
-
-	
 	
 # Start postgre sql server
 RUN /etc/init.d/postgresql start
@@ -77,8 +75,6 @@ RUN createdb -O ula uladb
 
 # Install Tomcat6
 apt-get install -y tomcat6
-
-# 
 
 # Create Directory
 RUN mkdir -p /var/lib/ndg/storagepool
