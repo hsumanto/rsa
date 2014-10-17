@@ -70,7 +70,7 @@ RUN createdb -O ula uladb
 USER root
 
 # Install Tomcat6
-apt-get install -y tomcat6
+RUN apt-get install -y tomcat6
 
 # Create Directory
 RUN mkdir -p /var/lib/ndg/storagepool
