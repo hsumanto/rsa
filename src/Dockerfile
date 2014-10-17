@@ -67,7 +67,7 @@ RUN /etc/init.d/postgresql start
 USER postgres
 RUN psql --command "CREATE USER ula WITH SUPERUSER PASSWORD 'password';"
 RUN createdb -O ula uladb
-#USER root
+USER root
 
 # Install Tomcat6
 apt-get install -y tomcat6
