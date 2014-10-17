@@ -80,7 +80,6 @@ RUN mkdir -p /var/spool/ndg/pickup
 RUN mkdir -p /var/tmp/ndg
 
 # Ant build storagemanager
-COPY ./build.xml var/src/build.xml
 COPY ./storagemanager var/src/storagemanager
 COPY ./rsaquery var/src/rsaquery
 COPY ./spatialcubeservice var/src/spatialcubeservice
@@ -91,3 +90,4 @@ CMD ["ant"]
 #   - 27017: process
 #   - 80: http
 EXPOSE 80
+EXPOSE 8080
