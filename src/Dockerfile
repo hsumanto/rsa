@@ -64,10 +64,11 @@ RUN cd /usr/lib && ln -s libproj.so.0 libproj.so && ldconfig
 RUN /etc/init.d/postgresql start
 
 # Add user ula to postgres
-#USER postgres
-#RUN psql --command "CREATE USER ula WITH SUPERUSER PASSWORD 'password';"
-#RUN createdb -O ula uladb
-#USER root
+USER postgres 
+RUN /etc/init.d/postgresql start && \
+    psql --command "CREATE USER ula WITH SUPERUSER PASSWORD 'password';" && \
+    createdb -O ula uladb
+USER root	
 
 # Install Tomcat6
 RUN apt-get install -y tomcat6
