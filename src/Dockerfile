@@ -84,8 +84,9 @@ COPY ./storagemanager var/src/storagemanager
 COPY ./rsaquery var/src/rsaquery
 COPY ./spatialcubeservice var/src/spatialcubeservice
 
-RUN /var/src/spatialcubeservice && ant
+RUN cd /var/src/spatialcubeservice && ant
 RUN cp dist/spatialcubeservice_local_rN-dev.war /var/lib/tomcat6/webapps/spatialcubeservice.war
+RUN service tomcat6 start
 
 # Expose ports.
 #   - 27017: process
