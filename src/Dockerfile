@@ -86,6 +86,10 @@ COPY ./spatialcubeservice var/src/spatialcubeservice
 
 RUN cd /var/src/spatialcubeservice && ant
 RUN cp /var/src/spatialcubeservice/dist/spatialcubeservice_local_rN-dev.war /var/lib/tomcat6/webapps/spatialcubeservice.war
+
+export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
+export CLASSPATH=/usr/local/lib/gdal.jar
+
 RUN service tomcat6 start
 
 # Expose ports.
