@@ -90,7 +90,7 @@ RUN cp /var/src/spatialcubeservice/dist/spatialcubeservice_local_rN-dev.war /var
 export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
 export CLASSPATH=/usr/local/lib/gdal.jar
 
-RUN service tomcat6 start
+# RUN service tomcat6 start
 
 # Expose ports.
 #   - 27017: process
