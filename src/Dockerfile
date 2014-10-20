@@ -81,13 +81,16 @@ RUN mkdir -p /var/spool/ndg/pickup
 RUN mkdir -p /var/tmp/ndg
 
 # Ant build storagemanager
+COPY ./build.xml var/src/build.xml
+COPY ./cmdclient var/src/cmdclient
 COPY ./rsaworkers var/src/rsaworkers
 COPY ./storagemanager var/src/storagemanager
 COPY ./rsaquery var/src/rsaquery
 COPY ./spatialcubeservice var/src/spatialcubeservice
 
-RUN cd /var/src/spatialcubeservice && ant
-RUN cp /var/src/spatialcubeservice/dist/rsa_local_rN-dev.war /var/lib/tomcat6/webapps/spatialcubeservice.war
+# build Spatialcube Service
+RUN cd /var/src && ant
+#RUN cp /var/src/spatialcubeservice/dist/rsa_local_rN-dev.war /var/lib/tomcat6/webapps/spatialcubeservice.war
 
 ENV LD_LIBRARY_PATH /usr/local/lib:$LD_LIBRARY_PATH
 ENV CLASSPATH /usr/local/lib/gdal.jar
