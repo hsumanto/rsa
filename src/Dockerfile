@@ -90,7 +90,7 @@ COPY ./spatialcubeservice var/src/spatialcubeservice
 
 # build Spatialcube Service
 RUN cd /var/src && ant
-#RUN cp /var/src/spatialcubeservice/dist/rsa_local_rN-dev.war /var/lib/tomcat6/webapps/spatialcubeservice.war
+RUN cp /var/src/spatialcubeservice/dist/rsa_*.war /var/lib/tomcat6/webapps/spatialcubeservice.war
 
 ENV LD_LIBRARY_PATH /usr/local/lib:$LD_LIBRARY_PATH
 ENV CLASSPATH /usr/local/lib/gdal.jar
