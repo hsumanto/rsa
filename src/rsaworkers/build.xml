@@ -37,7 +37,7 @@
 	<condition property="gdalLib" value="C:\tmp\gdalapps\bin">
 		<os family="windows" />
 	</condition>
-	<condition property="gdalLib" value="/usr/local/lib">
+	<condition property="gdalLib" value="/usr/share/java">
 		<os family="unix" />
 	</condition>
 	<property name="target" value="1.7" />
