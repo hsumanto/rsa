@@ -34,7 +34,9 @@ public class BucketingStrategyFactory {
 			bs = new BucketingStrategyCategorical();
 		} else if (path.equals("log")) {
 			bs = new BucketingStrategyLog();
-		} else if (path.equals("logRegular")) {
+		} else if (path.equals("logRegular") || path.equals("logQuantile")) {
+			// "logQuantile" is deprecated, but needed for compatibility until
+			// client apps switch to "logRegular".
 			bs = new BucketingStrategyLogRegular();
 		} else {
 			throw new QueryBindingException(String.format(
