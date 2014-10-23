@@ -25,12 +25,14 @@
 	<property name="queryFilterSrc" location="../rsaquery/filter-src" />
 
 	<!-- Make sure gdal library location is correct for production -->
-	<condition property="gdalLib" value="C:\tmp\gdalapps\bin">
-		<os family="windows" />
-	</condition>
-	<condition property="gdalLib" value="/usr/local/lib">
-		<os family="unix" />
-	</condition>
+	<available property="gdallib" file="C:\tmp\gdalapps\bin\gdal.jar" value="C:\tmp\gdalapps\bin"></available>
+	<available property="gdallib" file="/usr/lib/libgdal.so.*" value="/usr/lib"></available>
+	<available property="gdallib" file="/usr/local/lib/libgdal.so.*" value="/usr/local/lib"></available>
+
+	<available property="gdaljar" file="C:\tmp\gdalapps\bin\gdal.jar" value="C:\tmp\gdalapps\bin\gdal.jar"></available>
+	<available property="gdaljar" file="/usr/share/java/gdal.jar" value="/usr/share/java/gdal.jar"></available>
+	<available property="gdaljar" file="/usr/local/lib/gdal.jar" value="/usr/local/lib/gdal.jar"></available>
+
 	<!-- Make sure dll property is set -->
 	<condition property="dllWildcard" value="*.dll">
 	   <os family="windows"/>
@@ -55,7 +57,7 @@
 
 	<!-- Used for init-gdal-jar and compile -->
 	<path id="gdal-classpath" >
-		<fileset file="${gdalLib}/gdal.jar" />		
+		<fileset file="${gdaljar}" />		
 	</path>
 
 	<!-- Used for test-compile -->
@@ -125,7 +127,7 @@
 		<!-- Run JUnit test on test classes -->
 		<junit fork="yes" haltonfailure="no" dir="${basedir}">
 			<!-- Include GDAL share library -->
-			<env key="LD_LIBRARY_PATH" value="${env.LD_LIBRARY_PATH}:${gdalLib}" />
+			<env key="LD_LIBRARY_PATH" value="${env.LD_LIBRARY_PATH}:${gdallib}" />
 			<classpath refid="test.classpath" />
 			<formatter type="plain" usefile="false" />
 			<formatter type="xml" />
@@ -180,6 +182,8 @@
 				<exclude name="*.SAMPLE"/>
 			</fileset>
 		</copy>
+		<!-- .SAMPLE files override the user-edited ones to prevent testing
+		     passwords etc. from being leaked. -->
 		<copy todir="${dist}/config" verbose="true" overwrite="true">
 			<fileset dir="${config}" />
 		    <globmapper from="*.SAMPLE" to="*"/>

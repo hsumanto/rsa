@@ -45,12 +45,14 @@
 	<property name="webRoot" location="src/main/webapp" />
 
 	<!-- Make sure gdal library location is correct for production -->
-	<condition property="gdalLib" value="C:\tmp\gdalapps\bin">
-		<os family="windows" />
-	</condition>
-	<condition property="gdalLib" value="/usr/local/lib">
-		<os family="unix" />
-	</condition>
+	<available property="gdallib" file="C:\tmp\gdalapps\bin\gdal.jar" value="C:\tmp\gdalapps\bin"></available>
+	<available property="gdallib" file="/usr/lib/libgdal.so.*" value="/usr/lib"></available>
+	<available property="gdallib" file="/usr/local/lib/libgdal.so.*" value="/usr/local/lib"></available>
+
+	<available property="gdaljar" file="C:\tmp\gdalapps\bin\gdal.jar" value="C:\tmp\gdalapps\bin\gdal.jar"></available>
+	<available property="gdaljar" file="/usr/share/java/gdal.jar" value="/usr/share/java/gdal.jar"></available>
+	<available property="gdaljar" file="/usr/local/lib/gdal.jar" value="/usr/local/lib/gdal.jar"></available>
+
 	<property name="target" value="1.7" />
 	<property name="source" value="1.7" />
 
@@ -68,7 +70,7 @@
 		<fileset dir="${tomcatLib}/">
 			<include name="*.jar" />
 		</fileset>
-		<pathelement location="${gdalLib}/gdal.jar" />
+		<pathelement location="${gdaljar}" />
 	</path>
 
 	<path id="storageManager-classpath">
@@ -137,6 +139,8 @@
 				<exclude name="README.txt"/>
 			</fileset>
 		</copy>
+		<!-- .SAMPLE files override the user-edited ones to prevent testing
+		     passwords etc. from being leaked. -->
 		<copy todir="${build}" flatten="false" verbose="true" overwrite="true">
 			<fileset dir="${storagemanagerConfig}" />
 			<globmapper from="*.SAMPLE" to="*"/>
