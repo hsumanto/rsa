@@ -55,17 +55,20 @@ ENV CATALINA_BASE /var/lib/tomcat6
 ENV CATALINA_HOME /usr/share/tomcat6
 RUN ldconfig
 RUN cd /var/src && ant
-RUN cp /var/src/spatialcubeservice/dist/rsa_*.war /var/lib/tomcat6/webapps/spatialcubeservice.war
+RUN mkdir -p /var/lib/tomcat6/webapps/spatialcubeservice
+RUN cp /var/src/spatialcubeservice/dist/rsa_*.war /var/lib/tomcat6/webapps/spatialcubeservice/spatialcubeservice.war
 RUN ln -s /usr/share/java/gdal.jar /usr/share/tomcat6/lib/
+
+RUN cd /var/lib/tomcat6/webapps/spatialcubeservice && jar -xvf spatialcubeservice.war 
+COPY ./spatialcubeservice/config/datasource.xml /var/lib/tomcat6/webapps/spatialcubeservice/WEB-INF/classes/datasource.xml
 
 CMD ["/var/src/rsaworkers/dist/rsaworkers/rsaworker"]
 
-#RUN ["JAVA_HOME=/usr/lib/jvm/java-1.7.0-openjdk-amd64", "CATALINA_BASE=/var/lib/tomcat6", "CATALINA_HOME=/usr/share/tomcat6", "/usr/share/tomcat6/bin/catalina.sh", "run"]
-#ENV CATALINA_OPTS "-Djava.library.path=/usr/lib/jni"
 #RUN /usr/share/tomcat6/bin/catalina.sh run
 
 # Expose ports.
 #   - 80: web
 #   - 2552: akka
-EXPOSE 80
-EXPOSE 2552
+#EXPOSE 80
+#EXPOSE 8080
+#EXPOSE 2552
