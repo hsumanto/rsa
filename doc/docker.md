@@ -14,17 +14,6 @@ rsa branch on git : rsa-workers
 
  1. postgres build
     
-
- 1. Install vagrant as shown [here](http://docs.vagrantup.com/v2/installation/index.html) or using the following instructions.
- 
-	Debian/Ubuntu:
-	
-	```
-	$ sudo apt-get install virtualbox
-	$ sudo apt-get install vagrant
-	```
- 	
-
  1. run postgres in docker
 
  1. run rsa worker(master) in docker
