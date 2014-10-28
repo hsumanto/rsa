@@ -4,6 +4,10 @@ import java.awt.Color;
 
 import org.vpac.ndg.common.NumberUtils;
 
+/**
+ * Maps values to seemingly random (but reproducible) colours.
+ * @author Alex Fraser
+ */
 public class HashPalette implements Palette {
 
 	private RangeMap rangeMap;

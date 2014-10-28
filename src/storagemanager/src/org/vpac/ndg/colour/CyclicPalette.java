@@ -2,6 +2,11 @@ package org.vpac.ndg.colour;
 
 import java.awt.Color;
 
+/**
+ * Picks colours from a fixed-sized array. If sequence of colours repeats for
+ * values that would fall outside the array.
+ * @author Alex Fraser
+ */
 public class CyclicPalette implements Palette {
 
 	private Color[] colours;
