@@ -14,7 +14,7 @@ RUN \
 
 
 # Install mongodb
-RUN apt-get mongodb
+RUN apt-get install -y postgresql-9.3 pgadmin3
 
 # Install JDK
 RUN apt-get install -y openjdk-7-jdk 
@@ -23,7 +23,7 @@ RUN apt-get install -y openjdk-7-jdk
 RUN apt-get install -y build-essential ant swig wget
 
 # Install gdal 
-RUN apt-get install -y zlibc zlib1g zlib1g-dev gdal-bin libgdal-dev libgdal-java
+RUN apt-get install -y zlibc zlib1g zlib1g-dev gdal-bin libgdal-dev libgdal-java supervisor
 
 # Install libproj
 RUN apt-get install -y libproj0
@@ -63,6 +63,7 @@ RUN /etc/init.d/postgresql start && \
     psql --command "CREATE USER ula WITH PASSWORD 'password';" && \
     createdb -O ula uladb
 
+USER root	
 COPY ./supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
 # build Spatialcube Service
