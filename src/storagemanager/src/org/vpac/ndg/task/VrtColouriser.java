@@ -42,7 +42,7 @@ public class VrtColouriser extends Task {
     private ColourTableType colourTableType = ColourTableType.CONTINUOUS;
     
     //these colours are simply repeated to make up the total NUMBER_OF_COLOURS count
-    private static final Color[] catagoricalColours = 
+    private static final Color[] cyclic11 =
         {new Color(31,120,180),
          new Color(227,26,28),
          new Color(178,223,138),
@@ -54,7 +54,7 @@ public class VrtColouriser extends Task {
          new Color(202,178,214),
          new Color(106,61,154),
          new Color(255,255,153)};
-    
+
     public VrtColouriser() {
         this("Adding Colour Table to VRT file");
     }
@@ -208,8 +208,8 @@ public class VrtColouriser extends Task {
         
         for(int i = 1; i < colours.length; i++)
         {
-            int localColourIndex = i % catagoricalColours.length;
-            colours[i] = catagoricalColours[localColourIndex];
+            int localColourIndex = i % cyclic11.length;
+            colours[i] = cyclic11[localColourIndex];
         }
         
         return colours;
@@ -233,6 +233,42 @@ public class VrtColouriser extends Task {
         
         return colours;
     }
+
+    double hash(int x) {
+        // Robert Jenkins' 32-bit integer hash function.
+        // http://stackoverflow.com/a/3428186/320036
+        // The prime given on the first line happens to give a good result
+        // for boolean datasets.
+        int seed = x ^ 1376312589;
+        seed = ((seed + 0x7ed55d16) + (seed << 12))  & 0xffffffff;
+        seed = ((seed ^ 0xc761c23c) ^ (seed >>> 19)) & 0xffffffff;
+        seed = ((seed + 0x165667b1) + (seed << 5))   & 0xffffffff;
+        seed = ((seed + 0xd3a2646c) ^ (seed << 9))   & 0xffffffff;
+        seed = ((seed + 0xfd7046c5) + (seed << 3))   & 0xffffffff;
+        seed = ((seed ^ 0xb55a4f09) ^ (seed >>> 16)) & 0xffffffff;
+        return (seed & 0xfffffff) / 268435456.0;
+    };
+
+    /**
+     * like JavaScript's Number.toString(16). That function produces
+     * things like "0.a6c927"; this one returns just the fractional part.
+     */
+    String hexFraction(double x) {
+        // Get the fractional part only, then multiply by some large number
+        // that we know the hex string of.
+        x = x % 1.0;
+        long hashedInt = (long)(x * 0xffffffffL);
+        String hex = Long.toHexString(hashedInt);
+        // The hex string should have at least n digits; prepend zeros to it
+        // if not.
+        return "00000000".substring(0, 8 - hex.length()) + hex;
+    }
+
+    Color hashColour(int x) {
+        double hashedValue = hash(x);
+        String hex = hexFraction(hashedValue);
+        return Color.decode("0x" + hex.substring(0, 6));
+    };
     
     /**
      * converts a java color object to a VRT formatted colortable line ( <Entry c1="0" c2="0" c3="0" c4="0" /> )
