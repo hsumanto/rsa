@@ -1,8 +1,6 @@
 package org.vpac.ndg.task;
 
-import java.io.File;
 import java.nio.file.Path;
-import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -11,7 +9,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.vpac.ndg.ApplicationContextProvider;
-import org.vpac.ndg.Utils;
 import org.vpac.ndg.application.Constant;
 import org.vpac.ndg.common.datamodel.CellSize;
 import org.vpac.ndg.common.datamodel.GdalFormat;
@@ -21,7 +18,6 @@ import org.vpac.ndg.exceptions.TaskException;
 import org.vpac.ndg.exceptions.TaskInitialisationException;
 import org.vpac.ndg.geometry.Box;
 import org.vpac.ndg.geometry.NestedGrid;
-import org.vpac.ndg.geometry.Projection;
 import org.vpac.ndg.geometry.TileManager;
 import org.vpac.ndg.lock.TimeSliceDbReadWriteLock;
 import org.vpac.ndg.storage.dao.DatasetDao;
@@ -33,7 +29,6 @@ import org.vpac.ndg.storage.model.TimeSlice;
 import org.vpac.ndg.storage.util.DatasetUtil;
 import org.vpac.ndg.storage.util.TimeSliceUtil;
 import org.vpac.ndg.storagemanager.GraphicsFile;
-import org.vpac.ndg.task.VrtColouriser.ColourTableType;
 
 /**
  * WMTS Band Creator uses a number of gdal commands to build a set of tiles suitable
@@ -276,9 +271,9 @@ public class WmtsBandCreator extends Application {
         vrtColourer.setSource(vrtWithNoColourFile);
         vrtColourer.setTarget(vrtWithColourFile);
         if (b.isContinuous()) {
-            vrtColourer.setColourTableType(ColourTableType.CONTINUOUS);
+            vrtColourer.setPalette("rainbow360");
         } else {
-            vrtColourer.setColourTableType(ColourTableType.CATAGORICAL);
+            vrtColourer.setPalette("cyclic11");
         }
         
         //
