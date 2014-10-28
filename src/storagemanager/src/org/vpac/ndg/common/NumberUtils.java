@@ -15,6 +15,8 @@ public class NumberUtils {
 	 */
     public static String toHexFraction(double x, int digits) {
         // Get fractional part, and shift left by n digits.
+        if (x < 0.0)
+            x = 0.0 - x;
         x = x % 1.0;
         long multiplier = (1L << (digits * 4));
         long fraction = (long)(x * multiplier);
@@ -22,7 +24,7 @@ public class NumberUtils {
         // Convert integer to hex string.
         // String should have at least n digits; prefix with zeros if not.
         String hex = Long.toHexString(fraction);
-        String padding = new String(new char[digits]).replace("\0", "0");
+        String padding = "000000000000000";
         hex = padding.substring(0, digits - hex.length()) + hex;
 
         return hex;
@@ -36,7 +38,15 @@ public class NumberUtils {
      */
     public static String toHexInteger(double x) {
         long whole = (long) x;
-        return Long.toHexString(whole);
+        String prefix;
+        if (whole < 0) {
+            // Long.toHexString treats the number as an unsigned integer.
+            whole = 0 - whole;
+            prefix = "-";
+        } else {
+            prefix = "";
+        }
+        return prefix + Long.toHexString(whole);
     }
 
     /**
