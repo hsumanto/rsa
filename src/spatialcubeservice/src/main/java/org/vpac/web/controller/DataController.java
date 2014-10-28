@@ -663,6 +663,7 @@ public class DataController {
 	                                  @RequestParam(required = false) String bandId,
 	                                  @RequestParam(required = false) String queryJobProgressId,
 	                                  @RequestParam(required = false) Boolean continuous,
+	                                  @RequestParam(required = false) String palette,
 	                                  ModelMap model) throws TaskInitialisationException, IllegalAccessException {
 	    
 	    if (queryJobProgressId != null) {
@@ -670,9 +671,9 @@ public class DataController {
 	        WmtsQueryCreator bandCreator = new WmtsQueryCreator();
 	        bandCreator.setQueryJobProgressId(queryJobProgressId);
 
-	        if (continuous != null) {
-	            bandCreator.setContinuous(continuous.booleanValue());
-	        }
+			bandCreator.setPalette(palette);
+			if (continuous != null)
+				bandCreator.setContinuous(continuous);
 
 	        bandCreator.configure();
 	        model.addAttribute(ControllerHelper.RESPONSE_ROOT, new ExportResponse(bandCreator.getTaskId()));
@@ -686,7 +687,8 @@ public class DataController {
 	        bandCreator.setDatasetId(datasetId);
 	        bandCreator.setTimesliceId(timesliceId);
 	        bandCreator.setBandId(bandId);
-	        
+			bandCreator.setPalette(palette);
+
 	        bandCreator.configure();
 	        model.addAttribute(ControllerHelper.RESPONSE_ROOT, new ExportResponse(bandCreator.getTaskId()));
 	        bandCreator.runInBackground();

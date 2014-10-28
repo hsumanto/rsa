@@ -36,7 +36,7 @@ public class VrtColouriser extends Task {
     
     private GraphicsFile source;
     private GraphicsFile target;
-    private String palette;
+    private Palette palette;
 
     public VrtColouriser() {
         this("Adding Colour Table to VRT file");
@@ -161,13 +161,12 @@ public class VrtColouriser extends Task {
     }
 
     protected Color[] getColours () {
-        Palette p = NamedPalette.get(palette, 1, 255);
         Color[] cs = new Color[NUMBER_OF_COLOURS];
 
         cs[0] = new Color(0, 0, 0, 0);
 
         for (int i = 1; i < NUMBER_OF_COLOURS; i++) {
-            cs[i] = p.get(i);
+            cs[i] = palette.get(i);
         }
 
         return cs;
@@ -197,11 +196,11 @@ public class VrtColouriser extends Task {
         // nothing to do
     }
 
-    public String getPalette() {
+    public Palette getPalette() {
         return palette;
     }
 
-    public void setPalette(String palette) {
+    public void setPalette(Palette palette) {
         this.palette = palette;
     }
 
@@ -247,7 +246,7 @@ public class VrtColouriser extends Task {
         System.out.println(colouriser.getColourTable());
         System.out.println();
         
-        colouriser.setPalette("");
+        colouriser.setPalette(NamedPalette.get("rainbow240", 1, 255));
         System.out.println(colouriser.getColourTable());
         System.out.println();
         

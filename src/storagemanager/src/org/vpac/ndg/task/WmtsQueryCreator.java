@@ -10,6 +10,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.vpac.ndg.ApplicationContextProvider;
 import org.vpac.ndg.application.Constant;
+import org.vpac.ndg.colour.NamedPalette;
+import org.vpac.ndg.colour.Palette;
 import org.vpac.ndg.common.datamodel.GdalFormat;
 import org.vpac.ndg.common.datamodel.TaskState;
 import org.vpac.ndg.common.datamodel.TaskType;
@@ -17,6 +19,7 @@ import org.vpac.ndg.configuration.NdgConfigManager;
 import org.vpac.ndg.exceptions.TaskException;
 import org.vpac.ndg.exceptions.TaskInitialisationException;
 import org.vpac.ndg.storage.dao.JobProgressDao;
+import org.vpac.ndg.storage.model.Band;
 import org.vpac.ndg.storage.model.JobProgress;
 import org.vpac.ndg.storage.util.DatasetUtil;
 import org.vpac.ndg.storagemanager.GraphicsFile;
@@ -45,7 +48,10 @@ public class WmtsQueryCreator extends Application {
     
     private String queryJobProgressId;
 
+    // Legacy; replaced by palette
     private boolean continuous = true;
+    private String palette;
+    private Palette _palette;
 
     JobProgressDao jobProgressDao;
     NdgConfigManager ndgConfigManager;
@@ -75,6 +81,19 @@ public class WmtsQueryCreator extends Application {
         if(jobProgress == null) {
             // Capture if dataset not exist
             throw new TaskInitialisationException(String.format("Job/Task with ID = \"%s\" not found.", queryJobProgressId));         
+        }
+
+        // Get a palette.
+        // Currently, the value range is always scaled to be between 1 and 255
+        // before colours are fetched from the palette (see Task 4,
+        // `Translator vrtToByteTif` below).
+        if (palette == null) {
+            if (continuous)
+                _palette = NamedPalette.get("rainbow240", 1, 255);
+            else
+                _palette = NamedPalette.get("hash255", 1, 255);
+        } else {
+            _palette = NamedPalette.get(palette, 1, 255);
         }
 
         log.info("Query Job Progress : {}", jobProgress);
@@ -198,14 +217,8 @@ public class WmtsQueryCreator extends Application {
         setTaskCleanupOptions(vrtColourer);
         vrtColourer.setSource(vrtWithNoColourFile);
         vrtColourer.setTarget(vrtWithColourFile);
-        
-        
-        if (continuous) {
-            vrtColourer.setPalette("rainbow360");
-        } else {
-            vrtColourer.setPalette("cyclic11");
-        }
-        
+        vrtColourer.setPalette(_palette);
+
         //
         // TASK 7
         // Make a VRT with an expanded colour 'thing'. gdal2tiles requires this step fortunately it's quick
@@ -310,7 +323,17 @@ public class WmtsQueryCreator extends Application {
         this.continuous = continuous;
     }
 
-    /**
+    public String getPalette() {
+		return palette;
+	}
+
+
+	public void setPalette(String palette) {
+		this.palette = palette;
+	}
+
+
+	/**
      * needs to be the task/job id of a completed query
      * @param jobProgressId
      */
