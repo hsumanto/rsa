@@ -2,6 +2,10 @@ package org.vpac.ndg.colour;
 
 import java.awt.Color;
 
+/**
+ * Fetches palettes by name.
+ * @author Alex Fraser
+ */
 public class NamedPalette {
 
 	/**
