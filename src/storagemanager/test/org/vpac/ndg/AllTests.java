@@ -24,6 +24,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 import org.springframework.test.context.ContextConfiguration;
+import org.vpac.ndg.colour.PaletteTest;
 import org.vpac.ndg.common.NumberUtilsTest;
 import org.vpac.ndg.datamodel.AggregateViewTest;
 import org.vpac.ndg.datamodel.AggregationTest;
@@ -42,7 +43,6 @@ import org.vpac.ndg.task.TileBandCreatorTest;
 import org.vpac.ndg.task.TileTransformerTest;
 import org.vpac.ndg.task.TransformerTest;
 import org.vpac.ndg.task.VrtBuilderTest;
-import org.vpac.ndg.task.VrtColouriserTest;
 
 /**
  * This test suite should compile all JUnit test cases for all newly design
@@ -56,6 +56,7 @@ import org.vpac.ndg.task.VrtColouriserTest;
 @RunWith(Suite.class)
 @SuiteClasses({
 	NumberUtilsTest.class,
+	PaletteTest.class,
 	SimpleDateFormatTest.class,
 	DatasetTest.class,
 	TimeSliceTest.class,
@@ -69,7 +70,6 @@ import org.vpac.ndg.task.VrtColouriserTest;
 	TileTransformerTest.class,
 	TransformerTest.class,
 	VrtBuilderTest.class,
-	VrtColouriserTest.class,
 	ImporterTest.class,
 	BatchImporterTest.class,
 	ExporterTest.class,

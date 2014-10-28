@@ -46,8 +46,18 @@ public class NumberUtils {
      * @param digits The number of digits to return after the decimal point.
      * @return A hexadecimal string of the form INT.FRACTION, e.g. f8.1e93b9.
      */
-    public static String toHex (double x, int digits) {
+    public static String toHex(double x, int digits) {
         return toHexInteger(x) + "." + toHexFraction(x, digits);
     }
 
+    public static double lerp(double a, double b, double fraction) {
+        return ((b - a) * fraction) + a;
+    }
+
+    public static double unlerp(double a, double b, double value) {
+        double divisor = b - a;
+        if (divisor == 0)
+            return 0;
+        return (value - a) / divisor;
+    }
 }
