@@ -36,6 +36,16 @@ public class NumberUtilsTest extends AbstractJUnit4SpringContextTests {
 		assertEquals("000001ad7f29b", NumberUtils.toHexFraction(1.0000001, 13));
 		assertEquals("1", NumberUtils.toHexInteger(1.0000001));
 		assertEquals("1.000001ad7f29b", NumberUtils.toHex(1.0000001, 13));
+
+		assertEquals("000001ad7f29b", NumberUtils.toHexFraction(-1.0000001, 13));
+		assertEquals("-1", NumberUtils.toHexInteger(-1.0000001));
+		assertEquals("-1.000001ad7f29b", NumberUtils.toHex(-1.0000001, 13));
+
+		assertEquals("1.80000", NumberUtils.toHex(1.5, 5));
+		assertEquals("-1.80000", NumberUtils.toHex(-1.5, 5));
+
+		assertEquals("1.e666666666666", NumberUtils.toHex(1.9, 13));
+		assertEquals("-1.e666666666666", NumberUtils.toHex(-1.9, 13));
 	}
 
 }
