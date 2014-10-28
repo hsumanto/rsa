@@ -10,6 +10,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.vpac.ndg.ApplicationContextProvider;
 import org.vpac.ndg.application.Constant;
+import org.vpac.ndg.colour.NamedPalette;
+import org.vpac.ndg.colour.Palette;
 import org.vpac.ndg.common.datamodel.CellSize;
 import org.vpac.ndg.common.datamodel.GdalFormat;
 import org.vpac.ndg.common.datamodel.TaskType;
@@ -20,6 +22,7 @@ import org.vpac.ndg.geometry.Box;
 import org.vpac.ndg.geometry.NestedGrid;
 import org.vpac.ndg.geometry.TileManager;
 import org.vpac.ndg.lock.TimeSliceDbReadWriteLock;
+import org.vpac.ndg.storage.dao.BandDao;
 import org.vpac.ndg.storage.dao.DatasetDao;
 import org.vpac.ndg.storage.dao.TimeSliceDao;
 import org.vpac.ndg.storage.model.Band;
@@ -58,6 +61,9 @@ public class WmtsBandCreator extends Application {
     
     private Dataset dataset;
 
+    private String palette;
+    private Palette _palette;
+
     private Box internalExtents;
     
     // It's OK to hold a direct reference to the time slices here, because this
@@ -67,16 +73,19 @@ public class WmtsBandCreator extends Application {
     private TimeSliceDbReadWriteLock lock;
     
     DatasetDao datasetDao;
+    BandDao bandDao;
     TimeSliceDao timeSliceDao;
     TimeSliceUtil timeSliceUtil;
     TileManager tileManager;
     NdgConfigManager ndgConfigManager;
     
     DatasetUtil datasetUtil;
+
     
     public WmtsBandCreator() {
         ApplicationContext appContext = ApplicationContextProvider.getApplicationContext();
         datasetDao = (DatasetDao) appContext.getBean("datasetDao");
+        bandDao = (BandDao) appContext.getBean("bandDao");
         timeSliceDao = (TimeSliceDao) appContext.getBean("timeSliceDao");
         timeSliceUtil = (TimeSliceUtil) appContext.getBean("timeSliceUtil");
         tileManager = (TileManager) appContext.getBean("tileManager");
@@ -133,8 +142,20 @@ public class WmtsBandCreator extends Application {
         }
         internalExtents = nng.alignToGrid(internalExtents, resolution);
 
-        
-        
+        // Get a palette.
+        // Currently, the value range is always scaled to be between 1 and 255
+        // before colours are fetched from the palette (see Task 4,
+        // `Translator vrtToByteTif` below).
+        if (palette == null) {
+            Band band = bandDao.retrieve(bandId);
+            if (band.isContinuous())
+                _palette = NamedPalette.get("rainbow240", 1, 255);
+            else
+                _palette = NamedPalette.get("hash255", 1, 255);
+        } else {
+            _palette = NamedPalette.get(palette, 1, 255);
+        }
+
         // Get locks for all timeslices.
         // FIXME: This should happen before finding timeslice bounds.
         lock = new TimeSliceDbReadWriteLock(TaskType.Export.toString());
@@ -270,12 +291,8 @@ public class WmtsBandCreator extends Application {
         setTaskCleanupOptions(vrtColourer);
         vrtColourer.setSource(vrtWithNoColourFile);
         vrtColourer.setTarget(vrtWithColourFile);
-        if (b.isContinuous()) {
-            vrtColourer.setPalette("rainbow360");
-        } else {
-            vrtColourer.setPalette("cyclic11");
-        }
-        
+        vrtColourer.setPalette(_palette);
+
         //
         // TASK 7
         // Make a VRT with an expanded colour 'thing'. gdal2tiles requires this step fortunately it's quick
@@ -384,7 +401,17 @@ public class WmtsBandCreator extends Application {
     }
 
 
-    @Override
+    public String getPalette() {
+		return palette;
+	}
+
+
+	public void setPalette(String palette) {
+		this.palette = palette;
+	}
+
+
+	@Override
     protected void preExecute() throws TaskException {
         if (!ndgConfigManager.getConfig().isFilelockingOn()) {
             log.debug("Executing pipeline without locking.");
