@@ -147,11 +147,13 @@ public class WmtsBandCreator extends Application {
         // before colours are fetched from the palette (see Task 4,
         // `Translator vrtToByteTif` below).
         if (palette == null) {
+            // Use deprecated palettes; this is for backwards compatibility
+            // with old clients that don't know how to specify a palette.
             Band band = bandDao.retrieve(bandId);
             if (band.isContinuous())
-                _palette = NamedPalette.get("rainbow240", 1, 255);
+                _palette = NamedPalette.get("rainbow360", 1, 255);
             else
-                _palette = NamedPalette.get("hash255", 1, 255);
+                _palette = NamedPalette.get("cyclic11", 1, 255);
         } else {
             _palette = NamedPalette.get(palette, 1, 255);
         }
