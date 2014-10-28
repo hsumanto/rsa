@@ -60,10 +60,40 @@ public class NumberUtils {
         return toHexInteger(x) + "." + toHexFraction(x, digits);
     }
 
+    /**
+	 * Linearly interpolate between two values.
+	 *
+	 * @param a The first value.
+	 * @param b The second value.
+	 * @param fraction The point to interpolate to, with 0 being a and 1 being
+	 *            b.
+	 * @return A value between a and b (if fraction is between 0 and 1).
+	 */
     public static double lerp(double a, double b, double fraction) {
         return ((b - a) * fraction) + a;
     }
 
+    /**
+	 * Inverse linear interpolation between two values. Formally:
+	 *
+	 * <pre>
+	 * lerp(a, b, unlerp(a, b, x)) == x
+	 * </pre>
+	 *
+	 * <p>
+	 * e.g. unlerp(1, 3, 2) == 0.5
+	 * </p>
+	 *
+	 * <p>
+	 * If a == b, the result is always 0.
+	 * </p>
+	 *
+	 * @param a The lower bound.
+	 * @param b The upper bound.
+	 * @param value The value to find the interpolation point of.
+	 * @return A fraction representing how far value is away from a in the
+	 *         direction of b.
+	 */
     public static double unlerp(double a, double b, double value) {
         double divisor = b - a;
         if (divisor == 0)
