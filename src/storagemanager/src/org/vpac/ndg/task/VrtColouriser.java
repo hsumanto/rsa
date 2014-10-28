@@ -12,6 +12,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.vpac.ndg.application.Constant;
+import org.vpac.ndg.common.NumberUtils;
 import org.vpac.ndg.exceptions.TaskException;
 import org.vpac.ndg.exceptions.TaskInitialisationException;
 import org.vpac.ndg.storagemanager.GraphicsFile;
@@ -249,25 +250,10 @@ public class VrtColouriser extends Task {
         return (seed & 0xfffffff) / 268435456.0;
     };
 
-    /**
-     * like JavaScript's Number.toString(16). That function produces
-     * things like "0.a6c927"; this one returns just the fractional part.
-     */
-    String hexFraction(double x) {
-        // Get the fractional part only, then multiply by some large number
-        // that we know the hex string of.
-        x = x % 1.0;
-        long hashedInt = (long)(x * 0xffffffffL);
-        String hex = Long.toHexString(hashedInt);
-        // The hex string should have at least n digits; prepend zeros to it
-        // if not.
-        return "00000000".substring(0, 8 - hex.length()) + hex;
-    }
-
     Color hashColour(int x) {
         double hashedValue = hash(x);
-        String hex = hexFraction(hashedValue);
-        return Color.decode("0x" + hex.substring(0, 6));
+        String hex = NumberUtils.toHexFraction(hashedValue, 6);
+        return Color.decode("0x" + hex);
     };
     
     /**
