@@ -12,6 +12,10 @@ RUN \
   apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 7F0CEB10 && \
   apt-get update
 
+
+# Install mongodb
+RUN apt-get mongodb
+
 # Install JDK
 RUN apt-get install -y openjdk-7-jdk 
 
@@ -48,6 +52,18 @@ COPY ./storagemanager var/src/storagemanager
 COPY ./rsaquery var/src/rsaquery
 COPY ./spatialcubeservice var/src/spatialcubeservice
 
+# Run the rest of the commands as the ``postgres`` user created by the ``postgres-9.3`` package when it was ``apt-get installed``
+USER postgres
+
+# Create a PostgreSQL role named ``docker`` with ``docker`` as the password and
+# then create a database `docker` owned by the ``docker`` role.
+# Note: here we use ``&&\`` to run commands one after the other - the ``\``
+#       allows the RUN command to span multiple lines.
+RUN /etc/init.d/postgresql start && \
+    psql --command "CREATE USER ula WITH PASSWORD 'password';" && \
+    createdb -O ula uladb
+
+COPY ./supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
 # build Spatialcube Service
 ENV CLASSPATH $CLASSPATH:/usr/share/java/gdal.jar:/usr/lib/jni/
@@ -62,13 +78,16 @@ RUN ln -s /usr/share/java/gdal.jar /usr/share/tomcat6/lib/
 RUN cd /var/lib/tomcat6/webapps/spatialcubeservice && jar -xvf spatialcubeservice.war 
 COPY ./spatialcubeservice/config/datasource.xml /var/lib/tomcat6/webapps/spatialcubeservice/WEB-INF/classes/datasource.xml
 
-CMD ["/var/src/rsaworkers/dist/rsaworkers/rsaworker"]
+CMD ["/usr/bin/supervisord"]
+
+#CMD ["/var/src/rsaworkers/dist/rsaworkers/rsaworker"]
 
 #RUN /usr/share/tomcat6/bin/catalina.sh run
 
 # Expose ports.
 #   - 80: web
 #   - 2552: akka
-#EXPOSE 80
-#EXPOSE 8080
-#EXPOSE 2552
+#   - 5432: postgresql
+EXPOSE 8080
+EXPOSE 2552
+EXPOSE 5432
