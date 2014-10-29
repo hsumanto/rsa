@@ -55,13 +55,16 @@ public class Main {
 	public void startService() throws InterruptedException {
 		Address joinAddress = null;
 		Config c = ConfigFactory.load("master");
-		if (c.hasPath("master.hostip")) {
+		Boolean isMaster = Boolean.parseBoolean(System.getenv("isMaster"));
+
+		if (!isMaster) {
 			String hostip = c.getString("master.hostip").toString();
 			String port = c.getString("master.port").toString();
 			if (hostip != null && port != null)
 				joinAddress = new Address("akka.tcp", "Workers@" + hostip + ":"
 						+ port);
 		}
+
 		joinAddress = startBackend(joinAddress);
 		Thread.sleep(5000);
 		startWorker(joinAddress);
