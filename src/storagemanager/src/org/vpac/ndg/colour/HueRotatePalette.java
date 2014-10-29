@@ -34,7 +34,7 @@ public class HueRotatePalette implements Palette {
 	@Override
 	public Color get(double value) {
         double fraction = this.rangeMap.toFraction(value);
-        float hue = (float) NumberUtils.unlerp(start, end, fraction);
+        float hue = (float) NumberUtils.lerp(start, end, fraction);
         return Color.getHSBColor(hue, saturation, 1.0f);
 	}
 

@@ -242,7 +242,8 @@ public class VrtColouriser extends Task {
     public static void main (String[] args) {
         
         VrtColouriser colouriser = new VrtColouriser();
-        
+
+        colouriser.setPalette(NamedPalette.get("hash255", 1, 255));
         System.out.println(colouriser.getColourTable());
         System.out.println();
         
