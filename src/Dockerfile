@@ -35,6 +35,11 @@ RUN mkdir -p /var/spool/ndg/upload
 RUN mkdir -p /var/spool/ndg/pickup
 RUN mkdir -p /var/tmp/ndg
 
+VOLUME /var/lib/ndg/storagepool
+VOLUME /var/spool/ndg/upload
+VOLUME /var/spool/ndg/pickup
+VOLUME /var/tmp/ndg
+
 # Ant build storagemanager
 COPY ./build.xml /var/src/build.xml
 COPY ./cmdclient /var/src/cmdclient
