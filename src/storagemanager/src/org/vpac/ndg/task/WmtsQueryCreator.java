@@ -1,43 +1,28 @@
 package org.vpac.ndg.task;
 
-import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.text.DateFormat;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.vpac.ndg.ApplicationContextProvider;
-import org.vpac.ndg.Utils;
 import org.vpac.ndg.application.Constant;
-import org.vpac.ndg.common.datamodel.CellSize;
+import org.vpac.ndg.colour.NamedPalette;
+import org.vpac.ndg.colour.Palette;
 import org.vpac.ndg.common.datamodel.GdalFormat;
 import org.vpac.ndg.common.datamodel.TaskState;
 import org.vpac.ndg.common.datamodel.TaskType;
 import org.vpac.ndg.configuration.NdgConfigManager;
 import org.vpac.ndg.exceptions.TaskException;
 import org.vpac.ndg.exceptions.TaskInitialisationException;
-import org.vpac.ndg.geometry.Box;
-import org.vpac.ndg.geometry.NestedGrid;
-import org.vpac.ndg.geometry.Projection;
-import org.vpac.ndg.geometry.TileManager;
-import org.vpac.ndg.lock.TimeSliceDbReadWriteLock;
-import org.vpac.ndg.storage.dao.DatasetDao;
 import org.vpac.ndg.storage.dao.JobProgressDao;
-import org.vpac.ndg.storage.dao.TimeSliceDao;
 import org.vpac.ndg.storage.model.Band;
-import org.vpac.ndg.storage.model.Dataset;
 import org.vpac.ndg.storage.model.JobProgress;
-import org.vpac.ndg.storage.model.TileBand;
-import org.vpac.ndg.storage.model.TimeSlice;
 import org.vpac.ndg.storage.util.DatasetUtil;
-import org.vpac.ndg.storage.util.TimeSliceUtil;
 import org.vpac.ndg.storagemanager.GraphicsFile;
-import org.vpac.ndg.task.VrtColouriser.ColourTableType;
 
 /**
  * WMTS Query Creator uses a number of gdal commands to build a set of tiles suitable
@@ -63,7 +48,10 @@ public class WmtsQueryCreator extends Application {
     
     private String queryJobProgressId;
 
+    // Legacy; replaced by palette
     private boolean continuous = true;
+    private String palette;
+    private Palette _palette;
 
     JobProgressDao jobProgressDao;
     NdgConfigManager ndgConfigManager;
@@ -93,6 +81,21 @@ public class WmtsQueryCreator extends Application {
         if(jobProgress == null) {
             // Capture if dataset not exist
             throw new TaskInitialisationException(String.format("Job/Task with ID = \"%s\" not found.", queryJobProgressId));         
+        }
+
+        // Get a palette.
+        // Currently, the value range is always scaled to be between 1 and 255
+        // before colours are fetched from the palette (see Task 4,
+        // `Translator vrtToByteTif` below).
+        if (palette == null) {
+            // Use deprecated palettes; this is for backwards compatibility
+            // with old clients that don't know how to specify a palette.
+            if (continuous)
+                _palette = NamedPalette.get("rainbow360", 1, 255);
+            else
+                _palette = NamedPalette.get("cyclic11", 1, 255);
+        } else {
+            _palette = NamedPalette.get(palette, 1, 255);
         }
 
         log.info("Query Job Progress : {}", jobProgress);
@@ -216,14 +219,8 @@ public class WmtsQueryCreator extends Application {
         setTaskCleanupOptions(vrtColourer);
         vrtColourer.setSource(vrtWithNoColourFile);
         vrtColourer.setTarget(vrtWithColourFile);
-        
-        
-        if (continuous) {
-            vrtColourer.setColourTableType(ColourTableType.CONTINUOUS);
-        } else {
-            vrtColourer.setColourTableType(ColourTableType.CATAGORICAL);
-        }
-        
+        vrtColourer.setPalette(_palette);
+
         //
         // TASK 7
         // Make a VRT with an expanded colour 'thing'. gdal2tiles requires this step fortunately it's quick
@@ -328,7 +325,17 @@ public class WmtsQueryCreator extends Application {
         this.continuous = continuous;
     }
 
-    /**
+    public String getPalette() {
+		return palette;
+	}
+
+
+	public void setPalette(String palette) {
+		this.palette = palette;
+	}
+
+
+	/**
      * needs to be the task/job id of a completed query
      * @param jobProgressId
      */

@@ -12,6 +12,8 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.vpac.ndg.application.Constant;
+import org.vpac.ndg.colour.NamedPalette;
+import org.vpac.ndg.colour.Palette;
 import org.vpac.ndg.exceptions.TaskException;
 import org.vpac.ndg.exceptions.TaskInitialisationException;
 import org.vpac.ndg.storagemanager.GraphicsFile;
@@ -30,31 +32,12 @@ public class VrtColouriser extends Task {
     public static final int NUMBER_OF_COLOURS = 256;
     public static final String INSERT_BEFORE_DEFAULT = "<ColorInterp>";
     
-    public enum ColourTableType {
-        CONTINUOUS,
-        CATAGORICAL
-    }
-    
     private String insertBefore;
     
     private GraphicsFile source;
     private GraphicsFile target;
-    private ColourTableType colourTableType = ColourTableType.CONTINUOUS;
-    
-    //these colours are simply repeated to make up the total NUMBER_OF_COLOURS count
-    private static final Color[] catagoricalColours = 
-        {new Color(31,120,180),
-         new Color(227,26,28),
-         new Color(178,223,138),
-         new Color(51,160,44),
-         new Color(251,154,153),
-         new Color(166,206,227),
-         new Color(253,191,111),
-         new Color(255,127,0),
-         new Color(202,178,214),
-         new Color(106,61,154),
-         new Color(255,255,153)};
-    
+    private Palette palette;
+
     public VrtColouriser() {
         this("Adding Colour Table to VRT file");
     }
@@ -114,19 +97,9 @@ public class VrtColouriser extends Task {
                 throw new TaskException("Could not delete target VRT file " + target.getFileLocation().toString());
             }
         }
-        
-        switch (colourTableType) {
-        case CATAGORICAL:
-            log.info("Adding catagorical colour table");
-            break;
-        case CONTINUOUS:
-            log.info("Adding continuous colour table");
-            break;
-        default:
-            break;
-        
-        }
-        
+
+        log.info("Using palette {}", palette);
+
         //Read all the lines in the source VRT file, this shouldn't be large 
         List<String> lines;
         try {
@@ -186,54 +159,19 @@ public class VrtColouriser extends Task {
         sb.append("</ColorTable>" + System.lineSeparator());
         return sb.toString();
     }
-    
+
     protected Color[] getColours () {
-        
-        switch (colourTableType) {
-        case CATAGORICAL:
-            return getCatagoricalColours();
-        case CONTINUOUS:
-            return getContinuousColours();
-        default:
-            return getContinuousColours();
+        Color[] cs = new Color[NUMBER_OF_COLOURS];
+
+        cs[0] = new Color(0, 0, 0, 0);
+
+        for (int i = 1; i < NUMBER_OF_COLOURS; i++) {
+            cs[i] = palette.get(i);
         }
+
+        return cs;
     }
 
-    
-    protected Color[] getCatagoricalColours() {
-        Color[] colours = new Color[NUMBER_OF_COLOURS];
-        
-        Color nodata = new Color(0, 0, 0, 0);
-        colours[0] = nodata;
-        
-        for(int i = 1; i < colours.length; i++)
-        {
-            int localColourIndex = i % catagoricalColours.length;
-            colours[i] = catagoricalColours[localColourIndex];
-        }
-        
-        return colours;
-    }
-    
-    /**
-     * Generates a rainbow like spectrum of colours based on 
-     * http://stackoverflow.com/questions/223971/generating-spectrum-color-palettes
-     * @return
-     */
-    protected Color[] getContinuousColours() {
-        Color[] colours = new Color[NUMBER_OF_COLOURS];
-        
-        Color nodata = new Color(0, 0, 0, 0);
-        colours[0] = nodata;
-        
-        for(int i = 1; i < colours.length; i++)
-        {
-            colours[i] = Color.getHSBColor((float) i / (float) colours.length, 0.85f, 1.0f);
-        }
-        
-        return colours;
-    }
-    
     /**
      * converts a java color object to a VRT formatted colortable line ( <Entry c1="0" c2="0" c3="0" c4="0" /> )
      * @param colour
@@ -258,16 +196,12 @@ public class VrtColouriser extends Task {
         // nothing to do
     }
 
-    public ColourTableType getColourTableType() {
-        return colourTableType;
+    public Palette getPalette() {
+        return palette;
     }
 
-    /**
-     * set the type of colour table to be generated
-     * @param colourTableType
-     */
-    public void setColourTableType(ColourTableType colourTableType) {
-        this.colourTableType = colourTableType;
+    public void setPalette(Palette palette) {
+        this.palette = palette;
     }
 
     public GraphicsFile getSource() {
@@ -308,11 +242,12 @@ public class VrtColouriser extends Task {
     public static void main (String[] args) {
         
         VrtColouriser colouriser = new VrtColouriser();
-        
+
+        colouriser.setPalette(NamedPalette.get("hash255", 1, 255));
         System.out.println(colouriser.getColourTable());
         System.out.println();
         
-        colouriser.setColourTableType(ColourTableType.CATAGORICAL);
+        colouriser.setPalette(NamedPalette.get("rainbow240", 1, 255));
         System.out.println(colouriser.getColourTable());
         System.out.println();
         
