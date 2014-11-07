@@ -10,9 +10,8 @@ FROM ubuntu:14.04
 # Install postgres.
 RUN \
   apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 7F0CEB10 && \
-  apt-get update && \
-  apt-get install -y postgresql
-  
+  apt-get update
+
 # Install JDK
 RUN apt-get install -y openjdk-7-jdk 
 
@@ -30,12 +29,6 @@ ENV GDAL_DIR /usr/share/bin
 ENV PATH $GDAL_DIR/bin:$PATH
 ENV LD_LIBRARY_PATH $GDAL_DIR/lib:$LD_LIBRARY_PATH
 ENV JAVA_HOME /usr/lib/jvm/java-1.7.0-openjdk-amd64
-
-# Start postgre sql server & Add user ula to postgres
-USER postgres 
-RUN /etc/init.d/postgresql start && \
-    psql --command "CREATE USER ula WITH PASSWORD 'password';" && \
-    createdb -O ula uladb
 
 # Install Tomcat6
 USER root
@@ -58,22 +51,22 @@ COPY ./spatialcubeservice var/src/spatialcubeservice
 
 # build Spatialcube Service
 ENV CLASSPATH $CLASSPATH:/usr/share/java/gdal.jar:/usr/lib/jni/
+ENV CATALINA_BASE /var/lib/tomcat6
+ENV CATALINA_HOME /usr/share/tomcat6
 RUN ldconfig
 RUN cd /var/src && ant
 RUN cp /var/src/spatialcubeservice/dist/rsa_*.war /var/lib/tomcat6/webapps/spatialcubeservice.war
+RUN ln -s /usr/share/java/gdal.jar /usr/share/tomcat6/lib/
 
-
-# CMD ["/etc/init.d/postgresql start", "/var/src/rsaworkers/dist/rsaworkers/rsaworker"]
-#RUN ["/var/src/rsaworkers/dist/rsaworkers/rsaworker"]
+CMD ["/var/src/rsaworkers/dist/rsaworkers/rsaworker"]
 
 #RUN ["JAVA_HOME=/usr/lib/jvm/java-1.7.0-openjdk-amd64", "CATALINA_BASE=/var/lib/tomcat6", "CATALINA_HOME=/usr/share/tomcat6", "/usr/share/tomcat6/bin/catalina.sh", "run"]
-ENV JAVA_OPTS "-Djava.library.path=/usr/lib/jni"
-#RUN CATALINA_BASE=/var/lib/tomcat6 CATALINA_HOME=/usr/share/tomcat6 JAVA_OPTS="-Djava.library.path=/usr/lib/jni" /usr/share/tomcat6/bin/catalina.sh run
+#ENV CATALINA_OPTS "-Djava.library.path=/usr/lib/jni"
+#RUN /usr/share/tomcat6/bin/catalina.sh run
 
 # Expose ports.
 #   - 80: web
 #   - 2552: akka
-#   - 5432: postgresql
 EXPOSE 80
 EXPOSE 2552
-EXPOSE 5432
+
