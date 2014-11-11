@@ -25,6 +25,7 @@ ENV PATH $GDAL_DIR/bin:$PATH
 ENV LD_LIBRARY_PATH $GDAL_DIR/lib:$LD_LIBRARY_PATH
 ENV JAVA_HOME /usr/lib/jvm/java-1.7.0-openjdk-amd64
 RUN ln -s /usr/bin/gdalwarp /usr/local/bin/gdalwarp
+RUN ln -s /usr/bin/gdalbuildvrt /usr/local/bin/gdalbuildvrt
 
 # Install Tomcat6
 USER root
