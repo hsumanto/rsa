@@ -17,15 +17,16 @@ RUN apt-get install -y openjdk-7-jdk
 RUN apt-get install -y build-essential ant swig wget
 
 # Install gdal 
-RUN apt-get install -y zlibc zlib1g zlib1g-dev gdal-bin libgdal-dev libgdal-java libproj0
+RUN apt-get install -y zlibc zlib1g zlib1g-dev gdal-bin libgdal-dev libgdal-java libproj0 python-gdal libjna-java
 
 # Set environment variables
 ENV GDAL_DIR /usr/share/bin
 ENV PATH $GDAL_DIR/bin:$PATH
 ENV LD_LIBRARY_PATH $GDAL_DIR/lib:$LD_LIBRARY_PATH
 ENV JAVA_HOME /usr/lib/jvm/java-1.7.0-openjdk-amd64
-RUN ln -s /usr/bin/gdalwarp /usr/local/bin/gdalwarp
-RUN ln -s /usr/bin/gdalbuildvrt /usr/local/bin/gdalbuildvrt
+#RUN ln -s /usr/bin/gdalwarp /usr/local/bin/gdalwarp
+#RUN ln -s /usr/bin/gdalbuildvrt /usr/local/bin/gdalbuildvrt
+#RUN ln -s /usr/bin/gdal_translate /usr/local/bin/gdal_translate
 
 # Install Tomcat6
 USER root
@@ -69,8 +70,11 @@ RUN ln -s /usr/share/java/gdal.jar /usr/share/tomcat6/lib/
 
 RUN cd /var/lib/tomcat6/webapps/spatialcubeservice && jar -xvf spatialcubeservice.war 
 COPY ./spatialcubeservice/config/datasource.xml.docker.SAMPLE /var/lib/tomcat6/webapps/spatialcubeservice/WEB-INF/classes/datasource.xml
+COPY ./storagemanager/config/rsa.xml.docker.SAMPLE /var/lib/tomcat6/webapps/spatialcubeservice/WEB-INF/classes/rsa.xml
+COPY ./storagemanager/config/logback.xml.docker.SAMPLE /var/lib/tomcat6/webapps/spatialcubeservice/WEB-INF/classes/logback.xml
 
 CMD ["/var/src/rsaworkers/dist/rsaworkers/rsaworker"]
+WORKDIR /var/src/
 
 #RUN /usr/share/tomcat6/bin/catalina.sh run
 
