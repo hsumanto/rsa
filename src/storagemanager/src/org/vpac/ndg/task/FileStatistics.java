@@ -148,10 +148,19 @@ public class FileStatistics extends Task {
         }
         
         if (foundCount < 4) {
-            throw new TaskException("Unable to extract statistics from gdalinfo output");
-        }
-        
-        
+            StringBuilder sb = new StringBuilder();
+            int start = lines.length - 11;
+            if (start < 0)
+                start = 0;
+            for (int i = start; i < lines.length; i++) {
+                if (i > start)
+                    sb.append("\n");
+                sb.append(lines[i]);
+            }
+            throw new TaskException(String.format(
+                    "Unable to extract statistics from gdalinfo output."
+                    + "Last 10 lines were\n %s", sb.toString()));
+         }
     }
 
     /**
