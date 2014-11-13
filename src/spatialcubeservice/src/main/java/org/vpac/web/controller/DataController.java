@@ -393,34 +393,6 @@ public class DataController {
 		}
 	}
 
-	@RequestMapping(value = "/Convert/{filename}", method = RequestMethod.GET)
-	public void convert(@PathVariable("filename") String filename, HttpServletResponse response) throws TaskInitialisationException, TaskException, ResourceNotFoundException {
-		if(filename == null) {
-			throw new ResourceNotFoundException("Filename not specified.");
-		}
-
-		File srcFile = new File("/home/hsumanto/tmp/" + filename + ".nc");
-		File dstFile = new File("/home/hsumanto/tmp/" + filename + ".png");
-		ImageTranslator converter = new ImageTranslator();
-		// mandatory
-		converter.setFormat(GdalFormat.PNG);
-		converter.setLayerIndex(1);
-		converter.setSrcFile(srcFile.toPath());
-		converter.setDstFile(dstFile.toPath());
-		converter.initialise();
-		converter.execute();
-		
-		try {
-			// get your file as InputStream
-			InputStream is = new FileInputStream(dstFile);
-			// copy it to response's OutputStream
-			IOUtils.copy(is, response.getOutputStream());
-			response.flushBuffer();
-		} catch (IOException ex) {
-			throw new RuntimeException("IOError writing file to output stream");
-		}
-	}
-
 	@RequestMapping(value = "/Plot", method = RequestMethod.GET)
 	public ModelAndView plot(@RequestParam(required = true) String datasetId,
 			@RequestParam(required = false) String bandName,
@@ -918,6 +890,7 @@ public class DataController {
 		if (!Files.exists(outputDir))
 			Files.createDirectories(outputDir);
 
+		List<String> actionLog = new ArrayList<String>();
 		try {
 			executeQuery(qd, qp, t, queryPath, ver);
 
@@ -934,7 +907,7 @@ public class DataController {
 			converter.setSrcFile(queryPath);
 			converter.setDstFile(previewPath);
 			converter.initialise();
-			converter.execute();
+			converter.execute(actionLog);
 
 			try {
 				// get your file as InputStream
@@ -952,6 +925,9 @@ public class DataController {
 		} catch (Exception e) {
 			qp.setErrorMessage(e.getMessage());
 			log.error("Task exited abnormally: ", e);
+			log.error("Action log:");
+			for (String line : actionLog)
+				log.error("\t{}", line);
 			throw e;
 		}
 	}
