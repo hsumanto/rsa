@@ -19,7 +19,6 @@
 
 package org.vpac.web.controller;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -69,9 +68,9 @@ import org.vpac.ndg.geometry.Tile;
 import org.vpac.ndg.geometry.TileManager;
 import org.vpac.ndg.lock.ProcessUpdateTimer;
 import org.vpac.ndg.query.Query;
-import org.vpac.ndg.query.QueryException;
 import org.vpac.ndg.query.QueryDefinition;
 import org.vpac.ndg.query.QueryDefinition.DatasetInputDefinition;
+import org.vpac.ndg.query.QueryException;
 import org.vpac.ndg.query.Resolve;
 import org.vpac.ndg.query.math.BoxReal;
 import org.vpac.ndg.query.math.ScalarElement;
@@ -925,7 +924,7 @@ public class DataController {
 		} catch (Exception e) {
 			qp.setErrorMessage(e.getMessage());
 			log.error("Task exited abnormally: ", e);
-			log.error("Action log:");
+			log.error("Action log for preview query translation:");
 			for (String line : actionLog)
 				log.error("\t{}", line);
 			throw e;

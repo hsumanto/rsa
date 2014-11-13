@@ -151,7 +151,8 @@ public abstract class Application implements Callable<Void> {
 			// Report error
 			log.error("TaskException:", e);
 
-			System.err.println("Action log:");
+			System.err.format("Action log for: %s %s\n", getJobName(),
+					getTaskId());
 			for (String action : getTaskPipeline().getActionLog()) {
 				System.err.format("\t%s\n", action);
 			}
