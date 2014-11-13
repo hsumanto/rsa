@@ -150,6 +150,12 @@ public abstract class Application implements Callable<Void> {
 			getTaskPipeline().taskpipelineErrorState(TaskState.EXECUTION_ERROR, e.getMessage());
 			// Report error
 			log.error("TaskException:", e);
+
+			System.err.println("Action log:");
+			for (String action : getTaskPipeline().getActionLog()) {
+				System.err.format("\t%s\n", action);
+			}
+
 			// Roll back tasks as a transaction
 			getTaskPipeline().rollback();
 			if (e instanceof TaskException)

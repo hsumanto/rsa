@@ -21,6 +21,7 @@ package org.vpac.ndg.task;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -75,7 +76,9 @@ public class TileUpdater extends Task {
 	}
 
 	@Override
-	public void execute() throws TaskException {
+	public void execute(Collection<String> actionLog) throws TaskException {
+		innerTaskPipeline.setActionLog(actionLog);
+
 		for(TileBand tileband: source) {			
 			Tile t = tileband.getTile();
 			Dataset dataset = timeSliceDao.getParentDataset(timeSlice.getId());

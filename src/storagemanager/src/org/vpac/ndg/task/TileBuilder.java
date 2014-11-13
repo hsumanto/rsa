@@ -1,18 +1,18 @@
 package org.vpac.ndg.task;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.vpac.ndg.CommandUtil;
 import org.vpac.ndg.FileUtils;
 import org.vpac.ndg.application.Constant;
+import org.vpac.ndg.common.StringUtils;
 import org.vpac.ndg.exceptions.TaskException;
 import org.vpac.ndg.exceptions.TaskInitialisationException;
 import org.vpac.ndg.rasterservices.ProcessException;
-import org.vpac.ndg.storage.model.TileBand;
 import org.vpac.ndg.storagemanager.GraphicsFile;
 
 /**
@@ -86,9 +86,10 @@ public class TileBuilder extends Task {
     
     
     @Override
-    public void execute() throws TaskException {
+    public void execute(Collection<String> actionLog) throws TaskException {
         
         List<String> command = prepareCommand();
+		actionLog.add(StringUtils.join(command, " "));
         try {
             commandUtil.start(command);
         } catch (ProcessException e) {

@@ -23,6 +23,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -32,6 +33,7 @@ import org.vpac.ndg.ApplicationContextProvider;
 import org.vpac.ndg.CommandUtil;
 import org.vpac.ndg.FileUtils;
 import org.vpac.ndg.application.Constant;
+import org.vpac.ndg.common.StringUtils;
 import org.vpac.ndg.exceptions.TaskException;
 import org.vpac.ndg.exceptions.TaskInitialisationException;
 import org.vpac.ndg.rasterservices.ProcessException;
@@ -187,7 +189,7 @@ public class VrtBuilder extends Task {
     
     
     @Override
-    public void execute() throws TaskException {
+    public void execute(Collection<String> actionLog) throws TaskException {
         if (source == null && sourceFile == null && source.isEmpty()) {
             // Can't work with zero input files. Just return; the output list
             // will not be populated. This is not an error.
@@ -199,6 +201,7 @@ public class VrtBuilder extends Task {
 
         // Prepare gdalbuildvrt for the specified band and then execute it
         List<String> command = prepareCommand();
+		actionLog.add(StringUtils.join(command, " "));
         try {
             commandUtil.start(command);
         } catch (ProcessException e) {
@@ -228,6 +231,7 @@ public class VrtBuilder extends Task {
         Path from = target.getFileLocation();
         Path to = timeSliceUtil.getFileLocation(timeSlice).resolve(
                 from.getFileName());
+		actionLog.add(String.format("cp '%s' '%s'", from, to));
         try {
             // Store the tmp vrt file for removal later
             tmpFileList.add(from);

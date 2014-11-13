@@ -22,6 +22,7 @@ package org.vpac.ndg.task;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -108,7 +109,7 @@ public class TileAggregator extends Task {
 	}
 
 	@Override
-	public void execute() throws TaskException {
+	public void execute(Collection<String> actionLog) throws TaskException {
 		revalidateBeforeExecution();
 
 		List<Path> tileList = new ArrayList<Path>();
@@ -117,6 +118,8 @@ public class TileAggregator extends Task {
 		}
 
 		Path vrtFileLocation = vrtFile.getFileLocation();
+
+		actionLog.add(String.format("Reading file info from %s", vrtFileLocation));
 		FileInformation vrtInfo = FileInformation.read(vrtFileLocation);
 
 		String ncmlFilename = band.getName() + "_agg" + Constant.EXT_NCML;			
@@ -128,6 +131,7 @@ public class TileAggregator extends Task {
 
 		try {
 			log.debug("{}", ncmlFile.getFileLocation());
+			actionLog.add(String.format("Creating NCML file %s", ncmlFileLocation));
 			NcmlCreator.createNcml(vrtInfo, tileList, ncmlFile.getFileLocation());
 		} catch (IOException e) {
 			String msg = String.format(Constant.ERR_TASK_EXCEPTION, getDescription(), e.getMessage());
@@ -138,6 +142,7 @@ public class TileAggregator extends Task {
 		// TODO: This should be done in the Committer!!
 		Path from = ncmlFile.getFileLocation();
 		Path to = timeSliceUtil.getFileLocation(timeSlice).resolve(from.getFileName());
+		actionLog.add(String.format("cp '%s' '%s'", from, to));
 		try {
 			// Store the tmp ncml file for removal later
 			tmpFileList.add(from);

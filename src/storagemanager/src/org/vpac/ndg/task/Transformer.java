@@ -21,6 +21,7 @@ package org.vpac.ndg.task;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -82,7 +83,7 @@ public class Transformer extends Task {
 	}
 	
 	@Override
-	public void execute() throws TaskException {
+	public void execute(Collection<String> actionLog) throws TaskException {
 		if(isCheckSource()) {
 			if(getSource().isEmpty()) {
 				// During import if no input images then throws exception
@@ -199,6 +200,7 @@ public class Transformer extends Task {
 		// Output file
 		command.add(target.getFileLocation().toString());	
 
+		actionLog.add(StringUtils.join(command, " "));
 		try {
 			// If source is raster dataset							
 			// If source is vector dataset
