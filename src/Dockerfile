@@ -71,7 +71,7 @@ RUN ln -s /usr/share/java/gdal.jar /usr/share/tomcat6/lib/
 RUN cd /var/lib/tomcat6/webapps/spatialcubeservice && jar -xvf spatialcubeservice.war 
 COPY ./spatialcubeservice/config/datasource.xml.docker.SAMPLE /var/lib/tomcat6/webapps/spatialcubeservice/WEB-INF/classes/datasource.xml
 COPY ./storagemanager/config/rsa.xml.docker.SAMPLE /var/lib/tomcat6/webapps/spatialcubeservice/WEB-INF/classes/rsa.xml
-#COPY ./storagemanager/config/logback.xml.docker.SAMPLE /var/lib/tomcat6/webapps/spatialcubeservice/WEB-INF/classes/logback.xml
+COPY ./storagemanager/config/logback.xml.docker.SAMPLE /var/lib/tomcat6/webapps/spatialcubeservice/WEB-INF/classes/logback.xml
 
 CMD ["/var/src/rsaworkers/dist/rsaworkers/rsaworker"]
 WORKDIR /var/src/
