@@ -60,11 +60,16 @@ public class Main {
 		if (!isMaster) {
 			String hostip = c.getString("master.hostip").toString();
 			String port = c.getString("master.port").toString();
+
+			System.out.println("Master started on " + hostip + ":" + port);
 			if (hostip != null && port != null)
 				joinAddress = new Address("akka.tcp", "Workers@" + hostip + ":"
 						+ port);
+		} else {
+			System.out.println("Worker started");
 		}
 
+		System.out.println("Join Address:" + joinAddress.toString());
 		joinAddress = startBackend(joinAddress);
 		Thread.sleep(5000);
 		startWorker(joinAddress);
