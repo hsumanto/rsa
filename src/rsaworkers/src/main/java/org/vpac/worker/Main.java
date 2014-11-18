@@ -56,20 +56,20 @@ public class Main {
 		Address joinAddress = null;
 		Config c = ConfigFactory.load("master");
 		Boolean isMaster = Boolean.parseBoolean(System.getenv("isMaster"));
+		System.out.println("isMaster" + isMaster);
 
 		if (!isMaster) {
 			String hostip = c.getString("master.hostip").toString();
 			String port = c.getString("master.port").toString();
 
-			System.out.println("Master started on " + hostip + ":" + port);
+			System.out.println("Worker started.\n Connected on Master-" + hostip + ":" + port);
 			if (hostip != null && port != null)
 				joinAddress = new Address("akka.tcp", "Workers@" + hostip + ":"
 						+ port);
 		} else {
-			System.out.println("Worker started");
+			System.out.println("Master started");
 		}
 
-		System.out.println("Join Address:" + joinAddress.toString());
 		joinAddress = startBackend(joinAddress);
 		Thread.sleep(5000);
 		startWorker(joinAddress);
