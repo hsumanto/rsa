@@ -55,6 +55,7 @@ COPY ./spatialcubeservice /var/src/spatialcubeservice
 COPY ./storagemanager/config/datasource.xml.docker.SAMPLE /var/src/storagemanager/config/datasource.xml
 COPY ./rsaworkers/resources/master.conf.docker.SAMPLE /var/src/rsaworkers/resources/master.conf
 COPY ./rsaworkers/resources/spring/database/datasource.xml.docker.SAMPLE /var/src/rsaworkers/resources/spring/database/datasource.xml
+COPY ./storagemanager/config/rsa.xml.docker.SAMPLE /var/src/rsaworkers/resources/rsa.xml
 COPY ./spatialcubeservice/config/datasource.xml.docker.SAMPLE /var/src/spatialcubeservice/config/datasource.xml
 COPY ./spatialcubeservice/config/master.conf.docker.SAMPLE /var/src/spatialcubeservice/config/master.conf
 
