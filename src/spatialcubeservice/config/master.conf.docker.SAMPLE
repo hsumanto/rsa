@@ -2,5 +2,5 @@ include "application"
 
 // Host and port of master. If not specified, localhost will be used.
 // usually master's port = 2552 (default if not specified).
-master.hostip = "master"
+master.hostname = "master"
 master.port = "2552"
