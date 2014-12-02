@@ -19,6 +19,7 @@
 
 package org.vpac.ndg.task;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -97,7 +98,7 @@ public class TileBandCreator extends Task {
 	}	
 	
 	@Override
-	public void execute() throws TaskException {
+	public void execute(Collection<String> actionLog) throws TaskException {
 		// Perform some neccessary validation
 		Dataset ds = timeSliceDao.getParentDataset(getTimeSlice().getId());
 		if(ds == null) {

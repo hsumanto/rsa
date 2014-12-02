@@ -21,6 +21,7 @@ package org.vpac.ndg.task;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Collection;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -58,7 +59,7 @@ public class TileBandFilter extends Task {
 	}	
 	
 	@Override
-	public void execute() throws TaskException {
+	public void execute(Collection<String> actionLog) throws TaskException {
 		if (source.isEmpty()) {
 			throw new TaskException(getDescription(), Constant.ERR_NO_INPUT_IMAGES);
 		}

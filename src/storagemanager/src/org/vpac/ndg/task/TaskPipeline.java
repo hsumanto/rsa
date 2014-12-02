@@ -20,6 +20,7 @@
 package org.vpac.ndg.task;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -53,6 +54,7 @@ public class TaskPipeline {
 	private JobProgress progress;
 	/** for differentiating main pipeline and child pipeline */
 	private boolean isMain;
+	private Collection<String> actionLog;
 
 	public TaskPipeline() {
 		this(true);
@@ -69,6 +71,7 @@ public class TaskPipeline {
 		} else {
 			progress = null;
 		}
+		actionLog = new ArrayList<String>();
 	}
 
 	public TaskPipeline(String name, TaskType taskType) {
@@ -130,7 +133,7 @@ public class TaskPipeline {
 		for (ITask task : queue) {
 			log.debug(String.format("%sTASK_EXEC [%s] = %s", tab,
 					currTaskStep, task.getDescription()));
-			task.execute();
+			task.execute(actionLog);
 			taskpipelineCurrentStep(currTaskStep, task.getDescription());
 			currTaskStep++;
 		}
@@ -310,6 +313,14 @@ public class TaskPipeline {
 		}
 
 		getProgress().setJobDescription(description);
+	}
+
+	public void setActionLog(Collection<String> actionLog) {
+		this.actionLog = actionLog;
+	}
+
+	public Collection<String> getActionLog() {
+		return actionLog;
 	}
 
 }

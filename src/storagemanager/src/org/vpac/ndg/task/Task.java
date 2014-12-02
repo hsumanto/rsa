@@ -89,4 +89,5 @@ public abstract class Task implements ITask {
 	public void setCheckSource(boolean checkSource) {
 		this.checkSource = checkSource;
 	}
+
 }

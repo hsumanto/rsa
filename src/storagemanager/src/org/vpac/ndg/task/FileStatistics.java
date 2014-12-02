@@ -1,22 +1,18 @@
 package org.vpac.ndg.task;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vpac.ndg.CommandUtil;
-import org.vpac.ndg.FileUtils;
 import org.vpac.ndg.application.Constant;
+import org.vpac.ndg.common.StringUtils;
 import org.vpac.ndg.exceptions.TaskException;
 import org.vpac.ndg.exceptions.TaskInitialisationException;
-import org.vpac.ndg.rasterservices.ProcessException;
-import org.vpac.ndg.storage.model.TileBand;
 import org.vpac.ndg.storagemanager.GraphicsFile;
 
 /**
@@ -84,7 +80,7 @@ public class FileStatistics extends Task {
     
     
     @Override
-    public void execute() throws TaskException {
+    public void execute(Collection<String> actionLog) throws TaskException {
         List<String> command = prepareCommand();
         
         String listString = "";
@@ -97,6 +93,7 @@ public class FileStatistics extends Task {
         try {
             
             //in this case we dont use the command util as we care about the stdout stuff
+            actionLog.add(StringUtils.join(command, " "));
             ProcessBuilder pb = new ProcessBuilder(command);
             Process process = pb.start();
             
@@ -148,10 +145,19 @@ public class FileStatistics extends Task {
         }
         
         if (foundCount < 4) {
-            throw new TaskException("Unable to extract statistics from gdalinfo output");
-        }
-        
-        
+            StringBuilder sb = new StringBuilder();
+            int start = lines.length - 11;
+            if (start < 0)
+                start = 0;
+            for (int i = start; i < lines.length; i++) {
+                if (i > start)
+                    sb.append("\n");
+                sb.append(lines[i]);
+            }
+            throw new TaskException(String.format(
+                    "Unable to extract statistics from gdalinfo output."
+                    + "Last 10 lines were\n %s", sb.toString()));
+         }
     }
 
     /**

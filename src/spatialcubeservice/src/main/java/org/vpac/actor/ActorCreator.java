@@ -1,5 +1,8 @@
 package org.vpac.actor;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.actor.Address;
@@ -20,7 +23,13 @@ public class ActorCreator {
 				withFallback(ConfigFactory.parseString("akka.extensions = [akka.contrib.pattern.ClusterReceptionistExtension]"));
 		ActorCreator.system = ActorSystem.create("Workers", config);
 		Config c = ConfigFactory.load("master");
-		String hostip = c.getString("master.hostip").toString();
+		String hostname = c.getString("master.hostname").toString();
+		String hostip = null;
+		try {
+			hostip = InetAddress.getByName(hostname).getHostAddress();
+		} catch (UnknownHostException e) {
+			e.printStackTrace();
+		}
 		int port = Integer.parseInt(c.getString("master.port").toString());
 
 		Address address = new Address("akka.tcp", "Workers", hostip, port);

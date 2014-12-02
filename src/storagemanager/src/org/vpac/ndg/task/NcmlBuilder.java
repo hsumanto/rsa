@@ -22,14 +22,15 @@ package org.vpac.ndg.task;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.vpac.ndg.application.Constant;
-import org.vpac.ndg.datamodel.AggregationType;
 import org.vpac.ndg.datamodel.AggregationDefinition;
 import org.vpac.ndg.datamodel.AggregationDefinition.VarDef;
+import org.vpac.ndg.datamodel.AggregationType;
 import org.vpac.ndg.datamodel.RsaAggregationFactory;
 import org.vpac.ndg.exceptions.TaskException;
 import org.vpac.ndg.exceptions.TaskInitialisationException;
@@ -91,7 +92,7 @@ public class NcmlBuilder extends Task {
 	}
 
 	@Override
-	public void execute() throws TaskException {
+	public void execute(Collection<String> actionLog) throws TaskException {
 		AggregationDefinition ds = null;
 		try {
 			List<AggregationDefinition> children;			
@@ -124,6 +125,7 @@ public class NcmlBuilder extends Task {
 		target.set(ds);
 
 		if (targetPath != null) {
+			actionLog.add(String.format("Writing NCML to %s", targetPath));
 			try {
 				ds.serialise(targetPath);
 			} catch (IOException e) {

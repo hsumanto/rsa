@@ -21,12 +21,14 @@ package org.vpac.ndg.task;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.vpac.ndg.CommandUtil;
 import org.vpac.ndg.application.Constant;
+import org.vpac.ndg.common.StringUtils;
 import org.vpac.ndg.exceptions.TaskException;
 import org.vpac.ndg.exceptions.TaskInitialisationException;
 import org.vpac.ndg.rasterservices.ProcessException;
@@ -141,7 +143,8 @@ public class Translator extends Task {
 		command.add(target.getFileLocation().toString());
 	}
 
-	public void executeCommand() throws TaskException {
+	public void executeCommand(Collection<String> actionLog) throws TaskException {
+		actionLog.add(StringUtils.join(command, " "));
 		try {
 			commandUtil.start(command);
 		} catch (ProcessException | InterruptedException | IOException e) {
@@ -152,7 +155,7 @@ public class Translator extends Task {
 	}
 
 	@Override
-	public void execute() throws TaskException {
+	public void execute(Collection<String> actionLog) throws TaskException {
 		if(isCheckSource()) {
 			if(!getSource().exists()) {
 				// During import if no input image then throws exception
@@ -175,7 +178,7 @@ public class Translator extends Task {
 		// Set projection if applicable
 		prepareProjectionCommand();
 
-		executeCommand();
+		executeCommand(actionLog);
 	}
 
 	@Override

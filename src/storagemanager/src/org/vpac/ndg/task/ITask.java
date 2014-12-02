@@ -19,6 +19,8 @@
 
 package org.vpac.ndg.task;
 
+import java.util.Collection;
+
 import org.vpac.ndg.exceptions.TaskException;
 import org.vpac.ndg.exceptions.TaskInitialisationException;
 
@@ -32,7 +34,7 @@ public interface ITask {
 	 * Perform the execution of the task.
 	 * @throws TaskException An error ecountered during execution of the task.
 	 */
-	public void execute() throws TaskException;
+	public void execute(Collection<String> actionLog) throws TaskException;
 	/**
 	 * Perform the required rollback action when task execution has failed.
 	 */
@@ -46,4 +48,5 @@ public interface ITask {
 	 * @return Returns the description of the task.
 	 */
 	public String getDescription();
+
 }

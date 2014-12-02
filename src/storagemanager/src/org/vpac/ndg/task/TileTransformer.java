@@ -21,6 +21,7 @@ package org.vpac.ndg.task;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.Collection;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -92,7 +93,9 @@ public class TileTransformer extends Task {
 	}
 
 	@Override
-	public void execute() throws TaskException {
+	public void execute(Collection<String> actionLog) throws TaskException {
+		innerTaskPipeline.setActionLog(actionLog);
+
 		for(TileBand tileBand: target) {		
 			Transformer makeTile = new Transformer("Make Tile " + tileBand.getTileNameWithExtention());
 

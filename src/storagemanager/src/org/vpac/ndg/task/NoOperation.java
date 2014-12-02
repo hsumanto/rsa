@@ -19,6 +19,8 @@
 
 package org.vpac.ndg.task;
 
+import java.util.Collection;
+
 import org.vpac.ndg.application.Constant;
 import org.vpac.ndg.exceptions.TaskException;
 
@@ -39,7 +41,7 @@ public class NoOperation extends Task {
 	}
 
 	@Override
-	public void execute() throws TaskException {
+	public void execute(Collection<String> actionLog) throws TaskException {
 		// Do nothing
 	}
 

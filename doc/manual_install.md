@@ -77,19 +77,19 @@ Centos/RedHat:
 **Note:** The OpenJDK distribution has been tested to work successfully
 as well as Sun's Java.	
 
-#### Installing zlib (required for netCDF)   
+#### Installing [zlib](http://www.zlib.net) (required for netCDF)   
 
 	$ ./configure
 	$ make
 	$ sudo make install
  	   
-#### Installing HDF5 (required for netCDF)
+#### Installing [HDF5](http://www.hdfgroup.org/HDF5/) (required for netCDF)
 		
 	$ ./configure --prefix=/usr/local --with-zlib=/usr/local
 	$ make
 	$ sudo make install
 
-#### Installing netCDF
+#### Installing [netCDF](http://www.unidata.ucar.edu/software/netcdf/)
 
 	$ CPPFLAGS=-I/usr/local/include LDFLAGS=-L/usr/local/lib ./configure
 	$ make

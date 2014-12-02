@@ -20,6 +20,7 @@
 package org.vpac.ndg.task;
 
 import java.nio.file.Path;
+import java.util.Collection;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,7 +72,7 @@ public class ImageTranslator extends Translator {
 	}
 
 	@Override
-	public void execute() throws TaskException {
+	public void execute(Collection<String> actionLog) throws TaskException {
 		if (getLayerIndex() < 1) {
 			// If invalid layer index specified then throws exception
 			throw new TaskException(getDescription(),
@@ -87,7 +88,7 @@ public class ImageTranslator extends Translator {
 
 		initialiseCommand();
 		prepareCommand();
-		executeCommand();
+		executeCommand(actionLog);
 	}
 
 	public Path getSrcFile() {

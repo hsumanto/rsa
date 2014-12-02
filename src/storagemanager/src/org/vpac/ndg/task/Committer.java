@@ -20,6 +20,7 @@
 package org.vpac.ndg.task;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -102,7 +103,7 @@ public class Committer extends Task {
 	// FIXME: This is not actually transactional because this class is not a spring bean!
 	@Transactional
 	@Override
-	public void execute() throws TaskException {
+	public void execute(Collection<String> actionLog) throws TaskException {
 		log.debug("TASK = {}", getDescription());
 
 		// If nothing to commit then do nothing
@@ -110,6 +111,7 @@ public class Committer extends Task {
 			return;
 		}
 
+		actionLog.add("Renaming tiles");
 		for(TileBand tileband: source) {
 			log.debug("SOURCE = {}", tileband.getFileLocation());	
 			// Rename an existing tileband by adding .old extension into the tileband name.
@@ -140,6 +142,7 @@ public class Committer extends Task {
 		try {
 			// the band has been updated, now delete any temporary files that may not
 			// reflect the current state of the bands (ie; preview data used by the Query UI)
+			actionLog.add("Deleting temp files");
 			bandUtil.deleteTempFiles(dataset, band);
 		} catch (IOException e) {
 			throw new TaskException(e);
@@ -163,9 +166,11 @@ public class Committer extends Task {
 			} catch (IOException e) {
 				throw new TaskException(e);
 			}
+			actionLog.add(String.format("Updating band %s", band));
 			bandDao.update(band);
 		}
 
+		actionLog.add(String.format("Updating ts %s", ts));
 		timeSliceDao.update(ts);
 
 		// Change the RunningTaskMonitor state from RUNNING into CLEANUP

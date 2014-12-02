@@ -7,6 +7,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
+import java.util.Collection;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -82,7 +83,7 @@ public class VrtColouriser extends Task {
     }
     
     @Override
-    public void execute() throws TaskException {
+    public void execute(Collection<String> actionLog) throws TaskException {
         if (source == null) {
             // Can't work with zero input files. Just return; the output list
             // will not be populated. This is not an error.
@@ -92,6 +93,7 @@ public class VrtColouriser extends Task {
         
         //delete the target file if it exists (as we'll overwrite it anyway)
         if (target.getFileLocation().toFile().exists()) {
+            actionLog.add(String.format("rm %s", target.getFileLocation()));
             boolean isDeleted = target.getFileLocation().toFile().delete();
             if (!isDeleted) {
                 throw new TaskException("Could not delete target VRT file " + target.getFileLocation().toString());
@@ -100,6 +102,19 @@ public class VrtColouriser extends Task {
 
         log.info("Using palette {}", palette);
 
+        switch (colourTableType) {
+        case CATAGORICAL:
+            log.info("Adding catagorical colour table");
+            break;
+        case CONTINUOUS:
+            log.info("Adding continuous colour table");
+            break;
+        default:
+            break;
+        
+        }
+
+        actionLog.add(String.format("Reading VRT from %s", source.getFileLocation()));
         //Read all the lines in the source VRT file, this shouldn't be large 
         List<String> lines;
         try {
@@ -108,7 +123,8 @@ public class VrtColouriser extends Task {
             TaskException te = new TaskException("failed to read source VRT file " + source.getFileLocation().toString(), e);
             throw te;
         }
-        
+
+        actionLog.add(String.format("Writing colour table to %s", target.getFileLocation()));
         BufferedWriter writer = null;
         try {
             File output = target.getFileLocation().toFile();

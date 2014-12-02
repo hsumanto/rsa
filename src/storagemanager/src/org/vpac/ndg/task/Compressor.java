@@ -28,6 +28,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -64,7 +65,7 @@ public class Compressor extends Task {
 	}
 
 	@Override
-	public void execute() throws TaskException {
+	public void execute(Collection<String> actionLog) throws TaskException {
 		// Collate all source files.
 		List<Path> paths = new ArrayList<>();
 		for (List<GraphicsFile> gs : sourceGraphicsFiles) {
@@ -85,6 +86,7 @@ public class Compressor extends Task {
 
 		// Compress them!
 		log.debug("Compressing files into {}", target);
+		actionLog.add(String.format("Compressing files into %s", target));
 
 		Path zipDirectory = Paths.get(zipDirName);
 		ZipEntry entry;
