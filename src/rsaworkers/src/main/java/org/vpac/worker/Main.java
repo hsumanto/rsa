@@ -59,10 +59,10 @@ public class Main {
 		Config c = ConfigFactory.load("master");
 		Boolean isMaster;
 		if (System.getenv("RSA_IS_MASTER") == null)
-			isMaster = c.hasPath("master.hostname");
+			isMaster = !c.hasPath("master.hostname");
 		else
 			isMaster = Boolean.parseBoolean(System.getenv("RSA_IS_MASTER"));
-		System.out.println("isMaster" + isMaster);
+		System.out.println("isMaster " + isMaster);
 
 		if (!isMaster) {
 			String hostname = c.getString("master.hostname").toString();
