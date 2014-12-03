@@ -1,6 +1,6 @@
 include "application"
 
-akka.remote.netty.tcp.hostname = "0.0.0.0"
+akka.remote.netty.tcp.hostname = "127.0.0.1"
 
 akka.remote.netty.tcp.port = 2552
 
@@ -8,6 +8,6 @@ akka.remote.netty.tcp.port = 2552
 // usually master's port = 2552
 // if current actorsystem is master, just comment out
 
-//master.hostip = "master"
+//master.hostname = "172.0.0.1"
 
 //master.port = "2552"
