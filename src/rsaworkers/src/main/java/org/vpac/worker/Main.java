@@ -97,7 +97,12 @@ public class Main {
 	private static FiniteDuration workTimeout = Duration.create(100, "minutes");
 
 	public static Address startBackend(Address joinAddress) {
-		Boolean isMaster = Boolean.parseBoolean(System.getenv("isMaster"));
+		Boolean isMaster;
+		if (System.getenv("RSA_IS_MASTER") == null)
+			isMaster = ConfigFactory.load("master").hasPath("master.hostname");
+		else
+			isMaster = Boolean.parseBoolean(System.getenv("RSA_IS_MASTER"));
+		
 		Config conf = null;
 		if(isMaster) {
 			conf = ConfigFactory.parseString("akka.cluster.roles=[backend]")
