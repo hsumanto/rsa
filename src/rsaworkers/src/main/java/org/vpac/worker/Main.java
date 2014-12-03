@@ -57,7 +57,11 @@ public class Main {
 	public void startService() throws InterruptedException {
 		Address joinAddress = null;
 		Config c = ConfigFactory.load("master");
-		Boolean isMaster = Boolean.parseBoolean(System.getenv("isMaster"));
+		Boolean isMaster;
+		if (System.getenv("RSA_IS_MASTER") == null)
+			isMaster = c.hasPath("master.hostname");
+		else
+			isMaster = Boolean.parseBoolean(System.getenv("RSA_IS_MASTER"));
 		System.out.println("isMaster" + isMaster);
 
 		if (!isMaster) {
