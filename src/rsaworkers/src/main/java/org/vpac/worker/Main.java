@@ -57,14 +57,8 @@ public class Main {
 	public void startService() throws InterruptedException {
 		Address joinAddress = null;
 		Config c = ConfigFactory.load("master");
-		Boolean isMaster;
-		if (System.getenv("RSA_IS_MASTER") == null)
-			isMaster = !c.hasPath("master.hostname");
-		else
-			isMaster = Boolean.parseBoolean(System.getenv("RSA_IS_MASTER"));
-		System.out.println("isMaster " + isMaster);
 
-		if (!isMaster) {
+		if (!isMaster()) {
 			String hostname = c.getString("master.hostname").toString();
 			String hostip = null;
 			try {
@@ -86,6 +80,15 @@ public class Main {
 		Thread.sleep(5000);
 		startWorker(joinAddress);
 	}
+	
+	public static Boolean isMaster() {
+		Boolean isMaster;
+		if (System.getenv("RSA_IS_MASTER") == null)
+			isMaster = !ConfigFactory.load("master").hasPath("master.hostname");
+		else
+			isMaster = Boolean.parseBoolean(System.getenv("RSA_IS_MASTER"));
+		return isMaster;
+	}
 
 	public static void main(String[] args) throws InterruptedException {
 		Main main = new Main();
@@ -97,14 +100,8 @@ public class Main {
 	private static FiniteDuration workTimeout = Duration.create(100, "minutes");
 
 	public static Address startBackend(Address joinAddress) {
-		Boolean isMaster;
-		if (System.getenv("RSA_IS_MASTER") == null)
-			isMaster = ConfigFactory.load("master").hasPath("master.hostname");
-		else
-			isMaster = Boolean.parseBoolean(System.getenv("RSA_IS_MASTER"));
-		
 		Config conf = null;
-		if(isMaster) {
+		if(isMaster()) {
 			conf = ConfigFactory.parseString("akka.cluster.roles=[backend]")
 					.withFallback(ConfigFactory.load("master"));
 		} else {
@@ -128,7 +125,7 @@ public class Main {
 		system.actorOf(ClusterSingletonManager.defaultProps(
 				Master.props(workTimeout), "active", PoisonPill.getInstance(),
 				"backend"), "master");
-		if(isMaster) {
+		if(isMaster()) {
 			system.actorOf(Props.create(DatabaseActor.class), "database");
 		}
 		return realJoinAddress;
