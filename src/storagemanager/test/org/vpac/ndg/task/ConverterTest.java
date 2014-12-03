@@ -21,6 +21,8 @@ package org.vpac.ndg.task;
 
 import java.io.File;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.junit.After;
 import org.junit.Test;
@@ -61,6 +63,8 @@ public class ConverterTest extends AbstractJUnit4SpringContextTests {
 		converter.setSrcFile(srcFile.toPath());
 		converter.setDstFile(dstFile.toPath());
 		converter.initialise();
-		converter.execute();
+
+		List<String> actionLog = new ArrayList<>();
+		converter.execute(actionLog);
 	}
 }

@@ -102,18 +102,6 @@ public class VrtColouriser extends Task {
 
         log.info("Using palette {}", palette);
 
-        switch (colourTableType) {
-        case CATAGORICAL:
-            log.info("Adding catagorical colour table");
-            break;
-        case CONTINUOUS:
-            log.info("Adding continuous colour table");
-            break;
-        default:
-            break;
-        
-        }
-
         actionLog.add(String.format("Reading VRT from %s", source.getFileLocation()));
         //Read all the lines in the source VRT file, this shouldn't be large 
         List<String> lines;
