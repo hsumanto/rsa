@@ -186,7 +186,8 @@ public class AggregationFactory {
 	}
 
 	/**
-	 * Like joinNew(List<VarAggDef> aggVars, VarDef newVariable, List<AggregationDefinition> children), but assigns coordinate values to the datasets.
+	 * Like {@link #joinNew(List aggVars, VarDef newVariable, List children)
+	 * joinNew}, but assigns coordinate values to the datasets.
 	 *
 	 * @return The joinNew aggregation, or null if there are no children.
 	 */
