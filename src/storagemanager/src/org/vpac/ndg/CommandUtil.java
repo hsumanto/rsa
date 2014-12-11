@@ -101,6 +101,7 @@ public class CommandUtil {
 		}
 
 		ProcessBuilder pb = new ProcessBuilder(command);
+		pb.redirectErrorStream(true);
 		Process process = pb.start();
 
 		try {
