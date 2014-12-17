@@ -65,9 +65,9 @@ public class NdgConfigManager {
 			FileInputStream fis = new FileInputStream(xmlConfigFile);
 			config = (NdgConfig) xstream.fromXML(fis);			
 		} catch(FileNotFoundException ex) {
-			throw new NdgConfigException(ex.getMessage());
+			throw new NdgConfigException(ex.getMessage(), ex);
 		} catch(Exception ex) {
-			throw new NdgConfigException(ex.getMessage());			
+			throw new NdgConfigException(ex.getMessage(), ex);
 		}
 	}
 	
@@ -79,7 +79,7 @@ public class NdgConfigManager {
 			
 			config = (NdgConfig) xstream.fromXML(is);	
 		} catch(Exception ex) {
-			throw new NdgConfigException(ex.getMessage());			
+			throw new NdgConfigException(ex.getMessage(), ex);
 		}
 	}	
 	
@@ -96,6 +96,8 @@ public class NdgConfigManager {
 		if(config == null) {
 			String file = "/rsa.xml";
 			InputStream inputStream = NdgConfig.class.getResourceAsStream(file);
+			if (inputStream == null)
+				throw new NdgConfigException("Could not find rsa.xml");
 			read(inputStream);
 		}
 	}
