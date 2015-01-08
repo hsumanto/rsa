@@ -156,7 +156,9 @@ public class DatasetController {
 		String requestURL = request.getRequestURI().toString();
 		String timeSliceId = findPathVariable(requestURL, "TimeSlice");
 		String bandId = findPathVariable(requestURL, "Band");
-		
+
+		String bucketBounds = request.getParameter("Bounds");
+
 		Dataset ds = datasetDao.retrieve(datasetId);
 		Band band = bandDao.retrieve(bandId);
 
@@ -168,10 +170,13 @@ public class DatasetController {
 
 		// Configure the filters to collect the appropriate kind of statistics.
 		String bucketingStrategy;
-		if (band.isContinuous())
+		if (bucketBounds != null)
+		    bucketingStrategy = String.format("explicit?bounds=%s",bucketBounds);
+		else if (band.isContinuous())
 			bucketingStrategy = "logRegular";
 		else
 			bucketingStrategy = "categorical";
+
 		for (FilterDefinition fd : qd.filters) {
 			if (!fd.classname.equals(Categories.class.getName()))
 				continue;
