@@ -171,7 +171,7 @@ public class BandUtil {
 
 		// Target extents. These just match the size of the tiles at the
 		// dataset's resolution. The actual location is irrelevant.
-		Map<CellSize, Integer> resolutionList = ndgConfigManager.getConfig().getResolutionList();
+		Map<CellSize, Integer> resolutionList = ndgConfigManager.getConfig().getResolutionMap();
 		int cellsPerTile = resolutionList.get(ds.getResolution());
 		String size = Double.toString(cellsPerTile * res);
 		command.add("-te");

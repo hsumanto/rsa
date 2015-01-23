@@ -19,13 +19,17 @@
 
 package org.vpac.ndg.configuration;
 
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.vpac.ndg.common.datamodel.CellSize;
 import org.vpac.ndg.geometry.Point;
 
 import com.thoughtworks.xstream.annotations.XStreamAlias;
+import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
 import com.thoughtworks.xstream.annotations.XStreamConverter;
+import com.thoughtworks.xstream.annotations.XStreamImplicit;
 import com.thoughtworks.xstream.converters.basic.BooleanConverter;
 
 /**
@@ -36,16 +40,41 @@ import com.thoughtworks.xstream.converters.basic.BooleanConverter;
 @XStreamAlias("rsaConfig")
 public class NdgConfig {
 	// Projection parameters
-	@XStreamAlias("targetSrsEpsgId")
+	@XStreamAlias("srs")
 	private int targetSrsEpsgId;
-	@XStreamAlias("gridOriginPointInTargetSrs")	
+
+	@XStreamAlias("gridOrigin")
 	private Point<Double> gridOriginPointInTargetSrs;
-	@XStreamAlias("resolutionList")
-	private Map<CellSize, Integer> resolutionList;
-	@XStreamAlias("upPositive")
+
+	public static class ResolutionSpec {
+		@XStreamAsAttribute
+		private CellSize cellSize;
+		@XStreamAsAttribute
+		private int tileSize;
+
+		public CellSize getCellSize() {
+			return cellSize;
+		}
+		public void setCellSize(CellSize cellSize) {
+			this.cellSize = cellSize;
+		}
+
+		public int getTileSize() {
+			return tileSize;
+		}
+		public void setTileSize(int tileSize) {
+			this.tileSize = tileSize;
+		}
+	}
+
+	@XStreamImplicit
+	@XStreamAlias("resolution")
+	private List<ResolutionSpec> resolutionList;
+	private Map<CellSize, Integer> resolutionMap;
+
 	@XStreamConverter(value=BooleanConverter.class)
 	private boolean upPositive;
-	@XStreamAlias("filelockingOn")
+
 	@XStreamConverter(value=BooleanConverter.class)
 	private boolean filelockingOn = true;
 	// How often the process table is updated, in seconds. This is used to allow
@@ -54,7 +83,7 @@ public class NdgConfig {
 	// How many heart beats can be missed before a lock expires. Anything less
 	// than 2 is likely to be dangerous.
 	private int lockDeadline = 3;
-	@XStreamAlias("generateImportTileAggregation")
+
 	@XStreamConverter(value=BooleanConverter.class)
 	private boolean generateImportTileAggregation;
 
@@ -69,14 +98,16 @@ public class NdgConfig {
 	private String defaultPickupLocation;
 	@XStreamAlias("gdalprefix")
 	private String gdalLocation;
-	@XStreamAlias("epiphanyIp")
-	private String epiphanyIp;
-	public String getEpiphanyIp() {
-		return epiphanyIp;
+
+	private String epiphanyHost;
+	private String epiphanyPort;
+
+	public String getEpiphanyHost() {
+		return epiphanyHost;
 	}
 
-	public void setEpiphanyIp(String epiphanyIp) {
-		this.epiphanyIp = epiphanyIp;
+	public void setEpiphanyHost(String epiphanyHost) {
+		this.epiphanyHost = epiphanyHost;
 	}
 
 	public String getEpiphanyPort() {
@@ -87,10 +118,6 @@ public class NdgConfig {
 		this.epiphanyPort = epiphanyPort;
 	}
 
-	@XStreamAlias("epiphanyPort")
-	private String epiphanyPort;
-
-	
 	public String getTargetProjection() {
 		return "EPSG:" + targetSrsEpsgId;
 	}
@@ -103,11 +130,20 @@ public class NdgConfig {
 		this.targetSrsEpsgId = targetEpsgId;
 	}
 	
-	public Map<CellSize, Integer> getResolutionList() {
+	public List<ResolutionSpec> getResolutionList() {
 		return resolutionList;
 	}
-	
-	public void setResolutionList(Map<CellSize, Integer> resolutionList) {
+
+	public Map<CellSize, Integer> getResolutionMap() {
+		if (resolutionMap == null) {
+			resolutionMap = new HashMap<>();
+			for (ResolutionSpec res : resolutionList)
+				resolutionMap.put(res.cellSize, res.tileSize);
+		}
+		return resolutionMap;
+	}
+
+	public void setResolutionList(List<ResolutionSpec> resolutionList) {
 		this.resolutionList = resolutionList;
 	}
 
@@ -200,4 +236,5 @@ public class NdgConfig {
 	public void setLockDeadline(int lockDeadline) {
 		this.lockDeadline = lockDeadline;
 	}
+
 }

@@ -1,14 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <rsaConfig>
 
-	<!-- spatial reference system (SRS) EPSG code to be used -->
-	<targetSrsEpsgId>3111</targetSrsEpsgId>
-    <gridOriginPointInTargetSrs>
-        <x class="double">2000000</x>
-        <y class="double">2900000</y>
-    </gridOriginPointInTargetSrs>
-	<!-- Whether Y axis increases heading north -->
+	<!-- Spatial reference system (SRS) EPSG code to be used, the origin for
+	     the tile grid, and the resolutions that will be available. The
+	     cellSize must match values of org.vpac.ndg.common.datamodel.CellSize.
+	     Set upPositive to true if the Y axis increases heading north. -->
+	<srs>3111</srs>
 	<upPositive>true</upPositive>
+	<gridOrigin x="2000000" y="2900000" />
+
+	<resolution cellSize="m100" tilePixels="5000" />
 
 	<!-- Turn on/off file locking capability -->
 	<filelockingOn>false</filelockingOn>
@@ -22,58 +23,6 @@
 	<!-- Generate ncml/vrt aggregation on import, this is useful for testing -->
 	<generateImportTileAggregation>false</generateImportTileAggregation>
 
-	<!-- Specify all supported resolutions here -->
-	<resolutionList>
-		<entry>
-			<cellSize>km10</cellSize>
-			<int>5000</int>
-		</entry>
-		<entry>
-			<cellSize>km1</cellSize>
-			<int>5000</int>
-		</entry>
-		<entry>
-			<cellSize>m500</cellSize>
-			<int>5000</int>
-		</entry>
-		<entry>
-			<cellSize>m250</cellSize>
-			<int>5000</int>
-		</entry>
-		<entry>
-			<cellSize>m100</cellSize>
-			<int>5000</int>
-		</entry>
-		<entry>
-			<cellSize>m50</cellSize>
-			<int>5000</int>
-		</entry>
-		<entry>
-			<cellSize>m25</cellSize>
-			<int>5000</int>
-		</entry>
-		<entry>
-			<cellSize>m20</cellSize>
-			<int>5000</int>
-		</entry>
-		<entry>
-			<cellSize>m10</cellSize>
-			<int>5000</int>
-		</entry>
-		<entry>
-			<cellSize>m5</cellSize>
-			<int>5000</int>
-		</entry>
-		<entry>
-			<cellSize>m2p5</cellSize>
-			<int>5000</int>
-		</entry>
-		<entry>
-			<cellSize>m1</cellSize>
-			<int>5000</int>
-		</entry>
-	</resolutionList>
-
 	<!-- Specify rsa directories here -->
 	<storagepool>/var/lib/ndg/storagepool</storagepool>
 	<temploc>/var/tmp/ndg</temploc>
@@ -82,5 +31,7 @@
 
 	<!-- Specify gdal location here -->
 	<gdalprefix>/usr</gdalprefix>
-</rsaConfig>
 
+	<epiphanyIp>172.31.25.104</epiphanyIp>
+	<epiphanyPort>8000</epiphanyPort>
+</rsaConfig>

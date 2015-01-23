@@ -53,7 +53,7 @@ public class TileManager {
 		ndgConfigManager = (NdgConfigManager) appContext.getBean("ndgConfigManager");
 		NdgConfig cfg = ndgConfigManager.getConfig();
 		this.origin = cfg.getGridOriginPointInTargetSrs();
-		this.resolutionList = cfg.getResolutionList();	
+		this.resolutionList = cfg.getResolutionMap();	
 	}
 
 	public Point<Double> getOrigin() {
