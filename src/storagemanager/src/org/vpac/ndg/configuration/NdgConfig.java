@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.vpac.ndg.common.datamodel.CellSize;
+import org.vpac.ndg.geometry.Box;
 import org.vpac.ndg.geometry.Point;
 
 import com.thoughtworks.xstream.annotations.XStreamAlias;
@@ -46,10 +47,14 @@ public class NdgConfig {
 	@XStreamAlias("gridOrigin")
 	private Point<Double> gridOriginPointInTargetSrs;
 
+	private PreviewSpec preview;
+
 	public static class ResolutionSpec {
 		@XStreamAsAttribute
 		private CellSize cellSize;
+
 		@XStreamAsAttribute
+		@XStreamAlias("tilePixels")
 		private int tileSize;
 
 		public CellSize getCellSize() {
@@ -64,6 +69,26 @@ public class NdgConfig {
 		}
 		public void setTileSize(int tileSize) {
 			this.tileSize = tileSize;
+		}
+	}
+
+	public static class PreviewSpec {
+		@XStreamAsAttribute
+		private double baseResolution;
+		private Box extents;
+
+		public double getBaseResolution() {
+			return baseResolution;
+		}
+		public void setBaseResolution(double baseResolution) {
+			this.baseResolution = baseResolution;
+		}
+
+		public Box getExtents() {
+			return extents;
+		}
+		public void setExtents(Box extents) {
+			this.extents = extents;
 		}
 	}
 
@@ -235,6 +260,14 @@ public class NdgConfig {
 
 	public void setLockDeadline(int lockDeadline) {
 		this.lockDeadline = lockDeadline;
+	}
+
+	public PreviewSpec getPreview() {
+		return preview;
+	}
+
+	public void setPreview(PreviewSpec preview) {
+		this.preview = preview;
 	}
 
 }

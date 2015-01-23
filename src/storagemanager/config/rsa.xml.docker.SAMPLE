@@ -9,6 +9,22 @@
 	<upPositive>true</upPositive>
 	<gridOrigin x="2000000" y="2900000" />
 
+	<!-- Resolution and bounds of preview map tiles, specified in the SRS
+		defined above. Additional coarser resolutions will be generated,
+		increasing by a factor of two for each step (as is the case with
+		gdal2tiles.py). Use these settings to configure your map viewer. If
+		your viewer is going to consume tiles from another source, you may
+		need to ensure that the base resolution, xMin and yMin are aligned
+		with the other source. xMax and yMax are less important - just make
+		sure the bounds include the area of interest. -->
+	<preview baseResolution="66.1459656252646">
+		<extents
+			xMin="1786000"
+			xMax="2999976.907120481"
+			yMin="1997264.4991957"
+			yMax="2899958.492083686" />
+	</preview>
+
 	<resolution cellSize="m100" tilePixels="5000" />
 
 	<!-- Turn on/off file locking capability -->

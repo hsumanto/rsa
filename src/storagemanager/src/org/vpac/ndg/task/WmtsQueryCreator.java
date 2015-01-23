@@ -15,11 +15,13 @@ import org.vpac.ndg.colour.Palette;
 import org.vpac.ndg.common.datamodel.GdalFormat;
 import org.vpac.ndg.common.datamodel.TaskState;
 import org.vpac.ndg.common.datamodel.TaskType;
+import org.vpac.ndg.configuration.NdgConfig;
+import org.vpac.ndg.configuration.NdgConfig.PreviewSpec;
 import org.vpac.ndg.configuration.NdgConfigManager;
 import org.vpac.ndg.exceptions.TaskException;
 import org.vpac.ndg.exceptions.TaskInitialisationException;
+import org.vpac.ndg.geometry.Box;
 import org.vpac.ndg.storage.dao.JobProgressDao;
-import org.vpac.ndg.storage.model.Band;
 import org.vpac.ndg.storage.model.JobProgress;
 import org.vpac.ndg.storage.util.DatasetUtil;
 import org.vpac.ndg.storagemanager.GraphicsFile;
@@ -34,16 +36,7 @@ import org.vpac.ndg.storagemanager.GraphicsFile;
 public class WmtsQueryCreator extends Application {
 
     public static final String WMTS_TILE_DIR = "wmts";
-    
-    //FIXME: these should not be hardcoded
-    //Unfortunately these params are related to what the client requires, and
-    //not information available to the server/rsa. The client should be able
-    //to provide these details, but then we'd have to run the tile reconstruction
-    //process again.
-    private double tr[] = {66.146,66.146};
-    private double te[] = {1786000, 1997265, 2999979.288, 2900000.000};
-    
-    
+
     final private Logger log = LoggerFactory.getLogger(WmtsQueryCreator.class);
     
     private String queryJobProgressId;
@@ -62,7 +55,7 @@ public class WmtsQueryCreator extends Application {
         ApplicationContext appContext = ApplicationContextProvider.getApplicationContext();
         jobProgressDao = (JobProgressDao) appContext.getBean("jobProgressDao");
         ndgConfigManager = (NdgConfigManager) appContext.getBean("ndgConfigManager");
-        
+
         datasetUtil = new DatasetUtil();
     }
     
@@ -109,6 +102,15 @@ public class WmtsQueryCreator extends Application {
             throw new TaskInitialisationException(String.format("Job/Task with ID = \"%s\" does not refer to a query and/or has not completed execution.", queryJobProgressId));
         }
 
+		NdgConfig config = ndgConfigManager.getConfig();
+		if (config.getPreview().getBaseResolution() == 0.0) {
+			throw new TaskInitialisationException(
+					"No map resolution has been defined.");
+		}
+		if (config.getPreview().getExtents().getHeight() <= 0 ||
+				config.getPreview().getExtents().getWidth() <= 0) {
+			throw new TaskInitialisationException("Map extents have no area.");
+		}
     }
 
     
@@ -124,9 +126,6 @@ public class WmtsQueryCreator extends Application {
         }
         
         createTasksForQuery(this.queryJobProgressId);
-        
-        
-        
     }
     
     protected void createTasksForQuery(String queryJobProgressId) throws TaskInitialisationException 
@@ -155,11 +154,16 @@ public class WmtsQueryCreator extends Application {
         sourceVrtBuilder.setTarget(vrtMosaicFile);
         
         //now the WMTS specifics
-        sourceVrtBuilder.setTargetResolution(tr[0], tr[1]);
-        sourceVrtBuilder.setTargetExtents(te[0], te[1], te[2], te[3]);
+		PreviewSpec preview = ndgConfigManager.getConfig().getPreview();
+		Box extents = preview.getExtents();
+		sourceVrtBuilder.setTargetResolution(
+				preview.getBaseResolution(), preview.getBaseResolution());
+		sourceVrtBuilder.setTargetExtents(
+				extents.getXMin(), extents.getYMin(),
+				extents.getXMax(), extents.getYMax());
+
         //nodata value is set based on the bands nodata
-        
-        
+
         //
         // TASK 3
         // Get the min and max for the dataset so we can scale this into a range of 0-255 appropriately
@@ -283,11 +287,8 @@ public class WmtsQueryCreator extends Application {
         Path queryPickupPath = getQueryResultsDirectory();
         
         Path wd = queryPickupPath.resolve(WMTS_TILE_DIR);
-        boolean createdTempDir = false;
         if (!wd.toFile().exists())
-        {
-            createdTempDir = wd.toFile().mkdirs();
-        }
+            wd.toFile().mkdirs();
         return wd;
     }
     

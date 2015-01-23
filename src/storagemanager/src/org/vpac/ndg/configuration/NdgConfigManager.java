@@ -27,6 +27,7 @@ import java.io.InputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.vpac.ndg.exceptions.NdgConfigException;
+import org.vpac.ndg.geometry.Box;
 import org.vpac.ndg.geometry.Point;
 
 import com.thoughtworks.xstream.XStream;
@@ -90,6 +91,10 @@ public class NdgConfigManager {
 		XStream xstream = new XStream(new DomDriver());
 		xstream.processAnnotations(NdgConfig.class);
 		xstream.registerConverter(new PointConverter());
+		xstream.aliasAttribute(Box.class, "xMin", "xMin");
+		xstream.aliasAttribute(Box.class, "xMax", "xMax");
+		xstream.aliasAttribute(Box.class, "yMin", "yMin");
+		xstream.aliasAttribute(Box.class, "yMax", "yMax");
 		return xstream;
 	}
 
@@ -104,7 +109,6 @@ public class NdgConfigManager {
 	}
 
 	public static class PointConverter implements Converter {
-
 		@Override
 		@SuppressWarnings("rawtypes")
 		public boolean canConvert(Class c) {
@@ -128,6 +132,6 @@ public class NdgConfigManager {
 			point.setY(Double.parseDouble(reader.getAttribute("y")));
 			return point;
 		}
-		
 	}
+
 }
