@@ -46,7 +46,7 @@ sudo docker run -d --name rsaweb \
     --link rsamaster:master \
     --volumes-from rsadata \
     vpac/rsa web
-sudo docker run -d \
+sudo docker run -d --name rsaworker \
     --link rsadb:rsadb \
     --link rsamaster:master \
     --volumes-from rsadata \
