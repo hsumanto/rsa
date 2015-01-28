@@ -48,6 +48,6 @@
 	<!-- Specify gdal location here -->
 	<gdalprefix>/usr</gdalprefix>
 
-	<epiphanyIp>172.31.25.104</epiphanyIp>
+	<epiphanyHost>172.31.25.104</epiphanyHost>
 	<epiphanyPort>8000</epiphanyPort>
 </rsaConfig>
