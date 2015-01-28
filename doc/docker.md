@@ -24,8 +24,8 @@ adding the files as volumes. See [`rsa.xml.docker.SAMPLE`][rsa.xml].
 sudo docker run -d --name rsadb vpac/rsadb
 sudo docker run -d --name rsadata \
     -v your-rsa-config.xml:/var/src/rsa.xml \
-    -v $LARGE_DISK/storagepool:/var/lib/ndg/storagepool
-    -v $LARGE_DISK/pickup:/var/spool/ndg/pickup
+    -v $LARGE_DISK/storagepool:/var/lib/ndg/storagepool \
+    -v $LARGE_DISK/pickup:/var/spool/ndg/pickup \
     vpac/rsadata
 ```
 
