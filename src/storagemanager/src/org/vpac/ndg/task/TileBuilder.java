@@ -26,6 +26,8 @@ public class TileBuilder extends Task {
     private GraphicsFile source;
     private Path target;  //in this case the target is simply a directory
     private String profile;
+    private int zoomMax = 7;
+    private int zoomMin = 0;
     
     private CommandUtil commandUtil;
     
@@ -76,10 +78,14 @@ public class TileBuilder extends Task {
             command.add("-p");
             command.add(profile);
         }
-        
+
+        //add zoom argument
+        command.add("-z");
+        command.add(Integer.toString(this.zoomMin) + "-" + Integer.toString(this.zoomMax));
+
         command.add(source.getFileLocation().toString());
         command.add(target.toString());
-        
+
         return command;
     }
 
@@ -112,6 +118,23 @@ public class TileBuilder extends Task {
     public void finalise() {
         // nothing to do
 
+    }
+
+    
+    public int getZoomMax() {
+        return zoomMax;
+    }
+
+    public void setZoomMax(int zoomMax) {
+        this.zoomMax = zoomMax;
+    }
+
+    public int getZoomMin() {
+        return zoomMin;
+    }
+
+    public void setZoomMin(int zoomMin) {
+        this.zoomMin = zoomMin;
     }
 
     public GraphicsFile getSource() {
