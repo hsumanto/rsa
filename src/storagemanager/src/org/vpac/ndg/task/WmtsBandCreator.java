@@ -15,7 +15,9 @@ import org.vpac.ndg.colour.Palette;
 import org.vpac.ndg.common.datamodel.CellSize;
 import org.vpac.ndg.common.datamodel.GdalFormat;
 import org.vpac.ndg.common.datamodel.TaskType;
+import org.vpac.ndg.configuration.NdgConfig;
 import org.vpac.ndg.configuration.NdgConfigManager;
+import org.vpac.ndg.configuration.NdgConfig.PreviewSpec;
 import org.vpac.ndg.exceptions.TaskException;
 import org.vpac.ndg.exceptions.TaskInitialisationException;
 import org.vpac.ndg.geometry.Box;
@@ -43,16 +45,7 @@ import org.vpac.ndg.storagemanager.GraphicsFile;
 public class WmtsBandCreator extends Application {
 
     public static final String WMTS_TILE_DIR = "wmts";
-    
-    //FIXME: these should not be hardcoded
-    //Unfortunately these params are related to what the client requires, and
-    //not information available to the server/rsa. The client should be able
-    //to provide these details, but then we'd have to run the tile reconstruction
-    //process again.
-    private double tr[] = {66.146,66.146};
-    private double te[] = {1786000, 1997265, 2999979.288, 2900000.000};
-    
-    
+
     final private Logger log = LoggerFactory.getLogger(WmtsBandCreator.class);
     
     private String datasetId;
@@ -163,6 +156,16 @@ public class WmtsBandCreator extends Application {
         lock = new TimeSliceDbReadWriteLock(TaskType.Export.toString());
         for (TimeSlice ts : timeSlices)
             lock.getTimeSliceIds().add(ts.getId());
+
+		NdgConfig config = ndgConfigManager.getConfig();
+		if (config.getPreview().getBaseResolution() == 0.0) {
+			throw new TaskInitialisationException(
+					"No map resolution has been defined.");
+		}
+		if (config.getPreview().getExtents().getHeight() <= 0 ||
+				config.getPreview().getExtents().getWidth() <= 0) {
+			throw new TaskInitialisationException("Map extents have no area.");
+		}
     }
 
     
@@ -229,8 +232,13 @@ public class WmtsBandCreator extends Application {
         sourceVrtBuilder.setTarget(vrtMosaicFile);
         
         //now the WMTS specifics
-        sourceVrtBuilder.setTargetResolution(tr[0], tr[1]);
-        sourceVrtBuilder.setTargetExtents(te[0], te[1], te[2], te[3]);
+		PreviewSpec preview = ndgConfigManager.getConfig().getPreview();
+		Box extents = preview.getExtents();
+		sourceVrtBuilder.setTargetResolution(
+				preview.getBaseResolution(), preview.getBaseResolution());
+		sourceVrtBuilder.setTargetExtents(
+				extents.getXMin(), extents.getYMin(),
+				extents.getXMax(), extents.getYMax());
         //nodata value is set based on the bands nodata
         
         
@@ -346,11 +354,8 @@ public class WmtsBandCreator extends Application {
     protected Path getWorkingDirectory() {
         Path p = datasetUtil.getPath(dataset);
         Path wd = p.resolve(WMTS_TILE_DIR);
-        boolean createdTempDir = false;
         if (!wd.toFile().exists())
-        {
-            createdTempDir = wd.toFile().mkdirs();
-        }
+            wd.toFile().mkdirs();
         return wd;
     }
     

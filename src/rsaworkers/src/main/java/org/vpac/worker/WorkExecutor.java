@@ -209,7 +209,7 @@ public class WorkExecutor extends UntypedActor {
 
 	private Path fetchEpiphanyData(DatasetInputDefinition di, Work w)
 			throws IOException {
-		String epiphanyHost = ndgConfigManager.getConfig().getEpiphanyIp();
+		String epiphanyHost = ndgConfigManager.getConfig().getEpiphanyHost();
 		String epiphanyPort = ndgConfigManager.getConfig().getEpiphanyPort();
 
 		Matcher matcher = EP_PATTERN.matcher(di.href);

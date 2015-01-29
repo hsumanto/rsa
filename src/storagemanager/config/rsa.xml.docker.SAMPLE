@@ -1,14 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <rsaConfig>
 
-	<!-- spatial reference system (SRS) EPSG code to be used -->
-	<targetSrsEpsgId>3111</targetSrsEpsgId>
-    <gridOriginPointInTargetSrs>
-        <x class="double">2000000</x>
-        <y class="double">2900000</y>
-    </gridOriginPointInTargetSrs>
-	<!-- Whether Y axis increases heading north -->
+	<!-- Spatial reference system (SRS) EPSG code to be used, the origin for
+	     the tile grid, and the resolutions that will be available. The
+	     cellSize must match values of org.vpac.ndg.common.datamodel.CellSize.
+	     Set upPositive to true if the Y axis increases heading north. -->
+	<srs>3111</srs>
 	<upPositive>true</upPositive>
+	<gridOrigin x="2000000" y="2900000" />
+
+	<!-- Resolution and bounds of preview map tiles, specified in the SRS
+		defined above. Additional coarser resolutions will be generated,
+		increasing by a factor of two for each step (as is the case with
+		gdal2tiles.py). Use these settings to configure your map viewer. If
+		your viewer is going to consume tiles from another source, you may
+		need to ensure that the base resolution, xMin and yMin are aligned
+		with the other source. xMax and yMax are less important - just make
+		sure the bounds include the area of interest. -->
+	<preview baseResolution="66.1459656252646">
+		<extents
+			xMin="1786000"
+			xMax="2999976.907120481"
+			yMin="1997264.4991957"
+			yMax="2899958.492083686" />
+	</preview>
+
+	<resolution cellSize="m100" tilePixels="5000" />
 
 	<!-- Turn on/off file locking capability -->
 	<filelockingOn>false</filelockingOn>
@@ -22,58 +39,6 @@
 	<!-- Generate ncml/vrt aggregation on import, this is useful for testing -->
 	<generateImportTileAggregation>false</generateImportTileAggregation>
 
-	<!-- Specify all supported resolutions here -->
-	<resolutionList>
-		<entry>
-			<cellSize>km10</cellSize>
-			<int>5000</int>
-		</entry>
-		<entry>
-			<cellSize>km1</cellSize>
-			<int>5000</int>
-		</entry>
-		<entry>
-			<cellSize>m500</cellSize>
-			<int>5000</int>
-		</entry>
-		<entry>
-			<cellSize>m250</cellSize>
-			<int>5000</int>
-		</entry>
-		<entry>
-			<cellSize>m100</cellSize>
-			<int>5000</int>
-		</entry>
-		<entry>
-			<cellSize>m50</cellSize>
-			<int>5000</int>
-		</entry>
-		<entry>
-			<cellSize>m25</cellSize>
-			<int>5000</int>
-		</entry>
-		<entry>
-			<cellSize>m20</cellSize>
-			<int>5000</int>
-		</entry>
-		<entry>
-			<cellSize>m10</cellSize>
-			<int>5000</int>
-		</entry>
-		<entry>
-			<cellSize>m5</cellSize>
-			<int>5000</int>
-		</entry>
-		<entry>
-			<cellSize>m2p5</cellSize>
-			<int>5000</int>
-		</entry>
-		<entry>
-			<cellSize>m1</cellSize>
-			<int>5000</int>
-		</entry>
-	</resolutionList>
-
 	<!-- Specify rsa directories here -->
 	<storagepool>/var/lib/ndg/storagepool</storagepool>
 	<temploc>/var/tmp/ndg</temploc>
@@ -82,5 +47,7 @@
 
 	<!-- Specify gdal location here -->
 	<gdalprefix>/usr</gdalprefix>
-</rsaConfig>
 
+	<epiphanyHost>172.31.25.104</epiphanyHost>
+	<epiphanyPort>8000</epiphanyPort>
+</rsaConfig>
