@@ -52,6 +52,12 @@ public class BucketingStrategyExplicit implements BucketingStrategy {
             lastBucketValue = bucketValue;
         }
 
+        //special case whereby value is equal to the last buckets upper bound
+        int bucketlength = this.buckets.length;
+        if (value == this.buckets[bucketlength-1]) {
+            return new double[] {this.buckets[bucketlength-2], this.buckets[bucketlength-1]};
+        }
+
         // Or throw exception?
         return null;
     }
