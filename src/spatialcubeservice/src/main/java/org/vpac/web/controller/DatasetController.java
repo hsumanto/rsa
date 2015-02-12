@@ -23,8 +23,11 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
@@ -44,14 +47,18 @@ import org.vpac.ndg.FileUtils;
 import org.vpac.ndg.Utils;
 import org.vpac.ndg.common.datamodel.CellSize;
 import org.vpac.ndg.query.Query;
+import org.vpac.ndg.query.QueryDefinition.DatasetInputDefinition;
 import org.vpac.ndg.query.QueryException;
 import org.vpac.ndg.query.QueryDefinition;
 import org.vpac.ndg.query.QueryDefinition.FilterDefinition;
 import org.vpac.ndg.query.QueryDefinition.LiteralDefinition;
+import org.vpac.ndg.query.QueryDefinition.SamplerDefinition;
+import org.vpac.ndg.query.QueryDefinition.DatasetOutputDefinition;
+import org.vpac.ndg.query.QueryDefinition.GridDefinition;
+import org.vpac.ndg.query.QueryDefinition.VariableDefinition;
 import org.vpac.ndg.query.filter.Foldable;
 import org.vpac.ndg.query.io.DatasetProvider;
 import org.vpac.ndg.query.io.ProviderRegistry;
-import org.vpac.ndg.query.stats.Categories;
 import org.vpac.ndg.query.stats.Cats;
 import org.vpac.ndg.query.stats.VectorCats;
 import org.vpac.ndg.storage.dao.BandDao;
@@ -148,9 +155,14 @@ public class DatasetController {
 		return "List";
 	}
 
+	static final Pattern GROUP_PATTERN = Pattern.compile("rsa:(\\w)/(\\w)/(\\w)");
+
 	@RequestMapping(value = "/{datasetId}/**/categorise", method = RequestMethod.GET)
-	public String createCategories(@PathVariable String datasetId,
-			HttpServletRequest request, ModelMap model)
+	public String createCategories(
+			@PathVariable String datasetId,
+			@RequestParam(required = false) List<String> groupBy,
+			HttpServletRequest request,
+			ModelMap model)
 			throws ResourceNotFoundException, IOException, QueryException {
 		log.info("datasetId:" + datasetId);
 		String requestURL = request.getRequestURI().toString();
@@ -162,11 +174,12 @@ public class DatasetController {
 		Dataset ds = datasetDao.retrieve(datasetId);
 		Band band = bandDao.retrieve(bandId);
 
-		final QueryDefinition qd = QueryDefinition.fromXML(Thread
-				.currentThread().getContextClassLoader()
-				.getResourceAsStream("categorise.xml"));
-		qd.inputs.get(0).href= "rsa:" + ds.getName() + "/" + ds.getResolution().toHumanString();
-		qd.filters.get(0).samplers.get(0).ref = "#ds/" + band.getName();
+		QueryDefinition qd = new QueryDefinition();
+		qd.inputs.add(new DatasetInputDefinition()
+				.id("ds")
+				.href(String.format("rsa:%s/%s", ds.getName(),
+						ds.getResolution().toHumanString())));
+		String lastSocket = String.format("#ds/%s", band.getName());
 
 		// Configure the filters to collect the appropriate kind of statistics.
 		String bucketingStrategy;
@@ -177,15 +190,52 @@ public class DatasetController {
 		else
 			bucketingStrategy = "categorical";
 
-		for (FilterDefinition fd : qd.filters) {
-			if (!fd.classname.equals(Categories.class.getName()))
-				continue;
-			for (LiteralDefinition ld : fd.literals) {
-				if (ld.name.equals("buckets")) {
-					ld.value = bucketingStrategy;
-				}
+		qd.filters.clear();
+		Map<String, DatasetInputDefinition> inputMap = new HashMap<>();
+		int i = 0;
+		for (String group : groupBy) {
+			Matcher matcher = GROUP_PATTERN.matcher(group);
+			if (!matcher.matches()) {
+				throw new ResourceNotFoundException(
+					"Can't group by %s: unrecognised URI.");
 			}
+
+			// Create an input for this group's dataset, if it doesn't exist
+			// yet.
+			String href = String.format(
+					"#%s/%s", matcher.group(1), matcher.group(2));
+			DatasetInputDefinition di = inputMap.get(href);
+			if (di == null) {
+				di = new DatasetInputDefinition()
+						.id(String.format("%s_%d", matcher.group(1), i++))
+						.href(href);
+				qd.inputs.add(di);
+			}
+
+			// Create a filter to categorise by this group.
+			FilterDefinition cat = new FilterDefinition()
+					.id(matcher.group(3))
+					.classname("org.vpac.ndg.query.stats.Categories");
+			cat.literals.add(new LiteralDefinition()
+					.name("buckets")
+					.value(bucketingStrategy));
+			cat.samplers.add(new SamplerDefinition()
+					.name("input")
+					.ref(lastSocket));
+			cat.samplers.add(new SamplerDefinition()
+					.name("categories")
+					.ref(String.format("#%s/%s", di.id, matcher.group(3))));
+
+			lastSocket = String.format("#%s/output", matcher.group(3));
 		}
+
+		qd.output = new DatasetOutputDefinition()
+				.grid(new GridDefinition().ref("#ds"));
+		qd.output.variables.add(new VariableDefinition()
+				.name("nothing")
+				.ref(lastSocket));
+
+		System.out.println(qd);
 
 		final Version ver = Version.netcdf4_classic;
 
