@@ -83,6 +83,11 @@ public class QueryDefinition {
 	@XStreamImplicit
 	public List<FilterDefinition> filters;
 
+	public QueryDefinition() {
+		inputs = new ArrayList<QueryDefinition.DatasetInputDefinition>();
+		filters = new ArrayList<QueryDefinition.FilterDefinition>();
+	}
+
 	public QueryDefinition copy() {
 		QueryDefinition qd = new QueryDefinition();
 		if (inputs != null) {
@@ -102,6 +107,16 @@ public class QueryDefinition {
 		return qd;
 	}
 
+	public QueryDefinition cache(CacheDefinition value) {
+		this.cache = value;
+		return this;
+	}
+
+	public QueryDefinition output(DatasetOutputDefinition value) {
+		this.output = value;
+		return this;
+	}
+
 	@XStreamAlias("input")
 	public static class DatasetInputDefinition {
 		@XStreamAsAttribute
@@ -119,6 +134,16 @@ public class QueryDefinition {
 			did.id = id;
 			did.href = href;
 			return did;
+		}
+
+		public DatasetInputDefinition id(String value) {
+			this.id = value;
+			return this;
+		}
+
+		public DatasetInputDefinition href(String value) {
+			this.href = value;
+			return this;
 		}
 	}
 
@@ -170,6 +195,31 @@ public class QueryDefinition {
 			cd.windowAxes = windowAxes;
 			return cd;
 		}
+
+		public CacheDefinition pages(Integer value) {
+			this.pages = value;
+			return this;
+		}
+
+		public CacheDefinition precedence(String value) {
+			this.precedence = value;
+			return this;
+		}
+
+		public CacheDefinition volume(Integer value) {
+			this.volume = value;
+			return this;
+		}
+
+		public CacheDefinition window(String value) {
+			this.window = value;
+			return this;
+		}
+
+		public CacheDefinition windowAxes(String value) {
+			this.windowAxes = value;
+			return this;
+		}
 	}
 
 	@XStreamAlias("output")
@@ -181,6 +231,10 @@ public class QueryDefinition {
 
 		@XStreamImplicit
 		public List<VariableDefinition> variables;
+
+		public DatasetOutputDefinition() {
+			variables = new ArrayList<QueryDefinition.VariableDefinition>();
+		}
 
 		public DatasetOutputDefinition copy() {
 			DatasetOutputDefinition dod = new DatasetOutputDefinition();
@@ -198,6 +252,16 @@ public class QueryDefinition {
 		@Override
 		public String toString() {
 			return String.format("<output id=\"%s\">", id);
+		}
+
+		public DatasetOutputDefinition id(String value) {
+			this.id = value;
+			return this;
+		}
+
+		public DatasetOutputDefinition grid(GridDefinition value) {
+			this.grid = value;
+			return this;
 		}
 	}
 
@@ -255,6 +319,31 @@ public class QueryDefinition {
 		public String toString() {
 			return String.format("<grid ref=\"%s\">", ref);
 		}
+
+		public GridDefinition ref(String value) {
+			this.ref = value;
+			return this;
+		}
+
+		public GridDefinition bounds(String value) {
+			this.bounds = value;
+			return this;
+		}
+
+		public GridDefinition timeMin(String value) {
+			this.timeMin = value;
+			return this;
+		}
+
+		public GridDefinition timeMax(String value) {
+			this.timeMax = value;
+			return this;
+		}
+
+		public GridDefinition autobounds(String value) {
+			this.autobounds = value;
+			return this;
+		}
 	}
 
 	@XStreamAlias("variable")
@@ -274,6 +363,10 @@ public class QueryDefinition {
 		// Processed and inherited attributes
 		@XStreamOmitField
 		private Map<String, AttributeDefinition> _attributes;
+
+		public VariableDefinition() {
+			attributes = new ArrayList<QueryDefinition.AttributeDefinition>();
+		}
 
 		public VariableDefinition copy() {
 			VariableDefinition vd = new VariableDefinition();
@@ -306,6 +399,26 @@ public class QueryDefinition {
 				return String.format("<variable name=\"%s\">", name);
 			else
 				return String.format("<variable ref=\"%s\">", ref);
+		}
+
+		public VariableDefinition name(String value) {
+			this.name = value;
+			return this;
+		}
+
+		public VariableDefinition ref(String value) {
+			this.ref = value;
+			return this;
+		}
+
+		public VariableDefinition dimensions(String value) {
+			this.dimensions = value;
+			return this;
+		}
+
+		public VariableDefinition type(String value) {
+			this.type = value;
+			return this;
 		}
 	}
 
@@ -346,6 +459,16 @@ public class QueryDefinition {
 		public String toString() {
 			return String.format("<attribute name=\"%s\">", name);
 		}
+
+		public AttributeDefinition name(String value) {
+			this.name = value;
+			return this;
+		}
+
+		public AttributeDefinition value(String value) {
+			this.value = value;
+			return this;
+		}
 	}
 
 	@XStreamAlias("filter")
@@ -359,6 +482,11 @@ public class QueryDefinition {
 		public List<LiteralDefinition> literals;
 		@XStreamImplicit
 		public List<SamplerDefinition> samplers;
+
+		public FilterDefinition() {
+			literals = new ArrayList<QueryDefinition.LiteralDefinition>();
+			samplers = new ArrayList<QueryDefinition.SamplerDefinition>();
+		}
 
 		public FilterDefinition copy() {
 			FilterDefinition fd = new FilterDefinition();
@@ -381,6 +509,16 @@ public class QueryDefinition {
 		public String toString() {
 			return String.format("<filter name=\"%s\">", id);
 		}
+
+		public FilterDefinition id(String value) {
+			this.id = value;
+			return this;
+		}
+
+		public FilterDefinition classname(String value) {
+			this.classname = value;
+			return this;
+		}
 	}
 
 	@XStreamAlias("literal")
@@ -401,6 +539,16 @@ public class QueryDefinition {
 		public String toString() {
 			return String.format("<literal name=\"%s\">", name);
 		}
+
+		public LiteralDefinition name(String value) {
+			this.name = value;
+			return this;
+		}
+
+		public LiteralDefinition value(String value) {
+			this.name = value;
+			return this;
+		}
 	}
 
 	@XStreamAlias("sampler")
@@ -416,6 +564,11 @@ public class QueryDefinition {
 
 		@XStreamOmitField
 		public NodeReference _nodeRef;
+
+		public SamplerDefinition() {
+			children = new ArrayList<QueryDefinition.SamplerDefinition>();
+			slices = new ArrayList<QueryDefinition.SliceDefinition>();
+		}
 
 		public SamplerDefinition copy() {
 			SamplerDefinition sd = new SamplerDefinition();
@@ -440,6 +593,16 @@ public class QueryDefinition {
 		public String toString() {
 			return String.format("<sampler name=\"%s\">", name);
 		}
+
+		public SamplerDefinition name(String value) {
+			this.name = value;
+			return this;
+		}
+
+		public SamplerDefinition ref(String value) {
+			this.ref = value;
+			return this;
+		}
 	}
 
 	@XStreamAlias("slice")
@@ -460,6 +623,16 @@ public class QueryDefinition {
 		@Override
 		public String toString() {
 			return String.format("<slice dimension=\"%s\">", dimension);
+		}
+
+		public SliceDefinition dimension(String value) {
+			this.dimension = value;
+			return this;
+		}
+
+		public SliceDefinition value(Integer value) {
+			this.value = value;
+			return this;
 		}
 	}
 
