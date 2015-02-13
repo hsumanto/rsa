@@ -25,7 +25,7 @@ import java.util.regex.Pattern;
 public class Resolve {
 
 	private static final Pattern REF_PATTERN = Pattern.compile(
-			"#(\\w+)(?:/(.+))?");
+			"#([^/]+)(?:/(.+))?");
 
 	public NodeReference decompose(String ref) throws QueryException {
 		if (ref == null) {

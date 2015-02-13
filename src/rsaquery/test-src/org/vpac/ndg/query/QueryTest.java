@@ -616,6 +616,18 @@ public class QueryTest extends TestCase {
 		}
 	}
 
+	@Test
+	public void test_idsWithSpaces() throws Exception {
+		File config = new File("data/config/ids_with_spaces.xml");
+
+		QueryDefinition qd = QueryDefinition.fromXML(config);
+		qd.filters.get(0).classname = BrokenInheritanceFilter.class.getName();
+
+		File outputFile = new File("data/output/on_fire.nc");
+
+		QueryRunner.run(config, outputFile);
+	}
+
 
 	/**
 	 * Confirm that the contents of two arrays are the same.

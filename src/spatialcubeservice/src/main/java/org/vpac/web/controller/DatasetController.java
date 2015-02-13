@@ -155,7 +155,7 @@ public class DatasetController {
 		return "List";
 	}
 
-	static final Pattern GROUP_PATTERN = Pattern.compile("rsa:(\\w)/(\\w)/(\\w)");
+	static final Pattern GROUP_PATTERN = Pattern.compile("rsa:([^/]+)/([^/]+)/([^/]+)");
 
 	@RequestMapping(value = "/{datasetId}/**/categorise", method = RequestMethod.GET)
 	public String createCategories(
@@ -196,20 +196,21 @@ public class DatasetController {
 		for (String group : groupBy) {
 			Matcher matcher = GROUP_PATTERN.matcher(group);
 			if (!matcher.matches()) {
-				throw new ResourceNotFoundException(
+				throw new RuntimeException(
 					"Can't group by %s: unrecognised URI.");
 			}
 
 			// Create an input for this group's dataset, if it doesn't exist
 			// yet.
 			String href = String.format(
-					"#%s/%s", matcher.group(1), matcher.group(2));
+					"rsa:%s/%s", matcher.group(1), matcher.group(2));
 			DatasetInputDefinition di = inputMap.get(href);
 			if (di == null) {
 				di = new DatasetInputDefinition()
 						.id(String.format("%s_%d", matcher.group(1), i++))
 						.href(href);
 				qd.inputs.add(di);
+				inputMap.put(href, di);
 			}
 
 			// Create a filter to categorise by this group.
@@ -225,6 +226,7 @@ public class DatasetController {
 			cat.samplers.add(new SamplerDefinition()
 					.name("categories")
 					.ref(String.format("#%s/%s", di.id, matcher.group(3))));
+			qd.filters.add(cat);
 
 			lastSocket = String.format("#%s/output", matcher.group(3));
 		}
@@ -235,7 +237,7 @@ public class DatasetController {
 				.name("nothing")
 				.ref(lastSocket));
 
-		System.out.println(qd);
+		System.out.println(qd.toXML());
 
 		final Version ver = Version.netcdf4_classic;
 
