@@ -546,7 +546,7 @@ public class QueryDefinition {
 		}
 
 		public LiteralDefinition value(String value) {
-			this.name = value;
+			this.value = value;
 			return this;
 		}
 	}

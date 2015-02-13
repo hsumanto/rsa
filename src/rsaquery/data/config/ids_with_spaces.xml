@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<query xmlns="http://www.vpac.org/namespaces/rsaquery-0.2">
+
+	<input id="infile with spaces" href="../input/abstract.nc" />
+
+	<output id="outfile with spaces">
+		<grid ref="#infile with spaces" />
+		<variable name="temp" ref="#Fire with spaces/output">
+			<attribute name="_FillValue" value="-1s" />
+		</variable>
+		<variable name="time" ref="#Fire with spaces/outtime" />
+	</output>
+
+	<filter id="Fire with spaces" cls="org.vpac.ndg.query.testfilters.ActiveFire">
+		<literal name="temperatureThreshold" value="196" />
+		<sampler name="input" ref="#infile with spaces/Band1"  />
+		<sampler name="intime" ref="#infile with spaces/time"  />
+	</filter>
+</query>
+

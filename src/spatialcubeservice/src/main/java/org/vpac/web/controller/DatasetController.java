@@ -175,11 +175,15 @@ public class DatasetController {
 		Band band = bandDao.retrieve(bandId);
 
 		QueryDefinition qd = new QueryDefinition();
+
+		int i = 0;
+		Map<String, DatasetInputDefinition> inputMap = new HashMap<>();
 		qd.inputs.add(new DatasetInputDefinition()
 				.id("ds")
 				.href(String.format("rsa:%s/%s", ds.getName(),
 						ds.getResolution().toHumanString())));
 		String lastSocket = String.format("#ds/%s", band.getName());
+		inputMap.put(qd.inputs.get(0).href, qd.inputs.get(0));
 
 		// Configure the filters to collect the appropriate kind of statistics.
 		String bucketingStrategy;
@@ -191,8 +195,6 @@ public class DatasetController {
 			bucketingStrategy = "categorical";
 
 		qd.filters.clear();
-		Map<String, DatasetInputDefinition> inputMap = new HashMap<>();
-		int i = 0;
 		for (String group : groupBy) {
 			Matcher matcher = GROUP_PATTERN.matcher(group);
 			if (!matcher.matches()) {
@@ -232,6 +234,7 @@ public class DatasetController {
 		}
 
 		qd.output = new DatasetOutputDefinition()
+				.id("outfile")
 				.grid(new GridDefinition().ref("#ds"));
 		qd.output.variables.add(new VariableDefinition()
 				.name("nothing")
