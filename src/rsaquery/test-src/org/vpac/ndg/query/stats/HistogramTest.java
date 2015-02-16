@@ -10,6 +10,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.BlockJUnit4ClassRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.vpac.ndg.query.QueryException;
 import org.vpac.ndg.query.iteration.ListTranslator;
 import org.vpac.ndg.query.math.ElementInt;
 import org.vpac.ndg.query.math.VectorElement;
@@ -172,6 +173,52 @@ public class HistogramTest extends TestCase {
 		assertEquals(Double.NaN, bounds[0], EPSILON);
 		assertEquals(Double.NaN, bounds[1], EPSILON);
 
+	}
+
+	@Test
+	public void test_explicit() throws Exception {
+		double[] bucket;
+
+		BucketingStrategyExplicit bs = new BucketingStrategyExplicit();
+
+		bs.setBounds("10,20,30");
+		bucket = bs.computeBucketBounds(0);
+		assertEquals(Double.NEGATIVE_INFINITY, bucket[0]);
+		assertEquals(10.0, bucket[1]);
+		bucket = bs.computeBucketBounds(10.0);
+		assertEquals(10.0, bucket[0]);
+		assertEquals(20.0, bucket[1]);
+		bucket = bs.computeBucketBounds(20.0);
+		assertEquals(20.0, bucket[0]);
+		assertEquals(30.0, bucket[1]);
+		bucket = bs.computeBucketBounds(30.0);
+		assertEquals(20.0, bucket[0]);
+		assertEquals(30.0, bucket[1]);
+		bucket = bs.computeBucketBounds(31.0);
+		assertEquals(30.0, bucket[0]);
+		assertEquals(Double.POSITIVE_INFINITY, bucket[1]);
+
+		bs.setBounds("5.0");
+		bucket = bs.computeBucketBounds(0);
+		assertEquals(Double.NEGATIVE_INFINITY, bucket[0]);
+		assertEquals(5.0, bucket[1]);
+		bucket = bs.computeBucketBounds(5);
+		assertEquals(Double.NEGATIVE_INFINITY, bucket[0]);
+		assertEquals(5.0, bucket[1]);
+		bucket = bs.computeBucketBounds(6);
+		assertEquals(5.0, bucket[0]);
+		assertEquals(Double.POSITIVE_INFINITY, bucket[1]);
+
+		bs.setBounds("");
+		bucket = bs.computeBucketBounds(0);
+		assertEquals(Double.NEGATIVE_INFINITY, bucket[0]);
+		assertEquals(Double.POSITIVE_INFINITY, bucket[1]);
+	}
+
+	@Test(expected=QueryException.class)
+	public void test_explicitNonIncreasing() throws Exception {
+		BucketingStrategyExplicit bs = new BucketingStrategyExplicit();
+		bs.setBounds("30,30");
 	}
 
 	/**
