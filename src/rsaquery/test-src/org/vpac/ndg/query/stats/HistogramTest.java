@@ -221,6 +221,47 @@ public class HistogramTest extends TestCase {
 		bs.setBounds("30,30");
 	}
 
+	@Test
+	public void test_regular() throws Exception {
+		double[] bucket;
+
+		BucketingStrategyRegular bs = new BucketingStrategyRegular();
+
+		bs.width = 10.0;
+		bucket = bs.computeBucketBounds(-101);
+		assertEquals(-110.0, bucket[0], EPSILON);
+		assertEquals(-100.0, bucket[1], EPSILON);
+		bucket = bs.computeBucketBounds(-0.0001);
+		assertEquals(-10.0, bucket[0], EPSILON);
+		assertEquals(0.0, bucket[1], EPSILON);
+		bucket = bs.computeBucketBounds(0);
+		assertEquals(0.0, bucket[0], EPSILON);
+		assertEquals(10.0, bucket[1], EPSILON);
+		bucket = bs.computeBucketBounds(5);
+		assertEquals(0.0, bucket[0], EPSILON);
+		assertEquals(10.0, bucket[1], EPSILON);
+		bucket = bs.computeBucketBounds(99.99);
+		assertEquals(90.0, bucket[0], EPSILON);
+		assertEquals(100.0, bucket[1], EPSILON);
+		bucket = bs.computeBucketBounds(100);
+		assertEquals(100.0, bucket[0], EPSILON);
+		assertEquals(110.0, bucket[1], EPSILON);
+		bucket = bs.computeBucketBounds(1000000000000.0);
+		assertEquals(1000000000000.0, bucket[0], EPSILON);
+		assertEquals(1000000000010.0, bucket[1], EPSILON);
+
+		bs.origin = 5.0;
+		bucket = bs.computeBucketBounds(-6);
+		assertEquals(-15.0, bucket[0], EPSILON);
+		assertEquals(-5.0, bucket[1], EPSILON);
+		bucket = bs.computeBucketBounds(0);
+		assertEquals(-5.0, bucket[0], EPSILON);
+		assertEquals(5.0, bucket[1], EPSILON);
+		bucket = bs.computeBucketBounds(6);
+		assertEquals(5.0, bucket[0], EPSILON);
+		assertEquals(15.0, bucket[1], EPSILON);
+	}
+
 	/**
 	 * Basic scalar histogram.
 	 */
