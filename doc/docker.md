@@ -15,32 +15,42 @@ sudo docker build -t vpac/rsadata src/docker/data/
 sudo docker build -t vpac/rsa src/
 ```
 
-## Running
+## Configuration
 
-If you are running multiple deployments, set a suffix for the container names:
+If you are running multiple deployments, set a suffix for the container names
+and create a configuration directory.
 
 ```bash
 $RSA_ID=_foo
+$RSA_DISK=/mnt/some_large_disk
+mkdir -p $RSA_DISK/conf
+cp ../src/storagemanager/config/rsa.xml.docker.SAMPLE $RSA_DISK/conf
 ```
+
+By default, Docker allows 10GB of space for each container. If you are doing a
+proper deployment you will probably need more than that. In that case, create
+external `storagepool` and `pickup` directories:
+
+```bash
+mkdir -p $RSA_DISK/storagepool $RSA_DISK/pickup
+$RSA_OPTS="$RSA_OPTS
+    -v $RSA_DISK/storagepool:/var/lib/ndg/storagepool
+    -v $RSA_DISK/pickup:/var/spool/ndg/pickup"
+```
+
+## Running
 
 First create storage containers. The configuration for RSA is specified by
 adding the files as volumes. See [`rsa.xml.docker.SAMPLE`][rsa.xml].
 
 ```bash
 sudo docker run -d --name rsadb$RSA_ID vpac/rsadb
-sudo docker run -d --name rsadata$RSA_ID \
-    -v your-rsa-config.xml:/var/src/rsa.xml \
-    -v $LARGE_DISK/storagepool:/var/lib/ndg/storagepool \
-    -v $LARGE_DISK/pickup:/var/spool/ndg/pickup \
-    vpac/rsadata
+sudo docker run -d --name rsadata$RSA_ID $RSA_OPTS vpac/rsadata
 ```
 
 The `rsadata` container exits immediately - but that's OK, the other containers
 can still use its volumes. As long as this container is kept, you can restart
 and replace the actual RSA containers without losing your data.
-
-By default, Docker allows 10GB of space for each container. So for a test
-system, the `$LARGE_DISK` lines are optional.
 
 Now start a master, a worker and the web services. Multiple workers may be
 started - just give each one a different name.
