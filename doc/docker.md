@@ -22,8 +22,8 @@ and create a configuration directory. The configuration for RSA is specified by
 adding the files as volumes. See [`rsa.xml.docker.SAMPLE`][rsa.xml].
 
 ```bash
-$RSA_ID=_foo
-$RSA_OPTS="-v your-rsa-config.xml:/var/src/rsa.xml"
+RSA_ID=_foo
+RSA_OPTS="-v your-rsa-config.xml:/var/src/rsa.xml"
 ```
 
 By default, Docker allows 10GB of space for each container. If you are doing a
@@ -32,7 +32,7 @@ external `storagepool` and `pickup` directories:
 
 ```bash
 mkdir -p /mnt/some_large_disk/storagepool /mnt/some_large_disk/pickup
-$RSA_OPTS="$RSA_OPTS
+RSA_OPTS="$RSA_OPTS
     -v /mnt/some_large_disk/storagepool:/var/lib/ndg/storagepool
     -v /mnt/some_large_disk/pickup:/var/spool/ndg/pickup"
 ```
