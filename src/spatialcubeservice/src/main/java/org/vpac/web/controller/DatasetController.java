@@ -161,6 +161,7 @@ public class DatasetController {
 	public String createCategories(
 			@PathVariable String datasetId,
 			@RequestParam(required = false) List<String> groupBy,
+			@RequestParam(required = false) String buckets,
 			HttpServletRequest request,
 			ModelMap model)
 			throws ResourceNotFoundException, IOException, QueryException {
@@ -168,8 +169,6 @@ public class DatasetController {
 		String requestURL = request.getRequestURI().toString();
 		String timeSliceId = findPathVariable(requestURL, "TimeSlice");
 		String bandId = findPathVariable(requestURL, "Band");
-
-		String bucketBounds = request.getParameter("Bounds");
 
 		Dataset ds = datasetDao.retrieve(datasetId);
 		Band band = bandDao.retrieve(bandId);
@@ -186,13 +185,12 @@ public class DatasetController {
 		inputMap.put(qd.inputs.get(0).href, qd.inputs.get(0));
 
 		// Configure the filters to collect the appropriate kind of statistics.
-		String bucketingStrategy;
-		if (bucketBounds != null)
-		    bucketingStrategy = String.format("explicit?bounds=%s",bucketBounds);
-		else if (band.isContinuous())
-			bucketingStrategy = "logRegular";
-		else
-			bucketingStrategy = "categorical";
+		if (buckets == null) {
+			if (band.isContinuous())
+				buckets = "logRegular";
+			else
+				buckets = "categorical";
+		}
 
 		qd.filters.clear();
 		for (String group : groupBy) {
@@ -221,7 +219,7 @@ public class DatasetController {
 					.classname("org.vpac.ndg.query.stats.Categories");
 			cat.literals.add(new LiteralDefinition()
 					.name("buckets")
-					.value(bucketingStrategy));
+					.value(buckets));
 			cat.samplers.add(new SamplerDefinition()
 					.name("input")
 					.ref(lastSocket));

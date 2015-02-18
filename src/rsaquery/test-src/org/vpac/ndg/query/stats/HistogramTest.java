@@ -262,6 +262,24 @@ public class HistogramTest extends TestCase {
 		assertEquals(15.0, bucket[1], EPSILON);
 	}
 
+	@Test
+	public void test_urlTypes() throws Exception {
+		String descriptor;
+		BucketingStrategyLog bs;
+
+		descriptor = String.format("log?base=10&n=3&scale=0.1");
+		bs = (BucketingStrategyLog) new BucketingStrategyFactory().create(descriptor);
+		assertEquals(10.0, bs.base);
+		assertEquals(3.0, bs.n);
+		assertEquals(0.1, bs.scale);
+
+		descriptor = String.format("log/base/10/n/3/scale/0.1");
+		bs = (BucketingStrategyLog) new BucketingStrategyFactory().create(descriptor);
+		assertEquals(10.0, bs.base);
+		assertEquals(3.0, bs.n);
+		assertEquals(0.1, bs.scale);
+	}
+
 	/**
 	 * Basic scalar histogram.
 	 */

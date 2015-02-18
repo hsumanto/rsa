@@ -15,8 +15,8 @@ import org.vpac.ndg.query.Reflection;
 
 public class BucketingStrategyFactory {
 
-	static final Pattern URL = Pattern.compile("(\\w+)\\??(.*)");
-	static final Pattern PARAM = Pattern.compile("(\\w+)=([^&]*)");
+	static final Pattern URL = Pattern.compile("([^?/]+)[?/](.*)");
+	static final Pattern PARAM = Pattern.compile("([^&/]+)[=/]([^&/]*)");
 
 	BucketingStrategy create(String descriptor) throws QueryException {
 		Matcher matcher = URL.matcher(descriptor);
