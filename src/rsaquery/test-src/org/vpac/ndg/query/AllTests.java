@@ -26,6 +26,7 @@ import org.vpac.ndg.query.io.DatasetProviderTest;
 import org.vpac.ndg.query.iteration.FunctionalTest;
 import org.vpac.ndg.query.math.ElementTest;
 import org.vpac.ndg.query.math.SwizzleTest;
+import org.vpac.ndg.query.stats.BucketingStrategyTest;
 import org.vpac.ndg.query.stats.CategoriesTest;
 import org.vpac.ndg.query.stats.HistogramTest;
 import org.vpac.ndg.query.stats.StatisticsTest;
@@ -37,6 +38,7 @@ import org.vpac.ndg.query.stats.StatisticsTest;
 	SwizzleTest.class,
 	FunctionalTest.class,
 	StatisticsTest.class,
+	BucketingStrategyTest.class,
 	HistogramTest.class,
 	CategoriesTest.class,
 	DatasetProviderTest.class,
