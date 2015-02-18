@@ -15,7 +15,7 @@ import org.vpac.ndg.query.Reflection;
 
 public class BucketingStrategyFactory {
 
-	static final Pattern URL = Pattern.compile("([^?/]+)[?/](.*)");
+	static final Pattern URL = Pattern.compile("([^?/]+)[?/]?(.*)");
 	static final Pattern PARAM = Pattern.compile("([^&/]+)[=/]([^&/]*)");
 
 	/**
