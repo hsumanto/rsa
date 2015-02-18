@@ -112,8 +112,18 @@ public class QueryDefinition {
 		return this;
 	}
 
+	public QueryDefinition input(DatasetInputDefinition value) {
+		this.inputs.add(value);
+		return this;
+	}
+
 	public QueryDefinition output(DatasetOutputDefinition value) {
 		this.output = value;
+		return this;
+	}
+
+	public QueryDefinition filter(FilterDefinition value) {
+		this.filters.add(value);
 		return this;
 	}
 
@@ -261,6 +271,11 @@ public class QueryDefinition {
 
 		public DatasetOutputDefinition grid(GridDefinition value) {
 			this.grid = value;
+			return this;
+		}
+
+		public DatasetOutputDefinition variable(VariableDefinition value) {
+			this.variables.add(value);
 			return this;
 		}
 	}
@@ -420,6 +435,11 @@ public class QueryDefinition {
 			this.type = value;
 			return this;
 		}
+
+		public VariableDefinition attribute(AttributeDefinition value) {
+			this.attributes.add(value);
+			return this;
+		}
 	}
 
 	@XStreamAlias("attribute")
@@ -519,6 +539,16 @@ public class QueryDefinition {
 			this.classname = value;
 			return this;
 		}
+
+		public FilterDefinition literal(LiteralDefinition value) {
+			this.literals.add(value);
+			return this;
+		}
+
+		public FilterDefinition sampler(SamplerDefinition value) {
+			this.samplers.add(value);
+			return this;
+		}
 	}
 
 	@XStreamAlias("literal")
@@ -601,6 +631,16 @@ public class QueryDefinition {
 
 		public SamplerDefinition ref(String value) {
 			this.ref = value;
+			return this;
+		}
+
+		public SamplerDefinition child(SamplerDefinition value) {
+			this.children.add(value);
+			return this;
+		}
+
+		public SamplerDefinition slice(SliceDefinition value) {
+			this.slices.add(value);
 			return this;
 		}
 	}

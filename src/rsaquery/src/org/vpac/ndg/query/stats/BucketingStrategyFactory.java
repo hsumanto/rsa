@@ -18,6 +18,15 @@ public class BucketingStrategyFactory {
 	static final Pattern URL = Pattern.compile("([^?/]+)[?/](.*)");
 	static final Pattern PARAM = Pattern.compile("([^&/]+)[=/]([^&/]*)");
 
+	/**
+	 * Create an instance of a bucketing strategy based on a URI.
+	 *
+	 * @param descriptor A URI that describes the strategy, e.g.
+	 *            "regular/origin/5/width/10" or "regular?origin=5&width=10"
+	 * @return A strategy that matches the description.
+	 * @throws QueryException If the described strategy is unknown, or if the
+	 *             parameters are wrong.
+	 */
 	BucketingStrategy create(String descriptor) throws QueryException {
 		Matcher matcher = URL.matcher(descriptor);
 		if (!matcher.matches()) {

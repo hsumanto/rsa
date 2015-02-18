@@ -5,7 +5,8 @@ package org.vpac.ndg.query.stats;
  *
  * <p>
  * For example, with an origin of <em>5</em> and a width of <em>10</em>, the
- * sequence would be <em>..., -15, -5, 5, 15, 25, ... </em>.
+ * sequence would be <em>..., -15, -5, 5, 15, 25, ... </em>. By default, the
+ * origin is 0 and the width is 20.
  * </p>
  * @author Alex Fraser
  */

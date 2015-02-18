@@ -31,6 +31,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
@@ -112,6 +113,7 @@ import org.vpac.web.model.response.TaskCollectionResponse;
 import org.vpac.web.model.response.TaskResponse;
 import org.vpac.web.util.ControllerHelper;
 import org.vpac.web.util.Pager;
+import org.vpac.web.util.QueryMutator;
 import org.vpac.web.util.QueryPreviewHelper;
 
 import ucar.ma2.Array;
@@ -544,69 +546,6 @@ public class DataController {
 		}
 	}
 
-/*	@RequestMapping(value = "/Query", method = RequestMethod.POST)
-	public String query(@RequestParam(required = false) MultipartFile file,
-			@RequestParam(required = false) String threads,
-			@RequestParam(required = false) Double minX,
-			@RequestParam(required = false) Double minY,
-			@RequestParam(required = false) Double maxX,
-			@RequestParam(required = false) Double maxY,
-			@RequestParam(required = false) String startDate,
-			@RequestParam(required = false) String endDate,
-			@RequestParam(required = false) String netcdfVersion,
-			ModelMap model)
-			throws IOException, QueryConfigurationException {
-
-		final QueryDefinition qd = QueryDefinition.fromXML(file.getInputStream());
-		if(minX != null)
-			qd.output.grid.bounds = String.format("%f %f %f %f", minX, minY, maxX, maxY);
-		
-		if(startDate != null) {
-			qd.output.grid.timeMin = startDate;
-			qd.output.grid.timeMax = endDate;
-		}
-
-		Version version;
-		if (netcdfVersion != null) {
-			if (netcdfVersion.equals("nc3")) {
-				version = Version.netcdf3;
-			} else if (netcdfVersion.equals("nc4")) {
-				version = Version.netcdf4;
-			} else {
-				throw new IllegalArgumentException(String.format(
-						"Unrecognised NetCDF version %s", netcdfVersion));
-			}
-		} else {
-			version = Version.netcdf4;
-		}
-		final Version ver = version;
-
-		final QueryProgress qp = new QueryProgress(jobProgressDao);
-		String taskId = qp.getTaskId();
-		final Integer t = threads == null ? null : Integer.parseInt(threads);
-		Path outputDir = FileUtils.getTargetLocation(taskId);
-		final Path queryPath = outputDir.resolve(file.getOriginalFilename());
-		if (!Files.exists(outputDir))
-			Files.createDirectories(outputDir);
-
-		Thread thread = new Thread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					executeQuery(qd, qp, t, queryPath, ver);
-				} catch (Exception e) {
-					qp.setErrorMessage(e.getMessage());
-					log.error("Task exited abnormally: ", e);
-				}
-			}
-		});
-
-		thread.start();
-		model.addAttribute(ControllerHelper.RESPONSE_ROOT, new QueryResponse(taskId));
-		return "Success";
-	}
-*/
-	
 	@RequestMapping(value = "/DQuery-test", method = RequestMethod.GET)
 	public String distributedQueryTest() throws IllegalAccessException, IOException, QueryException {
 		
@@ -622,10 +561,12 @@ public class DataController {
 		String startDate = "";
 		String endDate = "";
 		String netcdfVersion = null;
+		String buckets = null;
+		List<String> groupBy = null;
 		ModelMap model = new ModelMap();
 		
 		return query(qd, threads, minX, minY, maxX, maxY, startDate, endDate,
-				netcdfVersion, model);
+				netcdfVersion, buckets, groupBy, model);
 	}
 
 	@RequestMapping(value = "/WmtsDatasetGenerate", method = RequestMethod.POST)
@@ -684,11 +625,13 @@ public class DataController {
 			@RequestParam(required = false) String startDate,
 			@RequestParam(required = false) String endDate,
 			@RequestParam(required = false) String netcdfVersion,
+			@RequestParam(required = false) String buckets,
+			@RequestParam(required = false) List<String> groupBy,
 			ModelMap model)
 			throws IOException, QueryException, IllegalAccessException {
 		QueryDefinition qd = QueryDefinition.fromXML(file.getInputStream());
 		return query(qd, threads, minX, minY, maxX, maxY, startDate, endDate,
-				netcdfVersion, model);
+				netcdfVersion, buckets, groupBy, model);
 	}
 
 	@RequestMapping(value = "/Query", method = RequestMethod.POST)
@@ -701,17 +644,21 @@ public class DataController {
 			@RequestParam(required = false) String startDate,
 			@RequestParam(required = false) String endDate,
 			@RequestParam(required = false) String netcdfVersion,
+			@RequestParam(required = false) String buckets,
+			@RequestParam(required = false) List<String> groupBy,
 			ModelMap model)
 			throws IOException, QueryException, IllegalAccessException {
 		QueryDefinition qd = QueryDefinition.fromString(query);
 		return query(qd, threads, minX, minY, maxX, maxY, startDate, endDate,
-				netcdfVersion, model);
+				netcdfVersion, buckets, groupBy, model);
 	}
+
+	static final Pattern GROUP_PATTERN = Pattern.compile("rsa:([^/]+)/([^/]+)/([^/]+)");
 
 	public String query(QueryDefinition qd, String threads,
 			Double minX, Double minY, Double maxX, Double maxY,
 			String startDate, String endDate, String netcdfVersion,
-			ModelMap model)
+			String buckets, List<String> groupBy, ModelMap model)
 			throws IOException, QueryException, IllegalAccessException {
 
 		Resolve resolve = new Resolve();
@@ -727,7 +674,9 @@ public class DataController {
 				break;
 			}
 		}
-		
+
+		// Find extents of grid so that it can be spatially split and
+		// distributed across multiple nodes for processing.
 		Box extent = null;
 		if (diGrid == null)
 			throw new IllegalArgumentException("No input reference of output grid");
@@ -739,11 +688,11 @@ public class DataController {
 
 			Dataset dataset = datasetDao.findDatasetByName(baseRsaDatasetName, baseRsaDatasetResolution);
 			if(dataset == null)
-				throw new IllegalAccessException("No dataset found");
+				throw new IllegalArgumentException("No dataset found");
 			String datasetId = dataset.getId();
 			List<TimeSlice> tsList = datasetDao.getTimeSlices(datasetId);
 			if(tsList == null)
-				throw new IllegalAccessException("No timeslice on this dataset");
+				throw new IllegalArgumentException("No timeslice on this dataset");
 			
 			extent = timeSliceUtil.aggregateBounds(tsList);
 		} else if (diGrid.href.startsWith("epiphany")) {
@@ -754,6 +703,17 @@ public class DataController {
 		}
 
 		List<Tile> tiles = tileManager.getTiles(extent, baseRsaDatasetResolution);
+
+		// Inject categorisation filters.
+		if (groupBy != null) {
+			if (buckets == null) {
+				throw new IllegalArgumentException(
+						"Can't categorise: missing 'buckets' parameter.");
+			}
+			QueryMutator qm = new QueryMutator(qd);
+			for (String group : groupBy)
+				qm.addCategoriser(group, buckets);
+		}
 
 		Version ver;
 		if (netcdfVersion == null)
