@@ -2,6 +2,8 @@ package org.vpac.ndg.query.stats;
 
 import java.io.Serializable;
 
+import org.vpac.ndg.query.QueryException;
+
 
 /**
  * Creates histogram buckets that increase in size the further they are from
@@ -168,5 +170,21 @@ public class BucketingStrategyLog implements BucketingStrategy, Serializable {
 		// http://www.themathpage.com/aPreCalc/logarithms.htm#change
 		// http://blog.dreasgrech.com/2010/02/finding-logarithm-of-any-base-in-java.html
 		return Math.log(value) / Math.log(base);
+	}
+
+	@Override
+	public void checkConfiguration() throws QueryException {
+		if (base <= 1.0) {
+			throw new QueryException(
+					"Log bucketing strategy: base must be greater than 1.");
+		}
+		if (n < 1.0) {
+			throw new QueryException(
+					"Log bucketing strategy: n must be at least 1.");
+		}
+		if (scale < Double.MIN_NORMAL) {
+			throw new QueryException(
+					"Log bucketing strategy: scale is too small.");
+		}
 	}
 }

@@ -32,17 +32,12 @@ public class BucketingStrategyExplicit implements BucketingStrategy {
         String[] bucketValuesAsStrings = bucketString.split(",");
         List<Double> buckets = new ArrayList<Double>(bucketValuesAsStrings.length);
 
-        double lastBucket = Double.NEGATIVE_INFINITY;
         for (String bvs : bucketValuesAsStrings) {
             bvs = bvs.trim();
             if (bvs.length() == 0)
                 continue;
             double bucketValue = Double.parseDouble(bvs);
-            if (bucketValue <= lastBucket) {
-                throw new QueryException("Buckets must strictly increase.");
-            }
             buckets.add(bucketValue);
-            lastBucket = bucketValue;
         }
 
         this.buckets = new double[buckets.size()];
@@ -81,4 +76,17 @@ public class BucketingStrategyExplicit implements BucketingStrategy {
         return false;
     }
 
+    @Override
+    public void checkConfiguration() throws QueryException {
+        if (buckets == null) {
+            throw new QueryException(
+                "Explicit bucketing strategy: No buckets specified.");
+        }
+        for (int i = 1; i < buckets.length; i++) {
+            if (buckets[i] <= buckets[i - 1]) {
+                throw new QueryException(
+                "Explicit bucketing strategy: Buckets must be stictly increase.");
+            }
+        }
+    }
 }

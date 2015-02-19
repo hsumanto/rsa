@@ -1,5 +1,7 @@
 package org.vpac.ndg.query.stats;
 
+import org.vpac.ndg.query.QueryException;
+
 /**
  * Generates buckets at regular intervals.
  *
@@ -34,4 +36,12 @@ public class BucketingStrategyRegular implements BucketingStrategy {
 	public boolean isCategorical() {
 		return false;
 	};
+
+	@Override
+	public void checkConfiguration() throws QueryException {
+		if (width < Double.MIN_NORMAL) {
+			throw new QueryException(
+				"Regular bucketing strategy: width is too small.");
+		}
+	}
 }

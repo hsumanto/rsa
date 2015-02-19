@@ -1,5 +1,7 @@
 package org.vpac.ndg.query.stats;
 
+import org.vpac.ndg.query.QueryException;
+
 
 /**
  * Creates histogram buckets that have both logarithmic and regular
@@ -42,7 +44,7 @@ public class BucketingStrategyLogRegular extends BucketingStrategyLog {
 		double wholePart = Math.floor(i / n);
 
 		double fraction = logN(base, (i % n) / n) + 1;
-		if (Double.isInfinite(fraction))
+		if (fraction < 0)
 			fraction = 0;
 
 		double lower = Math.pow(base, wholePart + fraction);
@@ -59,5 +61,14 @@ public class BucketingStrategyLogRegular extends BucketingStrategyLog {
 		double fraction = Math.floor((n * Math.pow(base, logarithm % 1.0)) / base);
 		double index = wholePart + fraction;
 		return (int) index;
+	}
+
+	@Override
+	public void checkConfiguration() throws QueryException {
+		super.checkConfiguration();
+		if (base - n < 0.1) {
+			throw new QueryException(
+				"LogRegular bucketing strategy: base must be greater than n.");
+		}
 	}
 }

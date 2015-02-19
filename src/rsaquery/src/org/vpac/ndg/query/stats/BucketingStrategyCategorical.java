@@ -2,6 +2,8 @@ package org.vpac.ndg.query.stats;
 
 import java.io.Serializable;
 
+import org.vpac.ndg.query.QueryException;
+
 /**
  * Creates histogram buckets that each contain only one value. For use with
  * categorical data.
@@ -21,5 +23,10 @@ public class BucketingStrategyCategorical implements BucketingStrategy,
 	@Override
 	public boolean isCategorical() {
 		return true;
+	}
+
+	@Override
+	public void checkConfiguration() throws QueryException {
+		// Nothing to check.
 	}
 }

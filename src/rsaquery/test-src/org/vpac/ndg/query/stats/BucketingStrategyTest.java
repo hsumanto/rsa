@@ -160,6 +160,29 @@ public class BucketingStrategyTest extends TestCase {
 	}
 
 	@Test
+	public void test_falseLogSequence() throws Exception {
+		BucketingStrategyLog bs = new BucketingStrategyLogRegular();
+
+		bs.setBase(10);
+		bs.setN(5);
+		bs.setScale(0.1);
+
+		double[] bounds = new double[20];
+		for (int i = 0; i < bounds.length; i++) {
+			bounds[i] = bs.lowerBound(i);
+		}
+		log.debug("Bounds: {}", bounds);
+		for (int i = 0; i < bounds.length - 1; i++) {
+			double delta = bounds[i + 1] - bounds[i];
+			assertTrue("Buckets are not monotonitcally increasing", delta > 0);
+			if (delta < 0.05) {
+				throw new AssertionFailedError(String.format(
+					"Bucket %d (lb %f) is ridiculously small", i, bounds[i]));
+			}
+		}
+	}
+
+	@Test
 	public void test_falseLogLowerBounds() throws Exception {
 		double lb;
 		int i;
@@ -198,9 +221,10 @@ public class BucketingStrategyTest extends TestCase {
 
 	@Test
 	public void test_falseLogBounds() throws Exception {
+		BucketingStrategyFactory factory = new BucketingStrategyFactory();
 		String descriptor = String.format("logRegular?base=%g&n=%g&scale=%g",
 				BASE, BUCKETS_PER_ORDER_OF_MAGNITUDE, SCALE);
-		BucketingStrategy bs = new BucketingStrategyFactory().create(descriptor);
+		BucketingStrategy bs = factory.create(descriptor);
 
 		double[] bounds;
 		bounds = bs.computeBucketBounds(0.0);
@@ -234,7 +258,6 @@ public class BucketingStrategyTest extends TestCase {
 		bounds = bs.computeBucketBounds(Double.NaN);
 		assertEquals(Double.NaN, bounds[0], EPSILON);
 		assertEquals(Double.NaN, bounds[1], EPSILON);
-
 	}
 
 	/**
@@ -259,6 +282,15 @@ public class BucketingStrategyTest extends TestCase {
 				1, 2, 4, 6, 8,
 				10, 20, 40, 60, 80};
 		checkContiguity(bs, boundaries);
+	}
+
+	@Test(expected=QueryException.class)
+	public void test_logRegularBadNumBuckets() throws Exception {
+		BucketingStrategyFactory factory = new BucketingStrategyFactory();
+
+		factory.create("logRegular/base/10/n/10/scale/10");
+//		boundaries = new double[] {-20, -10, 0, 10, 20, 40, 60, 80, 100, 110};
+//		checkContiguity(bs, boundaries);
 	}
 
 	@Test
@@ -303,8 +335,8 @@ public class BucketingStrategyTest extends TestCase {
 
 	@Test(expected=QueryException.class)
 	public void test_explicitNonIncreasing() throws Exception {
-		BucketingStrategyExplicit bs = new BucketingStrategyExplicit();
-		bs.setBounds("30,30");
+		BucketingStrategyFactory factory = new BucketingStrategyFactory();
+		factory.create("explicit/bounds/30,30");
 	}
 
 	@Test

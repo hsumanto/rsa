@@ -60,6 +60,8 @@ public class BucketingStrategyFactory {
 			Reflection.setSimpleField(bs, entry.getKey(), entry.getValue());
 		}
 
+		bs.checkConfiguration();
+
 		return bs;
 	}
 
