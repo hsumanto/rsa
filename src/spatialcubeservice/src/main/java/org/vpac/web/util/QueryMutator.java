@@ -141,6 +141,8 @@ public class QueryMutator {
 
 		qd.output.variables.get(0).ref = String.format("#%s/output", cat.id);
 
+		qd.filter(cat);
+
 		return cat;
 	}
 
