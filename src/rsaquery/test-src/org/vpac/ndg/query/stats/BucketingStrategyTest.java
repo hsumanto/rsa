@@ -1,5 +1,9 @@
 package org.vpac.ndg.query.stats;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import junit.framework.AssertionFailedError;
 import junit.framework.TestCase;
 
 import org.junit.Test;
@@ -34,11 +38,6 @@ public class BucketingStrategyTest extends TestCase {
 		assertEquals(0, i);
 		lb = bs.lowerBound(0);
 		assertEquals(0.1, lb, EPSILON);
-
-		i = bs.indexOf(100);
-		assertEquals(9, i);
-		lb = bs.lowerBound(9);
-		assertEquals(100, lb, EPSILON);
 	}
 
 	@Test
@@ -79,7 +78,85 @@ public class BucketingStrategyTest extends TestCase {
 		bounds = bs.computeBucketBounds(Double.NaN);
 		assertEquals(Double.NaN, bounds[0], EPSILON);
 		assertEquals(Double.NaN, bounds[1], EPSILON);
+	}
 
+	@Test
+	public void test_logBoundsPrecision() throws Exception {
+		BucketingStrategy bs;
+		double[] boundaries;
+		BucketingStrategyFactory factory = new BucketingStrategyFactory();
+
+		bs = factory.create("log/base/10/n/5/scale/0.1");
+		boundaries = new double[] {-10, -1, 0, 1, 10, 100};
+		checkContiguity(bs, boundaries);
+	}
+
+	/**
+	 * Checks that buckets are contiguous around a set of known boundaries.
+	 * @param bs
+	 * @param boundaries
+	 */
+	private void checkContiguity(BucketingStrategy bs, double[] boundaries) {
+		for (double boundary : boundaries) {
+			List<Double> derivedBoundaries = new ArrayList<Double>();
+
+			double[] values = getDoublesAroundPoint(boundary, 1000);
+			for (double value : values) {
+				double[] bucket = bs.computeBucketBounds(value);
+				if (!derivedBoundaries.contains(bucket[0]))
+					derivedBoundaries.add(bucket[0]);
+				if (!derivedBoundaries.contains(bucket[1]))
+					derivedBoundaries.add(bucket[1]);
+
+				if (Double.isNaN(bucket[0])) {
+					bs.computeBucketBounds(value);
+					throw new AssertionFailedError(String.format(
+						"Lower bound of bucket is NaN! Value: %.24f",
+						value));
+				}
+
+				if (Double.isNaN(bucket[1])) {
+					bs.computeBucketBounds(value);
+					throw new AssertionFailedError(String.format(
+						"Upper bound of bucket is NaN! Value: %.24f",
+						value));
+				}
+
+				if (bucket[0] > value || bucket[1] <= value) {
+					bs.computeBucketBounds(value);
+					throw new AssertionFailedError(String.format(
+						"Bucket [%.24f, %.24f] doesn't contain value %.24f",
+						bucket[0], bucket[1], value));
+				}
+			}
+
+			log.debug("Derived bounds near {}: {}",
+					boundary, derivedBoundaries);
+
+			log.debug("Tested from {} to {}", values[0], values[values.length - 1]);
+			assertTrue("Buckets are non-contiguous",
+					derivedBoundaries.size() == 3);
+		}
+	}
+
+	private double[] getDoublesAroundPoint(double point, int n) {
+		double[] values = new double[(n * 2) + 1];
+
+		double start = point;
+		for (int i = n; i >= 0; i--) {
+			start = Math.nextAfter(start, Double.NEGATIVE_INFINITY);
+			values[i] = start;
+		}
+
+		values[n] = point;
+
+		double end = point;
+		for (int i = n + 1; i < values.length; i++) {
+			end = Math.nextAfter(end, Double.POSITIVE_INFINITY);
+			values[i] = end;
+		}
+
+		return values;
 	}
 
 	@Test
@@ -106,11 +183,6 @@ public class BucketingStrategyTest extends TestCase {
 		assertEquals(7, i);
 		lb = bs.lowerBound(7);
 		assertEquals(33.33333333333, lb, EPSILON);
-
-		i = bs.indexOf(100);
-		assertEquals(9, i);
-		lb = bs.lowerBound(9);
-		assertEquals(100, lb, EPSILON);
 
 		i = bs.indexOf(200);
 		assertEquals(9, i);
@@ -165,6 +237,30 @@ public class BucketingStrategyTest extends TestCase {
 
 	}
 
+	/**
+	 * Make sure that:
+	 *
+	 * <ol>
+	 * <li>Buckets contain the value that was requested.</li>
+	 * <li>Buckets are perfectly contiguous (always touch, never overlap).</li>
+	 * </ol>
+	 */
+	@Test
+	public void test_logRegularBoundsPrecision() throws Exception {
+		BucketingStrategy bs;
+		double[] boundaries;
+		BucketingStrategyFactory factory = new BucketingStrategyFactory();
+
+		bs = factory.create("logRegular/base/10/n/5/scale/0.1");
+		boundaries = new double[] {
+				-0.8, -0.6, -0.4, -0.2, -0.1,
+				0,
+				0.1, 0.2, 0.4, 0.6, 0.8,
+				1, 2, 4, 6, 8,
+				10, 20, 40, 60, 80};
+		checkContiguity(bs, boundaries);
+	}
+
 	@Test
 	public void test_explicit() throws Exception {
 		double[] bucket;
@@ -212,6 +308,17 @@ public class BucketingStrategyTest extends TestCase {
 	}
 
 	@Test
+	public void test_explicitPrecision() throws Exception {
+		BucketingStrategy bs;
+		double[] boundaries;
+		BucketingStrategyFactory factory = new BucketingStrategyFactory();
+
+		bs = factory.create("explicit/bounds/-3, -0.1, 0, 0.3, 5, 5000, Infinity");
+		boundaries = new double[] {-3, -0.1, 0, 0.3, 5, 5000};
+		checkContiguity(bs, boundaries);
+	}
+
+	@Test
 	public void test_regular() throws Exception {
 		double[] bucket;
 
@@ -250,6 +357,17 @@ public class BucketingStrategyTest extends TestCase {
 		bucket = bs.computeBucketBounds(6);
 		assertEquals(5.0, bucket[0], EPSILON);
 		assertEquals(15.0, bucket[1], EPSILON);
+	}
+
+	@Test
+	public void test_regularPrecision() throws Exception {
+		BucketingStrategy bs;
+		double[] boundaries;
+		BucketingStrategyFactory factory = new BucketingStrategyFactory();
+
+		bs = factory.create("regular/origin/5/width/10");
+		boundaries = new double[] {-5, 5, 15, 25, 105, 5005};
+		checkContiguity(bs, boundaries);
 	}
 
 	@Test

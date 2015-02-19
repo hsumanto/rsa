@@ -41,11 +41,9 @@ public class BucketingStrategyLogRegular extends BucketingStrategyLog {
 
 		double wholePart = Math.floor(i / n);
 
-		double fraction;
-		if (i % n < EPSILON)
+		double fraction = logN(base, (i % n) / n) + 1;
+		if (Double.isInfinite(fraction))
 			fraction = 0;
-		else
-			fraction = logN(base, (i % n) / n) + 1;
 
 		double lower = Math.pow(base, wholePart + fraction);
 		lower *= scale;
@@ -54,11 +52,12 @@ public class BucketingStrategyLogRegular extends BucketingStrategyLog {
 
 	@Override
 	int indexOf(double value) {
-		double logarithm = logN(base, value / scale) + EPSILON;
+		if (value < scale)
+			return -1;
+		double logarithm = logN(base, value / scale);
 		double wholePart = Math.floor(logarithm) * n;
 		double fraction = Math.floor((n * Math.pow(base, logarithm % 1.0)) / base);
 		double index = wholePart + fraction;
-		index += EPSILON;
 		return (int) index;
 	}
 }
