@@ -57,11 +57,13 @@ sudo docker run -d --name rsamaster$RSA_ID \
     --link rsadb$RSA_ID:rsadb \
     --volumes-from rsadata$RSA_ID \
     vpac/rsa master
+sleep 10
 sudo docker run -d --name rsaweb$RSA_ID \
     --link rsadb$RSA_ID:rsadb \
     --link rsamaster$RSA_ID:master \
     --volumes-from rsadata$RSA_ID \
     vpac/rsa web
+sleep 10
 sudo docker run -d --name rsaworker$RSA_ID \
     --link rsadb$RSA_ID:rsadb \
     --link rsamaster$RSA_ID:master \

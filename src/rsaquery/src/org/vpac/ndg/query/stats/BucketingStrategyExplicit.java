@@ -1,5 +1,6 @@
 package org.vpac.ndg.query.stats;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,9 +25,11 @@ import org.vpac.ndg.query.QueryException;
  *
  * @author lachlan, Alex Fraser
  */
-public class BucketingStrategyExplicit implements BucketingStrategy {
+public class BucketingStrategyExplicit implements BucketingStrategy, Serializable {
 
-    private double[] buckets;
+	private static final long serialVersionUID = 1L;
+
+	private double[] buckets;
 
     public void setBounds(String bucketString) throws QueryException {
         String[] bucketValuesAsStrings = bucketString.split(",");

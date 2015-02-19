@@ -1,5 +1,7 @@
 package org.vpac.ndg.query.stats;
 
+import java.io.Serializable;
+
 import org.vpac.ndg.query.QueryException;
 
 /**
@@ -12,7 +14,9 @@ import org.vpac.ndg.query.QueryException;
  * </p>
  * @author Alex Fraser
  */
-public class BucketingStrategyRegular implements BucketingStrategy {
+public class BucketingStrategyRegular implements BucketingStrategy, Serializable{
+
+	private static final long serialVersionUID = 1L;
 
 	public double origin = 0.0;
 	public double width = 20.0;
