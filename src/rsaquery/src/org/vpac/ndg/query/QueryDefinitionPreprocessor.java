@@ -254,7 +254,7 @@ public class QueryDefinitionPreprocessor {
 				if (fd.samplers != null) {
 					for (SamplerDefinition sd1 : fd.samplers) {
 						try {
-							if (sd1.children != null) {
+							if (sd1.children != null && sd1.children.size() > 0) {
 								for (SamplerDefinition sd2 : sd1.children) {
 									String conn = resolve.decompose(sd2.ref).getNodeId();
 									FilterComparator otherFc = fcs.get(conn);
@@ -318,7 +318,6 @@ public class QueryDefinitionPreprocessor {
 				SamplerDefinition sdNew = new SamplerDefinition();
 				sdNew.name = sdOrig.name;
 				sdNew.slices = sdOrig.slices;
-				sdNew.children = new ArrayList<SamplerDefinition>();
 				for (NodeReference nr : refs) {
 					SamplerDefinition sdNewChild = new SamplerDefinition();
 					sdNewChild._nodeRef = nr;
@@ -345,7 +344,7 @@ public class QueryDefinitionPreprocessor {
 		if (sd.ref != null) {
 			refs.addAll(expandReference(datasetStore, sd.ref));
 		}
-		if (sd.children != null) {
+		if (sd.children != null && sd.children.size() > 0) {
 			for (SamplerDefinition sdChild : sd.children) {
 				refs.addAll(expandReference(datasetStore, sdChild.ref));
 			}

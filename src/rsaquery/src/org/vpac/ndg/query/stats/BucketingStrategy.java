@@ -1,5 +1,7 @@
 package org.vpac.ndg.query.stats;
 
+import org.vpac.ndg.query.QueryException;
+
 public interface BucketingStrategy {
 
 	/**
@@ -11,5 +13,7 @@ public interface BucketingStrategy {
 	double[] computeBucketBounds(double value);
 
 	boolean isCategorical();
+
+	void checkConfiguration() throws QueryException;
 
 }

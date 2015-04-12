@@ -15,9 +15,18 @@ import org.vpac.ndg.query.Reflection;
 
 public class BucketingStrategyFactory {
 
-	static final Pattern URL = Pattern.compile("(\\w+)\\??(.*)");
-	static final Pattern PARAM = Pattern.compile("(\\w+)=([^&]*)");
+	static final Pattern URL = Pattern.compile("([^?/]+)[?/]?(.*)");
+	static final Pattern PARAM = Pattern.compile("([^&/]+)[=/]([^&/]*)");
 
+	/**
+	 * Create an instance of a bucketing strategy based on a URI.
+	 *
+	 * @param descriptor A URI that describes the strategy, e.g.
+	 *            "regular/origin/5/width/10" or "regular?origin=5&width=10"
+	 * @return A strategy that matches the description.
+	 * @throws QueryException If the described strategy is unknown, or if the
+	 *             parameters are wrong.
+	 */
 	BucketingStrategy create(String descriptor) throws QueryException {
 		Matcher matcher = URL.matcher(descriptor);
 		if (!matcher.matches()) {
@@ -36,6 +45,8 @@ public class BucketingStrategyFactory {
 			bs = new BucketingStrategyLog();
 	    } else if (path.equals("explicit")) {
 	        bs = new BucketingStrategyExplicit();
+	    } else if (path.equals("regular")) {
+	        bs = new BucketingStrategyRegular();
 		} else if (path.equals("logRegular") || path.equals("logQuantile")) {
 			// "logQuantile" is deprecated, but needed for compatibility until
 			// client apps switch to "logRegular".
@@ -48,6 +59,8 @@ public class BucketingStrategyFactory {
 		for (Entry<String, String> entry : parseQuery(query).entrySet()) {
 			Reflection.setSimpleField(bs, entry.getKey(), entry.getValue());
 		}
+
+		bs.checkConfiguration();
 
 		return bs;
 	}

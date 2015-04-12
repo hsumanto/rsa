@@ -2,6 +2,8 @@ package org.vpac.ndg.query.stats;
 
 import java.io.Serializable;
 
+import org.vpac.ndg.query.QueryException;
+
 
 /**
  * Creates histogram buckets that increase in size the further they are from
@@ -16,7 +18,6 @@ public class BucketingStrategyLog implements BucketingStrategy, Serializable {
 	static final double BASE = 10;
 	static final double BUCKETS_PER_ORDER_OF_MAGNITUDE = 3.0;
 	static final double SCALE = 0.1;
-	static final double EPSILON = 1.0e-9;
 
 	protected double base;
 	protected double n;
@@ -86,21 +87,26 @@ public class BucketingStrategyLog implements BucketingStrategy, Serializable {
 
 		value = Math.abs(value);
 
-		double lower;
-		double upper;
+		double[] bucket = new double[2];
 
-		if (value < scale) {
-			lower = 0.0;
-			upper = lowerBound(0);
+		int i = indexOf(value);
+		createBucket(i, bucket);
+
+		// Because we are using float arithmetic, sometimes the computed bucket
+		// bounds will not quite include the requested value. In that case,
+		// offset the index and request again.
+		if (!negative) {
+			if (value < bucket[0])
+				createBucket(i - 1, bucket);
+			else if (value >= bucket[1])
+				createBucket(i + 1, bucket);
 		} else {
-			int i = indexOf(value);
-			if (i < 0) {
-				lower = 0.0;
-				upper = lowerBound(0);
-			} else {
-				lower = lowerBound(i);
-				upper = lowerBound(i + 1);
-			}
+			// For negative numbers, the inequality tests are different because
+			// the lower and upper bounds will be swapped below.
+			if (value <= bucket[0])
+				createBucket(i - 1, bucket);
+			else if (value > bucket[1])
+				createBucket(i + 1, bucket);
 		}
 
 		// No need to adjust values with an epsilon: the upper bound is computed
@@ -108,22 +114,28 @@ public class BucketingStrategyLog implements BucketingStrategy, Serializable {
 		// been calculated for the next bucket.
 
 		if (negative) {
-			double temp = lower;
-			lower = -upper;
-			upper = -temp;
+			double temp = bucket[0];
+			bucket[0] = -bucket[1];
+			bucket[1] = -temp;
 			value = -value;
 		}
 
-		// Adjust for rounding errors. This may cause some buckets to overlap
-		// by a small fraction.
-		// TODO: try to do this without buckets overlapping. Overlapping
-		// buckets will be MERGED during a fold!
-		if (lower > value)
-			lower = value;
-		if (upper < value)
-			upper = value;
+		if (bucket[0] == -0.0)
+			bucket[0] = 0.0;
+		if (bucket[1] == -0.0)
+			bucket[1] = 0.0;
 
-		return new double[] {lower, upper};
+		return bucket;
+	}
+
+	private void createBucket(int i, double[] bucket) {
+		if (i < 0) {
+			bucket[0] = 0.0;
+			bucket[1] = lowerBound(0);
+		} else {
+			bucket[0] = lowerBound(i);
+			bucket[1] = lowerBound(i + 1);
+		}
 	}
 
 	/**
@@ -147,8 +159,9 @@ public class BucketingStrategyLog implements BucketingStrategy, Serializable {
 	 * @return The "index" of the bucket.
 	 */
 	int indexOf(double value) {
+		if (value < scale)
+			return -1;
 		double index = logN(base, value / scale) * n;
-		index += EPSILON;
 		return (int) index;
 	}
 
@@ -157,5 +170,21 @@ public class BucketingStrategyLog implements BucketingStrategy, Serializable {
 		// http://www.themathpage.com/aPreCalc/logarithms.htm#change
 		// http://blog.dreasgrech.com/2010/02/finding-logarithm-of-any-base-in-java.html
 		return Math.log(value) / Math.log(base);
+	}
+
+	@Override
+	public void checkConfiguration() throws QueryException {
+		if (base <= 1.0) {
+			throw new QueryException(
+					"Log bucketing strategy: base must be greater than 1.");
+		}
+		if (n < 1.0) {
+			throw new QueryException(
+					"Log bucketing strategy: n must be at least 1.");
+		}
+		if (scale < Double.MIN_NORMAL) {
+			throw new QueryException(
+					"Log bucketing strategy: scale is too small.");
+		}
 	}
 }

@@ -269,6 +269,8 @@ public class DatasetOutput implements DatasetMeta {
 		if (vds == null) {
 			throw new QueryBindingException("No output variables declared.");
 		}
+		if (def.id == null)
+			throw new QueryBindingException("Output must have an ID.");
 
 		List<VariableDefinition> newVds = new ArrayList<VariableDefinition>();
 		for (VariableDefinition vd : vds) {
@@ -298,7 +300,6 @@ public class DatasetOutput implements DatasetMeta {
 					newVd.name = String.format(VAR_NAME_FORMAT, name, i + 1);
 				newVd.dimensions = dimensions;
 				newVd.type = types[i].getStorageType().toString();
-				newVd.attributes = new ArrayList<AttributeDefinition>();
 				vbd.toRefs.add(String.format("#%s/%s", def.id, newVd.name));
 
 				// Process user-defined attributes.

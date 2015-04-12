@@ -1,5 +1,11 @@
 package org.vpac.ndg.query.stats;
 
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.vpac.ndg.query.QueryException;
+
 /**
  * Bases buckets on list of pre-defined values for bucket bounds
  *
@@ -17,22 +23,30 @@ package org.vpac.ndg.query.stats;
  * 0.0, 10.0, 20.0, 30.0, 40.0
  * </pre>
  *
- * @author lachlan
+ * @author lachlan, Alex Fraser
  */
-public class BucketingStrategyExplicit implements BucketingStrategy {
+public class BucketingStrategyExplicit implements BucketingStrategy, Serializable {
 
-    private double[] buckets;
+	private static final long serialVersionUID = 1L;
 
-    public void setBounds(String bucketString) {
+	private double[] buckets;
+
+    public void setBounds(String bucketString) throws QueryException {
         String[] bucketValuesAsStrings = bucketString.split(",");
-        double[] buckets = new double[bucketValuesAsStrings.length];
+        List<Double> buckets = new ArrayList<Double>(bucketValuesAsStrings.length);
 
-        for (int i = 0; i < bucketValuesAsStrings.length; i++) {
-            double bucketValue = Double.parseDouble(bucketValuesAsStrings[i].trim());
-            buckets[i] = bucketValue;
+        for (String bvs : bucketValuesAsStrings) {
+            bvs = bvs.trim();
+            if (bvs.length() == 0)
+                continue;
+            double bucketValue = Double.parseDouble(bvs);
+            buckets.add(bucketValue);
         }
 
-        this.buckets = buckets;
+        this.buckets = new double[buckets.size()];
+        for (int i = 0; i < buckets.size(); i++) {
+            this.buckets[i] = buckets.get(i);
+        }
     }
 
     public double[] getBounds() {
@@ -41,25 +55,23 @@ public class BucketingStrategyExplicit implements BucketingStrategy {
 
     @Override
     public double[] computeBucketBounds(double value) {
-
-        double lastBucketValue = Double.NaN;
+        double secondLastBucketValue = Double.NEGATIVE_INFINITY;
+        double lastBucketValue = Double.NEGATIVE_INFINITY;
         for (double bucketValue : this.buckets) {
-            if (lastBucketValue != Double.NaN && 
-                lastBucketValue <= value &&
+            if (lastBucketValue <= value &&
                 value < bucketValue) {
                 return new double[] {lastBucketValue, bucketValue};
             }
+            secondLastBucketValue = lastBucketValue;
             lastBucketValue = bucketValue;
         }
 
-        //special case whereby value is equal to the last buckets upper bound
-        int bucketlength = this.buckets.length;
-        if (value == this.buckets[bucketlength-1]) {
-            return new double[] {this.buckets[bucketlength-2], this.buckets[bucketlength-1]};
+        // Special case whereby value is equal to the last buckets upper bound
+        if (!Double.isInfinite(lastBucketValue) && value == lastBucketValue) {
+            return new double[] {secondLastBucketValue, lastBucketValue};
         }
 
-        // Or throw exception?
-        return null;
+        return new double[] {lastBucketValue, Double.POSITIVE_INFINITY};
     }
 
     @Override
@@ -67,4 +79,17 @@ public class BucketingStrategyExplicit implements BucketingStrategy {
         return false;
     }
 
+    @Override
+    public void checkConfiguration() throws QueryException {
+        if (buckets == null) {
+            throw new QueryException(
+                "Explicit bucketing strategy: No buckets specified.");
+        }
+        for (int i = 1; i < buckets.length; i++) {
+            if (buckets[i] <= buckets[i - 1]) {
+                throw new QueryException(
+                "Explicit bucketing strategy: Buckets must be stictly increase.");
+            }
+        }
+    }
 }
