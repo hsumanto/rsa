@@ -3,12 +3,6 @@
 	<classpathentry kind="src" path="src/main/java"/>
 	<classpathentry kind="src" path="resources"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/GDAL"/>
-	<classpathentry kind="lib" path="lib/akka-actor_2.10-2.3.1.jar"/>
-	<classpathentry kind="lib" path="lib/akka-cluster_2.10-2.3.1.jar"/>
-	<classpathentry kind="lib" path="lib/akka-contrib_2.10-2.3.1.jar"/>
-	<classpathentry kind="lib" path="lib/akka-remote_2.10-2.3.1.jar"/>
-	<classpathentry kind="lib" path="lib/akka-slf4j_2.10-2.3.1.jar"/>
-	<classpathentry kind="lib" path="lib/scala-library-2.10.3.jar"/>
 	<classpathentry kind="lib" path="lib/netcdf-4.3.16.jar"/>
 	<classpathentry kind="lib" path="lib/spring-beans-3.1.1.RELEASE.jar"/>
 	<classpathentry kind="lib" path="lib/spring-context-3.1.1.RELEASE.jar"/>
@@ -68,6 +62,12 @@
 	<classpathentry kind="lib" path="lib/reflections-0.9.9-RC1.jar"/>
 	<classpathentry kind="lib" path="lib/guava-17.0.jar"/>
 	<classpathentry kind="lib" path="lib/javassist.jar"/>
+	<classpathentry kind="lib" path="lib/akka-actor_2.10-2.3.14.jar"/>
+	<classpathentry kind="lib" path="lib/akka-contrib_2.10-2.3.14.jar"/>
+	<classpathentry kind="lib" path="lib/akka-remote_2.10-2.3.14.jar"/>
+	<classpathentry kind="lib" path="lib/akka-slf4j_2.10-2.3.14.jar"/>
+	<classpathentry kind="lib" path="lib/akka-cluster_2.10-2.3.14.jar"/>
+	<classpathentry kind="lib" path="lib/scala-library-2.10.4.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/rsaquery"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/StorageManager"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
