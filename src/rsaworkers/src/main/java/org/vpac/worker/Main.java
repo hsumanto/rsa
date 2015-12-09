@@ -56,35 +56,32 @@ public class Main {
 
 	public void startService() throws InterruptedException {
 		Address joinAddress = null;
-		Config c = ConfigFactory.load("master");
-
+		Config c = ConfigFactory.load();
+		
 		if (!isMaster()) {
-			String hostname = c.getString("master.hostname").toString();
+			String hostname = c.getString("akka.master.hostname").toString();
 			String hostip = null;
 			try {
 				hostip = InetAddress.getByName(hostname).getHostAddress();
 			} catch (UnknownHostException e) {
 				e.printStackTrace();
 			}
-			int port = Integer.parseInt(c.getString("master.port").toString());
+			int port = Integer.parseInt(c.getString("akka.master.port").toString());
 
 			System.out.println("Worker started.\n Connected on Master-" + hostip + ":" + port);
 			if (hostip != null)
 				joinAddress = new Address("akka.tcp", "Workers", hostip, port);
-
+			startWorker(joinAddress);
 		} else {
+			startBackend(joinAddress);
 			System.out.println("Master started");
 		}
-
-		joinAddress = startBackend(joinAddress);
-		Thread.sleep(5000);
-		startWorker(joinAddress);
 	}
 	
 	public static Boolean isMaster() {
 		Boolean isMaster;
 		if (System.getenv("RSA_IS_MASTER") == null)
-			isMaster = !ConfigFactory.load("master").hasPath("master.hostname");
+			isMaster = !ConfigFactory.load().hasPath("akka.master.hostname");
 		else
 			isMaster = Boolean.parseBoolean(System.getenv("RSA_IS_MASTER"));
 		return isMaster;
@@ -99,15 +96,10 @@ public class Main {
 	private static String systemName = "Workers";
 	private static FiniteDuration workTimeout = Duration.create(100, "minutes");
 
-	public static Address startBackend(Address joinAddress) {
-		Config conf = null;
-		if(isMaster()) {
-			conf = ConfigFactory.parseString("akka.cluster.roles=[backend]")
-					.withFallback(ConfigFactory.load("master"));
-		} else {
-			conf = ConfigFactory.parseString("akka.cluster.roles=[backend]")
-					.withFallback(ConfigFactory.load("worker"));
-		}
+	public static void startBackend(Address joinAddress) {
+		Config conf = ConfigFactory.parseString("akka.cluster.roles=[backend]")
+				.withFallback(ConfigFactory.load());
+
 		try {
 			conf.withFallback(ConfigFactory.parseString("akka.remote.netty.tcp.hostname = " + InetAddress.getLocalHost().getHostAddress()));
 		} catch (UnknownHostException e) {
@@ -117,9 +109,9 @@ public class Main {
 		ActorSystem system = ActorSystem.create(systemName, conf);
 		Address realJoinAddress = (joinAddress == null) ? Cluster.get(system)
 				.selfAddress() : joinAddress;
+		Cluster.get(system).join(realJoinAddress);
 		System.out.println("Address protocol:" + realJoinAddress.protocol());
 		System.out.println("Address:" + realJoinAddress.toString());
-		Cluster.get(system).join(realJoinAddress);
 		System.out.println("Address:" + realJoinAddress.toString());
 
 		system.actorOf(ClusterSingletonManager.defaultProps(
@@ -128,13 +120,17 @@ public class Main {
 		if(isMaster()) {
 			system.actorOf(Props.create(DatabaseActor.class), "database");
 		}
-		return realJoinAddress;
 	}
 
 	public static void startWorker(Address contactAddress) {
 		Config conf = ConfigFactory.parseString("akka.cluster.roles=[backend]")
-				.withFallback(ConfigFactory.load("worker"));
+				.withFallback(ConfigFactory.load());
+		conf.withFallback(ConfigFactory.parseString("akka.remote.netty.tcp.port = 0"));
+		
+		System.out.println("config2:" + conf.toString());
 		ActorSystem system = ActorSystem.create(systemName, conf);
+		Cluster.get(system).join(contactAddress);
+
 		Set<ActorSelection> initialContacts = new HashSet<ActorSelection>();
 		initialContacts.add(system.actorSelection(contactAddress
 				+ "/user/receptionist"));
