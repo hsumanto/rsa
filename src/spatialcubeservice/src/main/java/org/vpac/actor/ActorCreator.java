@@ -18,23 +18,28 @@ public class ActorCreator {
 	private static ActorRef frontend = null;
 	
 	private ActorCreator() {
-		Config config = ConfigFactory.parseString("akka.actor.provider = akka.cluster.ClusterActorRefProvider").
-				withFallback(ConfigFactory.parseString("akka.remote.netty.tcp.port = 0")).
-				withFallback(ConfigFactory.parseString("akka.extensions = [akka.contrib.pattern.ClusterReceptionistExtension]"));
-		ActorCreator.system = ActorSystem.create("Workers", config);
-		Config c = ConfigFactory.load("master");
-		String hostname = c.getString("master.hostname").toString();
+		Config conf = ConfigFactory.parseString("akka.cluster.roles=[backend]")
+				.withFallback(ConfigFactory.load());
+		conf.withFallback(ConfigFactory.parseString("akka.remote.netty.tcp.port = 0"));
+		
+		Address joinAddress = null;
+		String hostname = conf.getString("akka.master.hostname").toString();
 		String hostip = null;
 		try {
 			hostip = InetAddress.getByName(hostname).getHostAddress();
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		}
-		int port = Integer.parseInt(c.getString("master.port").toString());
+		int port = Integer.parseInt(conf.getString("akka.master.port").toString());
 
-		Address address = new Address("akka.tcp", "Workers", hostip, port);
-		Cluster.get(system).join(address);
+		System.out.println("Web started.\n Connected on Master-" + hostip + ":" + port);
+		if (hostip != null)
+			joinAddress = new Address("akka.tcp", "Workers", hostip, port);
+
+		ActorCreator.system = ActorSystem.create("Workers", conf);
+		Cluster.get(system).join(joinAddress);
 		ActorCreator.frontend = system.actorOf(Props.create(Frontend.class), "frontend");
+		System.out.println("frontend: " + ActorCreator.frontend.toString());		
 	}
 	
 	public static ActorCreator createActorCreator() {

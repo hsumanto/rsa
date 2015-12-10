@@ -70,13 +70,9 @@ RUN mkdir -p /var/lib/tomcat6/webapps/spatialcubeservice && \
 # Use separate database config for the web services and workers.
 COPY rsaworkers/resources/spring/database/datasource.xml.docker.SAMPLE \
     /var/src/rsaworkers/dist/rsaworkers/resources/spring/database/datasource.xml
-COPY rsaworkers/resources/master.conf.docker.SAMPLE \
-    /var/src/rsaworkers/dist/rsaworkers/resources/master.conf
 
 COPY spatialcubeservice/config/datasource.xml.docker.SAMPLE \
     /var/lib/tomcat6/webapps/spatialcubeservice/WEB-INF/classes/datasource.xml
-COPY spatialcubeservice/config/master.conf.docker.SAMPLE \
-    /var/lib/tomcat6/webapps/spatialcubeservice/WEB-INF/classes/master.conf
 COPY storagemanager/config/logback.xml.docker.SAMPLE \
     /var/lib/tomcat6/webapps/spatialcubeservice/WEB-INF/classes/logback.xml
 

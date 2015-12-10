@@ -1,6 +1,0 @@
-include "application"
-
-// Host and port of master. If not specified, localhost will be used.
-// usually master's port = 2552 (default if not specified).
-//master.hostname = "127.0.0.1"
-//master.port = "2552"

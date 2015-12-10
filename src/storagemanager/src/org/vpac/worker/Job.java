@@ -30,7 +30,7 @@ public class Job {
 			this.outputResolution = outputResolution;
 			// this.job = job;
 		}
-
+		
 		@Override
 		public String toString() {
 			return "Work{" + "workId='" + workId + '\'' + ", qd="

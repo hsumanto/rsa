@@ -24,6 +24,7 @@ public class Frontend extends UntypedActor {
   final ActorRef mediator = DistributedPubSubExtension.get(getContext().system()).mediator();
 
   public void onReceive(Object message) {
+	System.out.println("message1:" + message.toString());
     Future<Object> f =
       ask(mediator, new Send("/user/master/active", message, false), new Timeout(Duration.create(5, "seconds")));
 
@@ -32,6 +33,7 @@ public class Frontend extends UntypedActor {
     Future<Object> res = f.map(new Mapper<Object, Object>() {
       @Override
       public Object apply(Object msg) {
+    	  System.out.println("message2:" + msg.toString());
         if (msg instanceof Ack)
           return Ok.getInstance();
         else

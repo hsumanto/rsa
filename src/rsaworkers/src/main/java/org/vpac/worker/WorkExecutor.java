@@ -72,6 +72,7 @@ public class WorkExecutor extends UntypedActor {
 
 	@Override
 	public void onReceive(Object message) {
+		log.info("message:" + message.toString());
 		if (message instanceof Work) {
 			Work work = (Work) message;
 			WorkProgress wp = new WorkProgress(work.workId);

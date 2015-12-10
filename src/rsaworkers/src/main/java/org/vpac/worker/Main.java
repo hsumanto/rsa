@@ -55,10 +55,15 @@ public class Main {
 	}
 
 	public void startService() throws InterruptedException {
-		Address joinAddress = null;
 		Config c = ConfigFactory.load();
 		
-		if (!isMaster()) {
+		if (isMaster()) {
+			startMaster();
+			System.out.println("Master started");
+		} else {
+			Address joinAddress = null;
+			System.out.println("Worker started");
+			
 			String hostname = c.getString("akka.master.hostname").toString();
 			String hostip = null;
 			try {
@@ -72,9 +77,6 @@ public class Main {
 			if (hostip != null)
 				joinAddress = new Address("akka.tcp", "Workers", hostip, port);
 			startWorker(joinAddress);
-		} else {
-			startBackend(joinAddress);
-			System.out.println("Master started");
 		}
 	}
 	
@@ -96,7 +98,7 @@ public class Main {
 	private static String systemName = "Workers";
 	private static FiniteDuration workTimeout = Duration.create(100, "minutes");
 
-	public static void startBackend(Address joinAddress) {
+	public static void startMaster() {
 		Config conf = ConfigFactory.parseString("akka.cluster.roles=[backend]")
 				.withFallback(ConfigFactory.load());
 
@@ -107,18 +109,16 @@ public class Main {
 		}
 		
 		ActorSystem system = ActorSystem.create(systemName, conf);
-		Address realJoinAddress = (joinAddress == null) ? Cluster.get(system)
-				.selfAddress() : joinAddress;
+		Address realJoinAddress = Cluster.get(system).selfAddress();
 		Cluster.get(system).join(realJoinAddress);
-		System.out.println("Address protocol:" + realJoinAddress.protocol());
-		System.out.println("Address:" + realJoinAddress.toString());
-		System.out.println("Address:" + realJoinAddress.toString());
 
-		system.actorOf(ClusterSingletonManager.defaultProps(
+		ActorRef master = system.actorOf(ClusterSingletonManager.defaultProps(
 				Master.props(workTimeout), "active", PoisonPill.getInstance(),
 				"backend"), "master");
+		System.out.println("master Path:" + master.toString());
 		if(isMaster()) {
-			system.actorOf(Props.create(DatabaseActor.class), "database");
+			ActorRef database = system.actorOf(Props.create(DatabaseActor.class), "database");
+			System.out.println("database Path:" + database.toString());
 		}
 	}
 
@@ -127,17 +127,19 @@ public class Main {
 				.withFallback(ConfigFactory.load());
 		conf.withFallback(ConfigFactory.parseString("akka.remote.netty.tcp.port = 0"));
 		
-		System.out.println("config2:" + conf.toString());
 		ActorSystem system = ActorSystem.create(systemName, conf);
 		Cluster.get(system).join(contactAddress);
 
 		Set<ActorSelection> initialContacts = new HashSet<ActorSelection>();
 		initialContacts.add(system.actorSelection(contactAddress
 				+ "/user/receptionist"));
+		System.out.println("initialContacts : " + initialContacts.toString());
 		ActorRef clusterClient = system.actorOf(
 				ClusterClient.defaultProps(initialContacts), "clusterClient");
-		system.actorOf(
+		System.out.println("clusterClient path: " + clusterClient.toString());
+		ActorRef worker = system.actorOf(
 				Worker.props(clusterClient, Props.create(WorkExecutor.class)),
 				"worker");
+		System.out.println("worker path: " + worker.toString());
 	}
 }

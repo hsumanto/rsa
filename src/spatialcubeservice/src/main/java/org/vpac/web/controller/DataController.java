@@ -123,6 +123,10 @@ import ucar.nc2.NetcdfFileWriter.Version;
 import ucar.nc2.Variable;
 import ucar.nc2.dataset.NetcdfDataset;
 import akka.actor.ActorRef;
+import akka.cluster.Member;
+import akka.cluster.Cluster;
+import scala.collection.Iterator;
+import scala.collection.immutable.SortedSet;
 
 @Controller
 @RequestMapping("/Data")
@@ -569,6 +573,17 @@ public class DataController {
 				netcdfVersion, buckets, groupBy, model);
 	}
 
+	@RequestMapping(value = "/Akka-test", method = RequestMethod.GET)
+	public String akkaTest() throws IllegalAccessException, IOException, QueryException {
+		ActorRef frontend = ActorCreator.getFrontend();
+	    log.info("path: " + frontend.toString());
+
+	    frontend.tell(new org.vpac.worker.Job.Work(
+				UUID.randomUUID().toString(), "", Version.netcdf4_classic, null,
+				"", null), ActorRef.noSender());
+		return "Success";
+	}
+	
 	@RequestMapping(value = "/WmtsDatasetGenerate", method = RequestMethod.POST)
 	public String wmtsDatasetGenerate(@RequestParam(required = false) String datasetId, 
 	                                  @RequestParam(required = false) String timesliceId,
