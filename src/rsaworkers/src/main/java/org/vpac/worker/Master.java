@@ -76,11 +76,9 @@ public class Master extends UntypedActor {
 
 	@Override
 	public void onReceive(Object message) throws Exception {
-		log.info("message:" + message.toString());
 		if (message instanceof RegisterWorker) {
 			RegisterWorker msg = (RegisterWorker) message;
 			String workerId = msg.workerId;
-			log.info("workers:" + workers.toString());
 			if (workers.containsKey(workerId)) {
 				workers.put(workerId,
 						workers.get(workerId).copyWithRef(getSender()));
@@ -177,7 +175,6 @@ public class Master extends UntypedActor {
 			updateTaskProgress(taskId, completedArea, totalArea,
 					TaskState.RUNNING, null);
 		} else if (message instanceof Work) {
-			log.info("work message: {}", message);
 			Work work = (Work) message;
 			// idempotent
 			if (workIds.contains(work.workId)) {
