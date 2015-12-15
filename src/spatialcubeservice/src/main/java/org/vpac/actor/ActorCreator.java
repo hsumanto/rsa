@@ -8,6 +8,11 @@ import akka.actor.ActorSystem;
 import akka.actor.Address;
 import akka.actor.Props;
 import akka.cluster.Cluster;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.Socket;
+import java.net.UnknownHostException;
+import java.io.IOException;
 
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
@@ -19,25 +24,18 @@ public class ActorCreator {
 	
 	private ActorCreator() {
 		Config conf = ConfigFactory.parseString("akka.cluster.roles=[backend]")
-				.withFallback(ConfigFactory.load());
-		conf.withFallback(ConfigFactory.parseString("akka.remote.netty.tcp.port = 0"));
-		
-		Address joinAddress = null;
-		String hostname = conf.getString("akka.master.hostname").toString();
-		String hostip = null;
-		try {
-			hostip = InetAddress.getByName(hostname).getHostAddress();
-		} catch (UnknownHostException e) {
-			e.printStackTrace();
-		}
-		int port = Integer.parseInt(conf.getString("akka.master.port").toString());
-
-		System.out.println("Web started.\n Connected on Master-" + hostip + ":" + port);
-		if (hostip != null)
-			joinAddress = new Address("akka.tcp", "Workers", hostip, port);
-
+				.withFallback(ConfigFactory.load());		
 		ActorCreator.system = ActorSystem.create("Workers", conf);
+
+		Address joinAddress = null;
+		try {
+			joinAddress = getAddress(system);
+		} catch (IOException ioe) {
+			System.out.println("Cannot find join address. Please contact system administator.");
+			return;
+		}
 		Cluster.get(system).join(joinAddress);
+		System.out.println("Web started.\n Connected on Master-" + joinAddress);
 		ActorCreator.frontend = system.actorOf(Props.create(Frontend.class), "frontend");
 		System.out.println("frontend: " + ActorCreator.frontend.toString());		
 	}
@@ -59,4 +57,50 @@ public class ActorCreator {
 			createActorCreator();
 		return ActorCreator.frontend;
 	}
+
+	public static String searchCluster() throws IOException{
+	   int timeout=1000;
+	   InetAddress localhost = InetAddress.getLocalHost();
+	   String returnAddress = null;
+	   byte[] ip = localhost.getAddress();
+	   for (int i = 1; i <= 254; i++) {
+			ip[3] = (byte)i;
+			InetAddress address = InetAddress.getByAddress(ip);
+			if (address.isReachable(timeout)) {
+				Socket socket = new Socket();
+				System.out.println("localhost:" + localhost.getHostAddress());
+				System.out.println("address:" + address.getHostAddress());
+				if (localhost.getHostAddress().equals(address.getHostAddress())) {
+					break;
+				} else {
+					try {
+				        socket.connect(new InetSocketAddress(address, 2552), timeout);
+				        System.out.println("Success for connection");
+				        returnAddress = address.getHostAddress();
+				        break;
+					} catch (Exception e) {
+						System.out.println("Connection fail for " + address.getHostAddress());
+					} finally {
+				        socket.close();					
+					}				
+				}
+			}
+			System.out.println("i:" + i);
+	   }
+	   return returnAddress;
+	}
+
+	public static Address getAddress(ActorSystem system) throws IOException {
+		
+		Address joinAddress = null;
+
+		String existingCluster = searchCluster();
+		if (existingCluster == null) {
+			joinAddress = Cluster.get(system).selfAddress();
+		} else {
+			joinAddress = new Address("akka.tcp", "Workers", existingCluster, 2552);
+		}
+		return joinAddress;
+	}
+
 }

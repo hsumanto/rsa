@@ -119,25 +119,9 @@ public class Main {
 	private static FiniteDuration workTimeout = Duration.create(100, "minutes");
 
 	public static void startMaster() throws IOException {
-		Config conf = ConfigFactory.parseString("akka.cluster.roles=[backend]")
-				.withFallback(ConfigFactory.load());
-
-		try {
-			conf.withFallback(ConfigFactory.parseString("akka.remote.netty.tcp.hostname = " + InetAddress.getLocalHost().getHostAddress()));
-		} catch (UnknownHostException e) {
-			e.printStackTrace();
-		}
+		ActorSystem system = createSystem();
+		Address joinAddress = getAddress(system);
 		
-		ActorSystem system = ActorSystem.create(systemName, conf);
-		Address joinAddress = null;
-
-		String existingCluster = searchCluster();
-		if (existingCluster == null) {
-			joinAddress = Cluster.get(system).selfAddress();
-		} else {
-			joinAddress = new Address("akka.tcp", "Workers", existingCluster, 2552);
-		}
-		System.out.println("joinAddress:" + joinAddress.toString());
 		Cluster.get(system).join(joinAddress);
 
 		ActorRef master = system.actorOf(ClusterSingletonManager.defaultProps(
@@ -151,6 +135,22 @@ public class Main {
 	}
 
 	public static void startWorker() throws IOException {
+		ActorSystem system = createSystem();
+		Address joinAddress = getAddress(system);
+		
+		Cluster.get(system).join(joinAddress);
+
+		Set<ActorSelection> initialContacts = new HashSet<ActorSelection>();
+		initialContacts.add(system.actorSelection(joinAddress
+				+ "/user/receptionist"));
+		ActorRef clusterClient = system.actorOf(
+				ClusterClient.defaultProps(initialContacts), "clusterClient");
+		system.actorOf(
+				Worker.props(clusterClient, Props.create(WorkExecutor.class)),
+				"worker");
+	}
+	
+	public static ActorSystem createSystem() {
 		Config conf = ConfigFactory.parseString("akka.cluster.roles=[backend]")
 				.withFallback(ConfigFactory.load());
 		conf.withFallback(ConfigFactory.parseString("akka.remote.netty.tcp.port = 0"));
@@ -162,6 +162,11 @@ public class Main {
 		}		
 		
 		ActorSystem system = ActorSystem.create(systemName, conf);
+		return system;
+	}
+	
+	public static Address getAddress(ActorSystem system) throws IOException {
+		
 		Address joinAddress = null;
 
 		String existingCluster = searchCluster();
@@ -170,15 +175,6 @@ public class Main {
 		} else {
 			joinAddress = new Address("akka.tcp", "Workers", existingCluster, 2552);
 		}
-		Cluster.get(system).join(joinAddress);
-
-		Set<ActorSelection> initialContacts = new HashSet<ActorSelection>();
-		initialContacts.add(system.actorSelection(joinAddress
-				+ "/user/receptionist"));
-		ActorRef clusterClient = system.actorOf(
-				ClusterClient.defaultProps(initialContacts), "clusterClient");
-		ActorRef worker = system.actorOf(
-				Worker.props(clusterClient, Props.create(WorkExecutor.class)),
-				"worker");
+		return joinAddress;
 	}
 }

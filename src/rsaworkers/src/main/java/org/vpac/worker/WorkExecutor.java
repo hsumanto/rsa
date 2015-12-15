@@ -73,55 +73,61 @@ public class WorkExecutor extends UntypedActor {
 	@Override
 	public void onReceive(Object message) {
 		if (message instanceof Work) {
-			Work work = (Work) message;
-			WorkProgress wp = new WorkProgress(work.workId);
-			Collection<Path> tempFiles = new ArrayList<>();
-			// heart beat to master to check progress.
-			Cancellable cancel = getContext()
-					.system()
-					.scheduler()
-					.schedule(
-							Duration.create(1, "seconds"),
-							Duration.create(1, "seconds"),
-							getSender(),
-							new MasterWorkerProtocol.ProgressCheckPoint(
-									work.workId, wp),
-							getContext().system().dispatcher(), null);
-
-			Map<String, Foldable<?>> output = null;
+//			Work work = (Work) message;
+//			WorkProgress wp = new WorkProgress(work.workId);
+//			Collection<Path> tempFiles = new ArrayList<>();
+//			// heart beat to master to check progress.
+//			Cancellable cancel = getContext()
+//					.system()
+//					.scheduler()
+//					.schedule(
+//							Duration.create(1, "seconds"),
+//							Duration.create(1, "seconds"),
+//							getSender(),
+//							new MasterWorkerProtocol.ProgressCheckPoint(
+//									work.workId, wp),
+//							getContext().system().dispatcher(), null);
+//
+//			Map<String, Foldable<?>> output = null;
+//			try {
+//				QueryDefinition qd = preprocessQueryDef(work, tempFiles);
+//				Path queryPath = getOutputPath(work);
+//				output = executeQuery(qd, wp, queryPath, work.netcdfVersion);
+//			} catch (Exception e) {
+//				wp.setErrorMessage(e.getMessage());
+//				log.error(e, "Task {} exited abnormally", work.workId);
+//				getSender().tell(new Job.Error(work, e), getSelf());
+//				// Error handling has been delegated to `sender`, so just
+//				// return.
+//				return;
+//			} finally {
+//				// Query is no longer running, so no more progress updates are
+//				// required.
+//				cancel.cancel();
+//
+//				for (Path path : tempFiles) {
+//					try {
+//						Files.delete(path);
+//					} catch (IOException e) {
+//						log.error(e, "Failed to delete temp file {}", path);
+//					}
+//				}
+//			}
+//
+//			HashMap<String, Foldable<?>> result = new java.util.HashMap<>();
+//			for (Entry<String, Foldable<?>> v : output.entrySet()) {
+//				if (!Serializable.class.isAssignableFrom(v.getValue()
+//						.getClass()))
+//					continue;
+//				result.put(v.getKey(), v.getValue());
+//			}
 			try {
-				QueryDefinition qd = preprocessQueryDef(work, tempFiles);
-				Path queryPath = getOutputPath(work);
-				output = executeQuery(qd, wp, queryPath, work.netcdfVersion);
-			} catch (Exception e) {
-				wp.setErrorMessage(e.getMessage());
-				log.error(e, "Task {} exited abnormally", work.workId);
-				getSender().tell(new Job.Error(work, e), getSelf());
-				// Error handling has been delegated to `sender`, so just
-				// return.
-				return;
-			} finally {
-				// Query is no longer running, so no more progress updates are
-				// required.
-				cancel.cancel();
-
-				for (Path path : tempFiles) {
-					try {
-						Files.delete(path);
-					} catch (IOException e) {
-						log.error(e, "Failed to delete temp file {}", path);
-					}
-				}
+				Thread.sleep(10000);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
-
 			HashMap<String, Foldable<?>> result = new java.util.HashMap<>();
-			for (Entry<String, Foldable<?>> v : output.entrySet()) {
-				if (!Serializable.class.isAssignableFrom(v.getValue()
-						.getClass()))
-					continue;
-				result.put(v.getKey(), v.getValue());
-			}
-
 			getSender().tell(new Job.WorkComplete(result), getSelf());
 		}
 	}
