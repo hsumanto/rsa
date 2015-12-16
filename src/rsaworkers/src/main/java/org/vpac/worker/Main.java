@@ -44,7 +44,6 @@ public class Main {
 		public ApplicationContext appContext;
 
 		private AppContextSingleton() {
-			System.out.println("Path");
 			appContext = new ClassPathXmlApplicationContext(
 					new String[] { "spring/config/BeanLocations.xml" });
 
