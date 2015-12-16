@@ -35,6 +35,7 @@ RUN apt-get install -y \
         zlibc \
         zlib1g \
         zlib1g-dev \
+        nmap \
         --no-install-recommends && \
     rm -rf /var/lib/apt/lists/*
 

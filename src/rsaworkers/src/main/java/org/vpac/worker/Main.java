@@ -24,6 +24,12 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.vpac.ndg.query.io.DatasetProvider;
 import org.vpac.ndg.query.io.ProviderRegistry;
 
+import org.nmap4j.*;
+import org.nmap4j.data.*;
+import org.nmap4j.core.nmap.*;
+import org.nmap4j.data.nmaprun.Host;
+import org.nmap4j.data.host.ports.Port;
+
 public class Main {
 	/**
 	 * The application context should only be initialised once EVER - otherwise
@@ -77,36 +83,38 @@ public class Main {
 		return isMaster;
 	}
 	
-	public static String searchCluster() throws IOException{
-	   int timeout=1000;
-	   InetAddress localhost = InetAddress.getLocalHost();
-	   String returnAddress = null;
-	   byte[] ip = localhost.getAddress();
-	   for (int i = 1; i <= 254; i++) {
-			ip[3] = (byte)i;
-			InetAddress address = InetAddress.getByAddress(ip);
-			if (address.isReachable(timeout)) {
-				Socket socket = new Socket();
-				System.out.println("localhost:" + localhost.getHostAddress());
-				System.out.println("address:" + address.getHostAddress());
-				if (localhost.getHostAddress().equals(address.getHostAddress())) {
-					break;
-				} else {
-					try {
-				        socket.connect(new InetSocketAddress(address, 2552), timeout);
-				        System.out.println("Success for connection");
-				        returnAddress = address.getHostAddress();
-				        break;
-					} catch (Exception e) {
-						System.out.println("Connection fail for " + address.getHostAddress());
-					} finally {
-				        socket.close();					
-					}				
+	public static String searchCluster() throws IOException {
+		InetAddress localhost = InetAddress.getLocalHost();
+		String returnAddress = null;
+		Nmap4j nmap = new Nmap4j("/usr");
+		nmap.includeHosts("172.19.0.0/24");
+		nmap.excludeHosts(localhost.getHostAddress());
+		nmap.addFlags("-p 2552");
+		try {
+			nmap.execute();
+		} catch (NMapInitializationException e) {
+			System.out.println("Nmap error:" + e);
+		} catch (NMapExecutionException ne) {
+			System.out.println("Nmap error:" + ne);			
+		}
+ 		if(!nmap.hasError()) { 
+			NMapRun nmapRun = nmap.getResult() ; 
+			for (Host host: nmapRun.getHosts()) {
+				for (Port port: host.getPorts().getPorts()) {
+					if(port.getPortId() == 2552 && port.getState().getState().equals("open")) {
+						System.out.println("Found cluster-" + host.getAddresses().get(0) + ":" + port.toString() +" - " + port.getState());
+						returnAddress = host.getAddresses().get(0).getAddr();
+						break;
+					}
 				}
+				// if (returnAddress != null)
+				// 	break;
 			}
-			System.out.println("i:" + i);
-	   }
-	   return returnAddress;
+		} else { 
+			System.out.println(nmap.getExecutionResults().getErrors()); 
+		}
+		System.out.println("returnAddress:" + returnAddress);
+	    return returnAddress;
 	}	
 
 	public static void main(String[] args) throws InterruptedException, IOException {

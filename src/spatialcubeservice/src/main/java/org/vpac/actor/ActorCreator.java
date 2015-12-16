@@ -3,16 +3,21 @@ package org.vpac.actor;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
+import akka.actor.*;
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.actor.Address;
 import akka.actor.Props;
 import akka.cluster.Cluster;
+import akka.contrib.pattern.ClusterClient;
+
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
 
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
@@ -34,8 +39,15 @@ public class ActorCreator {
 			System.out.println("Cannot find join address. Please contact system administator.");
 			return;
 		}
+
 		Cluster.get(system).join(joinAddress);
 		System.out.println("Web started.\n Connected on Master-" + joinAddress);
+		Set<ActorSelection> initialContacts = new HashSet<ActorSelection>();
+		initialContacts.add(system.actorSelection(joinAddress
+				+ "/user/receptionist"));
+		ActorRef clusterClient = system.actorOf(
+				ClusterClient.defaultProps(initialContacts), "clusterClient");
+
 		ActorCreator.frontend = system.actorOf(Props.create(Frontend.class), "frontend");
 		System.out.println("frontend: " + ActorCreator.frontend.toString());		
 	}

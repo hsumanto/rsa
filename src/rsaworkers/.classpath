@@ -68,6 +68,7 @@
 	<classpathentry kind="lib" path="lib/akka-slf4j_2.10-2.3.14.jar"/>
 	<classpathentry kind="lib" path="lib/akka-cluster_2.10-2.3.14.jar"/>
 	<classpathentry kind="lib" path="lib/scala-library-2.10.4.jar"/>
+	<classpathentry kind="lib" path="lib/org.nmap4j-1.1.0.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/rsaquery"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/StorageManager"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
