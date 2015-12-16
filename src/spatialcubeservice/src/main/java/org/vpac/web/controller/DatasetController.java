@@ -249,25 +249,45 @@ public class DatasetController {
 			Files.createDirectories(outputDir);
 		Path outputPath = outputDir.resolve(taskId + "_out.nc");
 
+		log.info("Step0-0");
 		NetcdfFileWriter outputDataset = NetcdfFileWriter.createNew(
 				ver, outputPath.toString());
 
 		Map<String, Foldable<?>> output = null;
 		try {
+			log.info("Step0-1");
 			Query q = new Query(outputDataset);
+			log.info("Step0-2");
 			q.setNumThreads(1);
+			log.info("Step0-3");
+			String p = new File(".").getAbsolutePath();
+			log.info("p:" + p);
 			q.setMemento(qd, new File(".").getAbsolutePath());
+			log.info("Step0-4");
 			try {
+				log.info("Step1");
 				q.setProgress(qp);
+				log.info("Step2");
 				q.run();
+				log.info("Step3");
 				output = q.getAccumulatedOutput();
+				log.info("Step4");
 				save(datasetId, timeSliceId, bandId, output);
+				log.info("Step5");
+			} catch(Exception e) {
+				e.printStackTrace();
+				throw e;
 			} finally {
 				q.close();
 			}
+		} catch (Throwable t) {
+			log.error(t.getMessage());
+			t.getStackTrace();
 		} finally {
 			try {
+				log.info("Test1");
 				outputDataset.close();
+				log.info("Test2");
 			} catch (Exception e) {
 				log.error("Failed to close output file", e);
 			}
