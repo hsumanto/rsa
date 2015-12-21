@@ -13,9 +13,12 @@ import scala.concurrent.duration.FiniteDuration;
 
 import java.io.IOException;
 import java.net.InetAddress;
+import java.net.Inet4Address;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.net.NetworkInterface;
+import java.net.InterfaceAddress;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -83,10 +86,12 @@ public class Main {
 	}
 	
 	public static String searchCluster() throws IOException {
-		InetAddress localhost = InetAddress.getLocalHost();
+		InetAddress localhost = Inet4Address.getLocalHost();
 		String returnAddress = null;
 		Nmap4j nmap = new Nmap4j("/usr");
-		nmap.includeHosts("172.19.0.0/24");
+		NetworkInterface networkInterface = NetworkInterface.getByInetAddress(localhost);
+		InterfaceAddress address = networkInterface.getInterfaceAddresses().get(1);
+		nmap.includeHosts(address.getAddress().toString().replace("/", "") + "/24");
 		nmap.excludeHosts(localhost.getHostAddress());
 		nmap.addFlags("-p 2552");
 		try {
@@ -106,8 +111,8 @@ public class Main {
 						break;
 					}
 				}
-				// if (returnAddress != null)
-				// 	break;
+				if (returnAddress != null)
+					break;
 			}
 		} else { 
 			System.out.println(nmap.getExecutionResults().getErrors()); 
@@ -135,21 +140,19 @@ public class Main {
 				Master.props(workTimeout), "active", PoisonPill.getInstance(),
 				"backend"), "master");
 		System.out.println("master Path:" + master.toString());
-		if(isMaster()) {
-			ActorRef database = system.actorOf(Props.create(DatabaseActor.class), "database");
-			System.out.println("database Path:" + database.toString());
-		}
+		ActorRef database = system.actorOf(Props.create(DatabaseActor.class), "database");
+		System.out.println("database Path:" + database.toString());
 	}
 
 	public static void startWorker() throws IOException {
 		ActorSystem system = createSystem();
 		Address joinAddress = getAddress(system);
-		
 		Cluster.get(system).join(joinAddress);
 
 		Set<ActorSelection> initialContacts = new HashSet<ActorSelection>();
 		initialContacts.add(system.actorSelection(joinAddress
 				+ "/user/receptionist"));
+
 		ActorRef clusterClient = system.actorOf(
 				ClusterClient.defaultProps(initialContacts), "clusterClient");
 		system.actorOf(

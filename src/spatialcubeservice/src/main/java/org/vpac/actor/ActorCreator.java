@@ -42,14 +42,7 @@ public class ActorCreator {
 
 		Cluster.get(system).join(joinAddress);
 		System.out.println("Web started.\n Connected on Master-" + joinAddress);
-		Set<ActorSelection> initialContacts = new HashSet<ActorSelection>();
-		initialContacts.add(system.actorSelection(joinAddress
-				+ "/user/receptionist"));
-		ActorRef clusterClient = system.actorOf(
-				ClusterClient.defaultProps(initialContacts), "clusterClient");
-
 		ActorCreator.frontend = system.actorOf(Props.create(Frontend.class), "frontend");
-		System.out.println("frontend: " + ActorCreator.frontend.toString());		
 	}
 	
 	public static ActorCreator createActorCreator() {

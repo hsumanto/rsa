@@ -579,7 +579,7 @@ public class DataController {
 	    log.info("path: " + frontend.toString());
 
 	    frontend.tell(new org.vpac.worker.Job.Work(
-				UUID.randomUUID().toString(), "", Version.netcdf4_classic, null,
+				UUID.randomUUID().toString(), "", Version.netcdf4_classic, new BoxReal("0 0 0 0"),
 				"", null), ActorRef.noSender());
 		return "Success";
 	}
