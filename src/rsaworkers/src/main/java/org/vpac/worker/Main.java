@@ -21,6 +21,8 @@ import java.net.NetworkInterface;
 import java.net.InterfaceAddress;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.List;
+import java.util.ArrayList;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -136,12 +138,10 @@ public class Main {
 		
 		Cluster.get(system).join(joinAddress);
 
-		ActorRef master = system.actorOf(ClusterSingletonManager.defaultProps(
+		system.actorOf(ClusterSingletonManager.defaultProps(
 				Master.props(workTimeout), "active", PoisonPill.getInstance(),
 				"backend"), "master");
-		System.out.println("master Path:" + master.toString());
-		ActorRef database = system.actorOf(Props.create(DatabaseActor.class), "database");
-		System.out.println("database Path:" + database.toString());
+		system.actorOf(Props.create(DatabaseActor.class), "database");
 	}
 
 	public static void startWorker() throws IOException {
@@ -149,13 +149,17 @@ public class Main {
 		Address joinAddress = getAddress(system);
 		Cluster.get(system).join(joinAddress);
 
+		List<Address> masterAddresses = getMasterAddresses(system);
 		Set<ActorSelection> initialContacts = new HashSet<ActorSelection>();
-		initialContacts.add(system.actorSelection(joinAddress
-				+ "/user/receptionist"));
+		for(Address address : masterAddresses) {
+			initialContacts.add(system.actorSelection(address
+					+ "/user/receptionist"));
+		}
 
 		ActorRef clusterClient = system.actorOf(
 				ClusterClient.defaultProps(initialContacts), "clusterClient");
-		system.actorOf(
+
+		ActorRef worker = system.actorOf(
 				Worker.props(clusterClient, Props.create(WorkExecutor.class)),
 				"worker");
 	}
@@ -186,5 +190,13 @@ public class Main {
 			joinAddress = new Address("akka.tcp", "Workers", existingCluster, 2552);
 		}
 		return joinAddress;
+	}
+
+	public static List<Address> getMasterAddresses(ActorSystem system) throws IOException {
+		
+		List<Address> addresses = new ArrayList<Address>();
+
+		addresses.add(new Address("akka.tcp", "Workers", "172.19.0.3", 2552));
+		return addresses;
 	}
 }
