@@ -135,7 +135,6 @@ public class Main {
 	public static void startMaster() throws IOException {
 		ActorSystem system = createSystem();
 		Address joinAddress = getAddress(system);
-		
 		Cluster.get(system).join(joinAddress);
 
 		system.actorOf(ClusterSingletonManager.defaultProps(
@@ -146,28 +145,42 @@ public class Main {
 
 	public static void startWorker() throws IOException {
 		ActorSystem system = createSystem();
-		Address joinAddress = getAddress(system);
-		Cluster.get(system).join(joinAddress);
+		while (true) {
+			String existingCluster = searchCluster();
+			if (existingCluster != null) {
+				Address joinAddress = getAddress(system);
+				Cluster.get(system).join(joinAddress);
+				Set<ActorSelection> initialContacts = new HashSet<ActorSelection>();
+				initialContacts.add(system.actorSelection(joinAddress
+						+ "/user/receptionist"));
 
-		List<Address> masterAddresses = getMasterAddresses(system);
-		Set<ActorSelection> initialContacts = new HashSet<ActorSelection>();
-		for(Address address : masterAddresses) {
-			initialContacts.add(system.actorSelection(address
-					+ "/user/receptionist"));
+				ActorRef clusterClient = system.actorOf(
+						ClusterClient.defaultProps(initialContacts), "clusterClient");
+				ActorRef worker = system.actorOf(
+						Worker.props(clusterClient, Props.create(WorkExecutor.class)),
+						"worker");
+				break;
+			}
+
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				System.out.println("Interrupted while waiting for next progress update.");
+			}
 		}
-
-		ActorRef clusterClient = system.actorOf(
-				ClusterClient.defaultProps(initialContacts), "clusterClient");
-
-		ActorRef worker = system.actorOf(
-				Worker.props(clusterClient, Props.create(WorkExecutor.class)),
-				"worker");
 	}
 	
 	public static ActorSystem createSystem() {
-		Config conf = ConfigFactory.parseString("akka.cluster.roles=[backend]")
+		Config conf = null;
+		if (isMaster()) {
+			conf = ConfigFactory.parseString("akka.cluster.roles=[backend]")
+				.withFallback(ConfigFactory.parseString("akka.remote.netty.tcp.port=2552"))
 				.withFallback(ConfigFactory.load());
-		conf.withFallback(ConfigFactory.parseString("akka.remote.netty.tcp.port = 0"));
+		} else {
+			conf = ConfigFactory.parseString("akka.cluster.roles=[backend]")
+				.withFallback(ConfigFactory.parseString("akka.remote.netty.tcp.port=2553"))
+				.withFallback(ConfigFactory.load());
+		}
 
 		try {
 			conf.withFallback(ConfigFactory.parseString("akka.remote.netty.tcp.hostname = " + InetAddress.getLocalHost().getHostAddress()));
@@ -190,13 +203,5 @@ public class Main {
 			joinAddress = new Address("akka.tcp", "Workers", existingCluster, 2552);
 		}
 		return joinAddress;
-	}
-
-	public static List<Address> getMasterAddresses(ActorSystem system) throws IOException {
-		
-		List<Address> addresses = new ArrayList<Address>();
-
-		addresses.add(new Address("akka.tcp", "Workers", "172.19.0.3", 2552));
-		return addresses;
 	}
 }
