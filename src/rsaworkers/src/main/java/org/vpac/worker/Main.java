@@ -172,22 +172,26 @@ public class Main {
 	
 	public static ActorSystem createSystem() {
 		Config conf = null;
+		String localIpAddress = null;
+
+		try {
+			localIpAddress = InetAddress.getLocalHost().getHostAddress();
+		} catch (UnknownHostException e) {
+			e.printStackTrace();
+		}		
+
 		if (isMaster()) {
 			conf = ConfigFactory.parseString("akka.cluster.roles=[backend]")
 				.withFallback(ConfigFactory.parseString("akka.remote.netty.tcp.port=2552"))
+				.withFallback(ConfigFactory.parseString("akka.remote.netty.tcp.hostname = " + localIpAddress))
 				.withFallback(ConfigFactory.load());
 		} else {
 			conf = ConfigFactory.parseString("akka.cluster.roles=[backend]")
 				.withFallback(ConfigFactory.parseString("akka.remote.netty.tcp.port=2553"))
+				.withFallback(ConfigFactory.parseString("akka.remote.netty.tcp.hostname = " + localIpAddress))
 				.withFallback(ConfigFactory.load());
 		}
 
-		try {
-			conf.withFallback(ConfigFactory.parseString("akka.remote.netty.tcp.hostname = " + InetAddress.getLocalHost().getHostAddress()));
-		} catch (UnknownHostException e) {
-			e.printStackTrace();
-		}		
-		
 		ActorSystem system = ActorSystem.create(systemName, conf);
 		return system;
 	}
