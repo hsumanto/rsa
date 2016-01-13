@@ -69,13 +69,13 @@ public class Main {
 
 	public void startService() throws InterruptedException, IOException {
 
-		if (isMaster()) {
-			startMaster();
-			System.out.println("Master started");
-		} else {
-			System.out.println("Worker started");
-			startWorker();
-		}
+		// if (isMaster()) {
+			Address masterAddress = startMaster();
+		// 	System.out.println("Master started");
+		// } else {
+		// 	System.out.println("Worker started");
+			startWorker(masterAddress);
+		// }
 	}
 	
 	public static Boolean isMaster() {
@@ -132,8 +132,8 @@ public class Main {
 	private static String systemName = "Workers";
 	private static FiniteDuration workTimeout = Duration.create(100, "minutes");
 
-	public static void startMaster() throws IOException {
-		ActorSystem system = createSystem();
+	public static Address startMaster() throws IOException {
+		ActorSystem system = createSystem("master");
 		Address joinAddress = getAddress(system);
 		Cluster.get(system).join(joinAddress);
 
@@ -141,36 +141,23 @@ public class Main {
 				Master.props(workTimeout), "active", PoisonPill.getInstance(),
 				"backend"), "master");
 		system.actorOf(Props.create(DatabaseActor.class), "database");
+		return Cluster.get(system).selfAddress();
 	}
 
-	public static void startWorker() throws IOException {
-		ActorSystem system = createSystem();
-		while (true) {
-			String existingCluster = searchCluster();
-			if (existingCluster != null) {
-				Address joinAddress = getAddress(system);
-				Cluster.get(system).join(joinAddress);
-				Set<ActorSelection> initialContacts = new HashSet<ActorSelection>();
-				initialContacts.add(system.actorSelection(joinAddress
-						+ "/user/receptionist"));
+	public static void startWorker(Address masterAddress) throws IOException {
+		ActorSystem system = createSystem("worker");
+		Cluster.get(system).join(masterAddress);
+		Set<ActorSelection> initialContacts = new HashSet<ActorSelection>();
+		initialContacts.add(system.actorSelection(masterAddress + "/user/receptionist"));
 
-				ActorRef clusterClient = system.actorOf(
-						ClusterClient.defaultProps(initialContacts), "clusterClient");
-				ActorRef worker = system.actorOf(
-						Worker.props(clusterClient, Props.create(WorkExecutor.class)),
-						"worker");
-				break;
-			}
-
-			try {
-				Thread.sleep(1000);
-			} catch (InterruptedException e) {
-				System.out.println("Interrupted while waiting for next progress update.");
-			}
-		}
+		ActorRef clusterClient = system.actorOf(
+				ClusterClient.defaultProps(initialContacts), "clusterClient");
+		ActorRef worker = system.actorOf(
+				Worker.props(clusterClient, Props.create(WorkExecutor.class)),
+				"worker");
 	}
 	
-	public static ActorSystem createSystem() {
+	public static ActorSystem createSystem(String role) {
 		Config conf = null;
 		String localIpAddress = null;
 
@@ -180,7 +167,7 @@ public class Main {
 			e.printStackTrace();
 		}		
 
-		if (isMaster()) {
+		if (role.equals("master")) {
 			conf = ConfigFactory.parseString("akka.cluster.roles=[backend]")
 				.withFallback(ConfigFactory.parseString("akka.remote.netty.tcp.port=2552"))
 				.withFallback(ConfigFactory.parseString("akka.remote.netty.tcp.hostname = " + localIpAddress))

@@ -8,6 +8,8 @@ import akka.japi.Function;
 
 import java.io.IOException;
 import java.util.UUID;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.vpac.worker.Job.Work;
 import org.vpac.worker.Job.WorkComplete;
@@ -20,6 +22,15 @@ import static akka.actor.SupervisorStrategy.escalate;
 import static akka.actor.SupervisorStrategy.restart;
 import static akka.actor.SupervisorStrategy.stop;
 import static org.vpac.worker.MasterWorkerProtocol.*;
+
+import akka.contrib.pattern.ClusterClient;
+import akka.cluster.Cluster;
+import akka.cluster.ClusterEvent;
+import akka.cluster.ClusterEvent.MemberEvent;
+import akka.cluster.ClusterEvent.MemberUp;
+import akka.cluster.ClusterEvent.MemberRemoved;
+import akka.cluster.ClusterEvent.UnreachableMember;
+
 
 public class Worker extends UntypedActor {
 
@@ -34,7 +45,7 @@ public class Worker extends UntypedActor {
 				Duration.create(10, "seconds"));
 	}
 
-	private final ActorRef clusterClient;
+	private ActorRef clusterClient;
 	private final Props workExecutorProps;
 	private final FiniteDuration registerInterval;
 	private LoggingAdapter log = Logging.getLogger(getContext().system(), this);
@@ -42,10 +53,14 @@ public class Worker extends UntypedActor {
 	private final ActorRef workExecutor;
 	private final Cancellable registerTask;
 	private String currentWorkId = null;
+	Cluster cluster = Cluster.get(getContext().system());
 
 	public Worker(ActorRef clusterClient, Props workExecutorProps,
 			FiniteDuration registerInterval) {
 		this.clusterClient = clusterClient;
+		// for (ActorSelection act: clusterClient.contacts) {
+		// 	System.out.println("contact:" + act);
+		// }
 		this.workExecutorProps = workExecutorProps;
 		this.registerInterval = registerInterval;
 		this.workExecutor = getContext().watch(
@@ -89,6 +104,12 @@ public class Worker extends UntypedActor {
 						}
 					}
 				});
+	}
+
+	@Override
+	public void preStart() {
+		cluster.subscribe(getSelf(), ClusterEvent.initialStateAsEvents(), 
+		    MemberEvent.class, UnreachableMember.class);
 	}
 
 	@Override
@@ -173,6 +194,19 @@ public class Worker extends UntypedActor {
 			getContext().stop(getSelf());
 		} else if (message instanceof WorkIsReady) {
 			// do nothing
+		} else if (message instanceof UnreachableMember) {
+			UnreachableMember mUnreachable = (UnreachableMember) message;
+			log.info("Member detected as unreachable: {}", mUnreachable.member());
+		} else if (message instanceof MemberRemoved) {
+			MemberRemoved mRemoved = (MemberRemoved) message;
+			log.info("Member is Removed: {}", mRemoved.member());
+		} else if (message instanceof MemberUp) {
+			MemberUp mUp = (MemberUp) message;
+			log.info("Member is Up: {}", mUp.member().address().port().get());
+
+			if (mUp.member().address().port().get().equals("2552")) {
+				log.info("Master found: {}", mUp.member());
+			}
 		} else {
 			super.unhandled(message);
 		}
