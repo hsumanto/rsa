@@ -49,26 +49,29 @@ sudo docker run -d --name rsadata$RSA_ID $RSA_OPTS vpac/rsadata
 
 ## Running
 
-Start a master, a worker and the web services. Multiple workers may be
-started - just give each one a different name.
+Start a rsa which has master and worker at same machine and the web services. 
+Multiple rsa instances can be started - just give each one a different name.
 
 ```bash
-sudo docker run -d --name rsamaster$RSA_ID \
+sudo docker run -d --name rsa1 \
     --link rsadb$RSA_ID:rsadb \
     --volumes-from rsadata$RSA_ID \
-    vpac/rsa master
+    vpac/rsa rsa
 sleep 10
 sudo docker run -d --name rsaweb$RSA_ID \
     --link rsadb$RSA_ID:rsadb \
     --link rsamaster$RSA_ID:master \
     --volumes-from rsadata$RSA_ID \
     vpac/rsa web
-sleep 10
-sudo docker run -d --name rsaworker$RSA_ID \
+```
+
+if you want to run more worker and master, you can run this way. The number of 
+the instance name can be changed.
+```bash
+sudo docker run -d --name rsa2 \
     --link rsadb$RSA_ID:rsadb \
-    --link rsamaster$RSA_ID:master \
     --volumes-from rsadata$RSA_ID \
-    vpac/rsa worker
+    vpac/rsa rsa
 ```
 
 `rsaweb` exports port `8080`. Commands can be run against the RSA by using a
