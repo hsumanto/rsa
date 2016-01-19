@@ -34,7 +34,7 @@ public class ActorCreator {
 	private static ActorRef frontend = null;
 	
 	private ActorCreator() {
-		Config conf = ConfigFactory.parseString("akka.cluster.roles=[backend]")
+		Config conf = ConfigFactory.parseString("akka.cluster.roles=[frontend]")
 				.withFallback(ConfigFactory.parseString("akka.remote.netty.tcp.port=2554"))
 				.withFallback(ConfigFactory.load());		
 		ActorCreator.system = ActorSystem.create("Workers", conf);

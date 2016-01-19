@@ -173,7 +173,7 @@ public class Main {
 				.withFallback(ConfigFactory.parseString("akka.remote.netty.tcp.hostname = " + localIpAddress))
 				.withFallback(ConfigFactory.load());
 		} else {
-			conf = ConfigFactory.parseString("akka.cluster.roles=[backend]")
+			conf = ConfigFactory.parseString("akka.cluster.roles=[worker]")
 				.withFallback(ConfigFactory.parseString("akka.remote.netty.tcp.port=2553"))
 				.withFallback(ConfigFactory.parseString("akka.remote.netty.tcp.hostname = " + localIpAddress))
 				.withFallback(ConfigFactory.load());
