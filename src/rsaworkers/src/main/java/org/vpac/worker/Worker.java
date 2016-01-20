@@ -195,18 +195,19 @@ public class Worker extends UntypedActor {
 		} else if (message instanceof WorkIsReady) {
 			// do nothing
 		} else if (message instanceof UnreachableMember) {
-			UnreachableMember mUnreachable = (UnreachableMember) message;
-			log.info("Member detected as unreachable: {}", mUnreachable.member());
+			// UnreachableMember mUnreachable = (UnreachableMember) message;
+			// log.info("Member detected as unreachable: {}", mUnreachable.member());
 		} else if (message instanceof MemberRemoved) {
 			MemberRemoved mRemoved = (MemberRemoved) message;
+			cluster.leave(mRemoved.member().address());
 			log.info("Member is Removed: {}", mRemoved.member());
 		} else if (message instanceof MemberUp) {
-			MemberUp mUp = (MemberUp) message;
-			log.info("Member is Up: {}", mUp.member().address().port().get());
+			// MemberUp mUp = (MemberUp) message;
+			// log.info("Member is Up: {}", mUp.member().address().port().get());
 
-			if (mUp.member().address().port().get().equals("2552")) {
-				log.info("Master found: {}", mUp.member());
-			}
+			// if (mUp.member().address().port().get().equals("2552")) {
+			// 	log.info("Master found: {}", mUp.member());
+			// }
 		} else {
 			super.unhandled(message);
 		}
