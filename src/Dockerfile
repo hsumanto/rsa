@@ -41,12 +41,13 @@ RUN apt-get install -y \
 
 # Set environment variables
 ENV GDAL_DIR /usr/share/bin
-ENV PATH $GDAL_DIR/bin:$PATH
+ENV PATH $GDAL_DIR/bin:$PATH:/usr/lib/jni:/usr/lib
 ENV LD_LIBRARY_PATH $GDAL_DIR/lib:$LD_LIBRARY_PATH
 ENV JAVA_HOME /usr/lib/jvm/java-1.7.0-openjdk-amd64
 
 # Temporary working space. No need for this to be a published volume.
-RUN mkdir -p /var/tmp/ndg
+RUN mkdir -p /var/tmp/ndg /var/spool/ndg/tmp
+RUN ln -s /usr/share/java/gdal.jar /usr/lib/
 
 # Ant build storagemanager
 COPY build.xml rsa_docker_start.sh /var/src/
@@ -74,6 +75,10 @@ COPY rsaworkers/resources/spring/database/datasource.xml.docker.SAMPLE \
 
 COPY spatialcubeservice/config/datasource.xml.docker.SAMPLE \
     /var/lib/tomcat6/webapps/spatialcubeservice/WEB-INF/classes/datasource.xml
+    
+COPY rsaworkers/resources/spring/database/datasource.xml.docker.SAMPLE \
+    /var/src/cmdclient/dist/rsacli/config/datasource.xml
+
 COPY storagemanager/config/logback.xml.docker.SAMPLE \
     /var/lib/tomcat6/webapps/spatialcubeservice/WEB-INF/classes/logback.xml
 
@@ -82,6 +87,7 @@ COPY storagemanager/config/logback.xml.docker.SAMPLE \
 # is copied to the appropriate location by the startup script. We can't just
 # create a symlink because then it can't be opened from Java in Tomcat.
 COPY storagemanager/config/rsa.xml.docker.SAMPLE /var/src/rsa.xml
+RUN ln -s /usr/share/java/gdal.jar /usr/lib/
 
 WORKDIR /var/src/
 ENTRYPOINT ["/var/src/rsa_docker_start.sh"]
