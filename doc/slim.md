@@ -94,8 +94,8 @@ mkdir -p /mnt/gluster/storagepool /mnt/gluster/pickup
 mkdir /mnt/gluster; mount -t glusterfs node01:/testvol; cp -r /var/log /mnt/gluster
 
 RSA_OPTS="$RSA_OPTS
-    -v /mnt/some_large_disk/storagepool:/var/lib/ndg/storagepool
-    -v /mnt/some_large_disk/pickup:/var/spool/ndg/pickup"
+    -v /mnt/gluster/storagepool:/var/lib/ndg/storagepool
+    -v /mnt/gluster/pickup:/var/spool/ndg/pickup"
 ```
 
 Now create some storage containers. The `rsadata` container exits immediately,
@@ -104,8 +104,7 @@ container is kept, you can restart and replace the actual RSA containers
 without losing your data.
 
 ```bash
-sudo docker run -d --name rsadb$RSA_ID vpac/rsadb
-sudo docker run -d --name rsadata$RSA_ID $RSA_OPTS vpac/rsadata
+sudo docker run -d --name rsadata $RSA_OPTS vpac/rsadata
 ```
 
 ## Running
@@ -114,25 +113,19 @@ Start a rsa which has master and worker at same machine and the web services.
 Multiple rsa instances can be started - just give each one a different name.
 
 ```bash
-sudo docker run -d --name rsa1 \
-    --link rsadb$RSA_ID:rsadb \
-    --volumes-from rsadata$RSA_ID \
+sudo docker run -d --name rsa \
+    --volumes-from rsadata \
     vpac/rsa rsa
-sleep 10
-sudo docker run -d --name rsaweb$RSA_ID \
-    --link rsadb$RSA_ID:rsadb \
-    --link rsamaster$RSA_ID:master \
-    --volumes-from rsadata$RSA_ID \
-    vpac/rsa web
 ```
 
-if you want to run more worker and master, you can run this way. The number of 
-the instance name can be changed.
+If everything successful, can be created AWS AMI image to create multiple nodes.
+More RSA instance can be created with this image. And one of them should be RSA
+Web server to provide service to SLIM landblade
+
 ```bash
-sudo docker run -d --name rsa2 \
-    --link rsadb$RSA_ID:rsadb \
-    --volumes-from rsadata$RSA_ID \
-    vpac/rsa rsa
+sudo docker run -d --name web \
+    --volumes-from rsadata \
+    vpac/rsa web
 ```
 
 `rsaweb` exports port `8080`. Commands can be run against the RSA by using a
@@ -144,7 +137,50 @@ docker inspect rsaweb$RSA_ID | grep IPAddress
 ```
 
 If you want to publish the RSA on the network, either set up a proxy or pass
-the `-p 8080:8080` argument to Docker when starting `rsaweb`.
+the `-p 8080:8080` argument to Docker when starting `web`.
+
+## Importing example dataset
+
+If you want to use RSA Client, you can use `docker exec -it <rsa/web>` to any
+rsa / web instance.
+
+But the other way recommended is using curl.
+
+Create Dataset and returns datasetId.
+```bash
+curl -F name="rainfall" -F resolution="100m" \
+            <web_public_dns>:8080/spatialcubeservice/Dataset.xml
+```
+
+Create Timeslice and return timesliceId
+```bash
+curl -F datasetId="<datasetId>" -F creationDate="2000-01-01" \
+     -F abs="" -F xmin=""
+            <web_public_dns>:8080/spatialcubeservice/TimeSlice.xml
+```
+
+Create Band and return bandId
+```bash
+curl -F datasetId="<datasetId>" -F name="band1" \
+            <web_public_dns>:8080/spatialcubeservice/Band.xml
+```
+
+Create Upload a file and return uploadId
+```bash
+curl -F timesliceId="<timesliceId>" -F file="@rainfall.tiff" \
+            <web_public_dns>:8080/spatialcubeservice/Data/Upload.xml
+```
+
+Import dataset
+```bash
+curl -F taskId="<uploadId>" -F bandId="<bandId>" \
+            <web_public_dns>:8080/spatialcubeservice/Data/Import.xml
+```
+
+Query
+```bash
+curl --data-urlencode "query=${cat blur.xml}"  \
+            <web_public_dns>:8080/spatialcubeservice/Data/Query.xml
+```
 
 [rsa.xml]: ../src/storagemanager/config/rsa.xml.docker.SAMPLE
-
