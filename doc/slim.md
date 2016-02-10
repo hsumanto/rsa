@@ -39,15 +39,13 @@ So here are steps for setting up AWS Gluster, and make two instances.
 3. Choose same network as RSA EC2 instance
 4. Ssh to the instance.
 5. Mount EBS to local
-
 ```bash
     mkfs.xfs -i size=512 /dev/xvdb1
     mkdir -p /data/brick1
     echo '/dev/xvdb1 /data/brick1 xfs defaults 1 2' >> /etc/fstab
     mount -a && mount
 ```
-
-6. Install gluster server
+1.Install gluster server
 
 ```bash
     sudo apt-get install software-properties-common
@@ -55,16 +53,12 @@ So here are steps for setting up AWS Gluster, and make two instances.
     sudo apt-get update
     sudo apt-get install glusterfs-server
 ```
-
-7. Probe each other server 
-
+1. Probe each other server 
 ```bash
      gluster peer probe <ip or hostname of another host>
 ```
-
 From here, need to make one as a main server. Choose one of them.
-
-8. Create volumn & check the info
+1. Create volumn & check the info
 
 ```bash
     gluster volume create gv0 transport tcp node01:/export/xvdb1/brick node02:/export/xvdb1/brick force
