@@ -47,6 +47,7 @@ ENV JAVA_HOME /usr/lib/jvm/java-1.7.0-openjdk-amd64
 
 # Temporary working space. No need for this to be a published volume.
 RUN mkdir -p /var/tmp/ndg
+RUN mkdir -p /var/spool/ndg/tmp
 RUN ln -s /usr/share/java/gdal.jar /usr/lib/
 
 # Ant build storagemanager
