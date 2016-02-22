@@ -192,6 +192,9 @@ public class Worker extends UntypedActor {
 		if (message instanceof Terminated
 				&& ((Terminated) message).getActor().equals(workExecutor)) {
 			getContext().stop(getSelf());
+		} else if (message instanceof StopWorking) {
+			log.info("StopWorking message got");
+			getContext().stop(getSelf());
 		} else if (message instanceof WorkIsReady) {
 			// do nothing
 		} else if (message instanceof UnreachableMember) {

@@ -11,6 +11,11 @@ import java.util.Map.Entry;
 import java.util.Queue;
 import java.util.Set;
 
+import java.net.InetAddress;
+import java.net.Inet4Address;
+import java.net.NetworkInterface;
+import java.net.InterfaceAddress;
+
 import org.vpac.ndg.common.datamodel.TaskState;
 import org.vpac.ndg.query.filter.Foldable;
 import org.vpac.ndg.query.math.VectorReal;
@@ -18,22 +23,19 @@ import org.vpac.ndg.query.stats.VectorCats;
 import org.vpac.worker.Job.Work;
 import org.vpac.worker.MasterDatabaseProtocol.JobUpdate;
 import org.vpac.worker.MasterDatabaseProtocol.SaveCats;
-import org.vpac.worker.MasterWorkerProtocol.ProgressCheckPoint;
-import org.vpac.worker.MasterWorkerProtocol.RegisterWorker;
-import org.vpac.worker.MasterWorkerProtocol.WorkFailed;
-import org.vpac.worker.MasterWorkerProtocol.WorkIsDone;
-import org.vpac.worker.MasterWorkerProtocol.WorkIsReady;
-import org.vpac.worker.MasterWorkerProtocol.WorkerRequestsWork;
+import org.vpac.worker.MasterWorkerProtocol.*;
 import org.vpac.worker.master.Ack;
 import org.vpac.worker.master.WorkResult;
 
 import scala.concurrent.duration.Deadline;
 import scala.concurrent.duration.FiniteDuration;
+import scala.Option;
 import akka.actor.ActorRef;
 import akka.actor.ActorSelection;
 import akka.actor.Cancellable;
 import akka.actor.Props;
 import akka.actor.UntypedActor;
+import akka.cluster.Cluster;
 import akka.contrib.pattern.DistributedPubSubExtension;
 import akka.contrib.pattern.DistributedPubSubMediator;
 import akka.contrib.pattern.DistributedPubSubMediator.Put;
@@ -58,6 +60,7 @@ public class Master extends UntypedActor {
 	private Queue<Work> pendingWork = new LinkedList<Work>();
 	private Set<String> workIds = new LinkedHashSet<String>();
 	private Map<String, WorkInfo> workProgress = new HashMap<String, WorkInfo>();
+	Cluster cluster = Cluster.get(getContext().system());
 
 	public Master(FiniteDuration workTimeout) {
 		this.workTimeout = workTimeout;
@@ -77,17 +80,34 @@ public class Master extends UntypedActor {
 	@Override
 	public void onReceive(Object message) throws Exception {
 		if (message instanceof RegisterWorker) {
-			RegisterWorker msg = (RegisterWorker) message;
-			String workerId = msg.workerId;
-			if (workers.containsKey(workerId)) {
-				workers.put(workerId,
-						workers.get(workerId).copyWithRef(getSender()));
-			} else {
-				log.debug("Worker registered: {}", workerId);
-				workers.put(workerId, new WorkerState(getSender(),
-						Idle.instance));
-				if (!pendingWork.isEmpty())
-					getSender().tell(WorkIsReady.getInstance(), getSelf());
+			InetAddress localhost = Inet4Address.getLocalHost();
+			//log.info("local address:" + localhost.getHostAddress().toString());
+			//log.info("sender path:" + getSender().path());
+			String loocalAddress = localhost.getHostAddress().toString();
+			Option<String> sender = getSender().path().address().host();
+			Option<String> empty = scala.Option.apply(null);
+			String senderAddress = sender == empty ? "" : sender.get();
+
+
+			if (loocalAddress.equals(senderAddress))
+			{
+				log.info("Kill local worker:" + getSender().path());
+				getSender().tell(StopWorking.getInstance(), getSelf());
+			}
+			else
+			{
+				RegisterWorker msg = (RegisterWorker) message;
+				String workerId = msg.workerId;
+				if (workers.containsKey(workerId)) {
+					workers.put(workerId,
+							workers.get(workerId).copyWithRef(getSender()));
+				} else {
+					log.debug("Worker registered: {}", workerId);
+					workers.put(workerId, new WorkerState(getSender(),
+							Idle.instance));
+					if (!pendingWork.isEmpty())
+						getSender().tell(WorkIsReady.getInstance(), getSelf());
+				}				
 			}
 		} else if (message instanceof WorkerRequestsWork) {
 			WorkerRequestsWork msg = (WorkerRequestsWork) message;

@@ -76,6 +76,15 @@ public abstract class MasterWorkerProtocol {
 		}
 	}
 
+	public static final class StopWorking implements Serializable {
+		private static final StopWorking instance = new StopWorking();
+
+		public static StopWorking getInstance() {
+			return instance;
+		}
+	}
+
+
 	// Messages from Workers
 	public static final class ProgressCheckPoint implements Serializable {
 
