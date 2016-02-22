@@ -125,7 +125,7 @@ public class WorkExecutor extends UntypedActor {
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
-			HashMap<String, Foldable<?>> result = new java.util.HashMap<>();
+
 			/* This code for the null result test
 			*** DO NOT PUBLISH TO THE PUBLIC
 
@@ -137,8 +137,8 @@ public class WorkExecutor extends UntypedActor {
 			catch(Exception e)
 			{
 			}
-			*/
 
+			*/
 			getSender().tell(new Job.WorkComplete(result), getSelf());
 		}
 	}
