@@ -123,10 +123,22 @@ public class WorkExecutor extends UntypedActor {
 			try {
 				Thread.sleep(10000);
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			HashMap<String, Foldable<?>> result = new java.util.HashMap<>();
+			/* This code for the null result test
+			*** DO NOT PUBLISH TO THE PUBLIC
+
+			HashMap<String, Foldable<?>> result = null;
+			try
+			{
+				Thread.sleep(5000);
+			}
+			catch(Exception e)
+			{
+			}
+			*/
+
 			getSender().tell(new Job.WorkComplete(result), getSelf());
 		}
 	}
