@@ -120,12 +120,6 @@ public class WorkExecutor extends UntypedActor {
 					continue;
 				result.put(v.getKey(), v.getValue());
 			}
-			try {
-				Thread.sleep(10000);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-
 			/* This code for the null result test
 			*** DO NOT PUBLISH TO THE PUBLIC
 
