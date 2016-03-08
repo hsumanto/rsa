@@ -5,7 +5,7 @@ import java.net.UnknownHostException;
 
 import akka.actor.*;
 import akka.cluster.Cluster;
-import akka.contrib.pattern.ClusterClient;
+import akka.cluster.client.ClusterClient;
 
 import java.net.Inet4Address;
 import java.net.InetAddress;

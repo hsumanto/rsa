@@ -2,8 +2,10 @@ package org.vpac.worker;
 
 import akka.actor.*;
 import akka.cluster.Cluster;
-import akka.contrib.pattern.ClusterClient;
-import akka.contrib.pattern.ClusterSingletonManager;
+import akka.cluster.client.ClusterClient;
+import akka.cluster.client.ClusterClientSettings;
+import akka.cluster.singleton.ClusterSingletonManager;
+import akka.cluster.singleton.ClusterSingletonManagerSettings;
 
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
@@ -68,25 +70,10 @@ public class Main {
 	}
 
 	public void startService() throws InterruptedException, IOException {
-
-		// if (isMaster()) {
-			Address masterAddress = startMaster();
-		// 	System.out.println("Master started");
-		// } else {
-		// 	System.out.println("Worker started");
-			startWorker(masterAddress);
-		// }
+		Address masterAddress = startMaster();
+		startWorker(masterAddress);
 	}
-	
-	public static Boolean isMaster() {
-		Boolean isMaster;
-		if (System.getenv("RSA_IS_MASTER") == null)
-			isMaster = false;
-		else
-			isMaster = Boolean.parseBoolean(System.getenv("RSA_IS_MASTER"));
-		return isMaster;
-	}
-	
+		
 	public static String searchCluster() throws IOException {
 		InetAddress localhost = Inet4Address.getLocalHost();
 		String returnAddress = null;
@@ -137,21 +124,30 @@ public class Main {
 		Address joinAddress = getAddress(system);
 		Cluster.get(system).join(joinAddress);
 
-		system.actorOf(ClusterSingletonManager.defaultProps(
-				Master.props(workTimeout), "active", PoisonPill.getInstance(),
-				"backend"), "master");
+   		//startupSharedJournal(system, (port == 2551),
+        //ActorPaths.fromString("akka.tcp://ClusterSystem@127.0.0.1:2551/user/store"));
+
+    	system.actorOf(
+        	ClusterSingletonManager.props(
+            	Master.props(workTimeout),
+            	PoisonPill.getInstance(),
+            	ClusterSingletonManagerSettings.create(system).withRole("master")
+        	),
+        	"master");
+
 		system.actorOf(Props.create(DatabaseActor.class), "database");
 		return Cluster.get(system).selfAddress();
 	}
 
 	public static void startWorker(Address masterAddress) throws IOException {
 		ActorSystem system = createSystem("worker");
-		Cluster.get(system).join(masterAddress);
-		Set<ActorSelection> initialContacts = new HashSet<ActorSelection>();
-		initialContacts.add(system.actorSelection(masterAddress + "/user/receptionist"));
+		//Cluster.get(system).join(masterAddress);
+		Set<ActorPath> initialContacts = new HashSet<ActorPath>();
+		initialContacts.add(ActorPaths.fromString(masterAddress + "/system/receptionist"));
 
-		ActorRef clusterClient = system.actorOf(
-				ClusterClient.defaultProps(initialContacts), "clusterClient");
+    	ActorRef clusterClient = system.actorOf(
+        	ClusterClient.props(ClusterClientSettings.create(system).withInitialContacts(initialContacts)),
+        	"clusterClient");
 		ActorRef worker = system.actorOf(
 				Worker.props(clusterClient, Props.create(WorkExecutor.class)),
 				"worker");
@@ -168,7 +164,7 @@ public class Main {
 		}		
 
 		if (role.equals("master")) {
-			conf = ConfigFactory.parseString("akka.cluster.roles=[backend]")
+			conf = ConfigFactory.parseString("akka.cluster.roles=[master]")
 				.withFallback(ConfigFactory.parseString("akka.remote.netty.tcp.port=2552"))
 				.withFallback(ConfigFactory.parseString("akka.remote.netty.tcp.hostname = " + localIpAddress))
 				.withFallback(ConfigFactory.load());

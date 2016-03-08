@@ -36,9 +36,10 @@ import akka.actor.Cancellable;
 import akka.actor.Props;
 import akka.actor.UntypedActor;
 import akka.cluster.Cluster;
-import akka.contrib.pattern.DistributedPubSubExtension;
-import akka.contrib.pattern.DistributedPubSubMediator;
-import akka.contrib.pattern.DistributedPubSubMediator.Put;
+import akka.cluster.client.ClusterClientReceptionist;
+import akka.cluster.pubsub.DistributedPubSub;
+import akka.cluster.pubsub.DistributedPubSubMediator;
+import akka.cluster.pubsub.DistributedPubSubMediator.Put;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 
@@ -51,7 +52,7 @@ public class Master extends UntypedActor {
 	}
 
 	private final FiniteDuration workTimeout;
-	private final ActorRef mediator = DistributedPubSubExtension.get(
+	private final ActorRef mediator = DistributedPubSub.get(
 			getContext().system()).mediator();
 	private final LoggingAdapter log = Logging.getLogger(getContext().system(),
 			this);
@@ -64,6 +65,7 @@ public class Master extends UntypedActor {
 
 	public Master(FiniteDuration workTimeout) {
 		this.workTimeout = workTimeout;
+		ClusterClientReceptionist.get(getContext().system()).registerService(getSelf());
 		mediator.tell(new Put(getSelf()), getSelf());
 		this.cleanupTask = getContext()
 				.system()
@@ -81,15 +83,15 @@ public class Master extends UntypedActor {
 	public void onReceive(Object message) throws Exception {
 		if (message instanceof RegisterWorker) {
 			InetAddress localhost = Inet4Address.getLocalHost();
-			//log.info("local address:" + localhost.getHostAddress().toString());
-			//log.info("sender path:" + getSender().path());
+			log.info("local address:" + localhost.getHostAddress().toString());
+			log.info("sender path:" + getSender().path());
 			String loocalAddress = localhost.getHostAddress().toString();
 			Option<String> sender = getSender().path().address().host();
 			Option<String> empty = scala.Option.apply(null);
 			String senderAddress = sender == empty ? "" : sender.get();
 
 
-			if (loocalAddress.equals(senderAddress))
+			if (getSender().path().toString().contains(loocalAddress))
 			{
 				log.info("Kill local worker:" + getSender().path());
 				getSender().tell(StopWorking.getInstance(), getSelf());

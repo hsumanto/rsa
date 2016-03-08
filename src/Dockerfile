@@ -10,21 +10,25 @@ FROM ubuntu:14.04
 
 MAINTAINER Jin Park <forjin@vpac-innovations.com.au>, Alex Fraser <alex@vpac-innovations.com.au>
 
-RUN export DEBIAN_FRONTEND=noninteractive
 ENV DEBIAN_FRONTEND noninteractive
+ENV TERM linux
 
 # Install Tomcat, Python and GDAL.
+RUN apt-get install -y software-properties-common
+RUN add-apt-repository ppa:openjdk-r/ppa
 RUN apt-get update && \
     apt-get install -y \
         libtcnative-1 \
-        openjdk-7-jdk \
+        openjdk-8-jdk \
         tomcat6 \
         tomcat6-admin \
         --no-install-recommends
+
 RUN apt-get install -y \
         ant \
         ant-optional \
         --no-install-recommends
+
 RUN apt-get install -y \
         gdal-bin \
         libgdal-dev \
@@ -36,14 +40,15 @@ RUN apt-get install -y \
         zlib1g \
         zlib1g-dev \
         nmap \
+        nano \
         --no-install-recommends && \
     rm -rf /var/lib/apt/lists/*
 
 # Set environment variables
 ENV GDAL_DIR /usr/share/bin
-ENV PATH $GDAL_DIR/bin:$PATH:/usr/lib/jni:/usr/lib
+ENV JAVA_HOME /usr/lib/jvm/java-8-openjdk-amd64
+ENV PATH $JAVA_HOME/bin:$GDAL_DIR/bin:/usr/lib/jni:/usr/lib:$PATH
 ENV LD_LIBRARY_PATH $GDAL_DIR/lib:$LD_LIBRARY_PATH
-ENV JAVA_HOME /usr/lib/jvm/java-1.7.0-openjdk-amd64
 
 # Temporary working space. No need for this to be a published volume.
 RUN mkdir -p /var/tmp/ndg

@@ -53,8 +53,8 @@
 	<available property="gdaljar" file="/usr/share/java/gdal.jar" value="/usr/share/java/gdal.jar"></available>
 	<available property="gdaljar" file="/usr/local/lib/gdal.jar" value="/usr/local/lib/gdal.jar"></available>
 
-	<property name="target" value="1.7" />
-	<property name="source" value="1.7" />
+	<property name="target" value="1.8" />
+	<property name="source" value="1.8" />
 
 	<condition property="tomcatLib" value="C:\work\apps\install\apache-tomcat-6.0.26\lib">
 		<os family="windows" />

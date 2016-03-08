@@ -2,8 +2,8 @@ package org.vpac.worker;
 
 import akka.actor.ActorRef;
 import akka.actor.UntypedActor;
-import akka.contrib.pattern.DistributedPubSubExtension;
-import akka.contrib.pattern.DistributedPubSubMediator.Send;
+import akka.cluster.pubsub.DistributedPubSub;
+import akka.cluster.pubsub.DistributedPubSubMediator.Send;
 import akka.dispatch.Mapper;
 import akka.dispatch.Recover;
 import akka.util.Timeout;
@@ -20,7 +20,7 @@ import static akka.pattern.Patterns.pipe;
 
 public class Frontend extends UntypedActor {
 
-	final ActorRef mediator = DistributedPubSubExtension.get(
+	final ActorRef mediator = DistributedPubSub.get(
 			getContext().system()).mediator();
 
 	public void onReceive(Object message) {

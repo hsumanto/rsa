@@ -60,8 +60,8 @@
 	<exec executable="hostname" outputproperty="hostname"/>
 
 	<!-- Java Compilation version -->
-	<property name="target" value="1.7" />
-	<property name="source" value="1.7" />
+	<property name="target" value="1.8" />
+	<property name="source" value="1.8" />
 
 	<!-- Used for compile -->
 	<path id="classpath" >

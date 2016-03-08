@@ -1,7 +1,14 @@
 package org.vpac.worker;
 
 import akka.actor.*;
-import akka.contrib.pattern.ClusterClient.SendToAll;
+import akka.cluster.client.ClusterClient.SendToAll;
+import akka.cluster.client.ClusterClient;
+import akka.cluster.Cluster;
+import akka.cluster.ClusterEvent;
+import akka.cluster.ClusterEvent.MemberEvent;
+import akka.cluster.ClusterEvent.MemberUp;
+import akka.cluster.ClusterEvent.MemberRemoved;
+import akka.cluster.ClusterEvent.UnreachableMember;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import akka.japi.Function;
@@ -22,15 +29,6 @@ import static akka.actor.SupervisorStrategy.escalate;
 import static akka.actor.SupervisorStrategy.restart;
 import static akka.actor.SupervisorStrategy.stop;
 import static org.vpac.worker.MasterWorkerProtocol.*;
-
-import akka.contrib.pattern.ClusterClient;
-import akka.cluster.Cluster;
-import akka.cluster.ClusterEvent;
-import akka.cluster.ClusterEvent.MemberEvent;
-import akka.cluster.ClusterEvent.MemberUp;
-import akka.cluster.ClusterEvent.MemberRemoved;
-import akka.cluster.ClusterEvent.UnreachableMember;
-
 
 public class Worker extends UntypedActor {
 
@@ -72,7 +70,7 @@ public class Worker extends UntypedActor {
 						Duration.Zero(),
 						registerInterval,
 						clusterClient,
-						new SendToAll("/user/master/active",
+						new SendToAll("/user/master/singleton",
 								new RegisterWorker(workerId)),
 						getContext().dispatcher(), getSelf());
 	}
@@ -218,6 +216,6 @@ public class Worker extends UntypedActor {
 
 	private void sendToMaster(Object msg) {
 		clusterClient
-				.tell(new SendToAll("/user/master/active", msg), getSelf());
+				.tell(new SendToAll("/user/master/singleton", msg), getSelf());
 	}
 }
