@@ -2,80 +2,85 @@ package org.vpac.worker;
 
 import akka.actor.ActorRef;
 import akka.actor.UntypedActor;
-import akka.cluster.pubsub.DistributedPubSub;
-import akka.cluster.pubsub.DistributedPubSubMediator.Send;
+import akka.cluster.singleton.ClusterSingletonProxy;
+import akka.cluster.singleton.ClusterSingletonProxySettings;
 import akka.dispatch.Mapper;
 import akka.dispatch.Recover;
 import akka.util.Timeout;
 
 import java.io.Serializable;
+import java.util.concurrent.TimeUnit;
 
-import org.vpac.worker.master.Ack;
-
-import scala.concurrent.duration.*;
 import scala.concurrent.ExecutionContext;
 import scala.concurrent.Future;
 import static akka.pattern.Patterns.ask;
 import static akka.pattern.Patterns.pipe;
 
+import org.vpac.worker.master.Ack;
+
 public class Frontend extends UntypedActor {
 
-	final ActorRef mediator = DistributedPubSub.get(
-			getContext().system()).mediator();
 
-	public void onReceive(Object message) {
-		Future<Object> f = ask(mediator, new Send("/user/master/active",
-				message, false), new Timeout(Duration.create(5, "seconds")));
+  ActorRef masterProxy = getContext().actorOf(
+      ClusterSingletonProxy.props(
+          "/user/master",
+          ClusterSingletonProxySettings.create(getContext().system()).withRole("master")),
+      "masterProxy");
 
-		final ExecutionContext ec = getContext().system().dispatcher();
+  public void onReceive(Object message) {
 
-		Future<Object> res = f.map(new Mapper<Object, Object>() {
-			@Override
-			public Object apply(Object msg) {
-				if (msg instanceof Ack)
-					return Ok.getInstance();
-				else
-					return super.apply(msg);
-			}
-		}, ec).recover(new Recover<Object>() {
-			@Override
-			public Object recover(Throwable failure) throws Throwable {
-				return NotOk.getInstance();
-			}
-		}, ec);
+    Timeout timeout = new Timeout(5, TimeUnit.SECONDS);
+    Future<Object> f = ask(masterProxy, message, timeout);
 
-		pipe(res, ec).to(getSender());
-	}
 
-	public static final class Ok implements Serializable {
-		private Ok() {
-		}
+    final ExecutionContext ec = getContext().system().dispatcher();
 
-		private static final Ok instance = new Ok();
+    Future<Object> res = f.map(new Mapper<Object, Object>() {
+      @Override
+      public Object apply(Object msg) {
+        if (msg instanceof Ack)
+          return Ok.getInstance();
+        else
+          return super.apply(msg);
+      }
+    }, ec).recover(new Recover<Object>() {
+      @Override
+      public Object recover(Throwable failure) throws Throwable {
+        return NotOk.getInstance();
+      }
+    }, ec);
 
-		public static Ok getInstance() {
-			return instance;
-		}
+    pipe(res, ec).to(getSender());
+  }
 
-		@Override
-		public String toString() {
-			return "Ok";
-		}
-	};
+  public static final class Ok implements Serializable {
+    private Ok() {}
 
-	public static final class NotOk implements Serializable {
-		private NotOk() {
-		}
+    private static final Ok instance = new Ok();
 
-		private static final NotOk instance = new NotOk();
+    public static Ok getInstance() {
+      return instance;
+    }
 
-		public static NotOk getInstance() {
-			return instance;
-		}
+    @Override
+    public String toString() {
+      return "Ok";
+    }
+  }
 
-		@Override
-		public String toString() {
-			return "NotOk";
-		}
-	};
+  public static final class NotOk implements Serializable {
+    private NotOk() {}
+
+    private static final NotOk instance = new NotOk();
+
+    public static NotOk getInstance() {
+      return instance;
+    }
+
+    @Override
+    public String toString() {
+      return "NotOk";
+    }
+  }
 }
+

@@ -126,8 +126,7 @@ public class Worker extends UntypedActor {
 						workerId));
 			else if (message instanceof Work) {
 				Work work = (Work) message;
-				log.debug("Got work: {}", work);
-				System.out.println("Got work: " + work);
+				log.info("Got work: {}", work);
 				currentWorkId = work.workId;
 				workExecutor.tell(work, getSelf());
 				getContext().become(working);
@@ -140,7 +139,7 @@ public class Worker extends UntypedActor {
 		public void apply(Object message) {
 			if (message instanceof WorkComplete) {
 				Object result = ((WorkComplete) message).result;
-				log.debug("Work is complete. Result {}.", result);
+				log.info("Work is complete. Result {}.", result);
 				sendToMaster(new WorkIsDone(workerId, workId(), result));
 				getContext().setReceiveTimeout(Duration.create(5, "seconds"));
 				getContext().become(waitForWorkIsDoneAck(result));
@@ -196,8 +195,9 @@ public class Worker extends UntypedActor {
 		} else if (message instanceof WorkIsReady) {
 			// do nothing
 		} else if (message instanceof UnreachableMember) {
-			// UnreachableMember mUnreachable = (UnreachableMember) message;
-			// log.info("Member detected as unreachable: {}", mUnreachable.member());
+			UnreachableMember unreachable = (UnreachableMember) message;
+			cluster.leave(unreachable.member().address());
+			log.info("Member is UnreachableMember: {}", unreachable.member());
 		} else if (message instanceof MemberRemoved) {
 			MemberRemoved mRemoved = (MemberRemoved) message;
 			cluster.leave(mRemoved.member().address());

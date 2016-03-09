@@ -59,7 +59,6 @@ RUN ln -s /usr/share/java/gdal.jar /usr/lib/
 COPY build.xml rsa_docker_start.sh /var/src/
 COPY cmdclient /var/src/cmdclient/
 COPY rsaquery /var/src/rsaquery/
-COPY rsaworkers /var/src/rsaworkers/
 COPY spatialcubeservice /var/src/spatialcubeservice/
 COPY storagemanager /var/src/storagemanager/
 
@@ -69,7 +68,13 @@ ENV CATALINA_BASE /var/lib/tomcat6
 ENV CATALINA_HOME /usr/share/tomcat6
 
 RUN ldconfig && \
-    cd /var/src && ant
+    cd /var/src/spatialcubeservice && ant
+
+COPY rsaworkers /var/src/rsaworkers/
+
+RUN ldconfig && \
+    cd /var/src/rsaworkers && ant
+
 RUN mkdir -p /var/lib/tomcat6/webapps/spatialcubeservice && \
     cp /var/src/spatialcubeservice/dist/rsa_*.war /var/lib/tomcat6/webapps/spatialcubeservice/spatialcubeservice.war && \
     cd /var/lib/tomcat6/webapps/spatialcubeservice && jar -xvf spatialcubeservice.war && \

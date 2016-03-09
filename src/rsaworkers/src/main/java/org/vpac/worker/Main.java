@@ -12,6 +12,7 @@ import com.typesafe.config.ConfigFactory;
 
 import scala.concurrent.duration.Duration;
 import scala.concurrent.duration.FiniteDuration;
+import scala.concurrent.Await;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -25,6 +26,8 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
+import java.lang.Runnable;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -123,7 +126,6 @@ public class Main {
 		ActorSystem system = createSystem("master");
 		Address joinAddress = getAddress(system);
 		Cluster.get(system).join(joinAddress);
-
    		//startupSharedJournal(system, (port == 2551),
         //ActorPaths.fromString("akka.tcp://ClusterSystem@127.0.0.1:2551/user/store"));
 

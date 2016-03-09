@@ -36,6 +36,11 @@ import akka.actor.Cancellable;
 import akka.actor.Props;
 import akka.actor.UntypedActor;
 import akka.cluster.Cluster;
+import akka.cluster.ClusterEvent;
+import akka.cluster.ClusterEvent.MemberEvent;
+import akka.cluster.ClusterEvent.MemberUp;
+import akka.cluster.ClusterEvent.MemberRemoved;
+import akka.cluster.ClusterEvent.UnreachableMember;
 import akka.cluster.client.ClusterClientReceptionist;
 import akka.cluster.pubsub.DistributedPubSub;
 import akka.cluster.pubsub.DistributedPubSubMediator;
@@ -75,16 +80,31 @@ public class Master extends UntypedActor {
 	}
 
 	@Override
+	public void preStart() {
+		cluster.subscribe(getSelf(), ClusterEvent.initialStateAsEvents(), 
+		    MemberEvent.class, UnreachableMember.class);
+	}
+
+	@Override
 	public void postStop() {
 		cleanupTask.cancel();
 	}
 
 	@Override
 	public void onReceive(Object message) throws Exception {
-		if (message instanceof RegisterWorker) {
+		//log.info("message:" + message.toString());
+		if (message instanceof UnreachableMember) {
+			UnreachableMember unreachable = (UnreachableMember) message;
+			cluster.leave(unreachable.member().address());
+			log.info("Member is UnreachableMember: {}", unreachable.member());
+		} else if (message instanceof MemberRemoved) {
+			MemberRemoved mRemoved = (MemberRemoved) message;
+			cluster.leave(mRemoved.member().address());
+			log.info("Member is Removed: {}", mRemoved.member());
+		} else if (message instanceof RegisterWorker) {
 			InetAddress localhost = Inet4Address.getLocalHost();
-			log.info("local address:" + localhost.getHostAddress().toString());
-			log.info("sender path:" + getSender().path());
+			//log.info("local address:" + localhost.getHostAddress().toString());
+			//log.info("sender path:" + getSender().path());
 			String loocalAddress = localhost.getHostAddress().toString();
 			Option<String> sender = getSender().path().address().host();
 			Option<String> empty = scala.Option.apply(null);
@@ -421,6 +441,10 @@ public class Master extends UntypedActor {
 			return "Busy{" + "work=" + work + ", deadline=" + deadline + '}';
 		}
 	}
+
+
+
+
 
 	private static final class WorkerState {
 		public final ActorRef ref;
