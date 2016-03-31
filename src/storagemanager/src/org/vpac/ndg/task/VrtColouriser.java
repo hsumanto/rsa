@@ -161,6 +161,7 @@ public class VrtColouriser extends Task {
         }
         
         sb.append("</ColorTable>" + System.lineSeparator());
+        //log.info("ColorTable:"+ sb.toString());
         return sb.toString();
     }
 
@@ -224,9 +225,6 @@ public class VrtColouriser extends Task {
         this.target = target;
     }
 
-    
-    
-    
     public String getInsertBefore() {
         return insertBefore;
     }

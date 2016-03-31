@@ -4,6 +4,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.io.File;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -140,19 +141,24 @@ public class WmtsQueryCreator extends Application {
         String targetName = String.format("%s", queryJobProgressId);
         Path vrtMosaicLoc = getWorkingDirectory().resolve(targetName + "_scaled" + Constant.EXT_VRT);
         GraphicsFile vrtMosaicFile = new GraphicsFile(vrtMosaicLoc);
+        // Bug fix for vrt builder when one of the output files's datatype is
+        // byte then vrt cannot convert it properly. So forcely set -1 to 255
+        FileStatistics outputInfo = new FileStatistics();
+        List<Path> sampleFiles = getSourceFilesFromPath(getQueryResultsDirectory());
+        if (sampleFiles.size() > 0) {
+            GraphicsFile sampleFile = new GraphicsFile(sampleFiles.get(0));
+            outputInfo.setSource(sampleFile);
+        }
         
         GraphicsFile allQueryTiles = new GraphicsFile(getQueryResultsDirectory());
-        
         List<GraphicsFile> translateInputs = new ArrayList<>();
-        
         VrtBuilder sourceVrtBuilder = new VrtBuilder("Create VRT of single band/timeslice");
         setTaskCleanupOptions(sourceVrtBuilder);
         sourceVrtBuilder.setSource(allQueryTiles);
         sourceVrtBuilder.setTemporaryLocation(getWorkingDirectory());
         sourceVrtBuilder.setOutputBucket(translateInputs);
         sourceVrtBuilder.setCopyToStoragePool(false);
-        sourceVrtBuilder.setTarget(vrtMosaicFile);
-        
+
         //now the WMTS specifics
 		PreviewSpec preview = ndgConfigManager.getConfig().getPreview();
 		Box extents = preview.getExtents();
@@ -162,6 +168,9 @@ public class WmtsQueryCreator extends Application {
 				extents.getXMin(), extents.getYMin(),
 				extents.getXMax(), extents.getYMax());
 
+        ScalarReceiver<FileStatistics> output = new ScalarReceiver<FileStatistics>();
+        output.set(outputInfo);
+        sourceVrtBuilder.setFileStatistics(output);
         //nodata value is set based on the bands nodata
 
         //
@@ -171,6 +180,7 @@ public class WmtsQueryCreator extends Application {
         FileStatistics stats = new FileStatistics();
         stats.setSource(vrtMosaicFile);
         stats.setApproximate(false);
+        sourceVrtBuilder.setTarget(vrtMosaicFile);
         //NOTE: we grab some of the scalar recievers from this task to feed values into the next task
         
         //
@@ -199,7 +209,6 @@ public class WmtsQueryCreator extends Application {
         scale.add(byteHighestValue);
         vrtToByteTif.setScale(scale);
         
-        
         //
         // TASK 5
         // Make another vrt file so that we can insert a colour table into it
@@ -211,6 +220,8 @@ public class WmtsQueryCreator extends Application {
         noColourVrtBuilder.setSource(tifByteFile);
         noColourVrtBuilder.setTarget(vrtWithNoColourFile);
         noColourVrtBuilder.setTemporaryLocation(getWorkingDirectory());
+        // noColourVrtBuilder.setSrcNodata("0");
+        // noColourVrtBuilder.setVrtNodata("-1");        
         noColourVrtBuilder.setCopyToStoragePool(false);
         
         //
@@ -223,6 +234,8 @@ public class WmtsQueryCreator extends Application {
         setTaskCleanupOptions(vrtColourer);
         vrtColourer.setSource(vrtWithNoColourFile);
         vrtColourer.setTarget(vrtWithColourFile);
+        log.info("TASK 6, vrtWithColourFile:" + vrtWithColourFile);
+        log.info("TASK 6, palette:" + _palette);
         vrtColourer.setPalette(_palette);
 
         //
@@ -236,6 +249,7 @@ public class WmtsQueryCreator extends Application {
         setTaskCleanupOptions(vrtToExpandedVrt);
         vrtToExpandedVrt.setSource(vrtWithColourFile);
         vrtToExpandedVrt.setTarget(vrtWithColourExpandedFile);
+        log.info("TASK 7, vrtWithColourFile:" + vrtWithColourFile);
         vrtToExpandedVrt.setExpand("rgba");
         
         //
@@ -250,6 +264,7 @@ public class WmtsQueryCreator extends Application {
         
         
         // ADD TASKS
+        getTaskPipeline().addTask(outputInfo);
         getTaskPipeline().addTask(sourceVrtBuilder);
         getTaskPipeline().addTask(stats);
         getTaskPipeline().addTask(vrtToByteTif);
@@ -259,6 +274,23 @@ public class WmtsQueryCreator extends Application {
         getTaskPipeline().addTask(tileBuilder);
         
     }
+
+    private List<Path> getSourceFilesFromPath(Path dir) {
+        List<Path> sourceFiles = new ArrayList<Path>();
+        if (dir.toFile().isDirectory())
+        {
+            File[] filesInDir = dir.toFile().listFiles();
+            for (File fileInDir : filesInDir) {
+                if (fileInDir.isFile()) {
+                    sourceFiles.add(fileInDir.toPath());
+                }
+            }
+        } else {
+            sourceFiles.add(dir.toFile().toPath());
+        }
+        return sourceFiles;
+    }
+
     
     /**
      * stop the task pipeline from deleting the output files automatically

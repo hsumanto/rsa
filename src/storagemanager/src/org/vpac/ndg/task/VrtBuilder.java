@@ -42,6 +42,7 @@ import org.vpac.ndg.storage.model.TileBand;
 import org.vpac.ndg.storage.model.TimeSlice;
 import org.vpac.ndg.storage.util.TimeSliceUtil;
 import org.vpac.ndg.storagemanager.GraphicsFile;
+import org.vpac.ndg.task.FileStatistics;
 
 public class VrtBuilder extends Task {
 
@@ -64,6 +65,7 @@ public class VrtBuilder extends Task {
 
     private boolean targetExtentsSet;
     private double[] targetExtents;
+    private ScalarReceiver<FileStatistics> fileStatistics;
 
     private CommandUtil commandUtil;
 
@@ -150,10 +152,30 @@ public class VrtBuilder extends Task {
         }
 
         if (band !=null && band.getNodata() != null && band.getNodata().length() != 0) {
+            log.info("No data :" + band.getNodata());
             command.add("-srcnodata");
             command.add(band.getNodata());
+        } else if (fileStatistics != null) {
+            FileStatistics fs = fileStatistics.get();
+            log.info("getPixelType:" + fs.getPixelType().get());
+            if (fs.getPixelType().get() != null) {
+                command.add("-srcnodata");
+                Double srcNodata = fs.getNodata().get();
+                if (fs.getPixelType().get().equals("SIGNEDBYTE")) {
+                    // Convert to byte value
+                    // For example -1 nodata value not working for vrtbuilder
+                    // when output file's nodata type is byte and it's over 
+                    // the boundary of byte, need to be convert
+                    int nodataValue = srcNodata.byteValue() & 0xFF;
+                    command.add(Integer.toString(nodataValue));
+                } else {
+                    command.add(srcNodata.toString());
+                }
+
+                command.add("-vrtnodata");
+                command.add(fs.getNodata().get().toString());
+            }
         }
-        
         
         command.add(target.getFileLocation().toString());
         
@@ -168,6 +190,7 @@ public class VrtBuilder extends Task {
             }
         }
 
+        log.info("command:" + command);
         return command;
     }
 
@@ -177,7 +200,7 @@ public class VrtBuilder extends Task {
         {
             File[] filesInDir = file.getFileLocation().toFile().listFiles();
             for (File fileInDir : filesInDir) {
-                if (fileInDir.isFile()) {
+                if (fileInDir.isFile() && fileInDir.toPath() != file.getFileLocation()) {
                     sourceFiles.add(fileInDir.toPath());
                 }
             }
@@ -326,6 +349,14 @@ public class VrtBuilder extends Task {
 
     public TimeSlice getTimeSlice() {
         return timeSlice;
+    }
+
+    public void setFileStatistics(ScalarReceiver<FileStatistics> fileStatistics) {
+        this.fileStatistics = fileStatistics;
+    }
+
+    public ScalarReceiver<FileStatistics> getFileStatistics() {
+        return fileStatistics;
     }
 
     /**

@@ -30,6 +30,9 @@ public class FileStatistics extends Task {
     private final String STATS_MEAN = "STATISTICS_MEAN";
     private final String STATS_MIN = "STATISTICS_MINIMUM";
     private final String STATS_STDDEV = "STATISTICS_STDDEV";
+    private final String COMPUTED_MINMAX = "Computed Min/Max";
+    private final String PIXEL_TYPE = "PIXELTYPE";
+    private final String NO_DATA = "NoData Value";
     
     private GraphicsFile source;
     private boolean approximate;
@@ -39,6 +42,9 @@ public class FileStatistics extends Task {
     private ScalarReceiver<Double> min;
     private ScalarReceiver<Double> mean;
     private ScalarReceiver<Double> stddev;
+    private ScalarReceiver<Double> nodata;
+    private ScalarReceiver<String> pixelType;
+
     
     
     public FileStatistics() {
@@ -65,6 +71,7 @@ public class FileStatistics extends Task {
         command.add("gdalinfo");
 
         command.add("-noct");
+        // command.add("-mm");
         
         if (approximate) {
             command.add("-approx_stats");
@@ -73,7 +80,7 @@ public class FileStatistics extends Task {
         }
         
         command.add(source.getFileLocation().toString());
-        
+        log.info("command:" + command);
         return command;
     }
 
@@ -129,18 +136,34 @@ public class FileStatistics extends Task {
                 getMax().set(getStatsValue(line));
                 log.info("Found max of " + getMax().get().toString());
                 foundCount++;
-            } else if (line.startsWith(STATS_MEAN)) {
+            } else 
+            if (line.startsWith(STATS_MEAN)) {
                 getMean().set(getStatsValue(line));
                 log.info("Found mean of " + getMean().get().toString());
                 foundCount++;
             } else if (line.startsWith(STATS_MIN)) {
                 getMin().set(getStatsValue(line));
+                // getMin().set(Double.parseDouble("0"));
                 log.info("Found min of " + getMin().get().toString());
                 foundCount++;
             } else if (line.startsWith(STATS_STDDEV)) {
                 getStddev().set(getStatsValue(line));
                 log.info("Found stddev of " + getStddev().get().toString());
                 foundCount++;
+            } else if (line.startsWith(PIXEL_TYPE)) {
+                getPixelType().set(getPixelTypeValue(line));
+                log.info("Found pixel type of " + getPixelType().get());
+                foundCount++;
+            } else if (line.startsWith(NO_DATA)) {
+                getNodata().set(getStatsValue(line));
+                log.info("Found No data value of " + getNodata().get());
+                foundCount++;
+
+            // } else if (line.startsWith(COMPUTED_MINMAX)) {
+            //     setComputedValues(line);
+            //     log.info("Computed Min and Max of " + getMin().get().toString() 
+            //         + "," + getMax().get().toString());
+            //     foundCount += 2;
             }
         }
         
@@ -154,9 +177,9 @@ public class FileStatistics extends Task {
                     sb.append("\n");
                 sb.append(lines[i]);
             }
-            throw new TaskException(String.format(
-                    "Unable to extract statistics from gdalinfo output."
-                    + "Last 10 lines were\n %s", sb.toString()));
+            // throw new TaskException(String.format(
+            //         "Unable to extract statistics from gdalinfo output."
+            //         + "Last 10 lines were\n %s", sb.toString()));
          }
     }
 
@@ -170,8 +193,18 @@ public class FileStatistics extends Task {
         return Double.parseDouble(numberBit);
     }
     
-    
-    
+    private void setComputedValues(String line) {
+        String minAndMax = line.substring(line.indexOf('=')+1);
+        Double min = Double.parseDouble(minAndMax.split(",")[0]);
+        Double max = Double.parseDouble(minAndMax.split(",")[1]);
+        getMin().set(min);
+        getMax().set(max);
+    }
+
+    private String getPixelTypeValue(String line) {
+        return line.substring(line.indexOf('=')+1);
+    }
+
     @Override
     public void rollback() {
         // nothing to do
@@ -244,11 +277,24 @@ public class FileStatistics extends Task {
         this.stddev = stddev;
     }
 
+    public ScalarReceiver<Double> getNodata() {
+        if (nodata == null)
+            nodata = new ScalarReceiver<Double>();
+        return nodata;
+    }
 
+    public void setNodata(ScalarReceiver<Double> nodata) {
+        this.nodata = nodata;
+    }
 
-    
-    
-    
-    
-    
+    public ScalarReceiver<String> getPixelType() {
+        if (pixelType == null)
+            pixelType = new ScalarReceiver<String>();
+        log.info("getPixelType:" + pixelType.get());
+        return pixelType;
+    }
+
+    public void setPixelType(ScalarReceiver<String> pixelType) {
+        this.pixelType = pixelType;
+    }
 }
