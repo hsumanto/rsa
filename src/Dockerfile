@@ -10,50 +10,53 @@ FROM ubuntu:14.04
 
 MAINTAINER Jin Park <forjin@vpac-innovations.com.au>, Alex Fraser <alex@vpac-innovations.com.au>
 
-ENV DEBIAN_FRONTEND noninteractive
-ENV TERM linux
+ENV JDK_VERSION=8 \
+    TOMCAT_VERSION=6
 
-# Install Tomcat, Python and GDAL.
-RUN apt-get install -y software-properties-common
-RUN add-apt-repository ppa:openjdk-r/ppa
-RUN apt-get update && \
-    apt-get install -y \
-        libtcnative-1 \
-        openjdk-8-jdk \
-        tomcat6 \
-        tomcat6-admin \
-        --no-install-recommends
+ENV DEBIAN_FRONTEND=noninteractive \
+    TERM=linux \
+    GDAL_DIR=/usr/share/bin \
+    JAVA_HOME=/usr/lib/jvm/java-${JDK_VERSION}-openjdk-amd64 \
+    PATH=$JAVA_HOME/bin:$GDAL_DIR/bin:/usr/lib/jni:/usr/lib:$PATH \
+    CLASSPATH=$CLASSPATH:/usr/share/java/gdal.jar:/usr/lib/jni/ \
+    CATALINA_BASE=/var/lib/tomcat${TOMCAT_VERSION} \
+    CATALINA_HOME=/usr/share/tomcat${TOMCAT_VERSION}
 
-RUN apt-get install -y \
+ARG APT_PROXY_PORT=
+COPY detect-apt-proxy.sh /root
+RUN /root/detect-apt-proxy.sh ${APT_PROXY_PORT} && \
+    apt-get install -y software-properties-common && \
+    add-apt-repository ppa:openjdk-r/ppa && \
+    apt-get update && \
+    apt-get install -y --no-install-recommends \
         ant \
         ant-optional \
-        --no-install-recommends
-
-RUN apt-get install -y \
+        curl \
         gdal-bin \
         libgdal-dev \
         libgdal-java \
         libjna-java \
         libproj0 \
-        python-gdal \
-        zlibc \
-        zlib1g \
-        zlib1g-dev \
+        libtcnative-1 \
         nmap \
         nano \
-        --no-install-recommends && \
-    rm -rf /var/lib/apt/lists/*
+        openjdk-${JDK_VERSION}-jdk \
+        python-gdal \
+        tomcat${TOMCAT_VERSION} \
+        tomcat${TOMCAT_VERSION}-admin \
+        unzip \
+        zlib1g \
+        zlib1g-dev \
+        zlibc && \
+    ln -s /usr/share/java/gdal.jar /usr/lib/ && \
+    rm -rf /var/lib/apt/lists/* /etc/apt/apt.conf.d/30proxy
 
-# Set environment variables
-ENV GDAL_DIR /usr/share/bin
-ENV JAVA_HOME /usr/lib/jvm/java-8-openjdk-amd64
-ENV PATH $JAVA_HOME/bin:$GDAL_DIR/bin:/usr/lib/jni:/usr/lib:$PATH
-ENV LD_LIBRARY_PATH $GDAL_DIR/lib:$LD_LIBRARY_PATH
+ENV LD_LIBRARY_PATH=$GDAL_DIR/lib:$LD_LIBRARY_PATH
+RUN ldconfig
 
 # Temporary working space. No need for this to be a published volume.
-RUN mkdir -p /var/tmp/ndg
-RUN mkdir -p /var/spool/ndg/tmp
-RUN ln -s /usr/share/java/gdal.jar /usr/lib/
+RUN mkdir -p /var/tmp/ndg \
+    mkdir -p /var/spool/ndg/tmp
 
 # Ant build storagemanager
 COPY build.xml rsa_docker_start.sh /var/src/
@@ -63,17 +66,11 @@ COPY spatialcubeservice /var/src/spatialcubeservice/
 COPY storagemanager /var/src/storagemanager/
 
 # build Spatialcube Service
-ENV CLASSPATH $CLASSPATH:/usr/share/java/gdal.jar:/usr/lib/jni/
-ENV CATALINA_BASE /var/lib/tomcat6
-ENV CATALINA_HOME /usr/share/tomcat6
-
-RUN ldconfig && \
-    cd /var/src/spatialcubeservice && ant
+RUN cd /var/src/spatialcubeservice && ant
 
 COPY rsaworkers /var/src/rsaworkers/
 
-RUN ldconfig && \
-    cd /var/src/rsaworkers && ant
+RUN cd /var/src/rsaworkers && ant
 
 RUN mkdir -p /var/lib/tomcat6/webapps/spatialcubeservice && \
     cp /var/src/spatialcubeservice/dist/rsa_*.war /var/lib/tomcat6/webapps/spatialcubeservice/spatialcubeservice.war && \
@@ -86,7 +83,7 @@ COPY rsaworkers/resources/spring/database/datasource.xml.docker.SAMPLE \
 
 COPY spatialcubeservice/config/datasource.xml.docker.SAMPLE \
     /var/lib/tomcat6/webapps/spatialcubeservice/WEB-INF/classes/datasource.xml
-    
+
 COPY rsaworkers/resources/spring/database/datasource.xml.docker.SAMPLE \
     /var/src/cmdclient/dist/rsacli/config/datasource.xml
 
@@ -107,4 +104,3 @@ ENTRYPOINT ["/var/src/rsa_docker_start.sh"]
 #   - 2552: akka
 EXPOSE 8080
 EXPOSE 2552
-

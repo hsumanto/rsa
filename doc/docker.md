@@ -10,9 +10,9 @@ RSA uses a few images: one for the database, one for persistent files, and one
 for the application itself.
 
 ```bash
-sudo docker build -t vpac/rsadb src/docker/postgresql/
+sudo docker run -d --name apt-cacher -p 3142:3142 sameersbn/apt-cacher-ng:latest
 sudo docker build -t vpac/rsadata src/docker/data/
-sudo docker build -t vpac/rsa src/
+sudo docker build -t vpac/rsa --build-arg APT_PROXY_PORT=3142 src
 ```
 
 ## Configuration and Storage
@@ -49,7 +49,7 @@ sudo docker run -d --name rsadata$RSA_ID $RSA_OPTS vpac/rsadata
 
 ## Running
 
-Start a rsa which has master and worker at same machine and the web services. 
+Start a rsa which has master and worker at same machine and the web services.
 Multiple rsa instances can be started - just give each one a different name.
 
 ```bash
@@ -65,7 +65,7 @@ sudo docker run -d --name rsaweb$RSA_ID \
     vpac/rsa web
 ```
 
-if you want to run more worker and master, you can run this way. The number of 
+if you want to run more worker and master, you can run this way. The number of
 the instance name can be changed.
 ```bash
 sudo docker run -d --name rsa2 \
@@ -86,4 +86,3 @@ If you want to publish the RSA on the network, either set up a proxy or pass
 the `-p 8080:8080` argument to Docker when starting `rsaweb`.
 
 [rsa.xml]: ../src/storagemanager/config/rsa.xml.docker.SAMPLE
-
