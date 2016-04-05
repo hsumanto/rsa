@@ -143,11 +143,10 @@ public class WmtsQueryCreator extends Application {
         GraphicsFile vrtMosaicFile = new GraphicsFile(vrtMosaicLoc);
         // Bug fix for vrt builder when one of the output files's datatype is
         // byte then vrt cannot convert it properly. So forcely set -1 to 255
-        FileStatistics outputInfo = new FileStatistics();
+        OutputDirStatistics outputInfo = new OutputDirStatistics();
         List<Path> sampleFiles = getSourceFilesFromPath(getQueryResultsDirectory());
         if (sampleFiles.size() > 0) {
-            GraphicsFile sampleFile = new GraphicsFile(sampleFiles.get(0));
-            outputInfo.setSource(sampleFile);
+            outputInfo.setSource(getQueryResultsDirectory());
         }
         
         GraphicsFile allQueryTiles = new GraphicsFile(getQueryResultsDirectory());
@@ -168,9 +167,9 @@ public class WmtsQueryCreator extends Application {
 				extents.getXMin(), extents.getYMin(),
 				extents.getXMax(), extents.getYMax());
 
-        ScalarReceiver<FileStatistics> output = new ScalarReceiver<FileStatistics>();
+        ScalarReceiver<OutputDirStatistics> output = new ScalarReceiver<OutputDirStatistics>();
         output.set(outputInfo);
-        sourceVrtBuilder.setFileStatistics(output);
+        sourceVrtBuilder.setOutputDirStatistics(output);
         //nodata value is set based on the bands nodata
 
         //
@@ -220,8 +219,6 @@ public class WmtsQueryCreator extends Application {
         noColourVrtBuilder.setSource(tifByteFile);
         noColourVrtBuilder.setTarget(vrtWithNoColourFile);
         noColourVrtBuilder.setTemporaryLocation(getWorkingDirectory());
-        // noColourVrtBuilder.setSrcNodata("0");
-        // noColourVrtBuilder.setVrtNodata("-1");        
         noColourVrtBuilder.setCopyToStoragePool(false);
         
         //

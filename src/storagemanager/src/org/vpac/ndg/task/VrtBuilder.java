@@ -42,7 +42,7 @@ import org.vpac.ndg.storage.model.TileBand;
 import org.vpac.ndg.storage.model.TimeSlice;
 import org.vpac.ndg.storage.util.TimeSliceUtil;
 import org.vpac.ndg.storagemanager.GraphicsFile;
-import org.vpac.ndg.task.FileStatistics;
+import org.vpac.ndg.task.OutputDirStatistics;
 
 public class VrtBuilder extends Task {
 
@@ -65,7 +65,7 @@ public class VrtBuilder extends Task {
 
     private boolean targetExtentsSet;
     private double[] targetExtents;
-    private ScalarReceiver<FileStatistics> fileStatistics;
+    private ScalarReceiver<OutputDirStatistics> outputDirStatistics;
 
     private CommandUtil commandUtil;
 
@@ -155,13 +155,13 @@ public class VrtBuilder extends Task {
             log.info("No data :" + band.getNodata());
             command.add("-srcnodata");
             command.add(band.getNodata());
-        } else if (fileStatistics != null) {
-            FileStatistics fs = fileStatistics.get();
-            log.info("getPixelType:" + fs.getPixelType().get());
-            if (fs.getPixelType().get() != null) {
+        } else if (outputDirStatistics != null) {
+            OutputDirStatistics os = outputDirStatistics.get();
+            log.info("getPixelType:" + os.getPixelType().get());
+            if (os.getPixelType().get() != null) {
                 command.add("-srcnodata");
-                Double srcNodata = fs.getNodata().get();
-                if (fs.getPixelType().get().equals("SIGNEDBYTE")) {
+                Double srcNodata = os.getNodata().get();
+                if (os.getPixelType().get().equals("SIGNEDBYTE")) {
                     // Convert to byte value
                     // For example -1 nodata value not working for vrtbuilder
                     // when output file's nodata type is byte and it's over 
@@ -173,7 +173,7 @@ public class VrtBuilder extends Task {
                 }
 
                 command.add("-vrtnodata");
-                command.add(fs.getNodata().get().toString());
+                command.add(os.getNodata().get().toString());
             }
         }
         
@@ -351,12 +351,12 @@ public class VrtBuilder extends Task {
         return timeSlice;
     }
 
-    public void setFileStatistics(ScalarReceiver<FileStatistics> fileStatistics) {
-        this.fileStatistics = fileStatistics;
+    public void setOutputDirStatistics(ScalarReceiver<OutputDirStatistics> outputDirStatistics) {
+        this.outputDirStatistics = outputDirStatistics;
     }
 
-    public ScalarReceiver<FileStatistics> getFileStatistics() {
-        return fileStatistics;
+    public ScalarReceiver<OutputDirStatistics> getOutputDirStatistics() {
+        return outputDirStatistics;
     }
 
     /**
