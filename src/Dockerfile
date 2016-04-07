@@ -15,11 +15,13 @@ ENV JDK_VERSION=8 \
     GRADLE_VERSION=2.12
 
 # Packages with a trailing dash (-) will be removed / not installed.
-ARG APT_PROXY_PORT=
-COPY detect-apt-proxy.sh /root
+COPY detect-proxy.sh /root
 RUN export DEBIAN_FRONTEND=noninteractive TERM=linux && \
-    /root/detect-apt-proxy.sh ${APT_PROXY_PORT} no && \
-    apt-get install -y software-properties-common && \
+    apt-get update && \
+    apt-get install -y --no-install-recommends \
+        ca-certificates \
+        software-properties-common && \
+    /root/detect-proxy.sh && \
     add-apt-repository ppa:openjdk-r/ppa && \
     apt-get update && \
     apt-get install -y --no-install-recommends \
@@ -42,9 +44,7 @@ RUN export DEBIAN_FRONTEND=noninteractive TERM=linux && \
         zlib1g-dev \
         zlibc && \
     ln -s /usr/share/java/gdal.jar /usr/lib/
-#    rm -rf /var/lib/apt/lists/* \
-#        /etc/apt/apt.conf.d/30proxy \
-#        /root/detect-apt-proxy.sh
+#    rm -rf /var/lib/apt/lists/*
 
 ENV GDAL_DIR=/usr/share/bin \
     JAVA_HOME=/usr/lib/jvm/java-${JDK_VERSION}-openjdk-amd64 \
