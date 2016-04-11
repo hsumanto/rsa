@@ -22,7 +22,7 @@ RUN export DEBIAN_FRONTEND=noninteractive TERM=linux && \
         ca-certificates \
         software-properties-common && \
     /root/detect-proxy.sh && \
-    add-apt-repository ppa:openjdk-r/ppa && \
+    add-apt-repository -y ppa:openjdk-r/ppa && \
     apt-get update && \
     apt-get install -y --no-install-recommends \
         curl \

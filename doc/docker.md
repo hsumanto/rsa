@@ -6,14 +6,29 @@ The minimum Docker version is 1.2.0.
 
 ## Building
 
-RSA uses a few images: one for the database, one for persistent files, and one
-for the application itself.
+Before building, it's a good idea to start
+[`docker-proxy` with SSL support][dp]: this allows caching of libraries
+used by Gradle. The rsa's build script has special support for `docker-proxy`
+to allow caching of SSL requests.
+
+```
+git clone git@github.com:vpac-innovations/docker-proxy.git
+cd docker-proxy
+sudo docker build -t docker-proxy .
+./run.sh ssl
+```
+
+Then build RSA.
+
+RSA uses a couple of images: one for persistent files, and one for the
+application itself.
 
 ```bash
-sudo docker run -d --name apt-cacher -p 3142:3142 sameersbn/apt-cacher-ng:latest
 sudo docker build -t vpac/rsadata src/docker/data/
-sudo docker build -t vpac/rsa --build-arg APT_PROXY_PORT=3142 src
+sudo docker build -t vpac/rsa src
 ```
+
+[dp]: https://github.com/vpac-innovations/docker-proxy
 
 ## Configuration and Storage
 
