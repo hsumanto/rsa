@@ -1,2 +1,3 @@
-include 'cmdclient', 'rsaworkers', 'spatialcubeservice'
+//include 'cmdclient', 'rsaworkers', 'spatialcubeservice'
+include 'rsaquery'
 rootProject.name = 'rsa'
