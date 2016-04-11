@@ -1,2 +1,5 @@
 dist
 .classpath
+.gradle
+gradlew*
+gradle
