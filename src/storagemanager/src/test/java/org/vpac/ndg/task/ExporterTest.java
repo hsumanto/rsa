@@ -54,7 +54,7 @@ import com.carrotsearch.junitbenchmarks.BenchmarkRule;
 
 @SuppressWarnings("deprecation")
 @RunWith(SpringJUnit4ClassRunner.class)  
-@ContextConfiguration({"file:resources/spring/config/TestBeanLocations.xml"})
+@ContextConfiguration({"/spring/config/TestBeanLocations.xml"})
 @BenchmarkOptions(benchmarkRounds = 1, warmupRounds = 0)
 public class ExporterTest extends AbstractJUnit4SpringContextTests {
 

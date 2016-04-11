@@ -52,7 +52,7 @@ import org.vpac.ndg.task.VrtBuilderTest;
  * 
  */
 //@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration({"file:resources/spring/config/TestBeanLocations.xml"})
+@ContextConfiguration({"/spring/config/TestBeanLocations.xml"})
 @RunWith(Suite.class)
 @SuiteClasses({
 	NumberUtilsTest.class,

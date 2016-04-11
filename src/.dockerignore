@@ -1,8 +1,0 @@
-dist
-*/dist
-**/*~
-**/*.class
-**/*.jar
-**/.gradle
-**/gradlew*
-**/gradle

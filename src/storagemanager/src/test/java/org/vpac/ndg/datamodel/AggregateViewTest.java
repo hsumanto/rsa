@@ -57,8 +57,8 @@ import ucar.nc2.ncml.NcMLReader;
 import ucar.unidata.geoloc.ProjectionImpl;
 import ucar.unidata.geoloc.ProjectionPoint;
 
-@RunWith(SpringJUnit4ClassRunner.class)  
-@ContextConfiguration({"file:resources/spring/config/TestBeanLocations.xml"})
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration({"/spring/config/TestBeanLocations.xml"})
 public class AggregateViewTest {
 
 	final private Logger log = LoggerFactory.getLogger(AggregateViewTest.class);
@@ -94,7 +94,7 @@ public class AggregateViewTest {
 		-999, -999, -999, -999, -999, // time[0] y[2500]
 		-999, -999, -999, -999, -999, // time[0] y[2501]
 		-999, -999, -999, -999, -999, // time[0] y[2502]
-	      
+
 		2679, 2597, 2597, 2679, 2720, // time[1] y[2498]
 		2597, 2597, 2720, 2679, 2720, // time[1] y[2499]
 		2557, 2557, 2597, 2597, 2638, // time[1] y[2500]
@@ -191,7 +191,7 @@ public class AggregateViewTest {
 		String dsName = "missing";
 		Dataset ds = testUtil.initialiseDataForExport(dsName, testUtil.getExportDatasetRes(), testUtil.getExportDatasetPath());
 		// Make sure one tile is absent.
-		Box extents = testUtil.removeOneTile(ds);		
+		Box extents = testUtil.removeOneTile(ds);
 
 		List<String> bands = new ArrayList<String>();
 		bands.add("B30");
@@ -389,8 +389,8 @@ public class AggregateViewTest {
 		arr = var.read(SECTION2);
 		assertArray(B40_DATA2, arr);
 	}
-	
-	
+
+
 	/**
 	 * Confirm that the contents of two arrays are the same.
 	 */
@@ -412,7 +412,7 @@ public class AggregateViewTest {
 		try {
 			FileUtils.removeDirectory(tempDir);
 		} catch (IOException e) {
-			log.error("Could not delete temporary directory.", e);	
+			log.error("Could not delete temporary directory.", e);
 		}
 		for (NetcdfFile f : resources) {
 			try {

@@ -37,7 +37,7 @@ import org.vpac.ndg.storage.dao.JobProgressDao;
 import org.vpac.ndg.storage.model.JobProgress;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration({ "file:resources/spring/config/TestBeanLocations.xml" })
+@ContextConfiguration({ "/spring/config/TestBeanLocations.xml" })
 public class JobProgressTest extends AbstractJUnit4SpringContextTests {
 	@Autowired
 	JobProgressDao jobProgressDao;

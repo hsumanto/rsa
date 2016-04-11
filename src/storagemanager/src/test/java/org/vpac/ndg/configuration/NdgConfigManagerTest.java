@@ -31,8 +31,8 @@ import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.vpac.ndg.ApplicationContextProvider;
 
-@RunWith(SpringJUnit4ClassRunner.class)  
-@ContextConfiguration({"file:resources/spring/config/TestBeanLocations.xml"})
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration({"/spring/config/TestBeanLocations.xml"})
 public class NdgConfigManagerTest extends AbstractJUnit4SpringContextTests {
 
 	final private Logger log = LoggerFactory.getLogger(NdgConfigManagerTest.class);

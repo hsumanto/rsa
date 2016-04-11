@@ -41,7 +41,7 @@ import org.vpac.ndg.common.datamodel.CellSize;
  * 
  */
 @RunWith(SpringJUnit4ClassRunner.class)  
-@ContextConfiguration({"file:resources/spring/config/TestBeanLocations.xml"})
+@ContextConfiguration({"/spring/config/TestBeanLocations.xml"})
 public class BoxTest {
 
 	final private Logger log = LoggerFactory.getLogger(BoxTest.class);

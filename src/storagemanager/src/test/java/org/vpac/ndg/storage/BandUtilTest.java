@@ -48,7 +48,7 @@ import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration({ "file:resources/spring/config/TestBeanLocations.xml" })
+@ContextConfiguration({ "/spring/config/TestBeanLocations.xml" })
 public class BandUtilTest {
 
 	final Logger log = LoggerFactory.getLogger(BandUtilTest.class);

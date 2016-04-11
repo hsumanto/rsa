@@ -11,7 +11,7 @@ import org.vpac.ndg.colour.HashPalette;
 import org.vpac.ndg.colour.RangeMap;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration({ "file:resources/spring/config/TestBeanLocations.xml" })
+@ContextConfiguration({ "/spring/config/TestBeanLocations.xml" })
 public class PaletteTest extends AbstractJUnit4SpringContextTests {
 
 	static final double EPSILON = 1.0e-17;

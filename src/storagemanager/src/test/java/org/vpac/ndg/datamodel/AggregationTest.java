@@ -38,7 +38,7 @@ import org.vpac.ndg.datamodel.AggregationDefinition.VarAggDef;
 import org.vpac.ndg.datamodel.AggregationDefinition.VarDef;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration({ "file:resources/spring/config/TestBeanLocations.xml" })
+@ContextConfiguration({ "/spring/config/TestBeanLocations.xml" })
 public class AggregationTest {
 
 	final private Logger log = LoggerFactory.getLogger(AggregationTest.class);

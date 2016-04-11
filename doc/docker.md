@@ -25,7 +25,7 @@ application itself.
 
 ```bash
 sudo docker build -t vpac/rsadata src/docker/data/
-sudo docker build -t vpac/rsa src
+sudo docker build -t vpac/rsa .
 ```
 
 [dp]: https://github.com/vpac-innovations/docker-proxy
@@ -58,7 +58,7 @@ container is kept, you can restart and replace the actual RSA containers
 without losing your data.
 
 ```bash
-sudo docker run -d --name rsadb$RSA_ID vpac/rsadb
+sudo docker run -d --name rsadb$RSA_ID postgres:9
 sudo docker run -d --name rsadata$RSA_ID $RSA_OPTS vpac/rsadata
 ```
 

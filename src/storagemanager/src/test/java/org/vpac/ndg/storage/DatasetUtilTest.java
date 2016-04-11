@@ -32,7 +32,7 @@ import org.vpac.ndg.storage.model.Dataset;
 import org.vpac.ndg.storage.util.DatasetUtil;
 
 @RunWith(SpringJUnit4ClassRunner.class)  
-@ContextConfiguration({"file:resources/spring/config/TestBeanLocations.xml"})
+@ContextConfiguration({"/spring/config/TestBeanLocations.xml"})
 public class DatasetUtilTest extends AbstractJUnit4SpringContextTests {
 	
 	@Autowired

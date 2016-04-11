@@ -57,7 +57,7 @@ import org.vpac.ndg.storage.model.TimeSlice;
 import org.vpac.ndg.storagemanager.GraphicsFile;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration({ "file:resources/spring/config/TestBeanLocations.xml" })
+@ContextConfiguration({"/spring/config/TestBeanLocations.xml"})
 public class GraphicsFileCreatorTest extends AbstractJUnit4SpringContextTests {
 
 	final private Logger log = LoggerFactory

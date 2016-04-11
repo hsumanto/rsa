@@ -69,7 +69,7 @@ import org.vpac.ndg.storagemanager.GraphicsFile;
  * @author hsumanto
  */
 @RunWith(SpringJUnit4ClassRunner.class)  
-@ContextConfiguration({"file:resources/spring/config/TestBeanLocations.xml"})
+@ContextConfiguration({"/spring/config/TestBeanLocations.xml"})
 public class TileBandCreatorTest extends AbstractJUnit4SpringContextTests {
 
 	final private Logger log = LoggerFactory.getLogger(TileBandCreatorTest.class);

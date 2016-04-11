@@ -43,7 +43,7 @@ import org.vpac.ndg.rasterservices.FileInformation;
  * 
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration({ "file:resources/spring/config/TestBeanLocations.xml" })
+@ContextConfiguration({ "/spring/config/TestBeanLocations.xml" })
 public class GetFileInformationTest extends AbstractJUnit4SpringContextTests {
 
 	final private Logger log = LoggerFactory

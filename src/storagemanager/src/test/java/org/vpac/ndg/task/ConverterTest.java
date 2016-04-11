@@ -41,7 +41,7 @@ import org.vpac.ndg.exceptions.TaskInitialisationException;
  *
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration({ "file:resources/spring/config/TestBeanLocations.xml" })
+@ContextConfiguration({"/spring/config/TestBeanLocations.xml"})
 public class ConverterTest extends AbstractJUnit4SpringContextTests {
 
 	@After

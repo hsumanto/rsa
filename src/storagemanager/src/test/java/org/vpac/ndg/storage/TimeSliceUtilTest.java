@@ -35,7 +35,7 @@ import org.vpac.ndg.storage.model.TimeSlice;
 import org.vpac.ndg.storage.util.TimeSliceUtil;
 
 @RunWith(SpringJUnit4ClassRunner.class)  
-@ContextConfiguration({"file:resources/spring/config/TestBeanLocations.xml"})
+@ContextConfiguration({"/spring/config/TestBeanLocations.xml"})
 public class TimeSliceUtilTest extends AbstractJUnit4SpringContextTests {
 	
 	@Autowired

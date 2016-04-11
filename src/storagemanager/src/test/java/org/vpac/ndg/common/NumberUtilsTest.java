@@ -28,7 +28,7 @@ import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration({ "file:resources/spring/config/TestBeanLocations.xml" })
+@ContextConfiguration({"/spring/config/TestBeanLocations.xml"})
 public class NumberUtilsTest extends AbstractJUnit4SpringContextTests {
 
 	@Test

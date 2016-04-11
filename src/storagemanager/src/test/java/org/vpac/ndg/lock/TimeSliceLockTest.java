@@ -42,7 +42,7 @@ import org.vpac.ndg.storage.model.Dataset;
 import org.vpac.ndg.storage.model.TimeSlice;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration({ "file:resources/spring/config/TestBeanLocations.xml" })
+@ContextConfiguration({ "/spring/config/TestBeanLocations.xml" })
 public class TimeSliceLockTest {
 
 	final Logger log = LoggerFactory.getLogger(TimeSliceLockTest.class);
