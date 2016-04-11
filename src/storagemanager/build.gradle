@@ -1,0 +1,34 @@
+apply plugin: 'java'
+
+dependencies {
+    compile 'edu.ucar:cdm:4.4.0',
+        'edu.ucar:netcdf4:4.4.0',
+        'ch.qos.logback:logback-classic:1.0.7',
+        'commons-lang:commons-lang:2.5',
+        'org.aspectj:aspectjtools:1.6.2',
+        'org.hibernate:hibernate-core:3.5.6-Final',
+        'org.springframework:org.springframework.beans:3.1.1.RELEASE',
+        'org.springframework:org.springframework.context:3.1.1.RELEASE',
+        'org.springframework:org.springframework.orm:3.1.1.RELEASE',
+        'org.springframework:org.springframework.transaction:3.1.1.RELEASE',
+        'com.thoughtworks.xstream:xstream:1.4.2',
+        files('/usr/lib/gdal.jar'),
+        project(':rsaquery')
+
+    runtime 'net.java.dev.jna:jna:3.2.7',
+        'org.springframework:org.springframework.aop:3.1.1.RELEASE',
+        'org.springframework:org.springframework.asm:3.1.1.RELEASE',
+        'org.springframework:org.springframework.core:3.1.1.RELEASE',
+        'org.springframework:org.springframework.expression:3.1.1.RELEASE',
+        'org.springframework:org.springframework.jdbc:3.1.1.RELEASE'
+
+    testCompile 'com.carrotsearch:junit-benchmarks:0.4.0',
+        'org.springframework:org.springframework.test:3.1.1.RELEASE',
+        sourceSets.main.output
+}
+
+jar {
+    manifest {
+        attributes("Implementation-Title": "storagemanager")
+    }
+}
