@@ -64,18 +64,22 @@ RUN curl -O https://downloads.gradle.org/distributions/gradle-${GRADLE_VERSION}-
     rm gradle-${GRADLE_VERSION}-bin.zip && \
     mv gradle-${GRADLE_VERSION} gradle
 
-# Temporary working space. No need for this to be a published volume.
-RUN mkdir -p /var/tmp/ndg /var/spool/ndg/tmp
+RUN mkdir -p /var/tmp/ndg \
+        /var/spool/ndg/tmp \
+        /var/spool/ndg/upload \
+        /var/lib/ndg/storagepool
 
 COPY src /var/src/rsa/src
 COPY data /var/src/rsa/data
 COPY config /var/src/rsa/config
-VOLUME /var/src/rsa/config
+VOLUME /var/src/rsa/config \
+    /var/spool/ndg/upload \
+    /var/lib/ndg/storagepool
 
 WORKDIR /var/src/rsa/src
 
 #ENTRYPOINT ["/var/src/rsa/src/rsa_docker_start.sh"]
-RUN bash
+CMD bash
 
 # Expose ports.
 #   - 8080: web

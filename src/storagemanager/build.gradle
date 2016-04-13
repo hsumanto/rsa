@@ -15,7 +15,8 @@ dependencies {
         files('/usr/lib/gdal.jar'),
         project(':rsaquery')
 
-    runtime 'net.java.dev.jna:jna:3.2.7',
+    runtime 'cglib:cglib:2.2.2',
+        'net.java.dev.jna:jna:3.2.7',
         'org.hibernate:hibernate-annotations:3.5.6-Final',
         'org.hibernate.javax.persistence:hibernate-jpa-2.0-api:1.0.0.Final',
         'org.postgresql:postgresql:9.4-1201-jdbc41',
