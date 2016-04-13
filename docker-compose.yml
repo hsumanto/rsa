@@ -1,0 +1,12 @@
+dev:
+    build: .
+    links:
+        - postgres:rsadb
+    volumes:
+        - ./src:/var/src/rsa/src
+        - ./data:/var/src/rsa/data
+        - ./config:/var/src/rsa/config
+    command: bash
+
+postgres:
+    image: postgres:9
