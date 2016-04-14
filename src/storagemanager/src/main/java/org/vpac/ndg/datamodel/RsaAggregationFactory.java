@@ -81,11 +81,11 @@ public class RsaAggregationFactory extends AggregationFactory {
 	/**
 	 * Create a data cube that references all the data in a dataset (i.e. all
 	 * bands, times and extents).
-	 * 
+	 *
 	 * @param dataset
 	 *            The dataset to use as the source.
 	 * @return A data cube that refers to the dataset's underlying files.
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	public AggregationDefinition create(Dataset dataset) throws IOException {
 		List<TimeSlice> tss = datasetDao.getTimeSlices(dataset.getId());
@@ -115,16 +115,16 @@ public class RsaAggregationFactory extends AggregationFactory {
 
 	/**
 	 * Create a data cube that references the specified time slices and bands.
-	 * 
+	 *
 	 * @param dataset
 	 *            The dataset to use as the source.
 	 * @param tss
 	 *            The time slices to access.
 	 * @param bs
 	 *            The bands to access.
-	 * @return Returns a data cube that references the specified time slices 
+	 * @return Returns a data cube that references the specified time slices
 	 * and bands.
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	public AggregationDefinition create(Dataset dataset, List<TimeSlice> tss,
 			List<Band> bs) throws IOException {
@@ -143,7 +143,7 @@ public class RsaAggregationFactory extends AggregationFactory {
 	 * substituted by a blank file; this is due to the constraints of the
 	 * <em>tiled</em> aggregation type. Bands and time slices that are
 	 * completely empty will be excluded.
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	public AggregationDefinition create(Dataset ds, List<TimeSlice> tss,
 			List<Band> bs, Box boundsHint) throws IOException {
@@ -374,7 +374,7 @@ public class RsaAggregationFactory extends AggregationFactory {
 
 	/**
 	 * Generate a single Ncml element that references a graphics file.
-	 * 
+	 *
 	 * @param child The file to reference. This method does <em>not</em> check
 	 *        that the file exists; that is the responsibility of the caller.
 	 * @param relative If true, only the file name (not path) will appear in the

@@ -3,9 +3,11 @@ These files must be on the classpath when the RSA is started. E.g.
 
     java -classpath "config:lib/StorageManager.jar:/usr/local/lib/gdal.jar" ...
 
-Some of these files have the suffix .SAMPLE to allow local configuration without
-interference with version-controlled files. Before the RSA can be used, the
-.SAMPLE files must be copied or renamed to remove the suffix.
+If you are running in Docker:
+
+ 1. Create a copy of this directory outside the source tree
+ 2. Make any modifications that you need
+ 3. Map the directory as a volume to /var/src/rsa/config
 
 rsa.xml
     The core configuration file of the RSA. Includes settings for the National

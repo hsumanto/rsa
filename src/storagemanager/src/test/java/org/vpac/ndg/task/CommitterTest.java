@@ -65,9 +65,9 @@ import org.vpac.ndg.storagemanager.GraphicsFile;
  * from their temporary storage into the storage pool. Once all tiles have been
  * successfully moved into storage pool then save them into database and
  * increase upload counter for TimeSlice.
- * 
+ *
  * @author hsumanto
- * 
+ *
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration({ "/spring/config/TestBeanLocations.xml" })
@@ -81,6 +81,7 @@ public class CommitterTest extends AbstractJUnit4SpringContextTests {
 	private List<TileBand> source;
 	private Box bounds;
 	private TimeSlice target;
+	Dataset dataset;
 	private Band band;
 	private GraphicsFile sourceImage;
 	private List<GraphicsFile> sourceList;
@@ -137,7 +138,7 @@ public class CommitterTest extends AbstractJUnit4SpringContextTests {
 		List<Tile> tiles = tileManager.getTiles(bounds, resolution);
 
 		// Set up dataset
-		Dataset dataset = datasetDao.findDatasetByName(datasetName, resolution);
+		dataset = datasetDao.findDatasetByName(datasetName, resolution);
 		if (dataset == null) {
 			dataset = new Dataset(datasetName, resolution,
 					DateUtils.MILLIS_PER_DAY);
@@ -180,6 +181,7 @@ public class CommitterTest extends AbstractJUnit4SpringContextTests {
 
 		// Commit totally new tiles into storage pool
 		committer = new Committer("Commit brand new tile set into storagepool");
+		committer.setDataset(dataset);
 		committer.setSource(source);
 		committer.setBounds(bounds);
 		committer.setBand(band);

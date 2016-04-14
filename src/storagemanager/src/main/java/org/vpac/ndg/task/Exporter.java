@@ -65,7 +65,7 @@ import ucar.nc2.time.CalendarDateUnit;
 
 /**
  * This tool executes a series of tasks to export data from the RSA.
- * 
+ *
  * @author hsumanto
  * @author adfries
  *
@@ -87,7 +87,7 @@ public class Exporter extends Application {
 	private TimeSliceDbReadWriteLock lock;
 	private Boolean useBilinearInterpolation;
 	private GdalFormat format;
-	
+
 	private Dataset dataset;
 	// It's OK to hold a direct reference to the time slices here, because this
 	// application doesn't modify them.
@@ -123,7 +123,7 @@ public class Exporter extends Application {
 		dataset = datasetDao.retrieve(datasetId);
 		if(dataset == null) {
 			// Capture if dataset not exist
-			throw new TaskInitialisationException(String.format("Dataset with ID = \"%s\" not found.", datasetId));			
+			throw new TaskInitialisationException(String.format("Dataset with ID = \"%s\" not found.", datasetId));
 		}
 
 		log.info("Dataset: {}", dataset);
@@ -180,7 +180,7 @@ public class Exporter extends Application {
 	/**
 	 * Filter bands based on the specified band names filter.
 	 * @param bands The bands to be filtered.
-	 * @param bandnamesFilter The band names used to filter the bands. 
+	 * @param bandnamesFilter The band names used to filter the bands.
 	 * @return Returns only bands whose name specified in filter.
 	 */
 	private List<Band> filterBand(List<Band> bands, List<String> bandnamesFilter) {
@@ -196,10 +196,10 @@ public class Exporter extends Application {
 				selectedBands.add(band);
 			}
 		}
-		
+
 		return selectedBands;
 	}
-	
+
 	/**
 	 * Initialise the import process.
 	 * @throws TaskException
@@ -294,7 +294,7 @@ public class Exporter extends Application {
 
 		// TODO: If the task pipeline fails, the output directory should be
 		// deleted. Perhaps the creation of this directory should be moved into
-		// its own task? Or, we could add a rollback method to Application. 
+		// its own task? Or, we could add a rollback method to Application.
 
 		Path outputdir = getOutputDirectory(getTaskId());
 		try {
@@ -303,7 +303,7 @@ public class Exporter extends Application {
 		} catch (IOException e) {
 			log.error("Could not create directory: {}", e);
 			throw new TaskInitialisationException(
-					"Could not create output directory.");
+					"Could not create output directory.", e);
 		}
 
 		Compressor compressor = new Compressor();
@@ -319,7 +319,7 @@ public class Exporter extends Application {
 	/**
 	 * Perform the export only if can get all read locks on all specified timeslices.
 	 * If unable to get all read locks on all specified timeslice then throws exception
-	 * as other task is currently modifying the specified timeslices. 
+	 * as other task is currently modifying the specified timeslices.
 	 */
 	@Override
 	protected void preExecute() throws TaskException {
@@ -329,7 +329,7 @@ public class Exporter extends Application {
 		}
 
 		if (!lock.readLock().tryLock()) {
-			// Unable to get write lock for the timeslice as 
+			// Unable to get write lock for the timeslice as
 			// other task is currently modifying the same timeslice
 			throw new TaskException("Unable to perform task as the timeslice is currently locked by other task.");
 		}
@@ -406,7 +406,7 @@ public class Exporter extends Application {
 	 *            The band to operate on.
 	 * @return A handle to the output file (which will not exist until the tasks
 	 *         run).
-	 * @throws TaskInitialisationException 
+	 * @throws TaskInitialisationException
 	 */
 	protected GraphicsFile createPartialPipeline(TimeSlice ts, Band band) throws
 			TaskInitialisationException {
@@ -476,7 +476,7 @@ public class Exporter extends Application {
 		}
 		vrtWarpFile.setResolution(dataset.getResolution());
 		vrtWarpFile.setFormat(GdalFormat.VRT);
-		
+
 		if (getTargetProjection() != null) {
 			vrtWarpFile.setResolution(targetResolution);
 		}
@@ -512,7 +512,7 @@ public class Exporter extends Application {
 		if (getTargetProjection() != null) {
 			exportedImage.setEpsgId(targetEpsgId);
 		}
-		
+
 		//if the target resolution is set, use it. Otherwise set to the resolution of the dataset
 		//note that the resolution of the output data has already been determined by the prior
 		//Transformer task
@@ -521,7 +521,7 @@ public class Exporter extends Application {
 		} else {
 			exportedImage.setResolution(dataset.getResolution());
 		}
-		
+
 		exportedImage.setFormat(format);
 
 		Translator ncTranslator = new Translator();
@@ -592,7 +592,7 @@ public class Exporter extends Application {
 	public void setTargetResolution(CellSize targetResolution) {
 		this.targetResolution = targetResolution;
 	}
-	
+
 	public List<String> getBandIds() {
 		return bandIds;
 	}
@@ -643,5 +643,5 @@ public class Exporter extends Application {
 		this.format = format;
 	}
 
-	
+
 }

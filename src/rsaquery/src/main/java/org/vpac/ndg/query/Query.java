@@ -61,7 +61,7 @@ import ucar.nc2.dataset.NetcdfDataset;
  * Generates new datasets by passing existing data through a filter. In
  * programming terms, a {@link FilterAdapter} is the operation and the Query provides
  * the parameters.
- * 
+ *
  * @author Alex Fraser
  * @see FilterAdapter
  * @see QueryDefinition
@@ -276,7 +276,7 @@ public class Query implements Closeable {
 
 	/**
 	 * Run the configured filters over the input datasets.
-	 * @throws QueryException 
+	 * @throws QueryException
 	 */
 	public void run() throws IOException, QueryException,
 			QueryRuntimeException {
@@ -307,7 +307,7 @@ public class Query implements Closeable {
 			for (VectorInt shape : bindings.keys()) {
 				progress.setStep(step + 1, String.format(
 						"Processing variables with shape %s", shape));
-	
+
 				process(shape, bindings.get(shape));
 				step++;
 			}

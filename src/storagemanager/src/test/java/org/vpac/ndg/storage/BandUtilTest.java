@@ -136,8 +136,7 @@ public class BandUtilTest {
 
 	Dataset getSampleDataset() {
 		Dataset dataset = datasetDao
-				.findDatasetByName(testUtil.getExportDatasetName(),
-						testUtil.getExportDatasetRes());
+				.findDatasetByName(testDatasetName, testDatasetResolution);
 		if (dataset == null) {
 			long precision = Utils.parseTemporalPrecision("1 hour");
 			dataset = new Dataset(testDatasetName, testDatasetResolution,

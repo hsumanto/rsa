@@ -6,6 +6,7 @@ dev:
         - ./src:/var/src/rsa/src
         - ./data:/var/src/rsa/data
         - ./config:/var/src/rsa/config
+        - ./test-config:/var/src/rsa/test-config
     command: bash
 
 postgres:

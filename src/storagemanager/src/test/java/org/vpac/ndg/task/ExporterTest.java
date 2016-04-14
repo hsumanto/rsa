@@ -53,7 +53,7 @@ import com.carrotsearch.junitbenchmarks.BenchmarkOptions;
 import com.carrotsearch.junitbenchmarks.BenchmarkRule;
 
 @SuppressWarnings("deprecation")
-@RunWith(SpringJUnit4ClassRunner.class)  
+@RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration({"/spring/config/TestBeanLocations.xml"})
 @BenchmarkOptions(benchmarkRounds = 1, warmupRounds = 0)
 public class ExporterTest extends AbstractJUnit4SpringContextTests {
@@ -84,7 +84,7 @@ public class ExporterTest extends AbstractJUnit4SpringContextTests {
 		Date st = Utils.now();
 		Dataset dataset = datasetDao.findDatasetByName(
 				testUtil.getExportDatasetName(), testUtil.getExportDatasetRes());
-		
+
 		Exporter exporter = new Exporter();
 		exporter.setDatasetId(dataset.getId());
 		exporter.configure();
@@ -92,7 +92,7 @@ public class ExporterTest extends AbstractJUnit4SpringContextTests {
 
 		Date et = Utils.now();
 		log.debug("EXPORT TIME = {}ms", et.getTime() - st.getTime());
-		
+
 		Path outputPath = Exporter.findOutputPath(exporter.getTaskId());
 		assertTrue(Files.exists(outputPath));
 		assertTrue(Files.isRegularFile(outputPath));
@@ -122,7 +122,8 @@ public class ExporterTest extends AbstractJUnit4SpringContextTests {
 	@Test
 	public void testExportWithMissingTiles() throws Exception {
 		String dsName = "missing";
-		Dataset ds = testUtil.initialiseDataForExport(dsName, testUtil.getExportDatasetRes(), testUtil.getExportDatasetPath());
+		Dataset ds = testUtil.initialiseDataForExport(dsName,
+			testUtil.getExportDatasetRes(), testUtil.getExportDatasetPath());
 		// Make sure one tile is absent.
 		Box extents = testUtil.removeOneTile(ds);
 
@@ -152,7 +153,8 @@ public class ExporterTest extends AbstractJUnit4SpringContextTests {
 	@Test(expected = TaskException.class)
 	public void testExportWithNoTiles() throws Exception {
 		String dsName = "missing";
-		Dataset ds = testUtil.initialiseDataForExport(dsName, testUtil.getExportDatasetRes(), testUtil.getExportDatasetPath());
+		Dataset ds = testUtil.initialiseDataForExport(dsName,
+			testUtil.getExportDatasetRes(), testUtil.getExportDatasetPath());
 
 		// Create a new box that is just outside of the dataset, so that no
 		// tiles can be found during export. This will force a TaskException.

@@ -57,7 +57,7 @@ public class TileAggregator extends Task {
 	TimeSliceDao timeSliceDao;
 	TimeSliceUtil timeSliceUtil;
 	NdgConfigManager ndgConfigManager;
-	
+
 	public TileAggregator() {
 		this(Constant.TASK_DESCRIPTION_TILEAGGREGATOR);
 	}
@@ -81,7 +81,7 @@ public class TileAggregator extends Task {
 		}
 
 		// If temporaryLocation is null, create temporary location
-		if(temporaryLocation == null) {			
+		if(temporaryLocation == null) {
 			try {
 				temporaryLocation = FileUtils.createTmpLocation();
 			} catch (IOException e) {
@@ -122,9 +122,9 @@ public class TileAggregator extends Task {
 		actionLog.add(String.format("Reading file info from %s", vrtFileLocation));
 		FileInformation vrtInfo = FileInformation.read(vrtFileLocation);
 
-		String ncmlFilename = band.getName() + "_agg" + Constant.EXT_NCML;			
+		String ncmlFilename = band.getName() + "_agg" + Constant.EXT_NCML;
 		Path ncmlFileLocation = temporaryLocation.resolve(ncmlFilename);
-		log.debug("ncml location: {}", ncmlFileLocation);		
+		log.debug("ncml location: {}", ncmlFileLocation);
 
 		GraphicsFile ncmlFile = new GraphicsFile(ncmlFileLocation);
 		target.set(ncmlFile);
@@ -151,7 +151,7 @@ public class TileAggregator extends Task {
 			// Set the new location in storage pool
 			ncmlFile.setFileLocation(to);
 		} catch (IOException e) {
-			throw new TaskException(String.format(Constant.ERR_COPY_FILE_FAILED, from, to));
+			throw new TaskException(String.format(Constant.ERR_COPY_FILE_FAILED, from, to), e);
 		}
 
 	}
@@ -170,8 +170,8 @@ public class TileAggregator extends Task {
 			// Delete vrt file in temporary storage
 			if(FileUtils.deleteIfExists(tmpNcml)) {
 				log.debug("CLEANUP: File deletion = {}", tmpNcml);
-			}						
-		}		
+			}
+		}
 	}
 
 	public void setSource(List<TileBand> source) {
@@ -216,7 +216,7 @@ public class TileAggregator extends Task {
 
 	public List<Path> getTmpFileList() {
 		return tmpFileList;
-	}	
+	}
 
 	/**
 	 * Set the temporary location for storing temporary .ncml file.
