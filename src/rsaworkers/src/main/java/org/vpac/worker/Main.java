@@ -87,10 +87,12 @@ public class Main {
 		SubnetUtils utils = new SubnetUtils(subnet);
 		String[] allIps = utils.getInfo().getAllAddresses();
 		for (String address : allIps) {
-			try {			
-				Socket socket = new Socket(address, 2552);
-				returnAddress = address;
-				break;
+			try {
+				if (!address.equals(localhost.getHostAddress())) {
+					Socket socket = new Socket(address, 2552);
+					returnAddress = address;
+					break;
+				}
 			} catch (Exception e) {
 				continue;
 			}
