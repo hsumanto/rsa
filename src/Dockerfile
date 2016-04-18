@@ -39,7 +39,6 @@ RUN apt-get install -y \
         zlibc \
         zlib1g \
         zlib1g-dev \
-        nmap \
         nano \
         --no-install-recommends && \
     rm -rf /var/lib/apt/lists/*
