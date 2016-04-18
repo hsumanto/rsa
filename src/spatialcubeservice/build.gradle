@@ -1,18 +1,31 @@
 apply plugin: 'java'
 
 dependencies {
-    compile 'com.typesafe.akka:akka-actor_2.11:2.4.2',
+    compile (
+        'com.googlecode.lambdaj:lambdaj:2.3.3',
+        'com.sun.xml.bind:jaxb-impl:2.1',
+        'com.typesafe.akka:akka-actor_2.11:2.4.2',
         'com.typesafe.akka:akka-cluster_2.11:2.4.2',
         'com.typesafe.akka:akka-cluster-tools_2.11:2.4.2',
+        'commons-io:commons-io:1.3.2',
+        'commons-net:commons-net:3.4',
+        'javax.validation:validation-api:1.0.0.GA',
         'org.apache.tomcat:tomcat-catalina:7.0.47',
+        'org.codehaus.jackson:jackson-mapper-asl:1.7.1',
+        'org.hibernate:hibernate-validator:4.2.0.Final',
         'org.springframework:org.springframework.web:3.1.1.RELEASE',
+        'org.springframework:org.springframework.web.servlet:3.1.1.RELEASE',
+        'rome:rome:1.0',
         files('/usr/lib/gdal.jar'),
         project(':rsaquery'),
-        project(':storagemanager')
+        project(':storagemanager'),
+    )
 
-    testCompile 'com.carrotsearch:junit-benchmarks:0.4.0',
+    testCompile (
+        'com.carrotsearch:junit-benchmarks:0.4.0',
         'org.springframework:org.springframework.test:3.1.1.RELEASE',
-        sourceSets.main.output
+        sourceSets.main.output,
+    )
 
     runtime files('../../config')
 
