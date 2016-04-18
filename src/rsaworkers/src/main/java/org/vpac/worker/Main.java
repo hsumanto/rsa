@@ -84,12 +84,17 @@ public class Main {
 			}
 		}
 
+		subnet = subnet.replace("/16", "/24");
+		// System.out.println("subnet:" + subnet);
 		SubnetUtils utils = new SubnetUtils(subnet);
 		String[] allIps = utils.getInfo().getAllAddresses();
 		for (String address : allIps) {
+			// System.out.println("address:" + address);
 			try {
 				if (!address.equals(localhost.getHostAddress())) {
-					Socket socket = new Socket(address, 2552);
+					Socket socket = new Socket();
+		            socket.connect(new InetSocketAddress(address, 2552), 200);
+		            socket.close();
 					returnAddress = address;
 					break;
 				}

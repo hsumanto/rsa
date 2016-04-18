@@ -29,7 +29,8 @@ RUN apt-get install -y \
         ant-optional \
         --no-install-recommends
 
-RUN apt-get install -y \
+RUN apt-get update && \
+    apt-get install -y \
         gdal-bin \
         libgdal-dev \
         libgdal-java \
