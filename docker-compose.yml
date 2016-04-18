@@ -7,6 +7,7 @@ dev:
         - ./data:/var/src/rsa/data
         - ./config:/var/src/rsa/config
         - ./test-config:/var/src/rsa/test-config
+        - ./.gradle-cache:/root/.gradle/caches
     command: bash
 
 postgres:
