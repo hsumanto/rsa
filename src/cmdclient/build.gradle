@@ -27,16 +27,19 @@ jar {
 }
 
 startScripts {
-    // Workaround for
+    // Workaround for application plugin setting the wrong classpath for the
+    // config directory: It's in src/dist/config, which gets copied to
+    // APP_HOME/config.
+    // https://issues.gradle.org/browse/GRADLE-2333
+    // http://stackoverflow.com/a/18712556/320036
     doLast {
-        println 'startscripts'
         def windowsScriptFile = file getWindowsScript()
         def unixScriptFile = file getUnixScript()
-        windowsScriptFile.text = windowsScriptFile.text.replace(
-            '%APP_HOME%\\lib\\config',
-            '%APP_HOME%\\config')
-        unixScriptFile.text  = unixScriptFile.text.replace(
-            '$APP_HOME/lib/config',
-            '$APP_HOME/config')
+        windowsScriptFile.text = windowsScriptFile.text.replaceFirst(
+            /%APP_HOME%\\lib\\config(:|$)/,
+            '%APP_HOME%\\config$1')
+        unixScriptFile.text  = unixScriptFile.text.replaceFirst(
+            /APP_HOME\/lib\/config(:|$)/,
+            'APP_HOME/config$1')
     }
 }
