@@ -1,4 +1,7 @@
 apply plugin: 'java'
+apply plugin: 'application'
+
+mainClassName = 'org.vpac.ndg.query.QueryRunner'
 
 sourceSets {
     filter
@@ -12,7 +15,10 @@ dependencies {
         'org.reflections:reflections:0.9.9',
     )
 
-    runtime 'net.java.dev.jna:jna:3.2.7'
+    runtime (
+        'ch.qos.logback:logback-classic:1.0.7',
+        'net.java.dev.jna:jna:3.2.7',
+    )
 
     filterCompile sourceSets.main.output
 
