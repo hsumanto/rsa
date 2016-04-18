@@ -1,0 +1,26 @@
+apply plugin: 'java'
+
+dependencies {
+    compile (
+        'com.typesafe.akka:akka-cluster_2.11:2.4.2',
+        'com.typesafe.akka:akka-cluster-tools_2.11:2.4.2',
+        'commons-net:commons-net:3.4',
+        files('/usr/lib/gdal.jar'),
+        project(':rsaquery'),
+        project(':storagemanager'),
+    )
+
+    runtime (
+        project(':rsaquery').sourceSets.filter.output,
+    )
+
+    testCompile (
+        sourceSets.main.output,
+    )
+}
+
+jar {
+    manifest {
+        attributes("Implementation-Title": "rsaworkers")
+    }
+}

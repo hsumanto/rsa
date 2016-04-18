@@ -27,10 +27,6 @@ dependencies {
         'org.springframework:org.springframework.test:3.1.1.RELEASE',
         sourceSets.main.output,
     )
-
-    runtime files('../../config')
-
-    testRuntime files('../../test-config')
 }
 
 tasks.withType(Test) {
