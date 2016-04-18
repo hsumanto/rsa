@@ -46,7 +46,7 @@ import com.carrotsearch.junitbenchmarks.BenchmarkOptions;
 import com.carrotsearch.junitbenchmarks.BenchmarkRule;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration({ "file:resources/spring/beans/CmdClientBean.xml" })
+@ContextConfiguration({"/spring/beans/CmdClientBean.xml"})
 @BenchmarkOptions(benchmarkRounds = 4, warmupRounds = 1)
 public class QueryTest extends ConsoleTest {
 

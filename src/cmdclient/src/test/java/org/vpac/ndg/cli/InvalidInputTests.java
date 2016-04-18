@@ -31,8 +31,8 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
  * @author hsumanto
  * @author Alex Fraser
  */
-@RunWith(SpringJUnit4ClassRunner.class)  
-@ContextConfiguration({"file:resources/spring/beans/CmdClientBean.xml"})
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration({"/spring/beans/CmdClientBean.xml"})
 public class InvalidInputTests extends ConsoleTest {
 
 	@Test
@@ -87,7 +87,7 @@ public class InvalidInputTests extends ConsoleTest {
 	public void testListBandEmptyDatasetId() {
 		executeWithDoom("band", "list", " ");
 		assertTrue(errput.toString().contains("Dataset not found"));
-	}	
+	}
 
 	@Test
 	public void testListBandInvalidDatasetId() {
@@ -99,7 +99,7 @@ public class InvalidInputTests extends ConsoleTest {
 	public void testcreateDatasetEmptyDatasetId() {
 		executeWithDoom("dataset", "create", " ", "100m");
 		assertTrue(errput.toString().contains("Dataset name not specified"));
-	}	
+	}
 
 	@Test
 	public void testcreateDatasetInvalidResolution() {

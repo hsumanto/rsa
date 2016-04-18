@@ -19,23 +19,23 @@
 
 package org.vpac.ndg.cli;
 
-import static org.junit.Assert.assertTrue;
-
-import java.io.IOException;
-
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-@ContextConfiguration({ "file:resources/spring/beans/CmdClientBean.xml" })
-public class ReflectionTest extends ConsoleTest {
-
-	final Logger log = LoggerFactory.getLogger(ReflectionTest.class);
+/**
+ * Test case to test if CmdClient is working properly.
+ * @author hsumanto
+ * @author Alex Fraser
+ */
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration({"/spring/beans/CmdClientBean.xml"})
+public class CleanUpTest extends ConsoleTest {
 
 	@Test
-	public void testFilterList() throws IOException {
-		execute("filter", "list");
-		assertTrue(output.toString().contains("org.vpac.ndg.query.stats.Statistics"));
+	public void testCleanUp() {
+		execute("data", "cleanup");
 	}
+
 }

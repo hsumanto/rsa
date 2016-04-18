@@ -40,8 +40,8 @@ import com.carrotsearch.junitbenchmarks.BenchmarkRule;
  * @author hsumanto
  * @author Alex Fraser
  */
-@RunWith(SpringJUnit4ClassRunner.class)  
-@ContextConfiguration({"file:resources/spring/beans/CmdClientBean.xml"})
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration({"/spring/beans/CmdClientBean.xml"})
 public class ImportTest extends ConsoleTest {
 	@Rule
 	public MethodRule benchmarkRun = new BenchmarkRule();

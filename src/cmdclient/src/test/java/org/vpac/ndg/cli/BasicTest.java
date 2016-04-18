@@ -21,21 +21,25 @@ package org.vpac.ndg.cli;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import static org.junit.Assert.*;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-/**
- * Test case to test if CmdClient is working properly.
- * @author hsumanto
- * @author Alex Fraser
- */
-@RunWith(SpringJUnit4ClassRunner.class)  
-@ContextConfiguration({"file:resources/spring/beans/CmdClientBean.xml"})
-public class CleanUpTest extends ConsoleTest {
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration({"/spring/beans/CmdClientBean.xml"})
+public class BasicTest extends ConsoleTest {
 
 	@Test
-	public void testCleanUp() {
-		execute("data", "cleanup");
+	public void testUsage() {
+		executeWithDoom();
+		String err = errput.toString();
+		assertTrue(err.contains("Missing category"));
 	}
 
+	@Test
+	public void testHelp() {
+		execute("-h");
+		String out = output.toString();
+		assertTrue(out.contains("Show this help text."));
+	}
 }
