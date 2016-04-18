@@ -18,6 +18,7 @@ dependencies {
         'rome:rome:1.0',
         files('/usr/lib/gdal.jar'),
         project(':rsaquery'),
+        project(':rsaquery').sourceSets.filter.output,
         project(':storagemanager'),
     )
 
