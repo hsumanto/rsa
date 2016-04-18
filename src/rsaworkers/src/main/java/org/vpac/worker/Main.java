@@ -33,12 +33,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.vpac.ndg.query.io.DatasetProvider;
 import org.vpac.ndg.query.io.ProviderRegistry;
-
-import org.nmap4j.*;
-import org.nmap4j.data.*;
-import org.nmap4j.core.nmap.*;
-import org.nmap4j.data.nmaprun.Host;
-import org.nmap4j.data.host.ports.Port;
+import org.apache.commons.net.util.*;
 
 public class Main {
 	/**
@@ -79,35 +74,26 @@ public class Main {
 		
 	public static String searchCluster() throws IOException {
 		InetAddress localhost = Inet4Address.getLocalHost();
-		String returnAddress = null;
-		Nmap4j nmap = new Nmap4j("/usr");
 		NetworkInterface networkInterface = NetworkInterface.getByInetAddress(localhost);
-		InterfaceAddress address = networkInterface.getInterfaceAddresses().get(1);
-		nmap.includeHosts(address.getAddress().toString().replace("/", "") + "/24");
-		nmap.excludeHosts(localhost.getHostAddress());
-		nmap.addFlags("-p 2552");
-		try {
-			nmap.execute();
-		} catch (NMapInitializationException e) {
-			System.out.println("Nmap error:" + e);
-		} catch (NMapExecutionException ne) {
-			System.out.println("Nmap error:" + ne);			
-		}
- 		if(!nmap.hasError()) { 
-			NMapRun nmapRun = nmap.getResult() ; 
-			for (Host host: nmapRun.getHosts()) {
-				for (Port port: host.getPorts().getPorts()) {
-					if(port.getPortId() == 2552 && port.getState().getState().equals("open")) {
-						System.out.println("Found cluster-" + host.getAddresses().get(0) + ":" + port.toString() +" - " + port.getState());
-						returnAddress = host.getAddresses().get(0).getAddr();
-						break;
-					}
-				}
-				if (returnAddress != null)
-					break;
+		String returnAddress = null;
+		String subnet = null;
+
+		for (InterfaceAddress ip : networkInterface.getInterfaceAddresses()) {
+			if(ip.getAddress().toString().contains(localhost.getHostAddress())) {
+				subnet = ip.toString().substring(1).split(" ")[0];
 			}
-		} else { 
-			System.out.println(nmap.getExecutionResults().getErrors()); 
+		}
+
+		SubnetUtils utils = new SubnetUtils(subnet);
+		String[] allIps = utils.getInfo().getAllAddresses();
+		for (String address : allIps) {
+			try {			
+				Socket socket = new Socket(address, 2552);
+				returnAddress = address;
+				break;
+			} catch (Exception e) {
+				continue;
+			}
 		}
 		System.out.println("returnAddress:" + returnAddress);
 	    return returnAddress;
