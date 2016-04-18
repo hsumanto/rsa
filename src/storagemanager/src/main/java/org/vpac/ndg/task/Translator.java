@@ -124,6 +124,7 @@ public class Translator extends Task {
 	        command.add("-scale");
 	        for (ScalarReceiver<Double> d: scale) {
 	            command.add(d.get().toString());
+	            log.info("value:" + d.get().toString());
 	        }
 		}
 		
@@ -146,6 +147,7 @@ public class Translator extends Task {
 	public void executeCommand(Collection<String> actionLog) throws TaskException {
 		actionLog.add(StringUtils.join(command, " "));
 		try {
+			log.info("Translator command"+ command);
 			commandUtil.start(command);
 		} catch (ProcessException | InterruptedException | IOException e) {
 			log.error("Command failed: {}", e.getMessage());

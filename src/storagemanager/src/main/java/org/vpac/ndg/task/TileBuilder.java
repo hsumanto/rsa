@@ -6,6 +6,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.vpac.ndg.CommandUtil;
 import org.vpac.ndg.FileUtils;
 import org.vpac.ndg.application.Constant;
@@ -30,6 +33,7 @@ public class TileBuilder extends Task {
     private int zoomMin = 0;
     
     private CommandUtil commandUtil;
+    final private Logger log = LoggerFactory.getLogger(VrtBuilder.class);
     
     public TileBuilder() {
         this("Building tiles");
@@ -86,6 +90,7 @@ public class TileBuilder extends Task {
         command.add(source.getFileLocation().toString());
         command.add(target.toString());
 
+        log.info("gdal2tile:" + command);
         return command;
     }
 
