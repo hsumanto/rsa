@@ -5,18 +5,22 @@ sourceSets {
 }
 
 dependencies {
-    compile 'org.reflections:reflections:0.9.9',
+    compile (
+        'com.thoughtworks.xstream:xstream:1.4.2',
         'edu.ucar:cdm:4.4.0',
         'edu.ucar:netcdf4:4.4.0',
-        'com.thoughtworks.xstream:xstream:1.4.2'
+        'org.reflections:reflections:0.9.9',
+    )
 
     runtime 'net.java.dev.jna:jna:3.2.7'
 
     filterCompile sourceSets.main.output
 
-    testCompile 'com.carrotsearch:junit-benchmarks:0.4.0',
+    testCompile (
+        'com.carrotsearch:junit-benchmarks:0.4.0',
         sourceSets.main.output,
-        sourceSets.filter.output
+        sourceSets.filter.output,
+    )
 }
 
 jar {

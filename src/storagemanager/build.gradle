@@ -1,9 +1,11 @@
 apply plugin: 'java'
 
 dependencies {
-    compile 'edu.ucar:cdm:4.4.0',
+    compile (
+        'edu.ucar:cdm:4.4.0',
         'edu.ucar:netcdf4:4.4.0',
         'ch.qos.logback:logback-classic:1.0.7',
+        'com.thoughtworks.xstream:xstream:1.4.2',
         'commons-lang:commons-lang:2.5',
         'org.aspectj:aspectjtools:1.6.2',
         'org.hibernate:hibernate-core:3.5.6-Final',
@@ -11,15 +13,18 @@ dependencies {
         'org.springframework:org.springframework.context:3.1.1.RELEASE',
         'org.springframework:org.springframework.orm:3.1.1.RELEASE',
         'org.springframework:org.springframework.transaction:3.1.1.RELEASE',
-        'com.thoughtworks.xstream:xstream:1.4.2',
         files('/usr/lib/gdal.jar'),
-        project(':rsaquery')
+        project(':rsaquery'),
+    )
 
-    testCompile 'com.carrotsearch:junit-benchmarks:0.4.0',
+    testCompile (
+        'com.carrotsearch:junit-benchmarks:0.4.0',
         'org.springframework:org.springframework.test:3.1.1.RELEASE',
-        sourceSets.main.output
+        sourceSets.main.output,
+    )
 
-    runtime 'cglib:cglib:2.2.2',
+    runtime (
+        'cglib:cglib:2.2.2',
         'net.java.dev.jna:jna:3.2.7',
         'org.hibernate:hibernate-annotations:3.5.6-Final',
         'org.hibernate.javax.persistence:hibernate-jpa-2.0-api:1.0.0.Final',
@@ -29,7 +34,8 @@ dependencies {
         'org.springframework:org.springframework.core:3.1.1.RELEASE',
         'org.springframework:org.springframework.expression:3.1.1.RELEASE',
         'org.springframework:org.springframework.jdbc:3.1.1.RELEASE',
-        files('../../config')
+        files('../../config'),
+    )
 
     testRuntime files('../../test-config')
 }
