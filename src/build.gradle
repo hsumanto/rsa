@@ -12,7 +12,7 @@ subprojects {
     dependencies {
         compile 'org.slf4j:slf4j-api:1.6.1'
         testCompile 'junit:junit:4.12'
-        runtime files('../config')
+        runtime files('../../config')
         testRuntime files('../../test-config')
     }
 
@@ -21,6 +21,22 @@ subprojects {
     jar {
         manifest {
             attributes("Implementation-Version": version)
+        }
+    }
+
+    task printCompileClasspath {
+        doLast {
+            configurations.compile.each {
+                println it
+            }
+        }
+    }
+
+    task printTestClasspath {
+        doLast {
+            configurations.testRuntime.each {
+                println it
+            }
         }
     }
 }
