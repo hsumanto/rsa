@@ -1,6 +1,25 @@
+buildscript {
+    repositories {
+        jcenter()
+    }
+
+    dependencies {
+        classpath 'com.bmuschko:gradle-tomcat-plugin:2.2.4'
+    }
+}
+
 apply plugin: 'java'
+apply plugin: 'war'
+apply plugin: 'com.bmuschko.tomcat'
 
 dependencies {
+    def springVersion = '3.1.1.RELEASE'
+    def tomcatVersion = '7.0.59'
+
+    providedCompile (
+        "org.apache.tomcat:tomcat-catalina:$tomcatVersion",
+    )
+
     compile (
         'com.googlecode.lambdaj:lambdaj:2.3.3',
         'com.sun.xml.bind:jaxb-impl:2.1',
@@ -10,11 +29,10 @@ dependencies {
         'commons-io:commons-io:1.3.2',
         'commons-net:commons-net:3.4',
         'javax.validation:validation-api:1.0.0.GA',
-        'org.apache.tomcat:tomcat-catalina:7.0.47',
         'org.codehaus.jackson:jackson-mapper-asl:1.7.1',
         'org.hibernate:hibernate-validator:4.2.0.Final',
-        'org.springframework:org.springframework.web:3.1.1.RELEASE',
-        'org.springframework:org.springframework.web.servlet:3.1.1.RELEASE',
+        "org.springframework:org.springframework.web:$springVersion",
+        "org.springframework:org.springframework.web.servlet:$springVersion",
         'rome:rome:1.0',
         files('/usr/lib/gdal.jar'),
         project(':rsaquery'),
@@ -22,9 +40,20 @@ dependencies {
         project(':storagemanager'),
     )
 
+    runtime (
+        'commons-fileupload:commons-fileupload:1.2',
+        "org.springframework:spring-oxm:$springVersion",
+    )
+
+    tomcat (
+        "org.apache.tomcat.embed:tomcat-embed-core:$tomcatVersion",
+        "org.apache.tomcat.embed:tomcat-embed-logging-juli:$tomcatVersion",
+        "org.apache.tomcat.embed:tomcat-embed-jasper:$tomcatVersion",
+    )
+
     testCompile (
         'com.carrotsearch:junit-benchmarks:0.4.0',
-        'org.springframework:org.springframework.test:3.1.1.RELEASE',
+        "org.springframework:org.springframework.test:$springVersion",
         sourceSets.main.output,
     )
 }
