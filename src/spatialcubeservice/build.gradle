@@ -68,3 +68,7 @@ jar {
         attributes("Implementation-Title": "spatialcubeservice")
     }
 }
+
+war {
+    baseName = 'rsa'
+}
