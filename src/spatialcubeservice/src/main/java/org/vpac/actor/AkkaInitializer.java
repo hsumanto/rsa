@@ -10,7 +10,14 @@ public class AkkaInitializer extends HttpServlet {
 	 */
 	private static final long serialVersionUID = 1L;
 
-	public void init() throws ServletException {
-		ActorCreator.createActorCreator();
+	public void init(ServletConfig config) throws ServletException {
+        super.init(config);
+        Runnable myRunnable = new Runnable() {
+          public void run() {
+            ActorCreator.createActorCreator();
+          }
+        };
+
+        new Thread(myRunnable).start();
 	}
 }

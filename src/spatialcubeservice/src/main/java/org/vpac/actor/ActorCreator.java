@@ -15,8 +15,8 @@ import java.net.NetworkInterface;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
+import java.util.concurrent.*;
 
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
@@ -27,7 +27,11 @@ public class ActorCreator {
 	private static ActorCreator instance = null;
 	private static ActorSystem system = null;
 	private static ActorRef frontend = null;
-	
+	static final ExecutorService es = Executors.newFixedThreadPool(20);
+	static final int timeout = 200;
+	static final int akkaPort = 2552;
+
+
 	private ActorCreator() {
 		Config conf = ConfigFactory.parseString("akka.cluster.roles=[frontend]")
 				.withFallback(ConfigFactory.parseString("akka.remote.netty.tcp.port=2554"))
@@ -77,22 +81,27 @@ public class ActorCreator {
 			}
 		}
 
+//		subnet = subnet.replace("/16", "/24");
+//		System.out.println("subnet:" + subnet);
 		SubnetUtils utils = new SubnetUtils(subnet);
 		String[] allIps = utils.getInfo().getAllAddresses();
+		List<Future<String>> futures = new ArrayList<>();
+
 		for (String address : allIps) {
-			try {
-				if (!address.equals(localhost.getHostAddress())) {
-					Socket socket = new Socket();
-		            socket.connect(new InetSocketAddress(address, 2552), 200);
-		            socket.close();
-					returnAddress = address;
-					break;
-				}
-			} catch (Exception e) {
-				continue;
-			}
+			futures.add(portIsOpen(es, address, akkaPort, timeout));
 		}
-		System.out.println("returnAddress:" + returnAddress);
+
+		try {
+			for (Future<String> f : futures) {
+			    if (f.get() != null) {
+					System.out.println("SOME PORT OPEN");
+			    }
+			  }
+
+			Thread.sleep(10000);
+		} catch (Exception e) {
+//			log.info("sleeping error!");
+		}
 	    return returnAddress;
 	}	
 
@@ -100,13 +109,30 @@ public class ActorCreator {
 		
 		Address joinAddress = null;
 
-		String existingCluster = searchCluster();
-		if (existingCluster == null) {
-			joinAddress = Cluster.get(system).selfAddress();
-		} else {
-			joinAddress = new Address("akka.tcp", "Workers", existingCluster, 2552);
+		String existingCluster = null;
+		while (existingCluster == null) {
+			existingCluster = searchCluster();
+			if (existingCluster != null) {
+				joinAddress = new Address("akka.tcp", "Workers", existingCluster, akkaPort);
+				break;
+			}
 		}
 		return joinAddress;
 	}
 
+
+	public static Future<String> portIsOpen(final ExecutorService es, String ip, int port, final int timeout) {
+	  return es.submit(new Callable<String>() {
+	      @Override public String call() {
+	        try {
+	          Socket socket = new Socket();
+	          socket.connect(new InetSocketAddress(ip, port), timeout);
+	          socket.close();
+	          return ip;
+	        } catch (Exception ex) {
+	          return null;
+	        }
+	      }
+	   });
+	}
 }
