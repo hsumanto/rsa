@@ -2,6 +2,7 @@ package org.vpac.actor;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
+import javax.servlet.ServletConfig;
 
 public class AkkaInitializer extends HttpServlet {
 
