@@ -12,8 +12,8 @@ subprojects {
     dependencies {
         compile 'org.slf4j:slf4j-api:1.6.1'
         testCompile 'junit:junit:4.12'
-        runtime files('../../config')
-        testRuntime files('../../test-config')
+        runtime files("$rootDir/../config")
+        testRuntime files("$rootDir/../test-config")
     }
 
     version '2.4.0'
