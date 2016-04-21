@@ -1,3 +1,15 @@
+web:
+    build: .
+    links:
+        - postgres:rsadb
+    command: web
+
+worker:
+    build: .
+    links:
+        - postgres:rsadb
+    command: worker
+
 dev:
     build: .
     links:

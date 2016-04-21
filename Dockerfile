@@ -80,8 +80,21 @@ VOLUME /var/src/rsa/config \
 
 WORKDIR /var/src/rsa/src
 
-#ENTRYPOINT ["/var/src/rsa/src/rsa_docker_start.sh"]
-CMD bash
+# Try gradle twice in case the first time fails; this can happen if one of the
+# repositories returns a transitory error
+RUN cd rsaworkers \
+    && (gradle installDist || gradle installDist) \
+    && cd ../spatialcubeservice \
+    && (gradle war || gradle war)
+
+RUN mkdir -p /var/lib/tomcat${TOMCAT_VERSION}/webapps/rsa \
+    && cd /var/lib/tomcat${TOMCAT_VERSION}/webapps/rsa \
+    && jar -xvf /var/src/rsa/src/spatialcubeservice/build/libs/rsa*.war \
+    && cd /var/src/rsa/src/rsaworkers/build/install/rsaworkers \
+    && rm -r config \
+    && ln -s /var/src/rsa/config .
+
+ENTRYPOINT ["/var/src/rsa/src/rsa_docker_start.sh"]
 
 # Expose ports.
 #   - 8080: web

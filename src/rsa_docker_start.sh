@@ -3,23 +3,13 @@
 mode=$1
 
 case ${mode} in
-    "web" | "scweb")
-        cp /var/src/rsa.xml /var/lib/tomcat6/webapps/spatialcubeservice/WEB-INF/classes/
-        exec /usr/share/tomcat6/bin/catalina.sh run
+    "web")
+        cp -f /var/src/rsa/config/* \
+            /var/lib/tomcat${TOMCAT_VERSION}/webapps/rsa/WEB-INF/classes/
+        exec /usr/share/tomcat${TOMCAT_VERSION}/bin/catalina.sh run
         ;;
-    # "master")
-    #     cp /var/src/rsa.xml /var/src/rsaworkers/dist/rsaworkers/resources/
-    #     export RSA_IS_MASTER=true
-    #     exec /var/src/rsaworkers/dist/rsaworkers/rsaworker
-    #     ;;
-    # "worker")
-    #     cp /var/src/rsa.xml /var/src/rsaworkers/dist/rsaworkers/resources/
-    #     export RSA_IS_MASTER=false
-    #     exec /var/src/rsaworkers/dist/rsaworkers/rsaworker
-    #     ;;
-    "rsa")
-        cp /var/src/rsa.xml /var/src/rsaworkers/dist/rsaworkers/resources/
-        exec /var/src/rsaworkers/dist/rsaworkers/rsaworker
+    "worker")
+        exec /var/src/rsa/src/rsaworkers/build/install/rsaworkers/bin/rsaworkers
         ;;
 
     *)
@@ -28,4 +18,3 @@ case ${mode} in
         exit 1
         ;;
 esac
-
