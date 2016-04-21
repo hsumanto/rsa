@@ -14,10 +14,10 @@ apply plugin: 'com.bmuschko.tomcat'
 
 dependencies {
     def springVersion = '3.1.1.RELEASE'
-    def tomcatVersion = '7.0.59'
+    def tomcatVersion = '7.0.69'
 
     providedCompile (
-        "org.apache.tomcat:tomcat-catalina:$tomcatVersion",
+        'javax.servlet:javax.servlet-api:3.0.1',
     )
 
     compile (
