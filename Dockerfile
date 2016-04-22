@@ -82,10 +82,7 @@ WORKDIR /var/src/rsa/src
 
 # Try gradle twice in case the first time fails; this can happen if one of the
 # repositories returns a transitory error
-RUN cd rsaworkers \
-    && (gradle installDist || gradle installDist) \
-    && cd ../spatialcubeservice \
-    && (gradle war || gradle war)
+RUN (gradle || gradle || gradle)
 
 RUN mkdir -p /var/lib/tomcat${TOMCAT_VERSION}/webapps/rsa \
     && cd /var/lib/tomcat${TOMCAT_VERSION}/webapps/rsa \

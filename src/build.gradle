@@ -1,3 +1,9 @@
+defaultTasks (
+    'cmdclient:installDist',
+    'rsaworkers:installDist',
+    'spatialcubeservice:war',
+)
+
 subprojects {
     apply plugin: 'java'
 

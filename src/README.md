@@ -39,19 +39,18 @@ It also has a Web-based user interface for querying data.
 
 ## Building
 
-To compile the RSA, simply run `ant` from this directory. Build artefacts will
-be placed in the `dist` directory; these can be deployed to run the RSA.
+To compile the RSA, simply run `gradle` from this directory. Build artefacts
+will be placed in the `*/build` directory; these can be deployed to run the RSA.
 
 The command line client can be run without deploying. The build process creates
-a portable install in `cmdclient/dist/rsa`. To use it:
+a portable install in `cmdclient/build/install/cmdclient`. To use it:
 
  1. Set up the database, dependencies and storage pool as described in the [main
     project documentation][1].
- 2. Build the RSA as described above, or run `ant` from the
+ 2. Build the RSA as described above, or run `gradle installDist` from the
     [cmdclient](cmdclient) directory if you only need the command line client.
- 3. Configure it by editing the files in `cmdclient/dist/rsa/config`. At a
-    minimum, `datasource.xml.SAMPLE` will need to be renamed to `datasource.xml`.
- 4. Execute the `cmdclient/dist/rsa/rsa` script. Try `cmdclient/dist/rsa/rsa -h`.
+ 3. Configure it by editing the files in
+    `cmdclient/build/install/cmdclient/config/`.
+ 4. Run `cmdclient/build/install/cmdclient/bin/cmdclient`.
 
 [1]: ../doc/manual_install.md
-
