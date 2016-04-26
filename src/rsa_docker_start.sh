@@ -12,8 +12,12 @@ case ${mode} in
         exec /var/src/rsa/src/rsaworkers/build/install/rsaworkers/bin/rsaworkers
         ;;
 
+    "seed")
+        exec /var/src/rsa/src/rsaworkers/build/install/rsaworkers/bin/rsaworkers seed
+        ;;
+
     *)
-        echo "Specify a mode: [web, rsa]" >&2
+        echo "Specify a mode: [web, worker, seed]" >&2
         echo "If you want to run a different command, use --entrypoint" >&2
         exit 1
         ;;

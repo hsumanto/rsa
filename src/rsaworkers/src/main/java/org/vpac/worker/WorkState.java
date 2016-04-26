@@ -107,16 +107,6 @@ public final class WorkState {
     pendingWork = tmp_pendingWork;
   }
 
-
-
-
-  public void test() {
-    for (Work work : pendingWork) {
-      //System.out.println(work.job);
-    }
-  }
-
-
   public String toString() {
     return ""+acceptedWorkIds.size();
   }
