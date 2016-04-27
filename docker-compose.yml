@@ -10,6 +10,10 @@ worker:
         - postgres:rsadb
     command: worker
 
+seed:
+    build: .
+    command: seed
+
 dev:
     build: .
     links:
