@@ -12,9 +12,9 @@ function update_config() {
     if ! grep -q '<seed-node-ip>' ${SEED_CONF}; then
         return
     fi
-    echo "Setting config"
-    seed_ip=$(hostname --ip-address)
+    seed_ip=$(ip route get 1 | awk '{print $NF;exit}')
     sed -i.bak "s,<seed-node-ip>,${seed_ip},g" ${SEED_CONF}
+    echo "Updated ${SEED_CONF} to contain this node's IP address"
     trap unset_config INT
     trap unset_config TERM
 }
@@ -23,8 +23,8 @@ function unset_config() {
     if ! [ -f ${SEED_CONF}.bak ]; then
         return
     fi
-    echo "Resetting config"
     mv ${SEED_CONF}.bak ${SEED_CONF}
+    echo "Reset ${SEED_CONF}"
 }
 
 case ${mode} in
