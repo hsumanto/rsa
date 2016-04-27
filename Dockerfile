@@ -74,7 +74,7 @@ COPY src /var/src/rsa/src
 COPY data /var/src/rsa/data
 COPY config /var/src/rsa/config
 COPY test-config /var/src/rsa/test-config
-VOLUME /var/src/rsa/config \
+VOLUME /var/spool/ndg/pickup \
     /var/spool/ndg/upload \
     /var/lib/ndg/storagepool
 

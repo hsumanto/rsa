@@ -1,30 +1,36 @@
-web:
+rsa:
     build: .
     links:
         - postgres:rsadb
-    command: web
-
-worker:
-    build: .
-    links:
-        - postgres:rsadb
-    command: worker
-
-seed:
-    build: .
-    command: seed
+    volumes_from:
+        - data
+        - sources
 
 dev:
     build: .
     links:
         - postgres:rsadb
+    volumes_from:
+        - data
+        - sources
+    entrypoint: []
+    command: bash
+
+data:
+    build: .
+    entrypoint: []
+    command: echo "RSA test data container"
+
+sources:
+    build: .
     volumes:
         - ./src:/var/src/rsa/src
         - ./data:/var/src/rsa/data
         - ./config:/var/src/rsa/config
         - ./test-config:/var/src/rsa/test-config
         - ./.gradle-cache:/root/.gradle/caches
-    command: bash
+    entrypoint: []
+    command: echo "RSA test data container"
 
 postgres:
     image: postgres:9
