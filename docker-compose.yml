@@ -4,7 +4,6 @@ rsa:
         - postgres:rsadb
     volumes_from:
         - data
-        - sources
 
 dev:
     build: .
@@ -12,16 +11,10 @@ dev:
         - postgres:rsadb
     volumes_from:
         - data
-        - sources
     entrypoint: []
     command: bash
 
 data:
-    build: .
-    entrypoint: []
-    command: echo "RSA test data container"
-
-sources:
     build: .
     volumes:
         - ./src:/var/src/rsa/src
