@@ -80,16 +80,13 @@ VOLUME /var/spool/ndg/pickup \
 
 WORKDIR /var/src/rsa/src
 
-# Try gradle twice in case the first time fails; this can happen if one of the
-# repositories returns a transitory error
+# Try gradle multiple times in case the first time fails; this can happen if
+# one of the repositories returns a transitory error
 RUN (gradle || gradle || gradle)
 
 RUN mkdir -p /var/lib/tomcat${TOMCAT_VERSION}/webapps/rsa \
     && cd /var/lib/tomcat${TOMCAT_VERSION}/webapps/rsa \
-    && jar -xvf /var/src/rsa/src/spatialcubeservice/build/libs/rsa*.war \
-    && cd /var/src/rsa/src/rsaworkers/build/install/rsaworkers \
-    && rm -r config \
-    && ln -s /var/src/rsa/config .
+    && jar -xvf /var/src/rsa/src/spatialcubeservice/build/libs/rsa*.war
 
 ENTRYPOINT ["/var/src/rsa/src/rsa_docker_start.sh"]
 
