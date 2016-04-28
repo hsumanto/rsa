@@ -12,7 +12,7 @@ MAINTAINER Jin Park <forjin@vpac-innovations.com.au>, Alex Fraser <alex@vpac-inn
 
 ENV JDK_VERSION=8 \
     TOMCAT_VERSION=7 \
-    GRADLE_VERSION=2.12
+    GRADLE_VERSION=2.13
 
 # Packages with a trailing dash (-) will be removed / not installed.
 COPY detect-proxy.sh /root
@@ -80,16 +80,13 @@ VOLUME /var/spool/ndg/pickup \
 
 WORKDIR /var/src/rsa/src
 
-# Try gradle twice in case the first time fails; this can happen if one of the
-# repositories returns a transitory error
+# Try gradle multiple times in case the first time fails; this can happen if
+# one of the repositories returns a transitory error
 RUN (gradle || gradle || gradle)
 
 RUN mkdir -p /var/lib/tomcat${TOMCAT_VERSION}/webapps/rsa \
     && cd /var/lib/tomcat${TOMCAT_VERSION}/webapps/rsa \
-    && jar -xvf /var/src/rsa/src/spatialcubeservice/build/libs/rsa*.war \
-    && cd /var/src/rsa/src/rsaworkers/build/install/rsaworkers \
-    && rm -r config \
-    && ln -s /var/src/rsa/config .
+    && jar -xvf /var/src/rsa/src/spatialcubeservice/build/libs/rsa*.war
 
 ENTRYPOINT ["/var/src/rsa/src/rsa_docker_start.sh"]
 

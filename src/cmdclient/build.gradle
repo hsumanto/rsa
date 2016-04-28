@@ -1,6 +1,9 @@
 apply plugin: 'java'
 apply plugin: 'application'
 
+import java.nio.file.Files
+import java.nio.file.Paths
+
 mainClassName = 'org.vpac.ndg.cli.Client'
 
 dependencies {
@@ -24,7 +27,7 @@ dependencies {
 
 jar {
     manifest {
-        attributes("Implementation-Title": "rsaworkers")
+        attributes("Implementation-Title": applicationName)
     }
 }
 
@@ -44,4 +47,20 @@ startScripts {
             /APP_HOME\/lib\/config(:|$)/,
             'APP_HOME/config$1')
     }
+}
+
+installDist << {
+    // Create a symlink to the primary config directory. An alternative is to
+    // create a symlink as src/dist/config, but in that case the contents of
+    // the directory get *copied* to the output directory, which makes
+    // overriding config (e.g. with a Docker volume) difficult.
+    def link = Paths.get("$buildDir/install/$applicationName/config")
+    def target = Paths.get("$rootDir/../config").normalize()
+    Files.createSymbolicLink link, target
+}
+
+// Prevent the contents of the config directory from being included in the
+// lib directory.
+applicationDistribution.with {
+    exclude 'config/**'
 }

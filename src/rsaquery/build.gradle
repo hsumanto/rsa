@@ -31,6 +31,6 @@ dependencies {
 
 jar {
     manifest {
-        attributes("Implementation-Title": "rsaquery")
+        attributes("Implementation-Title": applicationName)
     }
 }
