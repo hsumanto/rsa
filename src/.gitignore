@@ -1,4 +1,4 @@
-dist
+build
 .classpath
 .gradle
 gradlew*
