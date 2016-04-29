@@ -23,6 +23,9 @@ dependencies {
 }
 
 jar {
+    exclude ("resources/**")
+    exclude ("config/**")
+
     manifest {
         attributes("Implementation-Title": "rsaworkers")
     }

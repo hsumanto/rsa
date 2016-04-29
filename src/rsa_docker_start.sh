@@ -2,7 +2,7 @@
 
 mode=$1
 
-SEED_CONF=/var/src/rsa/src/rsaworkers/src/main/resources/seed.conf
+SEED_CONF=/var/src/rsa/config/application.conf
 
 function update_config() {
     # When starting a seed node, check for a placeholder in the config file for
