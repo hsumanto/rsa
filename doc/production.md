@@ -49,7 +49,8 @@ First, start two or more Akka seed nodes.
  1. Start each seed node with:
 
     ```
-    sudo docker run --name rsa_seed $RSA_OPTS \
+    sudo docker run -d --name rsa_seed $RSA_OPTS \
+        --net=host \
         -p 2552:2552 \
         vpac/rsa seed
     ```
