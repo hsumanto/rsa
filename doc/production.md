@@ -62,7 +62,8 @@ Now start at least two workers:
  1. Start each worker with:
 
     ```
-    sudo docker run --name rsa_worker $RSA_OPTS \
+    sudo docker run -d --name rsa_worker $RSA_OPTS \
+        --net=host \
         -p 2552:2552 \
         vpac/rsa worker
     ```
@@ -74,7 +75,8 @@ Finally, start at least one web server:
  1. Start each web server with:
 
     ```
-    sudo docker run --name rsa_web $RSA_OPTS \
+    sudo docker run -d --name rsa_web $RSA_OPTS \
+        --net=host \
         -p 2552:2552 \
         -p 8080:8080 \
         vpac/rsa web
