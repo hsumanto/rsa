@@ -92,4 +92,18 @@ public class BucketingStrategyExplicit implements BucketingStrategy, Serializabl
             }
         }
     }
+
+    @Override
+    public String getDef() {
+        List<String> bounds = new ArrayList<>();
+        for (double bound : buckets) {
+            bounds.add(String.format("%s", bound));
+        }
+        return String.format("explicit/bounds/%s", String.join(",", bounds));
+    }
+
+    @Override
+    public String toString() {
+        return String.format("BucketingStrategyExplicit(%s)", getDef());
+    }
 }

@@ -405,19 +405,37 @@ public class BucketingStrategyTest extends TestCase {
 	@Test
 	public void test_urlTypes() throws Exception {
 		String descriptor;
-		BucketingStrategyLog bs;
+		BucketingStrategyLog bsl;
 
 		descriptor = String.format("log?base=10&n=3&scale=0.1");
-		bs = (BucketingStrategyLog) new BucketingStrategyFactory().create(descriptor);
-		assertEquals(10.0, bs.base);
-		assertEquals(3.0, bs.n);
-		assertEquals(0.1, bs.scale);
+		bsl = (BucketingStrategyLog) new BucketingStrategyFactory().create(descriptor);
+		assertEquals(10.0, bsl.base);
+		assertEquals(3.0, bsl.n);
+		assertEquals(0.1, bsl.scale);
 
 		descriptor = String.format("log/base/10/n/3/scale/0.1");
-		bs = (BucketingStrategyLog) new BucketingStrategyFactory().create(descriptor);
-		assertEquals(10.0, bs.base);
-		assertEquals(3.0, bs.n);
-		assertEquals(0.1, bs.scale);
+		bsl = (BucketingStrategyLog) new BucketingStrategyFactory().create(descriptor);
+		assertEquals(10.0, bsl.base);
+		assertEquals(3.0, bsl.n);
+		assertEquals(0.1, bsl.scale);
+		assertEquals("log/base/10.0/n/3.0/scale/0.1", bsl.getDef());
+
+		BucketingStrategy bs;
+		descriptor = "categorical";
+		bs = new BucketingStrategyFactory().create(descriptor);
+		assertEquals(descriptor, bs.getDef());
+
+		descriptor = "regular/origin/0.1/width/3.3";
+		bs = new BucketingStrategyFactory().create(descriptor);
+		assertEquals(descriptor, bs.getDef());
+
+		descriptor = "logRegular/base/10.0/n/3.0/scale/0.1";
+		bs = new BucketingStrategyFactory().create(descriptor);
+		assertEquals(descriptor, bs.getDef());
+
+		descriptor = "explicit/bounds/-1.0,0.0,1.0,Infinity";
+		bs = new BucketingStrategyFactory().create(descriptor);
+		assertEquals(descriptor, bs.getDef());
 	}
 
 }

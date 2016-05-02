@@ -187,4 +187,14 @@ public class BucketingStrategyLog implements BucketingStrategy, Serializable {
 					"Log bucketing strategy: scale is too small.");
 		}
 	}
+
+	@Override
+	public String getDef() {
+		return String.format("log/base/%s/n/%s/scale/%s", base, n, scale);
+	}
+
+	@Override
+	public String toString() {
+		return String.format("BucketingStrategyLog(%s)", getDef());
+	}
 }

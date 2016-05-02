@@ -71,4 +71,16 @@ public class BucketingStrategyLogRegular extends BucketingStrategyLog {
 				"LogRegular bucketing strategy: base must be greater than n.");
 		}
 	}
+
+	@Override
+	public String getDef() {
+		return String.format(
+			"logRegular/base/%s/n/%s/scale/%s",
+			base, n, scale);
+	}
+
+	@Override
+	public String toString() {
+		return String.format("BucketingStrategyLogRegular(%s)", getDef());
+	}
 }

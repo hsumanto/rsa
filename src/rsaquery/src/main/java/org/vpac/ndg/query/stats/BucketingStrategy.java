@@ -16,4 +16,6 @@ public interface BucketingStrategy {
 
 	void checkConfiguration() throws QueryException;
 
+	String getDef();
+
 }

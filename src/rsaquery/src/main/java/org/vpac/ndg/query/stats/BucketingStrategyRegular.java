@@ -48,4 +48,14 @@ public class BucketingStrategyRegular implements BucketingStrategy, Serializable
 				"Regular bucketing strategy: width is too small.");
 		}
 	}
+
+	@Override
+	public String getDef() {
+		return String.format("regular/origin/%s/width/%s", origin, width);
+	}
+
+	@Override
+	public String toString() {
+		return String.format("BucketingStrategyRegular(%s)", getDef());
+	}
 }
