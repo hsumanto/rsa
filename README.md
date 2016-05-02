@@ -19,10 +19,11 @@ The RSA has a Java API, and two user interfaces:
 
 ## Installation
 
-Installation is done [using Docker](doc/docker.md).
+Installation is done [using Docker](doc/production.md).
 
 ## Developer Documentation
 
+ * [Development environment](doc/developer.md) - instructions for setting up a development environment.
  * [Storage Manager](doc/design.md) - Design of the storage system.
  * [Query Engine](doc/design-rsaquery.md) - Design of the RSA's programmable image processing system.
 
