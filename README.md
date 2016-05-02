@@ -9,7 +9,7 @@ Datasets are imported into the RSA via the command line interface or the Web ser
 One of the fundamental concepts behind RSA is the *data cube*, which is essentially a multi-dimensional image. The RSA supports data cubes with *x* and *y* axes for spatially-varying data and a *time* axis for temporally-varying data. The data cube can contain any number of bands, which are analogous to colour channels in common image formats. The RSA can export sections of the data cube, and can perform spatio-temporal queries on the data with its programmable query engine.
 
 The RSA has a Java API, and two user interfaces:
- 
+
  * [rsacli](doc/rsacli_tutorial.md) - The command line interface, great for administration and automation.
  * [spatialcubeservice](doc/spatialcubeservice.md) - Web services, and a graphical interface for the query engine.
 
@@ -19,13 +19,10 @@ The RSA has a Java API, and two user interfaces:
 
 ## Installation
 
- * [Using Vagrant](doc/vagrant_install.md) - Automatically build RSA and its environment using Puppet/Vagrant.
- * [Manual Install](doc/manual_install.md) - Install RSA and its dependencies from scratch on Debian/Ubuntu or Centos/RedHat.
- * [Deployment](doc/deploy.md) - How to deploy spatialcubeservice on Tomcat6
+Installation is done [using Docker](doc/docker.md).
 
 ## Developer Documentation
 
- * [Manual Install](doc/manual_install.md) - Install RSA and its dependencies from scratch on Debian/Ubuntu or Centos/RedHat.
  * [Storage Manager](doc/design.md) - Design of the storage system.
  * [Query Engine](doc/design-rsaquery.md) - Design of the RSA's programmable image processing system.
 
@@ -41,4 +38,3 @@ The RSA was developed by VPAC under the [Unlocking the Landsat Archive (ULA)][as
 
 [cscsi]: http://www.crcsi.com.au/
 [asrp]: http://www.space.gov.au/AustralianSpaceResearchProgram/ProjectFactsheetspage/Pages/UnlockingtheLANDSATArchiveforFutureChallenges.aspx
-
