@@ -37,6 +37,8 @@ startScripts {
     // APP_HOME/config.
     // https://issues.gradle.org/browse/GRADLE-2333
     // http://stackoverflow.com/a/18712556/320036
+    // Also, workaround wrong classpath for filter class directory.
+    // https://discuss.gradle.org/t/application-plugin-generates-wrong-classpath-for-bare-class-files/17433
     doLast {
         def windowsScriptFile = file getWindowsScript()
         def unixScriptFile = file getUnixScript()
@@ -46,6 +48,12 @@ startScripts {
         unixScriptFile.text  = unixScriptFile.text.replaceFirst(
             /APP_HOME\/lib\/config(:|$)/,
             'APP_HOME/config$1')
+        windowsScriptFile.text = windowsScriptFile.text.replaceFirst(
+            /%APP_HOME%\\lib\\filter(:|$)/,
+            '%APP_HOME%\\lib$1')
+        unixScriptFile.text  = unixScriptFile.text.replaceFirst(
+            /APP_HOME\/lib\/filter(:|$)/,
+            'APP_HOME/lib$1')
     }
 }
 
