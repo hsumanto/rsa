@@ -17,6 +17,9 @@ dependencies {
 
     runtime (
         'ch.qos.logback:logback-classic:1.0.7',
+        // Specify our own JNA dependency with a newer version than the one
+        // required by Netcdf. If the Netcdf library is upgraded one day, then
+        // maybe this can be removed. See below, too, for the exclusion rule.
         'net.java.dev.jna:jna:3.2.7',
     )
 
@@ -26,6 +29,12 @@ dependencies {
         sourceSets.main.output,
         sourceSets.filter.output,
     )
+}
+
+configurations.all {
+    // Exclude the transitive dependency on jna required by netcdf. That version
+    // has a bug that prevents writing Netcdf4-classic files.
+    exclude group: 'com.sun.jna', module: 'jna'
 }
 
 jar {
