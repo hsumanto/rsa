@@ -65,6 +65,7 @@ public class QueryTest extends TestCase {
 		File config = new File("data/config/wettingextents.xml");
 		File outputFile = new File("data/output/watermark.nc");
 		File expectedFile = new File("data/expected/watermark.nc");
+		outputFile.delete();
 
 		QueryRunner.run(config, outputFile);
 
@@ -143,6 +144,7 @@ public class QueryTest extends TestCase {
 		File config = new File("data/config/activefire.xml");
 		File outputFile = new File("data/output/on_fire.nc");
 		File expectedFile = new File("data/expected/on_fire.nc");
+		outputFile.delete();
 
 		QueryRunner.run(config, outputFile);
 
@@ -221,6 +223,7 @@ public class QueryTest extends TestCase {
 		File config = new File("data/config/qualityselection.xml");
 		File outputFile = new File("data/output/quality_colour.nc");
 		File expectedFile = new File("data/expected/quality_colour.nc");
+		outputFile.delete();
 
 		QueryRunner.run(config, outputFile);
 
@@ -263,6 +266,7 @@ public class QueryTest extends TestCase {
 		File config = new File("data/config/minimisevariance.xml");
 		File outputFile = new File("data/output/minvariance.nc");
 		File expectedFile = new File("data/expected/minvariance.nc");
+		outputFile.delete();
 
 		QueryRunner.run(config, outputFile);
 
@@ -302,6 +306,7 @@ public class QueryTest extends TestCase {
 		File config = new File("data/config/minimisevariance_twopass.xml");
 		File outputFile = new File("data/output/minvariance_twopass.nc");
 		File expectedFile = new File("data/expected/minvariance_twopass.nc");
+		outputFile.delete();
 
 		QueryRunner.run(config, outputFile);
 
@@ -341,6 +346,7 @@ public class QueryTest extends TestCase {
 		File config = new File("data/config/blur.xml");
 		File outputFile = new File("data/output/blur.nc");
 		File expectedFile = new File("data/expected/blur.nc");
+		outputFile.delete();
 
 		QueryRunner.run(config, outputFile, 8);
 
@@ -367,6 +373,7 @@ public class QueryTest extends TestCase {
 		File config = new File("data/config/hypercube.xml");
 		File outputFile = new File("data/output/hypercube.nc");
 		File expectedFile = new File("data/expected/hypercube.nc");
+		outputFile.delete();
 
 		QueryRunner.run(config, outputFile);
 
@@ -396,6 +403,7 @@ public class QueryTest extends TestCase {
 		File config = new File("data/config/multiply_2d_2d.xml");
 		File outputFile = new File("data/output/multiply_2d_2d.nc");
 		File expectedFile = new File("data/expected/multiply_2d_2d.nc");
+		outputFile.delete();
 
 		QueryRunner.run(config, outputFile);
 
@@ -422,6 +430,7 @@ public class QueryTest extends TestCase {
 		File config = new File("data/config/2d3d_demote.xml");
 		File outputFile = new File("data/output/2d3d_demote.nc");
 		File expectedFile = new File("data/expected/2d3d_demote.nc");
+		outputFile.delete();
 
 		QueryRunner.run(config, outputFile);
 
@@ -451,6 +460,7 @@ public class QueryTest extends TestCase {
 		File config = new File("data/config/2d3d_promote.xml");
 		File outputFile = new File("data/output/2d3d_promote.nc");
 		File expectedFile = new File("data/expected/2d3d_promote.nc");
+		outputFile.delete();
 
 		QueryRunner.run(config, outputFile);
 
@@ -479,6 +489,7 @@ public class QueryTest extends TestCase {
 	public void test_accumulate() throws Exception {
 		File config = new File("data/config/accumulate.xml");
 		File outputFile = new File("data/output/accumulate.nc");
+		outputFile.delete();
 
 		// Basic run with accumulate function. The output is assigned to the
 		// map using the ID of the filter that accumulates it.
@@ -487,6 +498,7 @@ public class QueryTest extends TestCase {
 
 		// Run again with threading. This tests that the output can be folded
 		// together.
+		outputFile.delete();
 		output = QueryRunner.run(config, outputFile, 8);
 		assertEquals("520240", output.get("sum").toString());
 
@@ -498,6 +510,7 @@ public class QueryTest extends TestCase {
 	public void test_statsFilter() throws Exception {
 		File config = new File("data/config/stats_stats.xml");
 		File outputFile = new File("data/output/stats.nc");
+		outputFile.delete();
 
 		Map<String, Foldable<?>> output = QueryRunner.run(config, outputFile, 8);
 		VectorStats stats = (VectorStats) output.get("stats");
@@ -512,6 +525,7 @@ public class QueryTest extends TestCase {
 	public void test_histFilter() throws Exception {
 		File config = new File("data/config/stats_hist.xml");
 		File outputFile = new File("data/output/hist.nc");
+		outputFile.delete();
 
 		Map<String, Foldable<?>> output = QueryRunner.run(config, outputFile, 8);
 		VectorHist vhist = (VectorHist) output.get("hist");
@@ -532,12 +546,13 @@ public class QueryTest extends TestCase {
 	public void test_catsFilter() throws Exception {
 		File config = new File("data/config/stats_cats.xml");
 		File outputFile = new File("data/output/cats.nc");
+		outputFile.delete();
 
 		Map<String, Foldable<?>> output = QueryRunner.run(config, outputFile, 8);
 		VectorCats vcats = (VectorCats) output.get("cats");
 
 		System.out.println(vcats.toString());
-		
+
 		Cats cats;
 		Hist hist;
 		List<Bucket> buckets;
@@ -571,6 +586,7 @@ public class QueryTest extends TestCase {
 		File config = new File("data/config/activefire.xml");
 		File outputFile = new File("data/output/inheritance.nc");
 		File expectedFile = new File("data/expected/on_fire.nc");
+		outputFile.delete();
 
 		QueryDefinition qd = QueryDefinition.fromXML(config);
 		qd.filters.get(0).classname = InheritanceFilter.class.getName();
@@ -603,6 +619,7 @@ public class QueryTest extends TestCase {
 	public void test_brokenInheritance() throws Exception {
 		File config = new File("data/config/activefire.xml");
 		File outputFile = new File("data/output/broken_inheritance.nc");
+		outputFile.delete();
 
 		QueryDefinition qd = QueryDefinition.fromXML(config);
 		qd.filters.get(0).classname = BrokenInheritanceFilter.class.getName();
@@ -624,6 +641,7 @@ public class QueryTest extends TestCase {
 		qd.filters.get(0).classname = BrokenInheritanceFilter.class.getName();
 
 		File outputFile = new File("data/output/on_fire.nc");
+		outputFile.delete();
 
 		QueryRunner.run(config, outputFile);
 	}

@@ -27,17 +27,10 @@ import org.junit.rules.MethodRule;
 import org.junit.runner.RunWith;
 import org.junit.runners.BlockJUnit4ClassRunner;
 
-import com.carrotsearch.junitbenchmarks.BenchmarkOptions;
-import com.carrotsearch.junitbenchmarks.BenchmarkRule;
-
-@BenchmarkOptions(benchmarkRounds = 5, warmupRounds = 2)
 @RunWith(BlockJUnit4ClassRunner.class)
 public class ElementSpeedTest extends TestCase {
 
 	static final int ITERATIONS = 250000000;
-
-	@Rule
-	public MethodRule benchmarkRun = new BenchmarkRule();
 
 	/**
 	 * This test should run roughly as fast as {@link #test_vectorcomponents()}.

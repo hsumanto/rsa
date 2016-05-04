@@ -63,7 +63,7 @@ public class QueryRunner {
 		log.debug("Opening output file {}", output);
 
 		NetcdfFileWriter outputDataset = NetcdfFileWriter.createNew(
-				Version.netcdf4, output.getAbsolutePath());
+				Version.netcdf4_classic, output.getAbsolutePath());
 
 		try {
 			Query q = new Query(outputDataset);

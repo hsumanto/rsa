@@ -17,10 +17,6 @@ import org.slf4j.LoggerFactory;
 import org.vpac.ndg.query.iteration.Pair;
 import org.vpac.ndg.query.math.ElementInt;
 
-import com.carrotsearch.junitbenchmarks.BenchmarkOptions;
-import com.carrotsearch.junitbenchmarks.BenchmarkRule;
-
-@BenchmarkOptions(benchmarkRounds = 5, warmupRounds = 5)
 @RunWith(BlockJUnit4ClassRunner.class)
 public class CategoriesTest extends TestCase {
 
@@ -32,9 +28,6 @@ public class CategoriesTest extends TestCase {
 	final static double EPSILON = 1.0e-9;
 
 	private static final long NUM_ELEMENTS = 5000 * 5000;
-
-	@Rule
-	public MethodRule benchmarkRun = new BenchmarkRule();
 
 	private List<Pair<Integer, Integer>> permutations;
 

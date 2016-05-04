@@ -23,7 +23,6 @@ dependencies {
     filterCompile sourceSets.main.output
 
     testCompile (
-        'com.carrotsearch:junit-benchmarks:0.4.0',
         sourceSets.main.output,
         sourceSets.filter.output,
     )

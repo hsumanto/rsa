@@ -25,17 +25,10 @@ import org.junit.rules.MethodRule;
 import org.junit.runner.RunWith;
 import org.junit.runners.BlockJUnit4ClassRunner;
 
-import com.carrotsearch.junitbenchmarks.BenchmarkOptions;
-import com.carrotsearch.junitbenchmarks.BenchmarkRule;
-
 import static org.junit.Assert.*;
 
-@BenchmarkOptions(benchmarkRounds = 5, warmupRounds = 2)
 @RunWith(BlockJUnit4ClassRunner.class)
 public class SwizzleTest {
-
-	@Rule
-	public MethodRule benchmarkRun = new BenchmarkRule();
 
 	@Test
 	public void test_int() throws Exception {
@@ -89,7 +82,7 @@ public class SwizzleTest {
 		VectorElement from;
 		VectorElement to;
 		VectorElement expected;
-		
+
 		sw = SwizzleFactory.compile("x", "x");
 		from = new VectorElement(new ElementInt(1));
 		to = VectorElement.createInt(1, 0);
@@ -97,7 +90,7 @@ public class SwizzleTest {
 		sw.swizzle(from, to);
 		sw.invert().swizzle(to, from);
 		assertEquals(expected, from);
-		
+
 		sw = SwizzleFactory.compile("xyz", "zxy");
 		from = new VectorElement(new ElementInt(1), new ElementInt(2),
 				new ElementInt(3));
@@ -106,7 +99,7 @@ public class SwizzleTest {
 		sw.swizzle(from, to);
 		sw.invert().swizzle(to, from);
 		assertEquals(expected, from);
-		
+
 		sw = SwizzleFactory.compile("abcde", "ebdca");
 		from = new VectorElement(new ElementInt(1), new ElementInt(2),
 				new ElementInt(3), new ElementInt(4), new ElementInt(5));
