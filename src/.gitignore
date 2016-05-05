@@ -1,2 +1,6 @@
-dist
+build
 .classpath
+.gradle
+gradlew*
+gradle
+**/.classpath.txt

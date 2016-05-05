@@ -1,0 +1,72 @@
+defaultTasks (
+    'cmdclient:installDist',
+    'rsaworkers:installDist',
+    'spatialcubeservice:war',
+)
+
+subprojects {
+    apply plugin: 'java'
+
+    repositories {
+        jcenter()
+
+        maven {
+            url "https://artifacts.unidata.ucar.edu/content/repositories/unidata-releases/"
+        }
+    }
+
+    dependencies {
+        compile 'org.slf4j:slf4j-api:1.6.1'
+        testCompile 'junit:junit:4.12'
+        runtime files("$rootDir/../config")
+        testRuntime files("$rootDir/../test-config")
+    }
+
+    configurations.all {
+        // Exclude the transitive dependency on jna required by netcdf. That
+        // version has a bug that prevents writing Netcdf4-classic files.
+        exclude group: 'com.sun.jna', module: 'jna'
+    }
+
+    version '2.4.0'
+
+    jar {
+        manifest {
+            attributes("Implementation-Version": version)
+        }
+    }
+
+    compileJava.doLast {
+        // Write classpath to a file so that other tools (e.g. editors) can
+        // autocomplete class names. E.g. see:
+        // https://github.com/keskiju/autocomplete-java#usage
+        def File cp = new File("$projectDir/.classpath.txt")
+        cp.text = configurations.testRuntime.asPath + '\n'
+        cp.text = cp.text
+            .replaceAll(
+                /\/root\/.gradle\/caches\//,
+                '../../.gradle-cache/')
+            .replaceAll(
+                /\/var\/src\/rsa\//,
+                '../../')
+            .replaceAll(
+                /[^:]+gdal.jar:?/,
+                '')
+    }
+
+    task printCompileClasspath {
+        doLast {
+            configurations.compile.each {
+                println it
+            }
+        }
+    }
+
+    task printTestClasspath {
+        doLast {
+            configurations.testRuntime.each {
+                println it
+            }
+        }
+    }
+}

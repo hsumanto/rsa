@@ -1,0 +1,9 @@
+//include 'cmdclient', 'rsaworkers', 'spatialcubeservice'
+include (
+    'rsaquery',
+    'storagemanager',
+    'spatialcubeservice',
+    'rsaworkers',
+    'cmdclient',
+)
+rootProject.name = 'rsa'

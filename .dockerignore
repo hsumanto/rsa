@@ -1,0 +1,13 @@
+.git
+src/dist
+src/*/dist
+src/*/build
+src/*/lib
+src/*/lib-references
+src/*/lib-test
+**/*~
+**/*.class
+**/*.jar
+**/.gradle
+**/gradlew*
+**/gradle

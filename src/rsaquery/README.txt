@@ -12,9 +12,9 @@ To create a new filter and query:
     and outputs.
  3. Run the query using the QueryTest application.
 
-JUnit tests are provided; they may be run using Ant (build.xml). Alternatively,
+JUnit tests are provided; they may be run using Gradle. Alternatively,
 the test queries can be run manually using the QueryRunner class, after building
-with Ant:
+with Gradle:
 
 	WORKSPACE=..
 

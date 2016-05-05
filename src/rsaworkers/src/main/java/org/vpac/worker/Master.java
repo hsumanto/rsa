@@ -15,6 +15,7 @@ import java.net.InetAddress;
 import java.net.Inet4Address;
 import java.net.NetworkInterface;
 import java.net.InterfaceAddress;
+import java.net.URLDecoder;
 
 import org.vpac.ndg.common.datamodel.TaskState;
 import org.vpac.ndg.query.filter.Foldable;
@@ -32,6 +33,7 @@ import scala.concurrent.duration.FiniteDuration;
 import scala.Option;
 import akka.actor.ActorRef;
 import akka.actor.ActorSelection;
+import akka.actor.ActorPath;
 import akka.actor.Cancellable;
 import akka.actor.Props;
 import akka.actor.UntypedActor;
@@ -103,15 +105,16 @@ public class Master extends UntypedActor {
 			log.info("Member is Removed: {}", mRemoved.member());
 		} else if (message instanceof RegisterWorker) {
 			InetAddress localhost = Inet4Address.getLocalHost();
-			//log.info("local address:" + localhost.getHostAddress().toString());
-			//log.info("sender path:" + getSender().path());
+			String sAddress = URLDecoder.decode(getSender().path().toString().replace(getSender().path().parent().toString() + "/", ""), "utf-8");
+			Option<String> sHost = getContext().actorSelection(sAddress).anchorPath().address().host();
 			String loocalAddress = localhost.getHostAddress().toString();
-			Option<String> sender = getSender().path().address().host();
 			Option<String> empty = scala.Option.apply(null);
-			String senderAddress = sender == empty ? "" : sender.get();
+			String sHostAddress = sHost == empty ? "" : sHost.get();
+			// log.info("sAddress:" + sAddress);
+			// log.info("sHostAddress:" + sHostAddress);
+			// log.info("senderAddress:" + senderAddress);
 
-
-			if (getSender().path().toString().contains(loocalAddress))
+			if (loocalAddress.equals(sHostAddress))
 			{
 				log.info("Kill local worker:" + getSender().path());
 				getSender().tell(StopWorking.getInstance(), getSelf());

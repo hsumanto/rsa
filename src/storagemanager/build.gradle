@@ -1,0 +1,51 @@
+apply plugin: 'java'
+
+dependencies {
+    def springVersion = '3.1.1.RELEASE'
+
+    compile (
+        'edu.ucar:cdm:4.4.0',
+        'edu.ucar:netcdf4:4.4.0',
+        'ch.qos.logback:logback-classic:1.0.7',
+        'com.thoughtworks.xstream:xstream:1.4.2',
+        'commons-lang:commons-lang:2.5',
+        'org.aspectj:aspectjtools:1.6.2',
+        'org.hibernate:hibernate-core:3.5.6-Final',
+        "org.springframework:org.springframework.beans:$springVersion",
+        "org.springframework:org.springframework.context:$springVersion",
+        "org.springframework:org.springframework.orm:$springVersion",
+        "org.springframework:org.springframework.transaction:$springVersion",
+        files('/usr/lib/gdal.jar'),
+        project(':rsaquery'),
+    )
+
+    testCompile (
+        'com.carrotsearch:junit-benchmarks:0.4.0',
+        "org.springframework:org.springframework.test:$springVersion",
+        sourceSets.main.output,
+    )
+
+    runtime (
+        'cglib:cglib:2.2.2',
+        'net.java.dev.jna:jna:3.2.7',
+        'org.hibernate:hibernate-annotations:3.5.6-Final',
+        'org.hibernate.javax.persistence:hibernate-jpa-2.0-api:1.0.0.Final',
+        'org.postgresql:postgresql:9.4-1201-jdbc41',
+        "org.springframework:org.springframework.aop:$springVersion",
+        "org.springframework:org.springframework.asm:$springVersion",
+        "org.springframework:org.springframework.core:$springVersion",
+        "org.springframework:org.springframework.expression:$springVersion",
+        "org.springframework:org.springframework.jdbc:$springVersion",
+    )
+}
+
+tasks.withType(Test) {
+    // Only run one test at a time, because many tests use the same datasets
+    maxParallelForks = 1
+}
+
+jar {
+    manifest {
+        attributes("Implementation-Title": "storagemanager")
+    }
+}
