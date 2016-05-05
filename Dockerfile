@@ -30,7 +30,6 @@ RUN export DEBIAN_FRONTEND=noninteractive TERM=linux && \
         gdal-bin \
         libgdal-dev \
         libgdal-java \
-        libjna-java \
         libproj0 \
         libtcnative-1 \
         nmap \
