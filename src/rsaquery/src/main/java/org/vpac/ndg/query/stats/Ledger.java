@@ -53,6 +53,18 @@ public class Ledger implements Foldable<Ledger>, Serializable {
 		combinations.put(currentCombination, currentCount);
 	}
 
+	public long get(List<Double> combination) {
+		Long count = combinations.get(combination);
+		if (count == null)
+			return 0;
+		else
+			return count;
+	}
+
+	public Set<List<Double>> keySet() {
+		return combinations.keySet();
+	}
+
 	public Ledger copy() {
 		Ledger res = new Ledger();
 		res.combinations.putAll(combinations);

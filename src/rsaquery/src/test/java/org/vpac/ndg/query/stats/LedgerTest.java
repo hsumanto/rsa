@@ -28,6 +28,35 @@ public class LedgerTest extends TestCase {
 	Logger log = LoggerFactory.getLogger(LedgerTest.class);
 
 	@Test
+	public void test_add_manual() throws Exception {
+		Ledger ledger = new Ledger();
+		List<BucketingStrategy> bss = new ArrayList();
+		BucketingStrategyFactory bf = new BucketingStrategyFactory();
+		bss.add(bf.create("regular/width/1"));
+		bss.add(bf.create("regular/width/1"));
+		bss.add(bf.create("regular/width/1"));
+		ledger.setBucketingStrategies(bss);
+
+		List<Double> pixel;
+		ledger.add(Arrays.asList(0.0, 0.0, 0.0));
+		ledger.add(Arrays.asList(0.0, 0.0, 1.0));
+		ledger.add(Arrays.asList(0.0, 1.0, 2.0));
+		ledger.add(Arrays.asList(1.0, 2.0, 3.0));
+		ledger.add(Arrays.asList(0.0, 0.0, 0.0));
+		ledger.add(Arrays.asList(0.0, 0.0, 1.0));
+		ledger.add(Arrays.asList(0.0, 1.0, 2.0));
+		ledger.add(Arrays.asList(0.0, 0.0, 0.0));
+		ledger.add(Arrays.asList(0.0, 0.0, 1.0));
+		ledger.add(Arrays.asList(0.0, 0.0, 0.0));
+
+		assertEquals(4, ledger.get(Arrays.asList(0.0, 0.0, 0.0)));
+		assertEquals(3, ledger.get(Arrays.asList(0.0, 0.0, 1.0)));
+		assertEquals(2, ledger.get(Arrays.asList(0.0, 1.0, 2.0)));
+		assertEquals(1, ledger.get(Arrays.asList(1.0, 2.0, 3.0)));
+		assertEquals(0, ledger.get(Arrays.asList(5.0, 0.0, 0.0)));
+	}
+
+	@Test
 	public void test_add() throws Exception {
 		Ledger ledger = new Ledger();
 		List<BucketingStrategy> bss = new ArrayList();
@@ -48,8 +77,8 @@ public class LedgerTest extends TestCase {
 			ledger.add(pixel);
 		}
 		log.info("Stored {} combinations in {}", COUNT, ledger);
-		for (List<Double> key : ledger.getCombinations().keySet()) {
-			long count = ledger.getCombinations().get(key);
+		for (List<Double> key : ledger.keySet()) {
+			long count = ledger.get(key);
 			log.debug("{}: {}", key, count);
 		}
 	}
