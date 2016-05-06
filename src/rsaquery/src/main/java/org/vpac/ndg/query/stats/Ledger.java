@@ -33,6 +33,7 @@ public class Ledger implements Foldable<Ledger>, Serializable {
 		currentCombination = new ArrayList();
 		bucketedCombination = new ArrayList();
 		currentCount = 0L;
+		bss = new ArrayList();
 	}
 
 	public void add(List<Double> combination) {
@@ -61,7 +62,9 @@ public class Ledger implements Foldable<Ledger>, Serializable {
 
 	@Override
 	public Ledger fold(Ledger other) {
-		if (!bss.equals(other.bss)) {
+		if (bss.size() == 0 && combinations.size() == 0) {
+			bss.addAll(other.bss);
+		} else if (!bss.equals(other.bss)) {
 			// With additional metadata, it might be possible to splice
 			// heterogeneous Ledgers. But for now...
 			throw new QueryRuntimeException(
@@ -80,7 +83,12 @@ public class Ledger implements Foldable<Ledger>, Serializable {
 
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		sb.append("Ledger(%dx%d)");
+		int width = 0;
+		for (List<Double> key : combinations.keySet()) {
+			width = key.size();
+			break;
+		}
+		sb.append(String.format("Ledger(%dx%d)", width, combinations.size()));
 		return sb.toString();
 	}
 

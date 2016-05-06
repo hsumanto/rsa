@@ -6,6 +6,7 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
+import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.BlockJUnit4ClassRunner;
@@ -41,15 +42,61 @@ public class LedgerTest extends TestCase {
 			new double[] {0.0, 4.0},
 			new double[] {0.0, 4.0}));
 
-		for (int i = 0; i < 30; i++) {
+		int COUNT = 30;
+		for (int i = 0; i < COUNT; i++) {
 			List<Double> pixel = generator.nextDoubles();
 			ledger.add(pixel);
 		}
-		System.out.println(ledger.getCombinations().size());
+		log.info("Stored {} combinations in {}", COUNT, ledger);
 		for (List<Double> key : ledger.getCombinations().keySet()) {
 			long count = ledger.getCombinations().get(key);
-			System.out.format("%s: %d\n", key, count);
+			log.debug("{}: {}", key, count);
 		}
+	}
+
+	/**
+	 * Construct two ledgers in two ways with the same data: one serially, and
+	 * the other in parallel. The parallel one is constructed as several
+	 * separate ledger which are folded together at the end.
+	 */
+	@Test
+	public void test_fold() throws Exception {
+		Ledger ledger = new Ledger();
+		Ledger[] partialLedgers = new Ledger[] {
+			new Ledger(),
+			new Ledger(),
+			new Ledger(),
+			new Ledger(),
+		};
+		List<BucketingStrategy> bss = new ArrayList();
+		BucketingStrategyFactory bf = new BucketingStrategyFactory();
+		bss.add(bf.create("regular/width/1"));
+		bss.add(bf.create("regular/width/1"));
+		bss.add(bf.create("regular/width/1"));
+		ledger.setBucketingStrategies(bss);
+		for (Ledger l : partialLedgers) {
+			l.setBucketingStrategies(bss);
+		}
+
+		ParallelRand generator = new ParallelRand(Arrays.asList(
+			new double[] {0.0, 5.0},
+			new double[] {0.0, 5.0},
+			new double[] {0.0, 5.0}));
+
+		for (int i = 0; i < 400; i++) {
+			List<Double> pixel = generator.nextDoubles();
+			ledger.add(pixel);
+			partialLedgers[i % partialLedgers.length].add(pixel);
+		}
+
+		Ledger foldedLedger = new Ledger();
+		for (Ledger l : partialLedgers) {
+			log.debug("Folding {}", l);
+			foldedLedger = foldedLedger.fold(l);
+		}
+
+		log.info("Serial: {}, Folded: {}", ledger, foldedLedger);
+		assertEquals(ledger.getCombinations(), foldedLedger.getCombinations());
 	}
 
 }
