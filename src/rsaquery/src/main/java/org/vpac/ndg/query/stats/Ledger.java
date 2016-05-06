@@ -29,11 +29,11 @@ public class Ledger implements Foldable<Ledger>, Serializable {
 	private List<BucketingStrategy> bss;
 
 	public Ledger() {
-		combinations = new HashMap();
-		currentCombination = new ArrayList();
-		bucketedCombination = new ArrayList();
+		combinations = new HashMap<>();
+		currentCombination = new ArrayList<>();
+		bucketedCombination = new ArrayList<>();
 		currentCount = 0L;
-		bss = new ArrayList();
+		bss = new ArrayList<>();
 	}
 
 	public void add(List<Double> combination) {
@@ -47,7 +47,7 @@ public class Ledger implements Foldable<Ledger>, Serializable {
 			currentCount = combinations.get(bucketedCombination);
 			if (currentCount == null)
 				currentCount = 0L;
-			currentCombination = new ArrayList(bucketedCombination);
+			currentCombination = new ArrayList<>(bucketedCombination);
 		}
 		currentCount++;
 		combinations.put(currentCombination, currentCount);
@@ -68,7 +68,7 @@ public class Ledger implements Foldable<Ledger>, Serializable {
 	public Ledger copy() {
 		Ledger res = new Ledger();
 		res.combinations.putAll(combinations);
-		res.bss = new ArrayList(bss);
+		res.bss = new ArrayList<>(bss);
 		return res;
 	}
 

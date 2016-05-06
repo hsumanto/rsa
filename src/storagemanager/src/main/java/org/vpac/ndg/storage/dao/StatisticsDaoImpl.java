@@ -51,6 +51,7 @@ public class StatisticsDaoImpl extends CustomHibernateDaoSupport implements Stat
 		c.add(Restrictions.eq("tc.taskId", taskId));
 		if (catType != null)
 			c.add(Restrictions.eq("tc.name", catType));
+		@SuppressWarnings("unchecked")
 		List<TaskCats> cats = c.list();
 		// Ensure the objects have been fully fetched before leaving the
 		// transaction.
@@ -72,6 +73,7 @@ public class StatisticsDaoImpl extends CustomHibernateDaoSupport implements Stat
 			c.add(Restrictions.eq("dc.bandId", bandId));
 		if (catType != null)
 			c.add(Restrictions.eq("dc.name", catType));
+		@SuppressWarnings("unchecked")
 		List<DatasetCats> cats = c.list();
 		// Ensure the objects have been fully fetched before leaving the
 		// transaction.

@@ -70,3 +70,17 @@ subprojects {
         }
     }
 }
+
+allprojects {
+    gradle.projectsEvaluated {
+        tasks.withType(JavaCompile) {
+            options.compilerArgs << "-Xlint:unchecked"
+            options.compilerArgs << "-Xlint:deprecation"
+            options.compilerArgs << "-Xlint:finally"
+            options.compilerArgs << "-Xlint:overrides"
+            options.compilerArgs << "-Xlint:rawtypes"
+            options.compilerArgs << "-Xlint:static"
+            options.compilerArgs << "-Xlint:varargs"
+        }
+    }
+}

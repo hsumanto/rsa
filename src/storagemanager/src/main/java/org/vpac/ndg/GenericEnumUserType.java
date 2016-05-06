@@ -34,7 +34,7 @@ import org.hibernate.usertype.UserType;
 
 /**
  * used for converting enumerations into hibernate types
- * 
+ *
  * @author glennf
  *
  */
@@ -62,7 +62,7 @@ public class GenericEnumUserType implements UserType, ParameterizedType {
         String identifierMethodName = parameters.getProperty("identifierMethod", DEFAULT_IDENTIFIER_METHOD_NAME);
 
         try {
-            identifierMethod = enumClass.getMethod(identifierMethodName, new Class[0]);
+            identifierMethod = enumClass.getMethod(identifierMethodName, new Class<?>[0]);
             identifierType = identifierMethod.getReturnType();
         } catch (Exception e) {
             throw new HibernateException("Failed to obtain identifier method", e);
@@ -78,7 +78,7 @@ public class GenericEnumUserType implements UserType, ParameterizedType {
         String valueOfMethodName = parameters.getProperty("valueOfMethod", DEFAULT_VALUE_OF_METHOD_NAME);
 
         try {
-            valueOfMethod = enumClass.getMethod(valueOfMethodName, new Class[] { identifierType });
+            valueOfMethod = enumClass.getMethod(valueOfMethodName, new Class<?>[] { identifierType });
         } catch (Exception e) {
             throw new HibernateException("Failed to obtain valueOf method", e);
         }
@@ -89,12 +89,12 @@ public class GenericEnumUserType implements UserType, ParameterizedType {
         return enumClass;
     }
 
-    public Object nullSafeGet(ResultSet rs, String[] names, Object owner) throws HibernateException, SQLException {  
+    public Object nullSafeGet(ResultSet rs, String[] names, Object owner) throws HibernateException, SQLException {
         Object identifier = type.get(rs, names[0]);
         if (identifier == null) {
             return null;
         }
-        
+
         try {
             return valueOfMethod.invoke(enumClass, new Object[] { identifier });
         } catch (Exception e) {
@@ -149,4 +149,3 @@ public class GenericEnumUserType implements UserType, ParameterizedType {
         return original;
     }
 }
-

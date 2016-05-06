@@ -39,7 +39,7 @@ public class MockData {
 		}
 
 		public List<Double> nextDoubles() {
-			List<Double> res = new ArrayList(bounds.size());
+			List<Double> res = new ArrayList<>(bounds.size());
 			for (int i = 0; i < bounds.size(); i++) {
 				double[] b = bounds.get(i);
 				res.add(lerp(b[0], b[1], generator.nextDouble()));

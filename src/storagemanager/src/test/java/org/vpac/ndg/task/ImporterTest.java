@@ -22,7 +22,7 @@ package org.vpac.ndg.task;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import junit.framework.Assert;
+import static org.junit.Assert.assertTrue;
 
 import org.gdal.gdal.gdal;
 import org.junit.After;
@@ -47,22 +47,22 @@ import com.carrotsearch.junitbenchmarks.BenchmarkRule;
 
 /**
  * This unit test class is for testing the Importer class.
- * 
+ *
  * @author hsumanto
  *
  */
 @SuppressWarnings("deprecation")
-@RunWith(SpringJUnit4ClassRunner.class)  
+@RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration({"/spring/config/TestBeanLocations.xml"})
 @BenchmarkOptions(benchmarkRounds = 1, warmupRounds = 0)
 public class ImporterTest extends AbstractJUnit4SpringContextTests {
 
 	@Rule
 	public MethodRule benchmarkRun = new BenchmarkRule();
-	
+
 	@Autowired
 	TestUtil testUtil;
-	
+
 	@Before
 	public void setUp() throws Exception {
 		gdal.AllRegister();
@@ -71,13 +71,13 @@ public class ImporterTest extends AbstractJUnit4SpringContextTests {
 	@After
 	public void tearDown() throws Exception {
 	}
-		
+
 	/**
 	 * Test that the importer would catch error when required parameters not specified.
 	 */
 	@Test
 	public void testImporter_Capturing_Parameter_Not_Specified_Error() throws Exception {
-		String datasetName = Constant.EMPTY;		
+		String datasetName = Constant.EMPTY;
 		Path datasetPath = Paths.get("../../data/small_landsat/LS7_ETM_095_082_20100116_B30.nc");
 		String datasetAcquisitionTime = Constant.EMPTY;
 		String bandName = Default.BAND1;
@@ -91,7 +91,7 @@ public class ImporterTest extends AbstractJUnit4SpringContextTests {
 					datasetPath, continuous, targetResolution, precision);
 		} catch (IllegalArgumentException e) {
 			// Expected behaviour.
-			Assert.assertTrue(true);
+			assertTrue(true);
 		}
 	}
 
@@ -100,7 +100,7 @@ public class ImporterTest extends AbstractJUnit4SpringContextTests {
 	 */
 	@Test
 	public void testImporter_Dem100m_Upload() throws Exception {
-		String datasetName = "Landsat100m";		
+		String datasetName = "Landsat100m";
 		Path datasetPath = Paths.get("../../data/small_landsat/LS7_ETM_095_082_20100116_B30.nc");
 		String datasetAcquisitionTime = "2012-04-23 20:00";
 		String bandName = Default.BAND1;
@@ -116,7 +116,7 @@ public class ImporterTest extends AbstractJUnit4SpringContextTests {
 	 */
 	@Test
 	public void testImporter_Dem500m_Upload() throws Exception {
-		String datasetName = "Landsat500m";		
+		String datasetName = "Landsat500m";
 		Path datasetPath = Paths.get("../../data/small_landsat/LS7_ETM_095_082_20100116_B30.nc");
 		String datasetAcquisitionTime = "2012-04-23 20:00";
 		String bandName = Default.BAND1;
@@ -125,14 +125,14 @@ public class ImporterTest extends AbstractJUnit4SpringContextTests {
 		long precision = Utils.parseTemporalPrecision("1 hour");
 		testUtil.runImport(datasetName, datasetAcquisitionTime, bandName,
 				datasetPath, continuous, targetResolution, precision);
-	}	
-	
-	/** 
+	}
+
+	/**
 	 * Test importing GA LANDSAT dataset.
 	 */
 	@Test
-	public void testImporter_GA_LANDSAT_Upload() throws Exception {	
-		String datasetName = "Landsat25m";		
+	public void testImporter_GA_LANDSAT_Upload() throws Exception {
+		String datasetName = "Landsat25m";
 		Path datasetPath = Paths.get("../../data/small_landsat/LS7_ETM_095_082_20100116_B30.nc");
 		String datasetAcquisitionTime = FileUtils.getAcquisitionTimeStr(datasetPath);
 		String bandName = FileUtils.getBandNameStr(datasetPath);
