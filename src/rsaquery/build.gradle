@@ -13,10 +13,10 @@ dependencies {
         'edu.ucar:cdm:4.4.0',
         'edu.ucar:netcdf4:4.4.0',
         'org.reflections:reflections:0.9.9',
+        project(':rsa-common'),
     )
 
     runtime (
-        'ch.qos.logback:logback-classic:1.0.7',
         // Specify our own JNA dependency with a newer version than the one
         // required by Netcdf. If the Netcdf library is upgraded one day, then
         // maybe this can be removed. See ../build.gradle too for the exclusion

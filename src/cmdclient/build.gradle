@@ -16,6 +16,7 @@ dependencies {
         'org.jsoup:jsoup:1.6.1',
         "org.springframework:org.springframework.web:$springVersion",
         project(':storagemanager'),
+        project(':rsa-common'),
     )
 
     testCompile (

@@ -38,6 +38,7 @@ dependencies {
         project(':rsaquery'),
         project(':rsaquery').sourceSets.filter.output,
         project(':storagemanager'),
+        project(':rsa-common'),
     )
 
     runtime (

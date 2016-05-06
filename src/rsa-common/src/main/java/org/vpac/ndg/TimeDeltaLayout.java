@@ -17,11 +17,14 @@
  * http://www.crcsi.com.au/
  */
 
-package org.vpac.ndg.application;
+package org.vpac.ndg;
 
 import ch.qos.logback.classic.PatternLayout;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 
+/**
+ * Prints the time since the last log message.
+ */
 public class TimeDeltaLayout extends PatternLayout {
 
 	long lastTime = -1;

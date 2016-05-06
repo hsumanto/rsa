@@ -1,5 +1,6 @@
 //include 'cmdclient', 'rsaworkers', 'spatialcubeservice'
 include (
+    'rsa-common',
     'rsaquery',
     'storagemanager',
     'spatialcubeservice',

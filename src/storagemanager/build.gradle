@@ -6,7 +6,6 @@ dependencies {
     compile (
         'edu.ucar:cdm:4.4.0',
         'edu.ucar:netcdf4:4.4.0',
-        'ch.qos.logback:logback-classic:1.0.7',
         'com.thoughtworks.xstream:xstream:1.4.2',
         'commons-lang:commons-lang:2.5',
         'org.aspectj:aspectjtools:1.6.2',
@@ -17,6 +16,7 @@ dependencies {
         "org.springframework:org.springframework.transaction:$springVersion",
         files('/usr/lib/gdal.jar'),
         project(':rsaquery'),
+        project(':rsa-common'),
     )
 
     testCompile (

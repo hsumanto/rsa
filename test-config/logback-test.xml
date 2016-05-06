@@ -11,7 +11,7 @@
 	<appender name="MINIMAL" class="ch.qos.logback.core.ConsoleAppender">
 		<target>System.err</target>
 		<encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
-			<layout class="org.vpac.ndg.application.TimeDeltaLayout">
+			<layout class="org.vpac.ndg.TimeDeltaLayout">
 				<pattern>%-5level %msg%n</pattern>
 			</layout>
 		</encoder>
@@ -23,7 +23,7 @@
 	<appender name="TIMER" class="ch.qos.logback.core.ConsoleAppender">
 		<target>System.err</target>
 		<encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
-			<layout class="org.vpac.ndg.application.TimeDeltaLayout">
+			<layout class="org.vpac.ndg.TimeDeltaLayout">
 				<pattern>%-5level %logger{5} - %msg%n</pattern>
 			</layout>
 		</encoder>
