@@ -20,15 +20,17 @@ public class LedgerTest extends TestCase {
 
 	Logger log = LoggerFactory.getLogger(LedgerTest.class);
 
+	/**
+	 * Add known values to a ledger and check the occurrences
+	 */
 	@Test
 	public void test_add_manual() throws Exception {
 		Ledger ledger = new Ledger();
-		List<BucketingStrategy> bss = new ArrayList<>();
-		BucketingStrategyFactory bf = new BucketingStrategyFactory();
-		bss.add(bf.create("regular/width/1"));
-		bss.add(bf.create("regular/width/1"));
-		bss.add(bf.create("regular/width/1"));
-		ledger.setBucketingStrategies(bss);
+		ledger.setBucketingStrategies(Arrays.asList(
+			"regular/width/1",
+			"regular/width/1",
+			"regular/width/1"
+		));
 
 		List<Double> pixel;
 		ledger.add(Arrays.asList(0.0, 0.0, 0.0));
@@ -52,12 +54,11 @@ public class LedgerTest extends TestCase {
 	@Test
 	public void test_add() throws Exception {
 		Ledger ledger = new Ledger();
-		List<BucketingStrategy> bss = new ArrayList<>();
-		BucketingStrategyFactory bf = new BucketingStrategyFactory();
-		bss.add(bf.create("regular/width/1"));
-		bss.add(bf.create("regular/width/1"));
-		bss.add(bf.create("regular/width/1"));
-		ledger.setBucketingStrategies(bss);
+		ledger.setBucketingStrategies(Arrays.asList(
+			"regular/width/1",
+			"regular/width/1",
+			"regular/width/1"
+		));
 
 		ParallelRand generator = new ParallelRand(Arrays.asList(
 			new double[] {0.0, 4.0},
@@ -90,11 +91,11 @@ public class LedgerTest extends TestCase {
 			new Ledger(),
 			new Ledger(),
 		};
-		List<BucketingStrategy> bss = new ArrayList<>();
-		BucketingStrategyFactory bf = new BucketingStrategyFactory();
-		bss.add(bf.create("regular/width/1"));
-		bss.add(bf.create("regular/width/1"));
-		bss.add(bf.create("regular/width/1"));
+		List<String> bss = Arrays.asList(
+			"regular/width/1",
+			"regular/width/1",
+			"regular/width/1"
+		);
 		ledger.setBucketingStrategies(bss);
 		for (Ledger l : partialLedgers) {
 			l.setBucketingStrategies(bss);

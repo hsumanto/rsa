@@ -21,6 +21,9 @@ package org.vpac.ndg.query;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.Comparable;
+import java.util.Comparator;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -29,17 +32,19 @@ import junit.framework.TestCase;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.BlockJUnit4ClassRunner;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.vpac.ndg.query.filter.Foldable;
 import org.vpac.ndg.query.stats.Bucket;
 import org.vpac.ndg.query.stats.Cats;
 import org.vpac.ndg.query.stats.Hist;
+import org.vpac.ndg.query.stats.Ledger;
 import org.vpac.ndg.query.stats.Stats;
 import org.vpac.ndg.query.stats.VectorCats;
 import org.vpac.ndg.query.stats.VectorHist;
 import org.vpac.ndg.query.stats.VectorStats;
 import org.vpac.ndg.query.testfilters.BrokenInheritanceFilter;
 import org.vpac.ndg.query.testfilters.InheritanceFilter;
-
 import ucar.ma2.Array;
 import ucar.ma2.DataType;
 import ucar.ma2.Index;
@@ -48,6 +53,8 @@ import ucar.nc2.Variable;
 
 @RunWith(BlockJUnit4ClassRunner.class)
 public class QueryTest extends TestCase {
+
+	Logger log = LoggerFactory.getLogger(QueryTest.class);
 
 	//final private Logger log = LoggerFactory.getLogger(QueryTest.class);
 	final int DEFAULT_PIXEL_NUMBER = 64;
@@ -579,6 +586,41 @@ public class QueryTest extends TestCase {
 		hist = cats.get(2);
 		s = hist.summarise();
 		assertEquals("Number of pixels where 196 <= x", 5393, s.getCount());
+	}
+
+	@Test
+	public void test_accountantFilter() throws Exception {
+		File config = new File("data/config/stats_accountant.xml");
+		File outputFile = new File("data/output/accountant.nc");
+		outputFile.delete();
+
+		Map<String, Foldable<?>> output = QueryRunner.run(config, outputFile, 8);
+		Ledger ledger = (Ledger) output.get("accountant");
+		log.info("Accountant found: {} ({})", ledger, ledger.getBucketingStrategies());
+		List<List<Double>> keys = new ArrayList<>();
+		keys.addAll(ledger.keySet());
+		keys.sort(new ListComp<Double>());
+		for (List<Double> key : keys) {
+			log.debug("{}: {}", key, ledger.get(key));
+		}
+	}
+
+	/**
+	 * Pairwise comparison of lists.
+	 */
+	public static class ListComp<T extends Comparable<T>>
+			implements Comparator<List<T>> {
+		@Override
+		public int compare(List<T> a, List<T> b) {
+			Comparator<T> natural = Comparator.<T>naturalOrder();
+			int len = Math.min(a.size(), b.size());
+			for (int i = 0; i < len; i++) {
+				int ord = natural.compare(a.get(i), b.get(i));
+				if (ord != 0)
+					return ord;
+			}
+			return Integer.compare(a.size(), b.size());
+		}
 	}
 
 	@Test

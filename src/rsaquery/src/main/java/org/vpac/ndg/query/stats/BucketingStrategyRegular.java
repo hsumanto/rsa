@@ -58,4 +58,27 @@ public class BucketingStrategyRegular implements BucketingStrategy, Serializable
 	public String toString() {
 		return String.format("BucketingStrategyRegular(%s)", getDef());
 	}
+
+	@Override
+	public boolean equals(Object other) {
+		if (!(other instanceof BucketingStrategyRegular))
+			return false;
+		BucketingStrategyRegular b = (BucketingStrategyRegular) other;
+		if (b.origin != origin)
+			return false;
+		if (b.width != width)
+			return false;
+		return true;
+	}
+
+	@Override
+	public int hashCode() {
+		int result = 17;
+		long d;
+		d = Double.doubleToLongBits(origin);
+		result = 37 * result + (int)(d ^ (d >>> 32));
+		d = Double.doubleToLongBits(width);
+		result = 37 * result + (int)(d ^ (d >>> 32));
+		return result;
+	}
 }

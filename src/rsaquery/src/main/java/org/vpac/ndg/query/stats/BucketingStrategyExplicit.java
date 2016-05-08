@@ -1,6 +1,7 @@
 package org.vpac.ndg.query.stats;
 
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -105,5 +106,18 @@ public class BucketingStrategyExplicit implements BucketingStrategy, Serializabl
     @Override
     public String toString() {
         return String.format("BucketingStrategyExplicit(%s)", getDef());
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (!(other instanceof BucketingStrategyExplicit))
+            return false;
+        BucketingStrategyExplicit b = (BucketingStrategyExplicit) other;
+        return Arrays.equals(b.buckets, buckets);
+    }
+
+    @Override
+    public int hashCode() {
+        return Arrays.hashCode(buckets);
     }
 }

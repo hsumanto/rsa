@@ -8,10 +8,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.vpac.ndg.query.QueryException;
 import org.vpac.ndg.query.filter.Foldable;
 import org.vpac.ndg.query.math.ScalarElement;
+import org.vpac.ndg.query.stats.BucketingStrategyFactory;
 
 /**
  * Counts occurrences of combinations of numbers.
@@ -113,11 +115,24 @@ public class Ledger implements Foldable<Ledger>, Serializable {
 		this.id = id;
 	}
 
-	public void setBucketingStrategies(List<BucketingStrategy> bss) {
+	public void setBucketingStrategies(List<String> sbss) {
+		BucketingStrategyFactory bf = new BucketingStrategyFactory();
+		bss = sbss.stream()
+			.map(sbs -> bf.create(sbs))
+			.collect(Collectors.toList());
+	}
+
+	public List<String> getBucketingStrategies() {
+		return bss.stream()
+			.map(bs -> bs.getDef())
+			.collect(Collectors.toList());
+	}
+
+	public void _setBucketingStrategies(List<BucketingStrategy> bss) {
 		this.bss = bss;
 	}
 
-	public List<BucketingStrategy> getBucketingStrategies() {
+	public List<BucketingStrategy> _getBucketingStrategies() {
 		return bss;
 	}
 

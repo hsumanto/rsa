@@ -16,11 +16,10 @@
  * Copyright 2016 VPAC Innovations
  */
 
-package org.vpac.ndg.query.stats;
+package org.vpac.ndg.query;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.vpac.ndg.query.QueryBindingException;
@@ -43,45 +42,26 @@ import org.vpac.ndg.query.sampling.PixelSource;
 import org.vpac.ndg.query.sampling.PixelSourceScalar;
 
 /**
- * Counts occurrences of combinations of input data.
+ * Outputs a single band of nodata.
  *
  * @author Alex Fraser
  */
-@Description(name = "Accountant", description = "Counts occurrences of combinations of input data. This is a pass-through filter with metadata collection.")
+@Description(name = "Null", description = "Reads all inputs, but outputs only a single band filled with nodata")
 @InheritDimensions(from = "input")
-public class Accountant implements Filter, Accumulator<Ledger> {
+public class Null implements Filter {
 
-	@Rank(promote = true)
 	public PixelSource input;
 
-	public String buckets = "categorical";
-
-	@CellType("input")
+	@CellType("byte")
 	public Cell output;
 
-	private Ledger ledger;
-
 	@Override
-	public void initialise(BoxReal bounds) throws QueryException {
-		ledger = new Ledger();
-		ledger.setBucketingStrategies(
-			Arrays.asList(buckets.split(":")));
-	}
+	public void initialise(BoxReal bounds) throws QueryException {}
 
 	@Override
 	public void kernel(VectorReal coords) throws IOException {
-		Element<?> pixel = input.getPixel(coords);
-		List<Double> components = new ArrayList<>();
-		for (ScalarElement c : pixel.getComponents()) {
-			components.add(c.doubleValue());
-		}
-		ledger.add(components);
-		output.set(pixel);
-	}
-
-	@Override
-	public Ledger getAccumulatedOutput() {
-		return ledger;
+		input.getPixel(coords);
+		output.unset();
 	}
 
 }
