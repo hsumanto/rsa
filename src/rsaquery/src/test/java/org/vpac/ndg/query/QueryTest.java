@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.lang.Comparable;
 import java.util.Comparator;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -603,6 +604,8 @@ public class QueryTest extends TestCase {
 		for (List<Double> key : keys) {
 			log.debug("{}: {}", key, ledger.get(key));
 		}
+		assertEquals(30, ledger.size());
+		assertEquals(1182, ledger.get(Arrays.asList(0.0, 255.0, 255.0, 120.0)));
 	}
 
 	/**

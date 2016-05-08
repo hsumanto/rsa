@@ -63,6 +63,10 @@ public class Ledger implements Foldable<Ledger>, Serializable {
 			return count;
 	}
 
+	public int size() {
+		return combinations.size();
+	}
+
 	public Set<List<Double>> keySet() {
 		return combinations.keySet();
 	}

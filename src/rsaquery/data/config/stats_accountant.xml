@@ -10,8 +10,8 @@
 	</output>
 
 	<filter id="accountant" cls="org.vpac.ndg.query.stats.Accountant">
-		<literal name="buckets" value="regular" />
-		<sampler name="input" ref="#infile/Quality" />
+		<literal name="buckets" value="categorical:categorical:categorical:regular" />
+		<sampler name="input" ref="#infile/[RGBQ].*" />
 	</filter>
 
 	<filter id="null" cls="org.vpac.ndg.query.Null">
