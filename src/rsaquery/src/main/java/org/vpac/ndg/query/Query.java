@@ -276,10 +276,8 @@ public class Query implements Closeable {
 
 	/**
 	 * Run the configured filters over the input datasets.
-	 * @throws QueryException
 	 */
-	public void run() throws IOException, QueryException,
-			QueryRuntimeException {
+	public void run() throws IOException, QueryException {
 
 		progress.setNsteps(bindings.keys().size());
 

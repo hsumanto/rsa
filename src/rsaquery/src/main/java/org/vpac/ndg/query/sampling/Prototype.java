@@ -27,7 +27,7 @@ import java.util.List;
 import org.vpac.ndg.query.QueryException;
 import org.vpac.ndg.query.QueryDefinition.AttributeDefinition;
 import org.vpac.ndg.query.QueryDimensionalityException;
-import org.vpac.ndg.query.QueryRuntimeException;
+import org.vpac.ndg.query.QueryException;
 import org.vpac.ndg.query.StringUtils;
 import org.vpac.ndg.query.math.Element;
 import org.vpac.ndg.query.math.Type;
@@ -137,11 +137,11 @@ public class Prototype implements HasDimensions {
 		}
 
 		if (types.size() != ndss.size()) {
-			throw new QueryRuntimeException("Number of element components " +
+			throw new QueryException("Number of element components " +
 					"does not match number of nodata strategies.");
 		}
 		if (types.size() != attributes.size()) {
-			throw new QueryRuntimeException("Number of element components " +
+			throw new QueryException("Number of element components " +
 					"does not match number of attributes.");
 		}
 

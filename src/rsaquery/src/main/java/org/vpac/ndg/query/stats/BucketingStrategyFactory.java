@@ -10,7 +10,6 @@ import java.util.regex.Pattern;
 
 import org.vpac.ndg.query.QueryBindingException;
 import org.vpac.ndg.query.QueryException;
-import org.vpac.ndg.query.QueryRuntimeException;
 import org.vpac.ndg.query.Reflection;
 
 public class BucketingStrategyFactory {
@@ -75,8 +74,8 @@ public class BucketingStrategyFactory {
 				name = URLDecoder.decode(matcher.group(1), "UTF-8");
 				value = URLDecoder.decode(matcher.group(2), "UTF-8");
 			} catch (UnsupportedEncodingException e) {
-				throw new QueryRuntimeException("UTF-8 is not a recognised"
-						+ " encoding. Can't decode parameters.");
+				throw new QueryException("UTF-8 is not a recognised"
+						+ " encoding. Can't decode parameters.", e);
 			}
 			map.put(name, value);
 		}

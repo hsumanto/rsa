@@ -9,12 +9,12 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.vpac.ndg.query.QueryRuntimeException;
+import org.vpac.ndg.query.QueryException;
 import org.vpac.ndg.query.filter.Foldable;
 import org.vpac.ndg.query.math.ScalarElement;
 
 /**
- * Counts occurrances of combinations of numbers.
+ * Counts occurrences of combinations of numbers.
  * @author Alex Fraser
  */
 public class Ledger implements Foldable<Ledger>, Serializable {
@@ -79,8 +79,9 @@ public class Ledger implements Foldable<Ledger>, Serializable {
 		} else if (!bss.equals(other.bss)) {
 			// With additional metadata, it might be possible to splice
 			// heterogeneous Ledgers. But for now...
-			throw new QueryRuntimeException(
-				"Ledgers are incompatible: bucketing strategies differ.");
+			throw new QueryException(String.format(
+				"Ledgers are incompatible: bucketing strategies differ: %s vs %s",
+				bss, other.bss));
 		}
 		Ledger res = copy();
 		for (List<Double> key : other.combinations.keySet()) {

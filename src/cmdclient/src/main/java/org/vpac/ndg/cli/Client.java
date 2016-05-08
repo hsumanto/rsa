@@ -70,7 +70,6 @@ import org.vpac.ndg.geometry.Point;
 import org.vpac.ndg.geometry.Tile;
 import org.vpac.ndg.geometry.TileManager;
 import org.vpac.ndg.query.QueryException;
-import org.vpac.ndg.query.QueryRuntimeException;
 import org.vpac.ndg.query.io.DatasetProvider;
 import org.vpac.ndg.query.io.ProviderRegistry;
 import org.vpac.ndg.rasterdetails.RasterDetails;
@@ -1172,7 +1171,6 @@ public class Client {
 	 * @throws TaskInitialisationException
 	 * @throws TaskException
 	 * @throws IOException
-	 * @throws QueryException
 	 */
 	public void queryData(List<String> remainingArgs) throws IOException,
 			TaskInitialisationException, TaskException {
@@ -1577,7 +1575,7 @@ public class Client {
 			return;
 
 		} catch (TaskInitialisationException | TaskException | IOException
-				| QueryRuntimeException e) {
+				| QueryException e) {
 			log.error("Execution failed: {}", e.getMessage());
 			if (e.getCause() != null)
 				log.error("Cause: {}", e.getCause().getMessage());

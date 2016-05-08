@@ -19,7 +19,7 @@
 
 package org.vpac.ndg.query;
 
-public class QueryException extends Exception {
+public class QueryException extends RuntimeException {
 
 	private static final long serialVersionUID = -8844585640720514816L;
 
