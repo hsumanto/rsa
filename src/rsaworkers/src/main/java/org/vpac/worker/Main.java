@@ -37,7 +37,7 @@ import org.apache.commons.net.util.*;
 
 public class Main {
 	private static String systemName = "Workers";
-	private static FiniteDuration workTimeout = Duration.create(10, "seconds");
+	private static FiniteDuration workTimeout = Duration.create(60, "seconds");
 	/**
 	 * The application context should only be initialised once EVER - otherwise
 	 * you get resource leaks (e.g. extra open sockets) when using something
