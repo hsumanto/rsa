@@ -91,6 +91,7 @@ public class WorkExecutor extends UntypedActor {
 			try {
 				QueryDefinition qd = preprocessQueryDef(work, tempFiles);
 				Path queryPath = getOutputPath(work);
+				Files.deleteIfExists(queryPath);
 				output = executeQuery(qd, wp, queryPath, work.netcdfVersion);
 			} catch (Exception e) {
 				wp.setErrorMessage(e.getMessage());
