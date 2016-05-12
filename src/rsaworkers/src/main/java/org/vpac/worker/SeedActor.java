@@ -15,17 +15,6 @@ public class SeedActor extends UntypedActor {
     }
 
     @Override
-    public void preStart() {
-        cluster.subscribe(getSelf(), ClusterEvent.initialStateAsEvents(), 
-            MemberEvent.class, MemberUp.class);
-    }
-
-    @Override
     public void onReceive(Object message) throws Exception {
-        if (message instanceof UnreachableMember) {
-            UnreachableMember unreachable = (UnreachableMember) message;
-            cluster.leave(unreachable.member().address());
-            System.out.println("Member is UnreachableMember: " + unreachable.member());
-        }
     }
 }
