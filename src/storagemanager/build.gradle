@@ -1,7 +1,6 @@
 apply plugin: 'java'
 
 dependencies {
-    def springVersion = '3.1.1.RELEASE'
 
     compile (
         'edu.ucar:cdm:4.4.0',
@@ -9,7 +8,7 @@ dependencies {
         'com.thoughtworks.xstream:xstream:1.4.2',
         'commons-lang:commons-lang:2.5',
         'org.aspectj:aspectjtools:1.6.2',
-        'org.hibernate:hibernate-core:3.5.6-Final',
+        "org.hibernate:hibernate-core:$hibernateVersion",
         "org.springframework:org.springframework.beans:$springVersion",
         "org.springframework:org.springframework.context:$springVersion",
         "org.springframework:org.springframework.orm:$springVersion",
@@ -28,7 +27,7 @@ dependencies {
     runtime (
         'cglib:cglib:2.2.2',
         'net.java.dev.jna:jna:3.2.7',
-        'org.hibernate:hibernate-annotations:3.5.6-Final',
+        "org.hibernate:hibernate-annotations:$hibernateVersion",
         'org.hibernate.javax.persistence:hibernate-jpa-2.0-api:1.0.0.Final',
         'org.postgresql:postgresql:9.4-1201-jdbc41',
         "org.springframework:org.springframework.aop:$springVersion",

@@ -16,6 +16,9 @@ subprojects {
     }
 
     dependencies {
+        ext.springVersion = '3.1.1.RELEASE'
+        ext.hibernateVersion = '3.5.6-Final'
+
         compile 'org.slf4j:slf4j-api:1.6.1'
         testCompile 'junit:junit:4.12'
         runtime files("$rootDir/../config")
