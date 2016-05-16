@@ -17,7 +17,7 @@
 			</type>
 		</property>
 		<property name="nodata" type="string" column="NODATA"/>
-		<property name="metadata" type="boolean" column="ISMETADATA"/>    
+		<property name="metadata" type="boolean" column="ISMETADATA"/>
 		<property name="continuous" type="boolean" column="ISCONTINUOUS"/>
 	</class>
 
@@ -61,8 +61,8 @@
 		<property name="logMessage" type="text" column="LOG_MESSAGE" />
 		<property name="logTime" type="timestamp" column="LOG_TIME"/>
 		<property name="state">
-			<column name="STATE" /> 
-			<type name="org.vpac.ndg.GenericEnumUserType">
+			<column name="STATE" />
+			<type name="org.vpac.ndg.storage.dao.EnumType">
 				<param name="enumClass">org.vpac.ndg.common.datamodel.TaskState</param>
 				<param name="identifierMethod">toString</param>
 				<param name="valueOfMethod">valueOf</param>
@@ -79,8 +79,8 @@
 		<property name="timesliceId" type="string" column="TIMESLICE_ID" />
 		<property name="user" type="string" column="USER_NAME" />
 		<property name="state">
-			<column name="STATE" /> 
-			<type name="org.vpac.ndg.GenericEnumUserType">
+			<column name="STATE" />
+			<type name="org.vpac.ndg.storage.dao.EnumType">
 				<param name="enumClass">org.vpac.ndg.common.datamodel.RunningTaskState</param>
 				<param name="identifierMethod">toString</param>
 				<param name="valueOfMethod">valueOf</param>
@@ -108,16 +108,16 @@
 		<property name="processingSource" type="string" column="SOURCE" />
 		<property name="name" type="string" column="NAME" />
 		<property name="state">
-			<column name="STATE" /> 
-			<type name="org.vpac.ndg.GenericEnumUserType">
+			<column name="STATE" />
+			<type name="org.vpac.ndg.storage.dao.EnumType">
 				<param name="enumClass">org.vpac.ndg.common.datamodel.TaskState</param>
 				<param name="identifierMethod">toString</param>
 				<param name="valueOfMethod">valueOf</param>
 			</type>
 		</property>
 		<property name="taskType">
-			<column name="TASKTYPE" /> 
-			<type name="org.vpac.ndg.GenericEnumUserType">
+			<column name="TASKTYPE" />
+			<type name="org.vpac.ndg.storage.dao.EnumType">
 				<param name="enumClass">org.vpac.ndg.common.datamodel.TaskType</param>
 				<param name="identifierMethod">toString</param>
 				<param name="valueOfMethod">valueOf</param>
@@ -131,7 +131,7 @@
 			<generator class="uuid"/>
 		</id>
 		<property name="dataAbstract" type="string" column="DATAABSTRACT"/>
-		<property name="relativeLocation" type="string" column="RELATIVELOCATION" />        	
+		<property name="relativeLocation" type="string" column="RELATIVELOCATION" />
 		<property name="vrtFile" type="string" column="VRT"/>
 		<property name="xmin" type="double" column="X_MIN" />
 		<property name="xmax" type="double" column="X_MAX" />
@@ -150,6 +150,6 @@
 		</id>
 
 		<property name="timeSliceId" type="string" column="timeSliceId"/>
-		<property name="created" type="timestamp" column="created"/>        
+		<property name="created" type="timestamp" column="created"/>
 	</class>
 </hibernate-mapping>

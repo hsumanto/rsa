@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC
-        "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
-        "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+		"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+		"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping>
 	<class name="org.vpac.ndg.storage.model.DatasetCats" table="DATASETCATS" lazy="false">
@@ -37,7 +37,7 @@
  		<map name="categories" cascade="all" lazy="false">
 			<key column="categories_id" />
 			<index column="cat_id" type="java.lang.Integer"/>
-			<one-to-many class="org.vpac.ndg.query.stats.Hist" /> 
+			<one-to-many class="org.vpac.ndg.query.stats.Hist" />
 		</map>
 	</class>
 	<class name="org.vpac.ndg.query.stats.Hist" table="HIST" lazy="false">
@@ -69,5 +69,21 @@
 		<property name="min" type="double" column="MIN" />
 		<property name="max" type="double" column="MAX" />
 		<property name="mean" type="double" column="MEAN" />
+	</class>
+	<class name="org.vpac.ndg.query.stats.Ledger" table="LEDGER">
+		<id name="id" type="string" column="ID">
+			<generator class="uuid" />
+		</id>
+		<property name="bucketingStrategies" type="string" column="BUCKET_STRATS" />
+		<map name="entries" cascade="all" lazy="false">
+			<key column="ledger_id" />
+			<map-key column="combination" type="org.vpac.ndg.storage.dao.ArrayType" />
+			<!-- <property name="combination" column="combination">
+				<type name="org.vpac.ndg.storage.dao.Array">
+					<param name="type">Double</param>
+				</type>
+			</property> -->
+			<element column="count" type="long" />
+		</map>
 	</class>
 </hibernate-mapping>

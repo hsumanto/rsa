@@ -6,7 +6,6 @@ import java.util.HashSet;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -24,14 +23,14 @@ public class Ledger implements Foldable<Ledger>, Serializable {
 	private static final long serialVersionUID = 1L;
 
 	private String id;
-	private Map<List<Double>, Long> combinations;
+	private Map<List<Double>, Long> entries;
 	private List<Double> bucketedCombination;
 	private List<Double> currentCombination;
 	private Long currentCount;
 	private List<BucketingStrategy> bss;
 
 	public Ledger() {
-		combinations = new HashMap<>();
+		entries = new HashMap<>();
 		currentCombination = new ArrayList<>();
 		bucketedCombination = new ArrayList<>();
 		currentCount = 0L;
@@ -46,17 +45,17 @@ public class Ledger implements Foldable<Ledger>, Serializable {
 			bucketedCombination.add(bucketedValue);
 		}
 		if (!bucketedCombination.equals(currentCombination)) {
-			currentCount = combinations.get(bucketedCombination);
+			currentCount = entries.get(bucketedCombination);
 			if (currentCount == null)
 				currentCount = 0L;
 			currentCombination = new ArrayList<>(bucketedCombination);
 		}
 		currentCount++;
-		combinations.put(currentCombination, currentCount);
+		entries.put(currentCombination, currentCount);
 	}
 
 	public long get(List<Double> combination) {
-		Long count = combinations.get(combination);
+		Long count = entries.get(combination);
 		if (count == null)
 			return 0;
 		else
@@ -64,23 +63,23 @@ public class Ledger implements Foldable<Ledger>, Serializable {
 	}
 
 	public int size() {
-		return combinations.size();
+		return entries.size();
 	}
 
 	public Set<List<Double>> keySet() {
-		return combinations.keySet();
+		return entries.keySet();
 	}
 
 	public Ledger copy() {
 		Ledger res = new Ledger();
-		res.combinations.putAll(combinations);
+		res.entries.putAll(entries);
 		res.bss = new ArrayList<>(bss);
 		return res;
 	}
 
 	@Override
 	public Ledger fold(Ledger other) {
-		if (bss.size() == 0 && combinations.size() == 0) {
+		if (bss.size() == 0 && entries.size() == 0) {
 			bss.addAll(other.bss);
 		} else if (!bss.equals(other.bss)) {
 			// With additional metadata, it might be possible to splice
@@ -90,12 +89,12 @@ public class Ledger implements Foldable<Ledger>, Serializable {
 				bss, other.bss));
 		}
 		Ledger res = copy();
-		for (List<Double> key : other.combinations.keySet()) {
-			Long count = combinations.get(key);
+		for (List<Double> key : other.entries.keySet()) {
+			Long count = entries.get(key);
 			if (count == null)
 				count = 0L;
-			count += other.combinations.get(key);
-			res.combinations.put(key, count);
+			count += other.entries.get(key);
+			res.entries.put(key, count);
 		}
 		return res;
 	}
@@ -103,11 +102,11 @@ public class Ledger implements Foldable<Ledger>, Serializable {
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		int width = 0;
-		for (List<Double> key : combinations.keySet()) {
+		for (List<Double> key : entries.keySet()) {
 			width = key.size();
 			break;
 		}
-		sb.append(String.format("Ledger(%dx%d)", width, combinations.size()));
+		sb.append(String.format("Ledger(%dx%d)", width, entries.size()));
 		return sb.toString();
 	}
 
@@ -140,12 +139,12 @@ public class Ledger implements Foldable<Ledger>, Serializable {
 		return bss;
 	}
 
-	public Map<List<Double>, Long> getCombinations() {
-		return combinations;
+	public Map<List<Double>, Long> getEntries() {
+		return entries;
 	}
 
-	public void setCombinations(Map<List<Double>, Long> combinations) {
-		this.combinations = combinations;
+	public void setEntries(Map<List<Double>, Long> entries) {
+		this.entries = entries;
 	}
 
 }

@@ -17,7 +17,7 @@
  * http://www.crcsi.com.au/
  */
 
-package org.vpac.ndg;
+package org.vpac.ndg.storage.dao;
 
 import java.io.Serializable;
 import java.lang.reflect.Method;
@@ -39,7 +39,7 @@ import org.hibernate.usertype.UserType;
  *
  */
 @SuppressWarnings("deprecation")
-public class GenericEnumUserType implements UserType, ParameterizedType {
+public class EnumType implements UserType, ParameterizedType {
     private static final String DEFAULT_IDENTIFIER_METHOD_NAME = "name";
     private static final String DEFAULT_VALUE_OF_METHOD_NAME = "valueOf";
 
@@ -80,7 +80,8 @@ public class GenericEnumUserType implements UserType, ParameterizedType {
         try {
             valueOfMethod = enumClass.getMethod(valueOfMethodName, new Class<?>[] { identifierType });
         } catch (Exception e) {
-            throw new HibernateException("Failed to obtain valueOf method", e);
+            throw new HibernateException(String.format(
+                "Failed to obtain %s.valueOf method", enumClassName), e);
         }
     }
 

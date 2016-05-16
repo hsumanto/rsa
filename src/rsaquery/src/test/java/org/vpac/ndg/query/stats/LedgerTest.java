@@ -119,7 +119,7 @@ public class LedgerTest extends TestCase {
 		}
 
 		log.info("Serial: {}, Folded: {}", ledger, foldedLedger);
-		assertEquals(ledger.getCombinations(), foldedLedger.getCombinations());
+		assertEquals(ledger.getEntries(), foldedLedger.getEntries());
 	}
 
 }
