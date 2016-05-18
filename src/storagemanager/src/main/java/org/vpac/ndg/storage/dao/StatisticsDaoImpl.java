@@ -1,3 +1,24 @@
+/*
+ * This file is part of the Raster Storage Archive (RSA).
+ *
+ * The RSA is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
+ *
+ * The RSA is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * the RSA.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * Copyright 2013 CRCSI - Cooperative Research Centre for Spatial Information
+ * http://www.crcsi.com.au/
+ *
+ * Copyright 2016 VPAC Innovations
+ */
+
 package org.vpac.ndg.storage.dao;
 
 import java.util.List;
@@ -9,6 +30,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.vpac.ndg.storage.model.DatasetCats;
 import org.vpac.ndg.storage.model.TaskCats;
+import org.vpac.ndg.storage.model.TaskLedger;
 import org.vpac.ndg.storage.util.CustomHibernateDaoSupport;
 
 public class StatisticsDaoImpl extends CustomHibernateDaoSupport implements StatisticsDao {
@@ -82,4 +104,33 @@ public class StatisticsDaoImpl extends CustomHibernateDaoSupport implements Stat
 		return cats;
 	}
 
+	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
+	public void saveLedger(TaskLedger tl) {
+		getHibernateTemplate().save(tl);
+	}
+
+	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
+	public void saveOrReplaceLedger(TaskLedger tl) {
+		for (TaskLedger oldTl : searchLedger(tl.getJob().getId())) {
+			getHibernateTemplate().delete(oldTl);
+		}
+		saveLedger(tl);
+	}
+
+	@Override
+	@Transactional
+	public List<TaskLedger> searchLedger(String jobId) {
+		Session session = getSession();
+		Criteria c = session.createCriteria(TaskLedger.class, "tl");
+		c.add(Restrictions.eq("tl.jobId", jobId));
+		@SuppressWarnings("unchecked")
+		List<TaskLedger> taskLedger = c.list();
+		// Ensure the objects have been fully fetched before leaving the
+		// transaction.
+		if (taskLedger.size() > 0)
+			taskLedger.get(0);
+		return taskLedger;
+	}
 }

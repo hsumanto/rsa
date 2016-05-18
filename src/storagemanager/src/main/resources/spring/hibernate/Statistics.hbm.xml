@@ -70,6 +70,20 @@
 		<property name="max" type="double" column="MAX" />
 		<property name="mean" type="double" column="MEAN" />
 	</class>
+	<class name="org.vpac.ndg.storage.model.TaskLedger" table="TASKLEDGER" lazy="false">
+		<id name="id" type="string" column="ID">
+			<generator class="uuid" />
+		</id>
+		<many-to-one name="job" column="job_id" cascade="all" lazy="false" />
+		<property name="outputResolution">
+			<type name="org.hibernate.type.EnumType">
+				<param name="enumClass">org.vpac.ndg.common.datamodel.CellSize</param>
+				<param name="identifierMethod">toInt</param>
+				<param name="valueOfMethod">fromInt</param>
+			</type>
+		</property>
+		<one-to-one name="ledger" cascade="all" lazy="false" />
+	</class>
 	<class name="org.vpac.ndg.query.stats.Ledger" table="LEDGER">
 		<id name="id" type="string" column="ID">
 			<generator class="uuid" />
