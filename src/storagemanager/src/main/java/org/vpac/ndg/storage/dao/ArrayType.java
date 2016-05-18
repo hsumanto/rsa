@@ -50,21 +50,23 @@ public class ArrayType implements UserType, ParameterizedType {
 		else
 			type = parameters.getProperty("type", "Double");
 
+		// These type strings are specific to Postgres :(
+		// http://stackoverflow.com/a/13300045/320036
 		if (type.equals("Float")) {
 			componentType = Float.class;
-			sqlType = "real";
+			sqlType = "float4";
 		} else if (type.equals("Double")) {
 			componentType = Double.class;
-			sqlType = "double precision";
+			sqlType = "float8";
 		} else if (type.equals("Short")) {
 			componentType = Short.class;
-			sqlType = "smallint";
+			sqlType = "int2";
 		} else if (type.equals("Integer")) {
 			componentType = Integer.class;
-			sqlType = "integer";
+			sqlType = "int4";
 		} else if (type.equals("Long")) {
 			componentType = Long.class;
-			sqlType = "bigint";
+			sqlType = "int8";
 		} else if (type.equals("String")) {
 			componentType = String.class;
 			sqlType = "text";
