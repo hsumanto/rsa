@@ -39,7 +39,7 @@ subprojects {
         }
     }
 
-    compileJava.doLast {
+    compileJava.doFirst {
         // Write classpath to a file so that other tools (e.g. editors) can
         // autocomplete class names. E.g. see:
         // https://github.com/keskiju/autocomplete-java#usage
