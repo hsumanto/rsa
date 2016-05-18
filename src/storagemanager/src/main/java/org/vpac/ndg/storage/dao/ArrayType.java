@@ -28,69 +28,64 @@ import java.util.Arrays;
 import java.util.Properties;
 import org.hibernate.HibernateException;
 import org.hibernate.engine.SessionImplementor;
-import org.hibernate.type.Type;
-import org.hibernate.usertype.CompositeUserType;
+import org.hibernate.type.NullableType;
 import org.hibernate.usertype.ParameterizedType;
+import org.hibernate.usertype.UserType;
 
 /**
  * SQL ARRAY mapper for arrays of boxed primitive types
  * @author Alex Fraser
  */
-public class ArrayType implements CompositeUserType, ParameterizedType {
+public class ArrayType implements UserType, ParameterizedType {
 
-	private String type;
+	private Class<?> componentType;
+	private Class<?> clazz;
 	private String sqlType;
 
 	@Override
 	public void setParameterValues(Properties parameters) {
+		String type;
 		if (parameters == null)
 			type = "Double";
 		else
 			type = parameters.getProperty("type", "Double");
 
-		if (type.equals("Float"))
+		if (type.equals("Float")) {
+			componentType = Float.class;
 			sqlType = "real";
-		else if (type.equals("Double"))
+		} else if (type.equals("Double")) {
+			componentType = Double.class;
 			sqlType = "double precision";
-		else if (type.equals("Short"))
+		} else if (type.equals("Short")) {
+			componentType = Short.class;
 			sqlType = "smallint";
-		else if (type.equals("Integer"))
+		} else if (type.equals("Integer")) {
+			componentType = Integer.class;
 			sqlType = "integer";
-		else if (type.equals("Long"))
+		} else if (type.equals("Long")) {
+			componentType = Long.class;
 			sqlType = "bigint";
-		else if (type.equals("String"))
+		} else if (type.equals("String")) {
+			componentType = String.class;
 			sqlType = "text";
-		else {
+		} else {
 			throw new IllegalArgumentException(
 				String.format("Unsupported type %s", type));
 		}
-	}
 
-	@Override
-	public String[] getPropertyNames() {
-		return new String[] {};
-	}
-
-	@Override
-	public Type[] getPropertyTypes() {
-		return new Type[] {};
-	}
-
-	@Override
-	public void setPropertyValue(Object component, int property, Object value)
-			throws HibernateException {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public Object getPropertyValue(Object component, int property)
-			throws HibernateException {
-		throw new UnsupportedOperationException();
+		clazz = java.lang.reflect.Array
+			.newInstance(componentType, 0)
+			.getClass();
 	}
 
 	@Override
 	public Class<?> returnedClass() {
-		return String[].class;
+		return clazz;
+	}
+
+	@Override
+	public int[] sqlTypes() {
+		return new int[] { Types.ARRAY };
 	}
 
 	@Override
@@ -99,8 +94,7 @@ public class ArrayType implements CompositeUserType, ParameterizedType {
 	}
 
 	@Override
-	public Object nullSafeGet(ResultSet resultSet, String[] names,
-			SessionImplementor session, Object owner)
+	public Object nullSafeGet(ResultSet resultSet, String[] names, Object owner)
 			throws HibernateException, SQLException {
 		if (resultSet.wasNull())
 			return null;
@@ -109,7 +103,7 @@ public class ArrayType implements CompositeUserType, ParameterizedType {
 
 	@Override
 	public void nullSafeSet(PreparedStatement statement, Object value,
-			int index, SessionImplementor session)
+			int index)
 			throws HibernateException, SQLException {
 
 		if (value == null) {
@@ -117,7 +111,7 @@ public class ArrayType implements CompositeUserType, ParameterizedType {
 			return;
 		}
 
-		Array array = session.connection().createArrayOf(
+		Array array = statement.getConnection().createArrayOf(
 			sqlType, (Object[]) value);
 		statement.setArray(index, array);
 	}
@@ -128,20 +122,18 @@ public class ArrayType implements CompositeUserType, ParameterizedType {
 	}
 
 	@Override
-	public Object assemble(Serializable cached, SessionImplementor session,
-			Object owner) throws HibernateException {
+	public Object assemble(Serializable cached, Object owner)
+			throws HibernateException {
 		return Arrays.copyOf((Object[]) cached, ((Object[]) cached).length);
 	}
 
 	@Override
-	public Serializable disassemble(Object value, SessionImplementor session)
-			throws HibernateException {
+	public Serializable disassemble(Object value) throws HibernateException {
 		return Arrays.copyOf((Object[]) value, ((Object[]) value).length);
 	}
 
 	@Override
-	public Object replace(Object original, Object target,
-			SessionImplementor session, Object owner)
+	public Object replace(Object original, Object target, Object owner)
 			throws HibernateException {
 		return deepCopy(original);
 	}
