@@ -28,6 +28,7 @@ import org.hibernate.Session;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.vpac.ndg.query.stats.Ledger;
 import org.vpac.ndg.storage.model.DatasetCats;
 import org.vpac.ndg.storage.model.TaskCats;
 import org.vpac.ndg.storage.model.TaskLedger;
@@ -102,6 +103,12 @@ public class StatisticsDaoImpl extends CustomHibernateDaoSupport implements Stat
 		if (cats.size() > 0)
 			cats.get(0);
 		return cats;
+	}
+
+	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
+	public void save(Ledger l) {
+		getHibernateTemplate().save(l);
 	}
 
 	@Override

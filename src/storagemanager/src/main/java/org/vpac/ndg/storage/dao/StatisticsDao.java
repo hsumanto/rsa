@@ -23,6 +23,7 @@ package org.vpac.ndg.storage.dao;
 
 import java.util.List;
 
+import org.vpac.ndg.query.stats.Ledger;
 import org.vpac.ndg.storage.model.DatasetCats;
 import org.vpac.ndg.storage.model.TaskCats;
 import org.vpac.ndg.storage.model.TaskLedger;
@@ -36,6 +37,7 @@ public interface StatisticsDao {
 	void saveOrReplaceCats(DatasetCats dc);
 	List<DatasetCats> searchCats(String datasetId, String timeSliceId, String bandId, String catType);
 
+	void save(Ledger l);
 	void saveLedger(TaskLedger tl);
 	void saveOrReplaceLedger(TaskLedger tl);
 	List<TaskLedger> searchLedger(String jobId);

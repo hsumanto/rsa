@@ -23,20 +23,27 @@ import com.google.common.collect.Lists;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionDefinition;
+import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
 import org.vpac.ndg.common.datamodel.CellSize;
 import org.vpac.ndg.common.datamodel.TaskType;
 import org.vpac.ndg.query.stats.Ledger;
+import org.vpac.ndg.storage.dao.JobProgressDao;
 import org.vpac.ndg.storage.dao.StatisticsDao;
 import org.vpac.ndg.storage.model.Dataset;
 import org.vpac.ndg.storage.model.JobProgress;
@@ -53,11 +60,20 @@ public class StatisticsDaoTest {
 	@Autowired
 	StatisticsDao statisticsDao;
 
+	@Autowired
+	JobProgressDao jobProgressDao;
+
+	@Autowired
+	private SessionFactory sessionFactory;
+
 	@Test
 	public void testStoreLedger() {
+		Session session = sessionFactory.getCurrentSession();
+
 		JobProgress job = new JobProgress("testStoreLedger");
 		job.setTaskType(TaskType.Query);
-		// jobProgressDao.save(job);
+		jobProgressDao.save(job);
+		session.flush();
 
 		Ledger ledger = new Ledger();
 		ledger.setBucketingStrategies(
@@ -65,11 +81,14 @@ public class StatisticsDaoTest {
 		ledger.add(Arrays.asList(0.0, 1.0));
 		ledger.add(Arrays.asList(0.0, 1.0));
 		ledger.add(Arrays.asList(1.0, 1.0));
+		statisticsDao.save(ledger);
+		session.flush();
 
 		TaskLedger tl = new TaskLedger();
 		tl.setJob(job);
 		tl.setLedger(ledger);
 		statisticsDao.saveLedger(tl);
+		session.flush();
 
 		List<TaskLedger> tls = statisticsDao.searchLedger(job.getId());
 		assertEquals(tls.size(), 1);
