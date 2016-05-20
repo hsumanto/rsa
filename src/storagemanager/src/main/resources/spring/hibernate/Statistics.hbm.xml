@@ -91,7 +91,9 @@
 		<property name="bucketingStrategies" type="string" column="BUCKET_STRATS" />
 		<map name="entries" cascade="all" lazy="false">
 			<key column="ledger_id" />
-			<map-key column="combination" type="org.vpac.ndg.storage.dao.ArrayType" />
+			<map-key type="org.vpac.ndg.storage.dao.ArrayType">
+				<column name="combination" sql-type="double precision[]" />
+			</map-key>
 			<!-- <property name="combination" column="combination">
 				<type name="org.vpac.ndg.storage.dao.Array">
 					<param name="type">Double</param>
