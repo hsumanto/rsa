@@ -36,6 +36,10 @@ dependencies {
         "org.springframework:org.springframework.expression:$springVersion",
         "org.springframework:org.springframework.jdbc:$springVersion",
     )
+
+    testRuntime (
+        'commons-dbcp:commons-dbcp:1.4',
+    )
 }
 
 tasks.withType(Test) {
