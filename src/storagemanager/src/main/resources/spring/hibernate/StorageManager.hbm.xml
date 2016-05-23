@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC
         "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
-        "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+        "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping>
 	<class name="org.vpac.ndg.storage.model.Band" table="Band" lazy="true" >
@@ -62,7 +62,7 @@
 		<property name="logTime" type="timestamp" column="LOG_TIME"/>
 		<property name="state">
 			<column name="STATE" />
-			<type name="org.vpac.ndg.storage.dao.EnumType">
+			<type name="org.hibernate.type.EnumType">
 				<param name="enumClass">org.vpac.ndg.common.datamodel.TaskState</param>
 				<param name="identifierMethod">toString</param>
 				<param name="valueOfMethod">valueOf</param>
@@ -80,7 +80,7 @@
 		<property name="user" type="string" column="USER_NAME" />
 		<property name="state">
 			<column name="STATE" />
-			<type name="org.vpac.ndg.storage.dao.EnumType">
+			<type name="org.hibernate.type.EnumType">
 				<param name="enumClass">org.vpac.ndg.common.datamodel.RunningTaskState</param>
 				<param name="identifierMethod">toString</param>
 				<param name="valueOfMethod">valueOf</param>
@@ -109,7 +109,7 @@
 		<property name="name" type="string" column="NAME" />
 		<property name="state">
 			<column name="STATE" />
-			<type name="org.vpac.ndg.storage.dao.EnumType">
+			<type name="org.hibernate.type.EnumType">
 				<param name="enumClass">org.vpac.ndg.common.datamodel.TaskState</param>
 				<param name="identifierMethod">toString</param>
 				<param name="valueOfMethod">valueOf</param>
@@ -117,7 +117,7 @@
 		</property>
 		<property name="taskType">
 			<column name="TASKTYPE" />
-			<type name="org.vpac.ndg.storage.dao.EnumType">
+			<type name="org.hibernate.type.EnumType">
 				<param name="enumClass">org.vpac.ndg.common.datamodel.TaskType</param>
 				<param name="identifierMethod">toString</param>
 				<param name="valueOfMethod">valueOf</param>

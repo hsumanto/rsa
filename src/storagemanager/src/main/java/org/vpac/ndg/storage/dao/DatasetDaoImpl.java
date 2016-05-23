@@ -39,59 +39,68 @@ public class DatasetDaoImpl extends CustomHibernateDaoSupport implements Dataset
 
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public Dataset create(Dataset ds){
-		getHibernateTemplate().save(ds);
+		getSession().save(ds);
 		return ds;
 	}
-	
+
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public void update(Dataset ds){
-		getHibernateTemplate().update(ds);
+		getSession().update(ds);
 	}
-	
+
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public void delete(Dataset ds){
-		getHibernateTemplate().delete(ds);
+		getSession().delete(ds);
 	}
-	
+
 	@Transactional
 	public Dataset retrieve(String id){
-		return getHibernateTemplate().get(Dataset.class, id);
+		return (Dataset) getSession().get(Dataset.class, id);
 	}
 
 	@Transactional
 	public List<Dataset> getAll() {
 		@SuppressWarnings("unchecked")
-		List<Dataset> list = getHibernateTemplate().find("FROM Dataset");
+		List<Dataset> list = getSession()
+			.createQuery("FROM Dataset")
+			.list();
 		return list;
 	}
 
 	@Transactional
 	public List<TimeSlice> getTimeSlices(String datasetId) {
 		@SuppressWarnings("unchecked")
-		List<TimeSlice> list = getHibernateTemplate().find(
+		List<TimeSlice> list = getSession()
+			.createQuery(
 				"SELECT s FROM Dataset d join d.slices s " +
-				"WHERE d.id=? ORDER BY s.created DESC",
-				datasetId);
+				"WHERE d.id=? ORDER BY s.created DESC")
+			.setString(0, datasetId)
+			.list();
 		return list;
 	}
 
 	@Transactional
 	public List<Band> getBands(String datasetId) {
 		@SuppressWarnings("unchecked")
-		List<Band> list = getHibernateTemplate().find(
+		List<Band> list = getSession()
+			.createQuery(
 				"SELECT b FROM Dataset d JOIN d.bands b " +
-				"WHERE d.id=? ORDER BY b.name",
-				datasetId);
+				"WHERE d.id=? ORDER BY b.name")
+			.setString(0, datasetId)
+			.list();
 		return list;
 	}
 
 	@Transactional
 	public TimeSlice findTimeSlice(String datasetId, Date creationDate) {
 		@SuppressWarnings("unchecked")
-		List<TimeSlice> list = getHibernateTemplate().find(
+		List<TimeSlice> list = getSession()
+			.createQuery(
 				"SELECT s FROM Dataset d JOIN d.slices s " +
-				"WHERE d.id=? AND s.created=? ORDER BY s.created DESC",
-				datasetId, creationDate);
+				"WHERE d.id=? AND s.created=? ORDER BY s.created DESC")
+			.setString(0, datasetId)
+			.setDate(1, creationDate)
+			.list();
 		if(list.size() == 0)
 			return null;
 		return (TimeSlice) list.get(0);
@@ -124,15 +133,18 @@ public class DatasetDaoImpl extends CustomHibernateDaoSupport implements Dataset
 		}
 
 		@SuppressWarnings("unchecked")
-		List<TimeSlice> list = query.list(); 
+		List<TimeSlice> list = query.list();
 		return list;
 	}
 
 	@Transactional
 	public Dataset findDatasetByName(String name, CellSize resolution) {
 		@SuppressWarnings("unchecked")
-		List<Dataset> list = getHibernateTemplate().find(
-				"FROM Dataset WHERE name=? AND resolution=?", name, resolution);
+		List<Dataset> list = getSession()
+			.createQuery("FROM Dataset WHERE name=? AND resolution=?")
+			.setString(0, name)
+			.setParameter(1, resolution)
+			.list();
 		if(list.size() == 0)
 			return null;
 		return (Dataset)list.get(0);
@@ -149,7 +161,7 @@ public class DatasetDaoImpl extends CustomHibernateDaoSupport implements Dataset
 		Query query = session.createQuery(queryString);
 		if(name != null)
 			query.setString("name", "%" + name.toLowerCase() + "%");
-		
+
 		query.setFirstResult(page * pageSize);
 		query.setMaxResults(pageSize);
 

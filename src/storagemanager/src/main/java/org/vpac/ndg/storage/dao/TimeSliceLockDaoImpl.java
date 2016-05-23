@@ -48,23 +48,23 @@ public class TimeSliceLockDaoImpl extends CustomHibernateDaoSupport implements
 
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public TimeSliceLock create(TimeSliceLock tsl){
-		getHibernateTemplate().save(tsl);
+		getSession().save(tsl);
 		return tsl;
 	}
 
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public void update(TimeSliceLock tsl){
-		getHibernateTemplate().update(tsl);
+		getSession().update(tsl);
 	}
 
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public void delete(TimeSliceLock tsl) {
-		getHibernateTemplate().delete(tsl);
+		getSession().delete(tsl);
 	}
 
 	@Transactional
 	public TimeSliceLock retrieve(String id){
-		return getHibernateTemplate().get(TimeSliceLock.class, id);
+		return (TimeSliceLock) getSession().get(TimeSliceLock.class, id);
 	}
 
 
@@ -221,9 +221,10 @@ public class TimeSliceLockDaoImpl extends CustomHibernateDaoSupport implements
 	@Override
 	public List<TimeSliceLock> findByTimeSlice(String timeSliceId) {
 		@SuppressWarnings("unchecked")
-		List<TimeSliceLock> list = getHibernateTemplate().find(
-				"FROM TimeSliceLock as lock WHERE lock.timesliceId = ?",
-				timeSliceId);
+		List<TimeSliceLock> list = getSession()
+			.createQuery("FROM TimeSliceLock as lock WHERE lock.timesliceId = ?")
+			.setString(0, timeSliceId)
+			.list();
 
 		return list;
 	}
@@ -232,9 +233,10 @@ public class TimeSliceLockDaoImpl extends CustomHibernateDaoSupport implements
 	@Override
 	public List<TimeSliceLock> findByProcess(String processId) {
 		@SuppressWarnings("unchecked")
-		List<TimeSliceLock> list = getHibernateTemplate().find(
-				"FROM TimeSliceLock as lock WHERE lock.processId = ?",
-				processId);
+		List<TimeSliceLock> list = getSession()
+			.createQuery("FROM TimeSliceLock as lock WHERE lock.processId = ?")
+			.setString(0, processId)
+			.list();
 
 		return list;
 	}
@@ -243,9 +245,11 @@ public class TimeSliceLockDaoImpl extends CustomHibernateDaoSupport implements
 	@Override
 	public List<TimeSliceLock> listOrphaned() {
 		@SuppressWarnings("unchecked")
-		List<TimeSliceLock> list = getHibernateTemplate().find(
+		List<TimeSliceLock> list = getSession()
+			.createQuery(
 				"FROM TimeSliceLock as lock WHERE not exists " +
-				"(FROM Process as p WHERE p.id = lock.processId)");
+				"(FROM Process as p WHERE p.id = lock.processId)")
+			.list();
 
 		return list;
 	}
