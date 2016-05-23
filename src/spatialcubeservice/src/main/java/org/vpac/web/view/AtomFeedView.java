@@ -32,9 +32,9 @@ import org.vpac.web.model.response.DatasetCollectionResponse;
 import org.vpac.web.model.response.DatasetResponse;
 import org.vpac.web.util.ControllerHelper;
 
-import com.sun.syndication.feed.atom.Content;
-import com.sun.syndication.feed.atom.Entry;
-import com.sun.syndication.feed.atom.Feed;
+import com.rometools.rome.feed.atom.Content;
+import com.rometools.rome.feed.atom.Entry;
+import com.rometools.rome.feed.atom.Feed;
 
 public class AtomFeedView extends AbstractAtomFeedView {
 	private String feedId = "tag:http://web.vpac.org/Atom";
