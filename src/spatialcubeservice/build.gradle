@@ -40,8 +40,17 @@ dependencies {
         project(':rsa-common'),
     )
 
+    // Some of these runtime dependencies only get used when rendering certain
+    // content types. So when upgrading them, make sure you test all supported
+    // response types e.g:
+    // - /rsa/Dataset.xml
+    // - /rsa/Dataset.json
+    // - /rsa/Dataset.rss
+    // - /rsa/Dataset.atom
     runtime (
         'commons-fileupload:commons-fileupload:1.2',
+        'jstl:jstl:1.2',
+        'org.apache.taglibs:taglibs-standard-impl:1.2.5',
         "org.springframework:spring-oxm:$springVersion",
     )
 

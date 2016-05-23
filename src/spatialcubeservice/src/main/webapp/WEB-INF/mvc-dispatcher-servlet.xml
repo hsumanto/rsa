@@ -1,17 +1,29 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:context="http://www.springframework.org/schema/context"
-	xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="
         http://www.springframework.org/schema/beans
-        http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+        http://www.springframework.org/schema/beans/spring-beans.xsd
         http://www.springframework.org/schema/context
-        http://www.springframework.org/schema/context/spring-context-3.1.xsd
+        http://www.springframework.org/schema/context/spring-context.xsd
         http://www.springframework.org/schema/mvc
-        http://www.springframework.org/schema/mvc/spring-mvc-3.1.xsd">
+        http://www.springframework.org/schema/mvc/spring-mvc.xsd">
 	<!-- mvc:resources mapping="/css/**" location="/resources/css/"/>
 	<mvc:resources mapping="/js/**" location="/resources/js/"/-->
+
+
 	<bean class="org.springframework.web.servlet.view.ContentNegotiatingViewResolver">
-		<property name="order" value="1" />
+		<property name="contentNegotiationManager" ref="contentNegotiater"/>
+		<!-- <property name="viewResolvers">
+			<list>
+				<bean class="org.springframework.web.servlet.view.BeanNameViewResolver"/> -->
+				<!-- <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+					<property name="prefix" value="/WEB-INF/pages/" />
+					<property name="suffix" value=".jsp" />
+				</bean> -->
+			<!-- </list>
+		</property> -->
 
 		<property name="defaultViews">
 			<list>
@@ -24,47 +36,16 @@
 				<!-- RSS View -->
 				<bean class="org.vpac.web.view.RssFeedView" />
 
-				<!-- JAXB XML View -->
+				<!-- XML View -->
+				<!-- <bean class="org.springframework.web.servlet.view.xml.MappingJackson2XmlView" /> -->
 				<bean class="org.springframework.web.servlet.view.xml.MarshallingView">
 					<constructor-arg>
-<!--
-						<bean class="org.springframework.oxm.xstream.XStreamMarshaller">
-    				        <property name="aliases">
-					            <props>
-					                <prop key="MetaData">org.vpac.ndg.storagemanager.MetaData</prop>
-					                <prop key="MetaData">org.vpac.ndg.storagemanager.Dataset</prop>
-					            </props>
-					        </property>
-						</bean>
- -->
-
 						<bean class="org.springframework.oxm.jaxb.Jaxb2Marshaller">
-							<property name="classesToBeBound">
-								<list>
-									<value>org.vpac.web.model.response.DatasetCollectionResponse</value>
-									<value>org.vpac.web.model.response.DatasetResponse</value>
-									<value>org.vpac.web.model.response.DatasetPlotResponse</value>
-									<value>org.vpac.web.model.response.TimeSliceResponse</value>
-									<value>org.vpac.web.model.response.TimeSliceCollectionResponse</value>
-									<value>org.vpac.web.model.response.TimeSliceLockResponse</value>
-									<value>org.vpac.web.model.response.TimeSliceLockCollectionResponse</value>
-									<value>org.vpac.web.model.response.BandResponse</value>
-									<value>org.vpac.web.model.response.BandCollectionResponse</value>
-									<value>org.vpac.web.model.response.FileInfoResponse</value>
-									<value>org.vpac.web.model.response.ImportResponse</value>
-									<value>org.vpac.web.model.response.ExportResponse</value>
-									<value>org.vpac.web.model.response.TaskCollectionResponse</value>
-									<value>org.vpac.web.model.response.TaskResponse</value>
-									<value>org.vpac.web.model.response.CleanUpResponse</value>
-									<value>org.vpac.web.model.response.QueryResponse</value>
-									<value>org.vpac.web.model.response.QueryNodeCollectionResponse</value>
-									<value>org.vpac.web.model.response.QueryDatasetResponse</value>
-									<value>org.vpac.web.model.response.QueryFilterResponse</value>
-								</list>
-							</property>
+							<property name="packagesToScan" value="org.vpac.web.model.response" />
 						</bean>
  					</constructor-arg>
 				</bean>
+
 				<!-- ATOM View -->
 				<bean class="org.vpac.web.view.AtomFeedView"/>
 			</list>
@@ -72,16 +53,10 @@
 
 	</bean>
 
-	<!-- If no extension matched, use JSP view -->
-	<bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
-		<property name="order" value="2" />
-		<property name="prefix">
-			<value>/WEB-INF/pages/</value>
-		</property>
-		<property name="suffix">
-			<value>.jsp</value>
-		</property>
+	<bean id="contentNegotiater"
+			class="org.springframework.web.accept.ContentNegotiationManagerFactoryBean">
 	</bean>
+
 	<bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
 		<property name="maxUploadSize" value="10000000000"/>
 	</bean>

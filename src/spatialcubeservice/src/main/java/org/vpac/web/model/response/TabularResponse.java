@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map.Entry;
 
 import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.vpac.ndg.common.datamodel.CellSize;
@@ -50,7 +51,7 @@ public class TabularResponse <T> {
 		this.categorisation = categorisation;
 	}
 
-	@XmlAttribute
+	@XmlElement
 	public List<T> getRows() {
 		return table;
 	}
@@ -66,7 +67,7 @@ public class TabularResponse <T> {
 		this.tableType = tableType;
 	}
 
-	@XmlAttribute
+	@XmlElement
 	public List<TableColumn> getColumns() {
 		return columns;
 	}
