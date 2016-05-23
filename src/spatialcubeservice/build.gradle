@@ -20,15 +20,16 @@ dependencies {
     )
 
     compile (
+        'com.fasterxml.jackson.core:jackson-databind:2.7.4',
         'com.googlecode.lambdaj:lambdaj:2.3.3',
         'com.sun.xml.bind:jaxb-impl:2.1',
+        'com.rometools:rome:1.6.0',
         'com.typesafe.akka:akka-actor_2.11:2.4.2',
         'com.typesafe.akka:akka-cluster_2.11:2.4.2',
         'com.typesafe.akka:akka-cluster-tools_2.11:2.4.2',
         'commons-io:commons-io:1.3.2',
         'commons-net:commons-net:3.4',
         'javax.validation:validation-api:1.0.0.GA',
-        'org.codehaus.jackson:jackson-mapper-asl:1.7.1',
         'org.hibernate:hibernate-validator:4.2.0.Final',
         "org.springframework:spring-webmvc:$springVersion",
         'rome:rome:1.0',
