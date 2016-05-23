@@ -39,20 +39,20 @@ public class StatisticsDaoImpl extends CustomHibernateDaoSupport implements Stat
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public void saveCats(TaskCats c) {
-		getHibernateTemplate().save(c);
+		getSession().save(c);
 	}
 
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public void saveCats(DatasetCats dc) {
-		getHibernateTemplate().save(dc);
+		getSession().save(dc);
 	}
 
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public void saveOrReplaceCats(TaskCats tc) {
 		for (TaskCats oldTc : searchCats(tc.getTaskId(), tc.getName())) {
-			getHibernateTemplate().delete(oldTc);
+			getSession().delete(oldTc);
 		}
 		saveCats(tc);
 	}
@@ -61,7 +61,7 @@ public class StatisticsDaoImpl extends CustomHibernateDaoSupport implements Stat
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public void saveOrReplaceCats(DatasetCats dc) {
 		for (DatasetCats oldDc : searchCats(dc.getDatasetId(), dc.getTimeSliceId(), dc.getBandId(), dc.getName())) {
-			getHibernateTemplate().delete(oldDc);
+			getSession().delete(oldDc);
 		}
 		saveCats(dc);
 	}
@@ -108,20 +108,20 @@ public class StatisticsDaoImpl extends CustomHibernateDaoSupport implements Stat
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public void save(Ledger l) {
-		getHibernateTemplate().save(l);
+		getSession().save(l);
 	}
 
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public void saveLedger(TaskLedger tl) {
-		getHibernateTemplate().save(tl);
+		getSession().save(tl);
 	}
 
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public void saveOrReplaceLedger(TaskLedger tl) {
 		for (TaskLedger oldTl : searchLedger(tl.getJob().getId())) {
-			getHibernateTemplate().delete(oldTl);
+			getSession().delete(oldTl);
 		}
 		saveLedger(tl);
 	}

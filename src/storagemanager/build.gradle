@@ -9,10 +9,10 @@ dependencies {
         'commons-lang:commons-lang:2.5',
         'org.aspectj:aspectjtools:1.6.2',
         "org.hibernate:hibernate-core:$hibernateVersion",
-        "org.springframework:org.springframework.beans:$springVersion",
-        "org.springframework:org.springframework.context:$springVersion",
-        "org.springframework:org.springframework.orm:$springVersion",
-        "org.springframework:org.springframework.transaction:$springVersion",
+        "org.springframework:spring-beans:$springVersion",
+        "org.springframework:spring-context:$springVersion",
+        "org.springframework:spring-orm:$springVersion",
+        "org.springframework:spring-tx:$springVersion",
         files('/usr/lib/gdal.jar'),
         project(':rsaquery'),
         project(':rsa-common'),
@@ -20,21 +20,19 @@ dependencies {
 
     testCompile (
         'com.carrotsearch:junit-benchmarks:0.4.0',
-        "org.springframework:org.springframework.test:$springVersion",
+        "org.springframework:spring-test:$springVersion",
         sourceSets.main.output,
     )
 
     runtime (
         'cglib:cglib:2.2.2',
         'net.java.dev.jna:jna:3.2.7',
-        "org.hibernate:hibernate-annotations:$hibernateVersion",
         'org.hibernate.javax.persistence:hibernate-jpa-2.0-api:1.0.0.Final',
         'org.postgresql:postgresql:9.4-1201-jdbc41',
-        "org.springframework:org.springframework.aop:$springVersion",
-        "org.springframework:org.springframework.asm:$springVersion",
-        "org.springframework:org.springframework.core:$springVersion",
-        "org.springframework:org.springframework.expression:$springVersion",
-        "org.springframework:org.springframework.jdbc:$springVersion",
+        "org.springframework:spring-aop:$springVersion",
+        "org.springframework:spring-core:$springVersion",
+        "org.springframework:spring-expression:$springVersion",
+        "org.springframework:spring-jdbc:$springVersion",
     )
 
     testRuntime (

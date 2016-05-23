@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC
         "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
-        "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+        "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping>
 	<class name="org.vpac.ndg.storage.model.Band" table="Band" lazy="true" >
@@ -12,8 +12,7 @@
 		<property name="type">
 			<type name="org.hibernate.type.EnumType">
 				<param name="enumClass">org.vpac.ndg.rasterdetails.RasterDetails</param>
-				<param name="identifierMethod">toInt</param>
-				<param name="valueOfMethod">fromInt</param>
+				<param name="useNamed">false</param>
 			</type>
 		</property>
 		<property name="nodata" type="string" column="NODATA"/>
@@ -28,8 +27,7 @@
 		<property name="resolution" unique-key="multicolumn_unique_key_name">
 			<type name="org.hibernate.type.EnumType">
 				<param name="enumClass">org.vpac.ndg.common.datamodel.CellSize</param>
-				<param name="identifierMethod">toInt</param>
-				<param name="valueOfMethod">fromInt</param>
+				<param name="useNamed">false</param>
 			</type>
 		</property>
 		<property name="precision" type="long" column="PRECISION"/>
@@ -62,10 +60,9 @@
 		<property name="logTime" type="timestamp" column="LOG_TIME"/>
 		<property name="state">
 			<column name="STATE" />
-			<type name="org.vpac.ndg.storage.dao.EnumType">
+			<type name="org.hibernate.type.EnumType">
 				<param name="enumClass">org.vpac.ndg.common.datamodel.TaskState</param>
-				<param name="identifierMethod">toString</param>
-				<param name="valueOfMethod">valueOf</param>
+				<param name="useNamed">true</param>
 			</type>
 		</property>
 	</class>
@@ -80,10 +77,9 @@
 		<property name="user" type="string" column="USER_NAME" />
 		<property name="state">
 			<column name="STATE" />
-			<type name="org.vpac.ndg.storage.dao.EnumType">
+			<type name="org.hibernate.type.EnumType">
 				<param name="enumClass">org.vpac.ndg.common.datamodel.RunningTaskState</param>
-				<param name="identifierMethod">toString</param>
-				<param name="valueOfMethod">valueOf</param>
+				<param name="useNamed">true</param>
 			</type>
 		</property>
 	</class>
@@ -109,18 +105,16 @@
 		<property name="name" type="string" column="NAME" />
 		<property name="state">
 			<column name="STATE" />
-			<type name="org.vpac.ndg.storage.dao.EnumType">
+			<type name="org.hibernate.type.EnumType">
 				<param name="enumClass">org.vpac.ndg.common.datamodel.TaskState</param>
-				<param name="identifierMethod">toString</param>
-				<param name="valueOfMethod">valueOf</param>
+				<param name="useNamed">true</param>
 			</type>
 		</property>
 		<property name="taskType">
 			<column name="TASKTYPE" />
-			<type name="org.vpac.ndg.storage.dao.EnumType">
+			<type name="org.hibernate.type.EnumType">
 				<param name="enumClass">org.vpac.ndg.common.datamodel.TaskType</param>
-				<param name="identifierMethod">toString</param>
-				<param name="valueOfMethod">valueOf</param>
+				<param name="useNamed">true</param>
 			</type>
 		</property>
 		<property name="errorMessage" type="string" column="ERRORMESSAGE" />

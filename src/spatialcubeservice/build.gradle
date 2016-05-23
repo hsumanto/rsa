@@ -30,8 +30,7 @@ dependencies {
         'javax.validation:validation-api:1.0.0.GA',
         'org.codehaus.jackson:jackson-mapper-asl:1.7.1',
         'org.hibernate:hibernate-validator:4.2.0.Final',
-        "org.springframework:org.springframework.web:$springVersion",
-        "org.springframework:org.springframework.web.servlet:$springVersion",
+        "org.springframework:spring-webmvc:$springVersion",
         'rome:rome:1.0',
         files('/usr/lib/gdal.jar'),
         project(':rsaquery'),
@@ -53,7 +52,7 @@ dependencies {
 
     testCompile (
         'com.carrotsearch:junit-benchmarks:0.4.0',
-        "org.springframework:org.springframework.test:$springVersion",
+        "org.springframework:spring-test:$springVersion",
         sourceSets.main.output,
     )
 }

@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC
 		"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
-		"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+		"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping>
 	<class name="org.vpac.ndg.storage.model.DatasetCats" table="DATASETCATS" lazy="false">
@@ -23,8 +23,7 @@
 		<property name="outputResolution">
 			<type name="org.hibernate.type.EnumType">
 				<param name="enumClass">org.vpac.ndg.common.datamodel.CellSize</param>
-				<param name="identifierMethod">toInt</param>
-				<param name="valueOfMethod">fromInt</param>
+				<param name="useNamed">false</param>
 			</type>
 		</property>
 		<property name="categorical" type="boolean" column="CATEGORICAL" />
@@ -78,8 +77,7 @@
 		<property name="outputResolution">
 			<type name="org.hibernate.type.EnumType">
 				<param name="enumClass">org.vpac.ndg.common.datamodel.CellSize</param>
-				<param name="identifierMethod">toInt</param>
-				<param name="valueOfMethod">fromInt</param>
+				<param name="useNamed">false</param>
 			</type>
 		</property>
 		<one-to-one name="ledger" cascade="all" lazy="false" />

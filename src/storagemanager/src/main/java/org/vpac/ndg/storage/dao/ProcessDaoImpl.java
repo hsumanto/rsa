@@ -37,34 +37,35 @@ public class ProcessDaoImpl extends CustomHibernateDaoSupport implements Process
 	@Transactional
 	@Override
 	public Process create(Process pm) {
-		getHibernateTemplate().save(pm);
+		getSession().save(pm);
 		return pm;
 	}
 
 	@Transactional
 	@Override
 	public void update(Process pm) {
-		getHibernateTemplate().update(pm);
+		getSession().update(pm);
 	}
 
 	@Transactional
 	@Override
 	public void delete(Process pm) {
-		getHibernateTemplate().delete(pm);
+		getSession().delete(pm);
 	}
 
 	@Transactional
 	@Override
 	public Process retrieve(String id) {
-		return getHibernateTemplate().get(Process.class, id);
+		return (Process) getSession().get(Process.class, id);
 	}
 
 	@Transactional
 	@Override
 	public List<Process> list() {
 		@SuppressWarnings("unchecked")
-		List<Process> list = getHibernateTemplate().find(
-				"FROM Process");
+		List<Process> list = getSession()
+			.createQuery("FROM Process")
+			.list();
 
 		return list;
 	}

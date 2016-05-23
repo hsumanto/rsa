@@ -39,28 +39,30 @@ public class BandDaoImpl extends CustomHibernateDaoSupport implements BandDao {
 	@Transactional
 	@Override
 	public void update(Band b) {
-		getHibernateTemplate().update(b);
+		getSession().update(b);
 	}
 
 	@Transactional
 	@Override
 	public void delete(Band b) {
-		getHibernateTemplate().delete(b);
+		getSession().delete(b);
 	}
 
 	@Transactional
 	@Override
 	public Band retrieve(String id) {
-		return getHibernateTemplate().get(Band.class, id);
+		return (Band) getSession().get(Band.class, id);
 	}
 
 	@Transactional
 	@Override
 	public Band find(String datasetId, String bandName) {
 		@SuppressWarnings("unchecked")
-		List<Band> list = getHibernateTemplate().find(
-				"SELECT b FROM Dataset d join d.bands b WHERE d.id=? AND b.name=?",
-				datasetId, bandName);
+		List<Band> list = getSession()
+			.createQuery("SELECT b FROM Dataset d join d.bands b WHERE d.id=? AND b.name=?")
+			.setString(0, datasetId)
+			.setString(1, bandName)
+			.list();
 		if(list.size() <= 0)
 			return null;
 		return list.get(0);
@@ -70,7 +72,10 @@ public class BandDaoImpl extends CustomHibernateDaoSupport implements BandDao {
 	@Override
 	public Dataset getParentDataset(String bandId) {
 		@SuppressWarnings("unchecked")
-		List<Dataset> list = getHibernateTemplate().find("SELECT d FROM Dataset d join d.bands b WHERE b.id=?", bandId);
+		List<Dataset> list = getSession()
+			.createQuery("SELECT d FROM Dataset d join d.bands b WHERE b.id=?")
+			.setString(0, bandId)
+			.list();
 		if(list.size() <= 0)
 			return null;
 		return list.get(0);

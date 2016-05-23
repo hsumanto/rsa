@@ -15,18 +15,25 @@
  *
  * Copyright 2013 CRCSI - Cooperative Research Centre for Spatial Information
  * http://www.crcsi.com.au/
+ * Copyright 2016 VPAC Innovations
  */
 
 package org.vpac.ndg.storage.util;
 
+import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
-public abstract class CustomHibernateDaoSupport extends HibernateDaoSupport
-{    
+public abstract class CustomHibernateDaoSupport
+{
 	@Autowired
-    public void getSession(SessionFactory sessionFactory) {
-        setSessionFactory(sessionFactory);
-    }
+	private SessionFactory sessionFactory;
+
+	public void setSessionFactory(SessionFactory sessionFactory) {
+		this.sessionFactory = sessionFactory;
+	}
+
+	public Session getSession() {
+		return sessionFactory.getCurrentSession();
+	}
 }

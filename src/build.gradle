@@ -16,8 +16,8 @@ subprojects {
     }
 
     dependencies {
-        ext.springVersion = '3.1.1.RELEASE'
-        ext.hibernateVersion = '3.5.6-Final'
+        ext.springVersion = '3.2.17.RELEASE'
+        ext.hibernateVersion = '4.2.21.Final'
 
         compile 'org.slf4j:slf4j-api:1.6.1'
         testCompile 'junit:junit:4.12'

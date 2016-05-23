@@ -38,23 +38,26 @@ public class TimeSliceDaoImpl extends CustomHibernateDaoSupport implements TimeS
 	@Transactional
 	@Override
 	public void update(TimeSlice ts) {
-		getHibernateTemplate().update(ts);
+		getSession().update(ts);
 	}
 	@Transactional
 	@Override
 	public void delete(TimeSlice ts) {
-		getHibernateTemplate().delete(ts);
+		getSession().delete(ts);
 	}
 	@Transactional
 	@Override
 	public TimeSlice retrieve(String id) {
-		return getHibernateTemplate().get(TimeSlice.class, id);
+		return (TimeSlice) getSession().get(TimeSlice.class, id);
 	}
 	@Transactional
 	@Override
 	public Dataset getParentDataset(String timeSliceId) {
 		@SuppressWarnings("unchecked")
-		List<Dataset> list = getHibernateTemplate().find("SELECT d FROM Dataset d join d.slices s WHERE s.id=?", timeSliceId);
+		List<Dataset> list = getSession()
+			.createQuery("SELECT d FROM Dataset d join d.slices s WHERE s.id=?")
+			.setString(0, timeSliceId)
+			.list();
 		if(list.size() <= 0)
 			return null;
 		return list.get(0);

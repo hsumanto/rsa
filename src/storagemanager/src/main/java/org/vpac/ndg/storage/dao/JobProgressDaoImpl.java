@@ -37,13 +37,13 @@ public class JobProgressDaoImpl extends CustomHibernateDaoSupport implements Job
 	@Transactional
 	@Override
 	public void save(JobProgress job) {
-		getHibernateTemplate().saveOrUpdate(job);
+		getSession().saveOrUpdate(job);
 	}
 
 	@Transactional
 	@Override
 	public JobProgress retrieve(String id) {
-		return getHibernateTemplate().get(JobProgress.class, id);
+		return (JobProgress) getSession().get(JobProgress.class, id);
 	}
 
 	@Transactional
@@ -55,9 +55,9 @@ public class JobProgressDaoImpl extends CustomHibernateDaoSupport implements Job
 
 		if(type != null)
 			criteria.add(Restrictions.eq("taskType", type));
-		if(state != null) 
+		if(state != null)
 			criteria.add(Restrictions.eq("state", state));
-		
+
 		criteria.setMaxResults(pageSize);
 		criteria.setFirstResult(page * pageSize);
 		return criteria.list();

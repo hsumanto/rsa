@@ -27,7 +27,7 @@ import java.sql.Types;
 import java.util.Arrays;
 import java.util.Properties;
 import org.hibernate.HibernateException;
-import org.hibernate.engine.SessionImplementor;
+import org.hibernate.engine.spi.SessionImplementor;
 import org.hibernate.type.NullableType;
 import org.hibernate.usertype.ParameterizedType;
 import org.hibernate.usertype.UserType;
@@ -96,7 +96,8 @@ public class ArrayType implements UserType, ParameterizedType {
 	}
 
 	@Override
-	public Object nullSafeGet(ResultSet resultSet, String[] names, Object owner)
+	public Object nullSafeGet(ResultSet resultSet, String[] names,
+			SessionImplementor session, Object owner)
 			throws HibernateException, SQLException {
 		if (resultSet.wasNull())
 			return null;
@@ -105,7 +106,7 @@ public class ArrayType implements UserType, ParameterizedType {
 
 	@Override
 	public void nullSafeSet(PreparedStatement statement, Object value,
-			int index)
+			int index, SessionImplementor session)
 			throws HibernateException, SQLException {
 
 		if (value == null) {
