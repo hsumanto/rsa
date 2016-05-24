@@ -9,21 +9,9 @@
         http://www.springframework.org/schema/context/spring-context.xsd
         http://www.springframework.org/schema/mvc
         http://www.springframework.org/schema/mvc/spring-mvc.xsd">
-	<!-- mvc:resources mapping="/css/**" location="/resources/css/"/>
-	<mvc:resources mapping="/js/**" location="/resources/js/"/-->
-
 
 	<bean class="org.springframework.web.servlet.view.ContentNegotiatingViewResolver">
 		<property name="contentNegotiationManager" ref="contentNegotiater"/>
-		<!-- <property name="viewResolvers">
-			<list>
-				<bean class="org.springframework.web.servlet.view.BeanNameViewResolver"/> -->
-				<!-- <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
-					<property name="prefix" value="/WEB-INF/pages/" />
-					<property name="suffix" value=".jsp" />
-				</bean> -->
-			<!-- </list>
-		</property> -->
 
 		<property name="defaultViews">
 			<list>
@@ -55,6 +43,14 @@
 
 	<bean id="contentNegotiater"
 			class="org.springframework.web.accept.ContentNegotiationManagerFactoryBean">
+		<property name="mediaTypes">
+			<map>
+				<entry key="json" value="application/json" />
+				<entry key="xml" value="application/xml" />
+				<entry key="rss" value="application/rss+xml" />
+				<entry key="atom" value="application/atom+xml" />
+			</map>
+		</property>
 	</bean>
 
 	<bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
