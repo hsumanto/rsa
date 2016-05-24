@@ -11,7 +11,7 @@ dependencies {
         'commons-cli:commons-cli:1.3.1',
         'commons-io:commons-io:1.3.2',
         'com.martiansoftware:nailgun-examples:0.9.1',
-        'org.jsoup:jsoup:1.6.1',
+        'org.jsoup:jsoup:1.9.2',
         "org.springframework:spring-web:$springVersion",
         project(':storagemanager'),
         project(':rsa-common'),

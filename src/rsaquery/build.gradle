@@ -9,10 +9,10 @@ sourceSets {
 
 dependencies {
     compile (
-        'com.thoughtworks.xstream:xstream:1.4.2',
+        'com.thoughtworks.xstream:xstream:1.4.9',
         'edu.ucar:cdm:4.4.0',
         'edu.ucar:netcdf4:4.4.0',
-        'org.reflections:reflections:0.9.9',
+        'org.reflections:reflections:0.9.10',
         project(':rsa-common'),
     )
 
@@ -21,7 +21,7 @@ dependencies {
         // required by Netcdf. If the Netcdf library is upgraded one day, then
         // maybe this can be removed. See ../build.gradle too for the exclusion
         // rule.
-        'net.java.dev.jna:jna:3.2.7',
+        'net.java.dev.jna:jna:4.2.2',
     )
 
     filterCompile sourceSets.main.output
