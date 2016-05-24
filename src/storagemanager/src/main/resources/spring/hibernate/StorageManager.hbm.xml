@@ -12,8 +12,7 @@
 		<property name="type">
 			<type name="org.hibernate.type.EnumType">
 				<param name="enumClass">org.vpac.ndg.rasterdetails.RasterDetails</param>
-				<param name="identifierMethod">toInt</param>
-				<param name="valueOfMethod">fromInt</param>
+				<param name="useNamed">false</param>
 			</type>
 		</property>
 		<property name="nodata" type="string" column="NODATA"/>
@@ -28,8 +27,7 @@
 		<property name="resolution" unique-key="multicolumn_unique_key_name">
 			<type name="org.hibernate.type.EnumType">
 				<param name="enumClass">org.vpac.ndg.common.datamodel.CellSize</param>
-				<param name="identifierMethod">toInt</param>
-				<param name="valueOfMethod">fromInt</param>
+				<param name="useNamed">false</param>
 			</type>
 		</property>
 		<property name="precision" type="long" column="PRECISION"/>
@@ -64,8 +62,7 @@
 			<column name="STATE" />
 			<type name="org.hibernate.type.EnumType">
 				<param name="enumClass">org.vpac.ndg.common.datamodel.TaskState</param>
-				<param name="identifierMethod">toString</param>
-				<param name="valueOfMethod">valueOf</param>
+				<param name="useNamed">true</param>
 			</type>
 		</property>
 	</class>
@@ -82,8 +79,7 @@
 			<column name="STATE" />
 			<type name="org.hibernate.type.EnumType">
 				<param name="enumClass">org.vpac.ndg.common.datamodel.RunningTaskState</param>
-				<param name="identifierMethod">toString</param>
-				<param name="valueOfMethod">valueOf</param>
+				<param name="useNamed">true</param>
 			</type>
 		</property>
 	</class>
@@ -111,16 +107,14 @@
 			<column name="STATE" />
 			<type name="org.hibernate.type.EnumType">
 				<param name="enumClass">org.vpac.ndg.common.datamodel.TaskState</param>
-				<param name="identifierMethod">toString</param>
-				<param name="valueOfMethod">valueOf</param>
+				<param name="useNamed">true</param>
 			</type>
 		</property>
 		<property name="taskType">
 			<column name="TASKTYPE" />
 			<type name="org.hibernate.type.EnumType">
 				<param name="enumClass">org.vpac.ndg.common.datamodel.TaskType</param>
-				<param name="identifierMethod">toString</param>
-				<param name="valueOfMethod">valueOf</param>
+				<param name="useNamed">true</param>
 			</type>
 		</property>
 		<property name="errorMessage" type="string" column="ERRORMESSAGE" />
