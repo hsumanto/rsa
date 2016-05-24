@@ -20,7 +20,6 @@
 package org.vpac.ndg.storage.dao;
 
 import java.util.List;
-import org.apache.commons.lang.NotImplementedException;
 import org.springframework.transaction.annotation.Transactional;
 import org.vpac.ndg.storage.model.Band;
 import org.vpac.ndg.storage.model.Dataset;
@@ -33,7 +32,7 @@ public class BandDaoImpl extends CustomHibernateDaoSupport implements BandDao {
 	@Transactional
 	@Override
 	public Band create(Band b) {
-		throw new NotImplementedException("Use DatasetDao");
+		throw new UnsupportedOperationException("Use DatasetDao");
 	}
 
 	@Transactional

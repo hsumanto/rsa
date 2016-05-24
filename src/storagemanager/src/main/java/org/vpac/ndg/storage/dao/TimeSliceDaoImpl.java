@@ -21,7 +21,6 @@ package org.vpac.ndg.storage.dao;
 
 import java.util.List;
 
-import org.apache.commons.lang.NotImplementedException;
 import org.springframework.transaction.annotation.Transactional;
 import org.vpac.ndg.storage.model.Dataset;
 import org.vpac.ndg.storage.model.TimeSlice;
@@ -33,7 +32,7 @@ public class TimeSliceDaoImpl extends CustomHibernateDaoSupport implements TimeS
 	@Transactional
 	@Override
 	public TimeSlice create(TimeSlice ds) {
-		throw new NotImplementedException("please use DatasetDao");
+		throw new UnsupportedOperationException("Use DatasetDao");
 	}
 	@Transactional
 	@Override

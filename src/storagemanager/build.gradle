@@ -3,7 +3,7 @@ apply plugin: 'java'
 dependencies {
 
     compile (
-        'commons-lang:commons-lang:2.5',
+        'org.apache.commons:commons-lang3:3.4',
         'org.aspectj:aspectjtools:1.8.9',
         "org.hibernate:hibernate-core:$hibernateVersion",
         "org.springframework:spring-beans:$springVersion",
@@ -33,7 +33,7 @@ dependencies {
     )
 
     testRuntime (
-        'commons-dbcp:commons-dbcp:1.4',
+        'org.apache.commons:commons-dbcp2:2.1.1',
     )
 }
 
