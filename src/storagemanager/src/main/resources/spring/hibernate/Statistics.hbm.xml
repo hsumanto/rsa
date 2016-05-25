@@ -86,10 +86,12 @@
 		<id name="id" type="string" column="ID">
 			<generator class="uuid" />
 		</id>
-		<property name="bucketingStrategies" type="string" column="BUCKET_STRATS" />
+		<property name="bucketingStrategies" type="org.vpac.ndg.storage.dao.ListType">
+			<column name="bucketingStrategies" sql-type="text[]" />
+		</property>
 		<map name="entries" cascade="all" lazy="false">
 			<key column="ledger_id" />
-			<map-key type="org.vpac.ndg.storage.dao.ArrayType">
+			<map-key type="org.vpac.ndg.storage.dao.ListType">
 				<column name="combination" sql-type="double precision[]" />
 			</map-key>
 			<!-- <property name="combination" column="combination">

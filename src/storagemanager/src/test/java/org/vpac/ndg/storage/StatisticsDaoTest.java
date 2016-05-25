@@ -70,11 +70,6 @@ public class StatisticsDaoTest {
 	public void testStoreLedger() {
 		Session session = sessionFactory.getCurrentSession();
 
-		JobProgress job = new JobProgress("testStoreLedger");
-		job.setTaskType(TaskType.Query);
-		jobProgressDao.save(job);
-		session.flush();
-
 		Ledger ledger = new Ledger();
 		ledger.setBucketingStrategies(
 			Arrays.asList("categorical", "categorical"));
@@ -82,6 +77,11 @@ public class StatisticsDaoTest {
 		ledger.add(Arrays.asList(0.0, 1.0));
 		ledger.add(Arrays.asList(1.0, 1.0));
 		statisticsDao.save(ledger);
+		session.flush();
+
+		JobProgress job = new JobProgress("testStoreLedger");
+		job.setTaskType(TaskType.Query);
+		jobProgressDao.save(job);
 		session.flush();
 
 		TaskLedger tl = new TaskLedger();
