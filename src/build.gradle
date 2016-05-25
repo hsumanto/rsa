@@ -65,6 +65,14 @@ subprojects {
         }
     }
 
+    task printRuntimeClasspath {
+        doLast {
+            configurations.runtime.each {
+                println it
+            }
+        }
+    }
+
     task printTestClasspath {
         doLast {
             configurations.testRuntime.each {

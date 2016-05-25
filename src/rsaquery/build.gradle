@@ -7,6 +7,10 @@ sourceSets {
     filter
 }
 
+configurations {
+    filter
+}
+
 dependencies {
     compile (
         'com.thoughtworks.xstream:xstream:1.4.9',
@@ -22,6 +26,7 @@ dependencies {
         // maybe this can be removed. See ../build.gradle too for the exclusion
         // rule.
         'net.java.dev.jna:jna:4.2.2',
+        sourceSets.filter.output,
     )
 
     filterCompile sourceSets.main.output
@@ -36,4 +41,13 @@ jar {
     manifest {
         attributes("Implementation-Title": applicationName)
     }
+}
+
+task filterJar(type: Jar) {
+    classifier = 'filter'
+    from sourceSets.filter.output
+}
+
+artifacts {
+    archives filterJar
 }

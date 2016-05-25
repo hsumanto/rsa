@@ -17,7 +17,7 @@ dependencies {
     )
 
     runtime (
-        project(':rsaquery').sourceSets.filter.output,
+        project(path: ':rsaquery', configuration: 'filter'),
     )
 
     testCompile (
