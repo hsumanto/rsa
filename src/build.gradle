@@ -21,7 +21,10 @@ subprojects {
 
         compile 'org.slf4j:slf4j-api:1.7.1'
         testCompile 'junit:junit:4.12'
-        runtime files("$rootDir/../config")
+        runtime (
+            'ch.qos.logback:logback-classic:1.0.13',
+            files("$rootDir/../config"),
+        )
         testRuntime files("$rootDir/../test-config")
     }
 
