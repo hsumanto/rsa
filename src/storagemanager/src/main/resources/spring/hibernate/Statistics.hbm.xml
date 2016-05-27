@@ -73,25 +73,28 @@
 		<id name="id" type="string" column="ID">
 			<generator class="uuid" />
 		</id>
-		<many-to-one name="job" column="job_id" cascade="all" lazy="false" />
+		<many-to-one name="job" cascade="all" lazy="false" />
 		<property name="outputResolution">
 			<type name="org.hibernate.type.EnumType">
 				<param name="enumClass">org.vpac.ndg.common.datamodel.CellSize</param>
 				<param name="useNamed">false</param>
 			</type>
 		</property>
-		<one-to-one name="ledger" cascade="all" lazy="false" />
+		<many-to-one name="ledger" cascade="all" lazy="false" />
 	</class>
 	<class name="org.vpac.ndg.query.stats.Ledger" table="LEDGER">
 		<id name="id" type="string" column="ID">
 			<generator class="uuid" />
 		</id>
-		<property name="bucketingStrategies" type="org.vpac.ndg.storage.dao.ListType">
+		<property name="bucketingStrategies">
 			<column name="bucketingStrategies" sql-type="text[]" />
+			<type name="org.vpac.ndg.storage.dao.EmbeddedListType">
+				<param name="elementType">string</param>
+			</type>
 		</property>
 		<map name="entries" cascade="all" lazy="false">
 			<key column="ledger_id" />
-			<map-key type="org.vpac.ndg.storage.dao.ListType">
+			<map-key type="org.vpac.ndg.storage.dao.EmbeddedListType">
 				<column name="combination" sql-type="double precision[]" />
 			</map-key>
 			<!-- <property name="combination" column="combination">

@@ -37,7 +37,7 @@ import org.hibernate.usertype.UserType;
  * SQL ARRAY mapper for lists of boxed primitive types
  * @author Alex Fraser
  */
-public class ListType implements UserType, ParameterizedType {
+public class EmbeddedListType implements UserType, ParameterizedType {
 
 	private Class<?> componentType;
 	private Class<?> clazz;
@@ -49,7 +49,7 @@ public class ListType implements UserType, ParameterizedType {
 		if (parameters == null)
 			type = "Double";
 		else
-			type = parameters.getProperty("type", "Double");
+			type = parameters.getProperty("elementType", "Double");
 
 		// These type strings are specific to Postgres :(
 		// http://stackoverflow.com/a/13300045/320036

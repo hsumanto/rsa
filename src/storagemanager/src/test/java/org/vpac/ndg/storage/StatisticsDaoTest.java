@@ -67,6 +67,17 @@ public class StatisticsDaoTest {
 	private SessionFactory sessionFactory;
 
 	@Test
+	public void testStoreEmptyLedger() {
+		Session session = sessionFactory.getCurrentSession();
+
+		Ledger ledger = new Ledger();
+		ledger.setBucketingStrategies(
+			Arrays.asList("categorical", "categorical"));
+		statisticsDao.save(ledger);
+		session.flush();
+	}
+
+	@Test
 	public void testStoreLedger() {
 		Session session = sessionFactory.getCurrentSession();
 
@@ -78,11 +89,24 @@ public class StatisticsDaoTest {
 		ledger.add(Arrays.asList(1.0, 1.0));
 		statisticsDao.save(ledger);
 		session.flush();
+	}
+
+	@Test
+	public void testStoreTaskLedger() {
+		Session session = sessionFactory.getCurrentSession();
+
+		Ledger ledger = new Ledger();
+		ledger.setBucketingStrategies(
+			Arrays.asList("categorical", "categorical"));
+		ledger.add(Arrays.asList(0.0, 1.0));
+		ledger.add(Arrays.asList(0.0, 1.0));
+		ledger.add(Arrays.asList(1.0, 1.0));
+		ledger.add(Arrays.asList(1.0, 2.0));
+		statisticsDao.save(ledger);
 
 		JobProgress job = new JobProgress("testStoreLedger");
 		job.setTaskType(TaskType.Query);
 		jobProgressDao.save(job);
-		session.flush();
 
 		TaskLedger tl = new TaskLedger();
 		tl.setJob(job);
@@ -90,7 +114,9 @@ public class StatisticsDaoTest {
 		statisticsDao.saveLedger(tl);
 		session.flush();
 
-		List<TaskLedger> tls = statisticsDao.searchLedger(job.getId());
-		assertEquals(tls.size(), 1);
+		String id = job.getId();
+		List<TaskLedger> tls = statisticsDao.searchLedger(id);
+		assertEquals(1, tls.size());
+		assertEquals("Ledger(2x3)", tls.get(0).getLedger().toString());
 	}
 }

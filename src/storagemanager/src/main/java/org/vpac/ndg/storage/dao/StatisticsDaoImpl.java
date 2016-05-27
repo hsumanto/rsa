@@ -131,7 +131,7 @@ public class StatisticsDaoImpl extends CustomHibernateDaoSupport implements Stat
 	public List<TaskLedger> searchLedger(String jobId) {
 		Session session = getSession();
 		Criteria c = session.createCriteria(TaskLedger.class, "tl");
-		c.add(Restrictions.eq("tl.jobId", jobId));
+		c.add(Restrictions.eq("tl.job.id", jobId));
 		@SuppressWarnings("unchecked")
 		List<TaskLedger> taskLedger = c.list();
 		// Ensure the objects have been fully fetched before leaving the
