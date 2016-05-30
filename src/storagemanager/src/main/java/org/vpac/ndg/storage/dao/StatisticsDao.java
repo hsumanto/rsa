@@ -40,5 +40,6 @@ public interface StatisticsDao {
 	void save(Ledger l);
 	void saveLedger(TaskLedger tl);
 	void saveOrReplaceLedger(TaskLedger tl);
-	List<TaskLedger> searchLedger(String jobId);
+	Ledger getLedger(String ledgerId);
+	TaskLedger getTaskLedger(String jobId);
 }

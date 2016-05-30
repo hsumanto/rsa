@@ -119,25 +119,22 @@ public class StatisticsDaoImpl extends CustomHibernateDaoSupport implements Stat
 
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
+	public Ledger getLedger(String id) {
+		return getSession().get(Ledger.class, id);
+	}
+
+	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public void saveOrReplaceLedger(TaskLedger tl) {
-		for (TaskLedger oldTl : searchLedger(tl.getJob().getId())) {
+		TaskLedger oldTl = getTaskLedger(tl.getId());
+		if (oldTl != null)
 			getSession().delete(oldTl);
-		}
 		saveLedger(tl);
 	}
 
 	@Override
 	@Transactional
-	public List<TaskLedger> searchLedger(String jobId) {
-		Session session = getSession();
-		Criteria c = session.createCriteria(TaskLedger.class, "tl");
-		c.add(Restrictions.eq("tl.job.id", jobId));
-		@SuppressWarnings("unchecked")
-		List<TaskLedger> taskLedger = c.list();
-		// Ensure the objects have been fully fetched before leaving the
-		// transaction.
-		if (taskLedger.size() > 0)
-			taskLedger.get(0);
-		return taskLedger;
+	public TaskLedger getTaskLedger(String jobId) {
+		return getSession().get(TaskLedger.class, jobId);
 	}
 }

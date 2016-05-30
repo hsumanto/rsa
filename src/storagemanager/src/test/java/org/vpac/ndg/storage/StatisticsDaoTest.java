@@ -89,6 +89,19 @@ public class StatisticsDaoTest {
 		ledger.add(Arrays.asList(1.0, 1.0));
 		statisticsDao.save(ledger);
 		session.flush();
+
+		// Detach objects from sesson so they can be fetched again
+		String ledgerId = ledger.getId();
+		session.evict(ledger);
+		ledger.setId(null);
+
+		Ledger l2 = statisticsDao.getLedger(ledgerId);
+		assertNotNull(l2);
+		assertFalse(l2 == ledger);
+		assertEquals("Ledger(2x2)", l2.toString());
+		for (List<Double> key : ledger.keySet()) {
+			assertEquals(ledger.get(key), l2.get(key));
+		}
 	}
 
 	@Test
@@ -99,7 +112,9 @@ public class StatisticsDaoTest {
 		ledger.setBucketingStrategies(
 			Arrays.asList("categorical", "categorical"));
 		ledger.add(Arrays.asList(0.0, 1.0));
+		ledger.add(Arrays.asList(1.0, 2.0));
 		ledger.add(Arrays.asList(0.0, 1.0));
+		ledger.add(Arrays.asList(1.0, 2.0));
 		ledger.add(Arrays.asList(1.0, 1.0));
 		ledger.add(Arrays.asList(1.0, 2.0));
 		statisticsDao.save(ledger);
@@ -114,9 +129,27 @@ public class StatisticsDaoTest {
 		statisticsDao.saveLedger(tl);
 		session.flush();
 
-		String id = job.getId();
-		List<TaskLedger> tls = statisticsDao.searchLedger(id);
-		assertEquals(1, tls.size());
-		assertEquals("Ledger(2x3)", tls.get(0).getLedger().toString());
+		// Detach objects from sesson so they can be fetched again
+		String jobId = job.getId();
+		String ledgerId = ledger.getId();
+		session.evict(ledger);
+		session.evict(tl);
+		session.evict(job);
+		job.setId(null);
+		tl.setId(null);
+		ledger.setId(null);
+
+		TaskLedger tl2 = statisticsDao.getTaskLedger(jobId);
+		assertNotNull(tl2);
+		assertFalse(tl2 == tl);
+		assertEquals(jobId, tl2.getId());
+
+		Ledger l2 = tl2.getLedger();
+		assertNotNull(l2);
+		assertFalse(l2 == ledger);
+		assertEquals("Ledger(2x3)", l2.toString());
+		assertEquals(3L, l2.get(Arrays.asList(1.0, 2.0)));
+		assertEquals(2L, l2.get(Arrays.asList(0.0, 1.0)));
+		assertEquals(1L, l2.get(Arrays.asList(1.0, 1.0)));
 	}
 }

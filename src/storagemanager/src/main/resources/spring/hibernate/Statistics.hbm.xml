@@ -14,6 +14,7 @@
 		<property name="name" type="string" column="NAME" />
 		<many-to-one name="cats" class="org.vpac.ndg.query.stats.Cats" column="cat_id" cascade="all" lazy="false" />
 	</class>
+
 	<class name="org.vpac.ndg.storage.model.TaskCats" table="TASKCATS" lazy="false">
 		<id name="id" type="string" column="ID">
 			<generator class="uuid" />
@@ -29,6 +30,7 @@
 		<property name="categorical" type="boolean" column="CATEGORICAL" />
 		<many-to-one name="cats" class="org.vpac.ndg.query.stats.Cats" column="cat_id" cascade="all" lazy="false" />
 	</class>
+
 	<class name="org.vpac.ndg.query.stats.Cats" table="CATS" lazy="false">
 		<id name="id" type="string" column="ID">
 			<generator class="uuid" />
@@ -39,6 +41,7 @@
 			<one-to-many class="org.vpac.ndg.query.stats.Hist" />
 		</map>
 	</class>
+
 	<class name="org.vpac.ndg.query.stats.Hist" table="HIST" lazy="false">
 		<id name="id" type="string" column="ID">
 			<generator class="uuid" />
@@ -52,6 +55,7 @@
 			<one-to-many class="org.vpac.ndg.query.stats.Bucket" />
 		</list>
 	</class>
+
 	<class name="org.vpac.ndg.query.stats.Bucket" table="BUCKET" lazy="false">
 		<id name="id" type="string" column="ID">
 			<generator class="uuid" />
@@ -60,6 +64,7 @@
 		<property name="upper" type="double" column="UPPER" />
 		<many-to-one name="stats" class="org.vpac.ndg.query.stats.Stats" column="stat_id" cascade="all" lazy="false" />
 	</class>
+
 	<class name="org.vpac.ndg.query.stats.Stats" table="STATS" lazy="false">
 		<id name="id" type="string" column="ID">
 			<generator class="uuid" />
@@ -69,19 +74,23 @@
 		<property name="max" type="double" column="MAX" />
 		<property name="mean" type="double" column="MEAN" />
 	</class>
+
 	<class name="org.vpac.ndg.storage.model.TaskLedger" table="TASKLEDGER" lazy="false">
 		<id name="id" type="string" column="ID">
-			<generator class="uuid" />
+			<generator class="foreign">
+				<param name="property">job</param>
+			</generator>
 		</id>
-		<many-to-one name="job" cascade="all" lazy="false" />
+		<one-to-one name="job" cascade="all" lazy="false" constrained="true" />
 		<property name="outputResolution">
 			<type name="org.hibernate.type.EnumType">
 				<param name="enumClass">org.vpac.ndg.common.datamodel.CellSize</param>
 				<param name="useNamed">false</param>
 			</type>
 		</property>
-		<many-to-one name="ledger" cascade="all" lazy="false" />
+		<many-to-one name="ledger" unique="true" not-null="true" cascade="all" lazy="false" />
 	</class>
+
 	<class name="org.vpac.ndg.query.stats.Ledger" table="LEDGER">
 		<id name="id" type="string" column="ID">
 			<generator class="uuid" />
@@ -97,11 +106,6 @@
 			<map-key type="org.vpac.ndg.storage.dao.EmbeddedListType">
 				<column name="combination" sql-type="double precision[]" />
 			</map-key>
-			<!-- <property name="combination" column="combination">
-				<type name="org.vpac.ndg.storage.dao.Array">
-					<param name="type">Double</param>
-				</type>
-			</property> -->
 			<element column="count" type="long" />
 		</map>
 	</class>

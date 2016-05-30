@@ -100,7 +100,13 @@ public class EmbeddedListType implements UserType, ParameterizedType {
 			throws HibernateException, SQLException {
 		if (resultSet.wasNull())
 			return null;
-		return Arrays.asList(resultSet.getArray(names[0]).getArray());
+		// Take care here: java.sql.Array#getArray() returns an Object, not
+		// Object[] - but java.util.Arrays#asList(Object) takes a varargs array
+		// of Object. If a single Object were passed in, it would create a list
+		// of Object[] - when in fact we want a list of Object. So the cast to
+		// Object[] is required.
+		Object[] array = (Object[]) resultSet.getArray(names[0]).getArray();
+		return Arrays.asList(array);
 	}
 
 	@Override
