@@ -1,7 +1,7 @@
 package org.vpac.worker;
 
+import akka.actor.UntypedActor;
 import java.util.List;
-
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.vpac.ndg.AppContext;
@@ -12,10 +12,10 @@ import org.vpac.ndg.storage.dao.JobProgressDao;
 import org.vpac.ndg.storage.dao.StatisticsDao;
 import org.vpac.ndg.storage.model.JobProgress;
 import org.vpac.ndg.storage.model.TaskCats;
+import org.vpac.ndg.storage.model.TaskLedger;
 import org.vpac.worker.MasterDatabaseProtocol.JobUpdate;
 import org.vpac.worker.MasterDatabaseProtocol.SaveCats;
-
-import akka.actor.UntypedActor;
+import org.vpac.worker.MasterDatabaseProtocol.SaveLedger;
 
 public class DatabaseActor extends UntypedActor {
 
@@ -58,6 +58,7 @@ public class DatabaseActor extends UntypedActor {
 			if (job.state == TaskState.FINISHED)
 				progress.setCompleted();
 			jobProgressDao.save(progress);
+
 		} else if (message instanceof SaveCats) {
 			SaveCats saveCats = (SaveCats) message;
 			if (!isTaskCatsExist(saveCats.jobId, saveCats.key)) {
@@ -67,6 +68,17 @@ public class DatabaseActor extends UntypedActor {
 						saveCats.key, saveCats.outputResolution, cats, cats
 								.getBucketingStrategy().isCategorical()));
 			}
+
+		} else if (message instanceof SaveLedger) {
+			SaveLedger saveLedger = (SaveLedger) message;
+			TaskLedger taskLedger = new TaskLedger();
+			JobProgress progress = jobProgressDao.retrieve(saveLedger.jobId);
+			taskLedger.setJob(progress);
+			taskLedger.setKey(saveLedger.key);
+			taskLedger.setOutputResolution(saveLedger.resolution);
+			taskLedger.setLedger(saveLedger.ledger);
+			statisticsDao.saveOrReplaceLedger(taskLedger);
+
 		} else if (message instanceof String) {
 			System.out.println("message:" + message);
 		}

@@ -33,6 +33,8 @@ public class TaskLedger implements Serializable {
 	private static final long serialVersionUID = 1L;
 	private String id;
 	private JobProgress job;
+	/** The key is the name of the filter that produced this data */
+	private String key;
 	private CellSize outputResolution;
 	private Ledger ledger;
 
@@ -67,6 +69,14 @@ public class TaskLedger implements Serializable {
 
 	public void setLedger(Ledger ledger) {
 		this.ledger = ledger;
+	}
+
+	public String getKey() {
+		return key;
+	}
+
+	public void setKey(String key) {
+		this.key = key;
 	}
 
 	public CellSize getOutputResolution() {

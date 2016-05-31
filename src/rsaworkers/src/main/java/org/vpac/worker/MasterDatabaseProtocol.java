@@ -1,9 +1,9 @@
 package org.vpac.worker;
 
 import java.io.Serializable;
-
 import org.vpac.ndg.common.datamodel.CellSize;
 import org.vpac.ndg.common.datamodel.TaskState;
+import org.vpac.ndg.query.stats.Ledger;
 import org.vpac.ndg.query.stats.VectorCats;
 
 public abstract class MasterDatabaseProtocol {
@@ -32,6 +32,7 @@ public abstract class MasterDatabaseProtocol {
 	public static final class SaveCats implements Serializable {
 		private static final long serialVersionUID = 1L;
 		public final String jobId;
+		/** The name of the filter that generated the data */
 		public final String key;
 		public final CellSize outputResolution;
 		public final VectorCats cats;
@@ -49,6 +50,30 @@ public abstract class MasterDatabaseProtocol {
 			return "SaveCats{" + "jobId=" + jobId + ",key=" + key
 					+ ",outputResolution=" + outputResolution.toHumanString()
 					+ '}';
+		}
+	}
+
+	public static final class SaveLedger implements Serializable {
+		private static final long serialVersionUID = 1L;
+		public final String jobId;
+		/** The name of the filter that generated the data */
+		public final String key;
+		public final CellSize resolution;
+		public final Ledger ledger;
+
+		public SaveLedger(String jobId, String key, CellSize resolution,
+				Ledger ledger) {
+			this.jobId = jobId;
+			this.key = key;
+			this.resolution = resolution;
+			this.ledger = ledger;
+		}
+
+		@Override
+		public String toString() {
+			return String.format(
+				"SaveLedger{jobId=%s, resolution=%s, ledger=%s}",
+				jobId, resolution, ledger);
 		}
 	}
 }
