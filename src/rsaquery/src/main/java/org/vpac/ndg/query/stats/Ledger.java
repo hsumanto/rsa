@@ -1,14 +1,15 @@
 package org.vpac.ndg.query.stats;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import org.vpac.ndg.query.QueryException;
 import org.vpac.ndg.query.filter.Foldable;
 import org.vpac.ndg.query.math.ScalarElement;
@@ -96,6 +97,37 @@ public class Ledger implements Foldable<Ledger>, Serializable {
 			count += other.entries.get(key);
 			res.entries.put(key, count);
 		}
+		return res;
+	}
+
+	/**
+	 * Remove all but the specified columns from this ledger. Duplicate rows
+	 * will be folded together by summing.
+	 * @param columns The column indices to keep.
+	 * @return a new Ledger.
+	 */
+	public Ledger filter(List<Integer> columns) {
+		columns = new ArrayList<>(columns);
+		Collections.sort(columns);
+		BucketingStrategyFactory bf = new BucketingStrategyFactory();
+		Ledger res = new Ledger();
+
+		for (Integer i : columns) {
+			res.bss.add(bf.create(this.bss.get(i).getDef()));
+		}
+
+		for (Entry<List<Double>, Long> entry : entries.entrySet()) {
+			List<Double> key = new ArrayList<>(columns.size());
+			for (Integer i : columns) {
+				key.add(entry.getKey().get(i));
+			}
+			Long count = res.entries.get(key);
+			if (count == null)
+				count = 0L;
+			count += entry.getValue();
+			res.entries.put(key, count);
+		}
+
 		return res;
 	}
 

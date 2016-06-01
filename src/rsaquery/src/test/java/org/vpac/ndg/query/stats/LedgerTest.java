@@ -122,4 +122,70 @@ public class LedgerTest extends TestCase {
 		assertEquals(ledger.getEntries(), foldedLedger.getEntries());
 	}
 
+	/**
+	 * Construct a ledger, then filter it by column. Check that the folded
+	 * counts are sensible.
+	 */
+	@Test
+	public void test_filter() throws Exception {
+		Ledger ledger = new Ledger();
+		ledger.setBucketingStrategies(Arrays.asList(
+			"regular/width/1",
+			"regular/width/1",
+			"regular/width/1"
+		));
+
+		List<Double> pixel;
+		ledger.add(Arrays.asList(0.0, 0.0, 0.0));
+		ledger.add(Arrays.asList(0.0, 0.0, 1.0));
+		ledger.add(Arrays.asList(0.0, 1.0, 2.0));
+		ledger.add(Arrays.asList(1.0, 2.0, 3.0));
+		ledger.add(Arrays.asList(0.0, 0.0, 0.0));
+		ledger.add(Arrays.asList(0.0, 0.0, 1.0));
+		ledger.add(Arrays.asList(0.0, 1.0, 2.0));
+		ledger.add(Arrays.asList(0.0, 0.0, 0.0));
+		ledger.add(Arrays.asList(0.0, 0.0, 1.0));
+		ledger.add(Arrays.asList(0.0, 0.0, 0.0));
+		assertEquals("Ledger(3x4)", ledger.toString());
+
+		Ledger filtered;
+		filtered = ledger.filter(Arrays.asList(0, 1));
+		assertEquals("Ledger(2x3)", filtered.toString());
+		assertEquals(7, filtered.get(Arrays.asList(0.0, 0.0)));
+		assertEquals(2, filtered.get(Arrays.asList(0.0, 1.0)));
+		assertEquals(1, filtered.get(Arrays.asList(1.0, 2.0)));
+
+		filtered = ledger.filter(Arrays.asList(0, 2));
+		assertEquals("Ledger(2x4)", filtered.toString());
+		assertEquals(4, filtered.get(Arrays.asList(0.0, 0.0)));
+		assertEquals(3, filtered.get(Arrays.asList(0.0, 1.0)));
+		assertEquals(2, filtered.get(Arrays.asList(0.0, 2.0)));
+		assertEquals(1, filtered.get(Arrays.asList(1.0, 3.0)));
+
+		filtered = ledger.filter(Arrays.asList(1, 2));
+		assertEquals("Ledger(2x4)", filtered.toString());
+		assertEquals(4, filtered.get(Arrays.asList(0.0, 0.0)));
+		assertEquals(3, filtered.get(Arrays.asList(0.0, 1.0)));
+		assertEquals(2, filtered.get(Arrays.asList(1.0, 2.0)));
+		assertEquals(1, filtered.get(Arrays.asList(2.0, 3.0)));
+
+		filtered = ledger.filter(Arrays.asList(0));
+		assertEquals("Ledger(1x2)", filtered.toString());
+		assertEquals(9, filtered.get(Arrays.asList(0.0)));
+		assertEquals(1, filtered.get(Arrays.asList(1.0)));
+
+		filtered = ledger.filter(Arrays.asList(1));
+		assertEquals("Ledger(1x3)", filtered.toString());
+		assertEquals(7, filtered.get(Arrays.asList(0.0)));
+		assertEquals(2, filtered.get(Arrays.asList(1.0)));
+		assertEquals(1, filtered.get(Arrays.asList(2.0)));
+
+		filtered = ledger.filter(Arrays.asList(2));
+		assertEquals("Ledger(1x4)", filtered.toString());
+		assertEquals(4, filtered.get(Arrays.asList(0.0)));
+		assertEquals(3, filtered.get(Arrays.asList(1.0)));
+		assertEquals(2, filtered.get(Arrays.asList(2.0)));
+		assertEquals(1, filtered.get(Arrays.asList(3.0)));
+	}
+
 }
