@@ -54,6 +54,8 @@
 		<appender-ref ref="TIMER"/>
 	</logger>
 	<logger name="org.hibernate" level="error"/>
+	<!-- p6spy logs SQL statements by intercepting database access -->
+	<logger name="p6spy" level="info"/>
 	<logger name="org.springframework" level="error"/>
 
 </configuration>

@@ -34,6 +34,7 @@ dependencies {
 
     testRuntime (
         'org.apache.commons:commons-dbcp2:2.1.1',
+        'p6spy:p6spy:2.3.0',
     )
 }
 

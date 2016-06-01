@@ -4,8 +4,8 @@ xsi:schemaLocation="http://www.springframework.org/schema/beans
 http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
 	<bean id="dataSource"
 		class="org.apache.commons.dbcp2.BasicDataSource" destroy-method="close">
-		<property name="driverClassName" value="org.postgresql.Driver"/>
-		<property name="url" value="jdbc:postgresql://rsadb:5432/postgres?loglevel=0"/>
+		<property name="driverClassName" value="com.p6spy.engine.spy.P6SpyDriver"/>
+		<property name="url" value="jdbc:p6spy:postgresql://rsadb:5432/postgres"/>
 		<property name="username" value="postgres"/>
 		<property name="password" value="postgres"/>
 	</bean>

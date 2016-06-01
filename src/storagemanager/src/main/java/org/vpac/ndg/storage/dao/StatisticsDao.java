@@ -31,15 +31,27 @@ import org.vpac.ndg.storage.model.TaskLedger;
 public interface StatisticsDao {
 	void saveCats(TaskCats tc);
 	void saveOrReplaceCats(TaskCats tc);
+	/**
+	 * Find categorised histograms associated with a job. This returns a list
+	 * because a query might output multiple ledgers.
+	 */
 	List<TaskCats> searchCats(String taskId, String cattype);
 
 	void saveCats(DatasetCats dc);
 	void saveOrReplaceCats(DatasetCats dc);
+	/**
+	 * Find categorised histograms associated with a band. This returns a
+	 * list because a query might output multiple ledgers.
+	 */
 	List<DatasetCats> searchCats(String datasetId, String timeSliceId, String bandId, String catType);
 
 	void save(Ledger l);
 	void saveLedger(TaskLedger tl);
 	void saveOrReplaceLedger(TaskLedger tl);
 	Ledger getLedger(String ledgerId);
-	TaskLedger getTaskLedger(String jobId);
+	/**
+	 * Find ledgers associated with a job. This returns a list because a query
+	 * might output multiple ledgers.
+	 */
+	List<TaskLedger> searchTaskLedger(String jobId, String key);
 }

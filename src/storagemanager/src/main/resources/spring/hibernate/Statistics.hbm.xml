@@ -77,11 +77,10 @@
 
 	<class name="org.vpac.ndg.storage.model.TaskLedger" table="TASKLEDGER" lazy="false">
 		<id name="id" type="string" column="ID">
-			<generator class="foreign">
-				<param name="property">job</param>
-			</generator>
+			<generator class="uuid" />
 		</id>
-		<one-to-one name="job" cascade="all" lazy="false" constrained="true" />
+		<property name="key" type="string" />
+		<many-to-one name="job" cascade="all" lazy="false" />
 		<property name="outputResolution">
 			<type name="org.hibernate.type.EnumType">
 				<param name="enumClass">org.vpac.ndg.common.datamodel.CellSize</param>

@@ -139,10 +139,12 @@ public class StatisticsDaoTest {
 		tl.setId(null);
 		ledger.setId(null);
 
-		TaskLedger tl2 = statisticsDao.getTaskLedger(jobId);
+		List<TaskLedger> tls = statisticsDao.searchTaskLedger(jobId, null);
+		assertEquals(1, tls.size());
+		TaskLedger tl2 = tls.get(0);
 		assertNotNull(tl2);
 		assertFalse(tl2 == tl);
-		assertEquals(jobId, tl2.getId());
+		assertEquals(jobId, tl2.getJob().getId());
 
 		Ledger l2 = tl2.getLedger();
 		assertNotNull(l2);
