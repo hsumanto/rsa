@@ -179,4 +179,17 @@ public class Ledger implements Foldable<Ledger>, Serializable {
 		this.entries = entries;
 	}
 
+	/**
+	 * @return the number of coordinates that were sampled to produce
+	 * this ledger. This is usually the number of output pixels, i.e.
+	 * independent of the number of input channels.
+	 */
+	public long totalCount() {
+		long volume = 0L;
+		for (Long count : entries.values()) {
+			volume += count;
+		}
+		return volume;
+	}
+
 }

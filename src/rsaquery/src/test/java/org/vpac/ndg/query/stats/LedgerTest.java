@@ -44,6 +44,7 @@ public class LedgerTest extends TestCase {
 		ledger.add(Arrays.asList(0.0, 0.0, 1.0));
 		ledger.add(Arrays.asList(0.0, 0.0, 0.0));
 
+		assertEquals(10, ledger.totalCount());
 		assertEquals(4, ledger.get(Arrays.asList(0.0, 0.0, 0.0)));
 		assertEquals(3, ledger.get(Arrays.asList(0.0, 0.0, 1.0)));
 		assertEquals(2, ledger.get(Arrays.asList(0.0, 1.0, 2.0)));
@@ -71,6 +72,7 @@ public class LedgerTest extends TestCase {
 			ledger.add(pixel);
 		}
 		log.info("Stored {} combinations in {}", COUNT, ledger);
+		assertEquals(COUNT, ledger.totalCount());
 		for (List<Double> key : ledger.keySet()) {
 			long count = ledger.get(key);
 			log.debug("{}: {}", key, count);
@@ -119,6 +121,7 @@ public class LedgerTest extends TestCase {
 		}
 
 		log.info("Serial: {}, Folded: {}", ledger, foldedLedger);
+		assertEquals(ledger.totalCount(), foldedLedger.totalCount());
 		assertEquals(ledger.getEntries(), foldedLedger.getEntries());
 	}
 
@@ -147,16 +150,19 @@ public class LedgerTest extends TestCase {
 		ledger.add(Arrays.asList(0.0, 0.0, 1.0));
 		ledger.add(Arrays.asList(0.0, 0.0, 0.0));
 		assertEquals("Ledger(3x4)", ledger.toString());
+		assertEquals(10, ledger.totalCount());
 
 		Ledger filtered;
 		filtered = ledger.filter(Arrays.asList(0, 1));
 		assertEquals("Ledger(2x3)", filtered.toString());
+		assertEquals(10, filtered.totalCount());
 		assertEquals(7, filtered.get(Arrays.asList(0.0, 0.0)));
 		assertEquals(2, filtered.get(Arrays.asList(0.0, 1.0)));
 		assertEquals(1, filtered.get(Arrays.asList(1.0, 2.0)));
 
 		filtered = ledger.filter(Arrays.asList(0, 2));
 		assertEquals("Ledger(2x4)", filtered.toString());
+		assertEquals(10, filtered.totalCount());
 		assertEquals(4, filtered.get(Arrays.asList(0.0, 0.0)));
 		assertEquals(3, filtered.get(Arrays.asList(0.0, 1.0)));
 		assertEquals(2, filtered.get(Arrays.asList(0.0, 2.0)));
@@ -164,6 +170,7 @@ public class LedgerTest extends TestCase {
 
 		filtered = ledger.filter(Arrays.asList(1, 2));
 		assertEquals("Ledger(2x4)", filtered.toString());
+		assertEquals(10, filtered.totalCount());
 		assertEquals(4, filtered.get(Arrays.asList(0.0, 0.0)));
 		assertEquals(3, filtered.get(Arrays.asList(0.0, 1.0)));
 		assertEquals(2, filtered.get(Arrays.asList(1.0, 2.0)));
@@ -171,17 +178,20 @@ public class LedgerTest extends TestCase {
 
 		filtered = ledger.filter(Arrays.asList(0));
 		assertEquals("Ledger(1x2)", filtered.toString());
+		assertEquals(10, filtered.totalCount());
 		assertEquals(9, filtered.get(Arrays.asList(0.0)));
 		assertEquals(1, filtered.get(Arrays.asList(1.0)));
 
 		filtered = ledger.filter(Arrays.asList(1));
 		assertEquals("Ledger(1x3)", filtered.toString());
+		assertEquals(10, filtered.totalCount());
 		assertEquals(7, filtered.get(Arrays.asList(0.0)));
 		assertEquals(2, filtered.get(Arrays.asList(1.0)));
 		assertEquals(1, filtered.get(Arrays.asList(2.0)));
 
 		filtered = ledger.filter(Arrays.asList(2));
 		assertEquals("Ledger(1x4)", filtered.toString());
+		assertEquals(10, filtered.totalCount());
 		assertEquals(4, filtered.get(Arrays.asList(0.0)));
 		assertEquals(3, filtered.get(Arrays.asList(1.0)));
 		assertEquals(2, filtered.get(Arrays.asList(2.0)));
