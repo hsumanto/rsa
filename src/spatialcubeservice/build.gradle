@@ -63,6 +63,11 @@ dependencies {
         "org.springframework:spring-test:$springVersion",
         sourceSets.main.output,
     )
+
+    testRuntime (
+        'org.apache.commons:commons-dbcp2:2.1.1',
+        'p6spy:p6spy:2.3.0',
+    )
 }
 
 tasks.withType(Test) {

@@ -19,62 +19,105 @@
 
 package org.vpac.test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.lessThanOrEqualTo;
 import junit.framework.TestCase;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.web.WebAppConfiguration;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.context.WebApplicationContext;
+import org.vpac.web.controller.DatasetController;
 import org.vpac.web.model.response.DatasetCollectionResponse;
 import org.vpac.web.model.response.DatasetResponse;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.lessThanOrEqualTo;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
 
-@RunWith(SpringJUnit4ClassRunner.class)  
+@RunWith(SpringJUnit4ClassRunner.class)
+@WebAppConfiguration
 @ContextConfiguration("file:src/main/webapp/WEB-INF/applicationContext.xml")
+@Transactional
 public class DatasetTest extends TestCase {
 	final String BASE_URL = "http://localhost:8080/rsa";
 
 	private static String TestDatasetName = "DatasetTest";
 	private String testDatasetId;
-	
+
 	@Autowired
-	protected RestTemplate restTemplate;
-	
+	RestTemplate restTemplate;
+
+    @Autowired
+    WebApplicationContext wac;
+	MockMvc mockMvc;
+
+	@Autowired
+	DatasetController datasetController;
+
+	@Autowired
+	MockHttpServletRequest request;
+
 	@Before
-	public void setUp() {
-		String name = TestDatasetName;
-		String resolution = "500m";
-		String dataAbstract = "testAbs";
+	public void setUp() throws Exception {
+		mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
+	}
 
-		String checkUrl = BASE_URL + "/Dataset.xml?name={name}&resolution={resolution}";
-		DatasetCollectionResponse getResponse = restTemplate.getForObject(checkUrl, DatasetCollectionResponse.class, name, resolution);
-
-		if(getResponse.getItems().size() == 0) {
-			DatasetResponse response = testCreateDataset(name, resolution, dataAbstract);
-			testDatasetId = response.getId();
-		} else {
-			testDatasetId = getResponse.getItems().get(0).getId();
-		}
+	public String createDataset(String name, String resolution,
+			String abs, String precision)
+			throws Exception {
+		MvcResult mvcResult = mockMvc
+			.perform(post("/Dataset.xml")
+				.param("name", name)
+				.param("resolution", resolution)
+				.param("dataAbstract", abs)
+				.param("precision", precision))
+			.andDo(print())
+			.andReturn();
+			// .andExpect(status().isOk())
+		if (mvcResult.getResolvedException() != null)
+			throw mvcResult.getResolvedException();
+		mvcResult = mockMvc.perform(asyncDispatch(mvcResult))
+			.andExpect(status().isOk())
+			.andReturn();
+		return ((DatasetResponse) mvcResult.getAsyncResult(10L)).getId();
 	}
 
 	@Test
-	public void testGetAllDataset() {
+	public void testList() throws Exception {
+		createDataset("DatasetTest1", "500m", "foo", "1");
+		createDataset("DatasetTest2", "500m", "foo", "1");
+		createDataset("DatasetTest3", "500m", "foo", "1");
+
+		MvcResult mvcResult;
 		DatasetCollectionResponse response;
-		String testURL;
-		testURL = BASE_URL + "/Dataset.xml";
-		response = restTemplate.getForObject(testURL, DatasetCollectionResponse.class);
+
+		mvcResult = mockMvc
+			.perform(get("/Dataset.xml"))
+			.andExpect(status().isOk())
+			.andReturn();
+		response = (DatasetCollectionResponse) mvcResult.getAsyncResult(10L);
 		assertNotSame(response.getItems().size(), is(0));
-		
-		testURL = BASE_URL + "/Dataset.xml?page=0&pageSize=2";
-		response = restTemplate.getForObject(testURL, DatasetCollectionResponse.class);
-		assertThat(response.getItems().size(), lessThanOrEqualTo(2));
+
+		mvcResult = mockMvc
+			.perform(get("/Dataset.xml")
+				.param("name", "DatasetTest"))
+			.andExpect(status().isOk())
+			.andReturn();
+		response = (DatasetCollectionResponse) mvcResult.getAsyncResult(10L);
+		assertSame(response.getItems().size(), is(3));
 	}
-	
+
 	@Test(expected=Exception.class)
 	public void testPageParameterValidatingPage() {
 		DatasetCollectionResponse response;
@@ -94,18 +137,18 @@ public class DatasetTest extends TestCase {
 		assertThat(response.getItems().size(), is(2));
 		// Should be resulted in 500 (Internal Server Error) because pageSize is rejected.
 	}
-	
+
 	@Test
 	public void testGetDatasetById() {
 		String testURL = BASE_URL + "/Dataset/{id}.xml";
-		DatasetResponse response = restTemplate.getForObject(testURL, DatasetResponse.class, testDatasetId); 
+		DatasetResponse response = restTemplate.getForObject(testURL, DatasetResponse.class, testDatasetId);
 		assertEquals(response.getId(), testDatasetId);
 	}
-	
+
 /*	@Test
 	public void testGetDatasetToDummyResponse() {
 		String testURL = BASE_URL + "/Dataset/{id}.xml";
-		DummyResponse response = restTemplate.getForObject(testURL, DummyResponse.class, testDateasetId); 
+		DummyResponse response = restTemplate.getForObject(testURL, DummyResponse.class, testDateasetId);
 		assertThat(response.getId(), is(testDateasetId));
 	}
 */
@@ -118,7 +161,7 @@ public class DatasetTest extends TestCase {
 		response = restTemplate.getForObject(testURL, DatasetCollectionResponse.class);
 		for(DatasetResponse dr : response.getItems())
 			assertTrue(dr.getName().contains(searchString));
-		
+
 		testURL = BASE_URL + "/Dataset.xml?name=11&page=0&pageSize=1";
 		response = restTemplate.getForObject(testURL, DatasetCollectionResponse.class);
 		assertThat(response.getItems().size(), is(0));
@@ -127,7 +170,7 @@ public class DatasetTest extends TestCase {
 		response = restTemplate.getForObject(testURL, DatasetCollectionResponse.class);
 		assertThat(response.getItems().size(), is(0));
 	}
-	
+
 	@Test
 	public void testCreateDataset() {
 		String name = TestDatasetName;
@@ -146,7 +189,7 @@ public class DatasetTest extends TestCase {
 	}
 
 /*
-Seems like the annotation and the way we create dataset by JSON is having issue, 
+Seems like the annotation and the way we create dataset by JSON is having issue,
 THUS COMMENTED THIS CODE AT THE MOMENT, ALTERNATIVELY JSON TEST CAN BE CONDUCTED USING /WEB_INF/pages/DatasetForm.jsp
 org.springframework.validation.BindException: org.springframework.validation.BeanPropertyBindingResult: 4 errors
 Field error in object 'datasetRequest' on field 'precision': rejected value [null]; codes [NotNull.datasetRequest.precision,NotNull.precision,NotNull.java.lang.String,NotNull]; arguments [org.springframework.context.support.DefaultMessageSourceResolvable: codes [datasetRequest.precision,precision]; arguments []; default message [precision]]; default message [may not be null]
