@@ -2,12 +2,13 @@ package org.vpac.ndg.query.stats;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.vpac.ndg.query.QueryException;
@@ -69,6 +70,14 @@ public class Ledger implements Foldable<Ledger>, Serializable {
 
 	public Set<List<Double>> keySet() {
 		return entries.keySet();
+	}
+
+	public Set<Entry<List<Double>, Long>> entrySet() {
+		return entries.entrySet();
+	}
+
+	public Collection<Long> values() {
+		return entries.values();
 	}
 
 	public Ledger copy() {
