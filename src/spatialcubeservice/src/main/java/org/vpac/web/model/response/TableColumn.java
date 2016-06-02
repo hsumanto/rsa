@@ -5,7 +5,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "Column")
 public class TableColumn {
-	private String key;
+	private int key;
 	private String name;
 	private String description;
 	private String units;
@@ -18,13 +18,13 @@ public class TableColumn {
 	}
 
 	@XmlAttribute
-	public String getKey() {
+	public int getKey() {
 		return key;
 	}
-	public void setKey(String key) {
+	public void setKey(int key) {
 		this.key = key;
 	}
-	public TableColumn key(String key) {
+	public TableColumn key(int key) {
 		this.key = key;
 		return this;
 	}

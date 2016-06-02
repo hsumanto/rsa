@@ -22,15 +22,16 @@ package org.vpac.web.model.response;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
-
+import java.util.Map;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-
 import org.vpac.ndg.common.datamodel.CellSize;
 import org.vpac.ndg.query.stats.Bucket;
+import org.vpac.ndg.query.stats.BucketingStrategy;
 import org.vpac.ndg.query.stats.Cats;
 import org.vpac.ndg.query.stats.Hist;
+import org.vpac.ndg.query.stats.Ledger;
 import org.vpac.ndg.query.stats.Stats;
 
 @XmlRootElement(name = "Table")
@@ -84,14 +85,14 @@ public class TabularResponse <T> {
 
 			List<TableColumn> columns = new ArrayList<TableColumn>();
 			columns.add(new TableColumn()
-					.key("id").name("Category").type("category")
+					.key(0).name("Category").type("category")
 					.description("The category of the data."));
 			columns.add(new TableColumn()
-					.key("area").name("Area").units("m^2").type("area")
+					.key(1).name("Area").units("m^2").type("area")
 					.portionOf("rawArea")
 					.description("The area of land that matches the filters."));
-			columns.add(new TableColumn().key("rawArea")
-					.name("Unfiltered Area").units("m^2").type("area")
+			columns.add(new TableColumn()
+					.key(2).name("Unfiltered Area").units("m^2").type("area")
 					.description("The area of available land."));
 			setColumns(columns);
 		}
@@ -150,17 +151,17 @@ public class TabularResponse <T> {
 
 			List<TableColumn> columns = new ArrayList<TableColumn>();
 			columns.add(new TableColumn()
-					.key("lower").name("Lower Bound").type("lowerBound")
+					.key(0).name("Lower Bound").type("lowerBound")
 					.description("The lower bound of the grouping (value range)."));
 			columns.add(new TableColumn()
-					.key("upper").name("Upper Bound").type("upperBound")
+					.key(1).name("Upper Bound").type("upperBound")
 					.description("The upper bound of the grouping (value range)."));
 			columns.add(new TableColumn()
-					.key("area").name("Area").units("m^2").type("area")
+					.key(2).name("Area").units("m^2").type("area")
 					.portionOf("rawArea")
 					.description("The area of land that matches the filters."));
 			columns.add(new TableColumn()
-					.key("rawArea").name("Unfiltered Area").units("m^2")
+					.key(3).name("Unfiltered Area").units("m^2")
 					.type("area")
 					.description("The area of available land."));
 			setColumns(columns);
@@ -193,6 +194,47 @@ public class TabularResponse <T> {
 			getColumns().get(0)
 				.min(s.getMin())
 				.max(s.getMax());
+		}
+	}
+
+	/**
+	 * Unstructured data.
+	 */
+	public static class TabularResponseLedger extends TabularResponse<List<Double>> {
+		public TabularResponseLedger() {
+			setTableType("ledger");
+		}
+
+		public void setData(Ledger ledger, Ledger unfilteredLedger, CellSize resolution) {
+			List<TableColumn> columns = new ArrayList<TableColumn>();
+			int i = 0;
+			for (String bs : ledger.getBucketingStrategies()) {
+				columns.add(new TableColumn()
+					.key(i++).name("Lower Bound").type("lowerBound")
+					.description("The lower bound of the grouping (value range)."));
+			}
+			columns.add(new TableColumn()
+					.key(i++).name("Area").units("m^2").type("area")
+					.portionOf("rawArea")
+					.description("The area of land that matches the filters."));
+			columns.add(new TableColumn()
+					.key(i++).name("Unfiltered Area").units("m^2")
+					.type("area")
+					.description("The area of available land."));
+			setColumns(columns);
+
+			double cellArea = resolution.toDouble() * resolution.toDouble();
+			List<List<Double>> rows = new ArrayList<>();
+			for (Map.Entry<List<Double>, Long> entry : ledger.entrySet()) {
+				List<Double> cells = new ArrayList<>(entry.getKey());
+				cells.add(entry.getValue() * cellArea);
+				cells.add(unfilteredLedger.get(entry.getKey()) * cellArea);
+				rows.add(cells);
+			}
+			setRows(rows);
+
+			// Should set min and max on the input columns too; need to get this
+			// info from unfilteredLedger.
 		}
 	}
 
@@ -232,6 +274,18 @@ public class TabularResponse <T> {
 
 		TabularResponseCategorical table = new TabularResponseCategorical();
 		table.setRows(filteredCats, cats, resolution);
+		return table;
+	}
+
+	public static TabularResponse<?> tabulateLedger(Ledger ledger,
+			List<Integer> columns, CellSize resolution) {
+		// Filtering columns does not result in a "filtered" ledger. Only a
+		// ledger with a different volume (i.e. data *removed* due to
+		// filtered rows) would be considered filtered.
+		if (columns != null && columns.size() > 0)
+			ledger = ledger.filter(columns);
+		TabularResponseLedger table = new TabularResponseLedger();
+		table.setData(ledger, ledger, resolution);
 		return table;
 	}
 }
