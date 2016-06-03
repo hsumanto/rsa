@@ -22,8 +22,8 @@ dependencies {
     )
 
     runtime (
+        'com.mchange:c3p0:0.9.5.2',
         'cglib:cglib:3.2.2',
-        'net.java.dev.jna:jna:4.2.2',
         'org.hibernate.javax.persistence:hibernate-jpa-2.1-api:1.0.0.Final',
         'org.postgresql:postgresql:9.4-1201-jdbc41',
         "org.springframework:spring-aop:$springVersion",

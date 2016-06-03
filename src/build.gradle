@@ -32,6 +32,7 @@ subprojects {
         // Exclude the transitive dependency on jna required by netcdf. That
         // version has a bug that prevents writing Netcdf4-classic files.
         exclude group: 'com.sun.jna', module: 'jna'
+        exclude group: 'c3p0', module: 'c3p0'
     }
 
     version '2.4.0'
