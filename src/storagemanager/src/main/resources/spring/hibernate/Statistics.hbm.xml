@@ -75,8 +75,8 @@
 		<property name="mean" type="double" column="MEAN" />
 	</class>
 
-	<class name="org.vpac.ndg.storage.model.TaskLedger" table="TASKLEDGER" lazy="false">
-		<id name="id" type="string" column="ID">
+	<class name="org.vpac.ndg.storage.model.TaskLedger" lazy="false">
+		<id name="id" type="string">
 			<generator class="uuid" />
 		</id>
 		<property name="key" type="string" />
@@ -90,20 +90,20 @@
 		<many-to-one name="ledger" unique="true" not-null="true" cascade="all" lazy="false" />
 	</class>
 
-	<class name="org.vpac.ndg.query.stats.Ledger" table="LEDGER">
-		<id name="id" type="string" column="ID">
+	<class name="org.vpac.ndg.query.stats.Ledger">
+		<id name="id" type="string">
 			<generator class="uuid" />
 		</id>
 		<property name="bucketingStrategies">
-			<column name="bucketingStrategies" sql-type="text[]" />
-			<type name="org.vpac.ndg.storage.dao.EmbeddedListType">
+			<column name="bucketingStrategies" />
+			<type name="org.vpac.ndg.storage.EmbeddedListType">
 				<param name="elementType">string</param>
 			</type>
 		</property>
 		<map name="entries" cascade="all" lazy="false">
 			<key column="ledger_id" />
-			<map-key type="org.vpac.ndg.storage.dao.EmbeddedListType">
-				<column name="combination" sql-type="double precision[]" />
+			<map-key type="org.vpac.ndg.storage.EmbeddedListType">
+				<column name="combination" />
 			</map-key>
 			<element column="count" type="long" />
 		</map>

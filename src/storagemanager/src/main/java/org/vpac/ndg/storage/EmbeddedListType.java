@@ -16,7 +16,7 @@
  * Copyright 2016 VPAC Innovations - http://vpac-innovations.com.au
  */
 
-package org.vpac.ndg.storage.dao;
+package org.vpac.ndg.storage;
 
 import java.io.Serializable;
 import java.sql.Array;
@@ -34,7 +34,9 @@ import org.hibernate.usertype.ParameterizedType;
 import org.hibernate.usertype.UserType;
 
 /**
- * SQL ARRAY mapper for lists of boxed primitive types
+ * SQL ARRAY mapper for lists of boxed primitive types, because Hibernate
+ * doesn't map arrays by default.
+ *
  * @author Alex Fraser
  */
 public class EmbeddedListType implements UserType, ParameterizedType {
@@ -42,6 +44,7 @@ public class EmbeddedListType implements UserType, ParameterizedType {
 	private Class<?> componentType;
 	private Class<?> clazz;
 	private String sqlType;
+	private int[] sqlTypeCodes;
 
 	@Override
 	public void setParameterValues(Properties parameters) {
@@ -56,21 +59,27 @@ public class EmbeddedListType implements UserType, ParameterizedType {
 		if (type.equalsIgnoreCase("Float")) {
 			componentType = Float.class;
 			sqlType = "float4";
+			sqlTypeCodes = new int[] { CustomTypes.FLOAT_ARRAY };
 		} else if (type.equalsIgnoreCase("Double")) {
 			componentType = Double.class;
 			sqlType = "float8";
+			sqlTypeCodes = new int[] { CustomTypes.DOUBLE_ARRAY };
 		} else if (type.equalsIgnoreCase("Short")) {
 			componentType = Short.class;
 			sqlType = "int2";
+			sqlTypeCodes = new int[] { CustomTypes.SMALLINT_ARRAY };
 		} else if (type.equalsIgnoreCase("Integer")) {
 			componentType = Integer.class;
 			sqlType = "int4";
+			sqlTypeCodes = new int[] { CustomTypes.INTEGER_ARRAY };
 		} else if (type.equalsIgnoreCase("Long")) {
 			componentType = Long.class;
 			sqlType = "int8";
+			sqlTypeCodes = new int[] { CustomTypes.BIGINT_ARRAY };
 		} else if (type.equalsIgnoreCase("String")) {
 			componentType = String.class;
 			sqlType = "text";
+			sqlTypeCodes = new int[] { CustomTypes.LONGVARCHAR_ARRAY };
 		} else {
 			throw new IllegalArgumentException(
 				String.format("Unsupported type %s", type));
@@ -86,7 +95,7 @@ public class EmbeddedListType implements UserType, ParameterizedType {
 
 	@Override
 	public int[] sqlTypes() {
-		return new int[] { Types.ARRAY };
+		return sqlTypeCodes;
 	}
 
 	@Override
