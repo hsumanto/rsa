@@ -17,18 +17,19 @@
  * http://www.crcsi.com.au/
  */
 
-package org.vpac.test;
+package org.vpac.web.controller;
 
-import junit.framework.TestCase;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
+import org.springframework.test.web.client.MockMvcClientHttpRequestFactory;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -38,28 +39,30 @@ import org.springframework.web.context.WebApplicationContext;
 import org.vpac.web.controller.DatasetController;
 import org.vpac.web.model.response.DatasetCollectionResponse;
 import org.vpac.web.model.response.DatasetResponse;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.lessThanOrEqualTo;
+import org.vpac.web.util.ControllerHelper;
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
-@ContextConfiguration("file:src/main/webapp/WEB-INF/applicationContext.xml")
+@ContextConfiguration({
+	"file:src/main/webapp/WEB-INF/mvc-dispatcher-servlet.xml",
+	"file:src/main/webapp/WEB-INF/applicationContext.xml"})
 @Transactional
-public class DatasetTest extends TestCase {
+public class DatasetTest {
 	final String BASE_URL = "http://localhost:8080/rsa";
 
 	private static String TestDatasetName = "DatasetTest";
 	private String testDatasetId;
 
-	@Autowired
+	// @Autowired
 	RestTemplate restTemplate;
 
-    @Autowired
-    WebApplicationContext wac;
+	@Autowired
+	WebApplicationContext wac;
 	MockMvc mockMvc;
 
 	@Autowired
@@ -71,26 +74,51 @@ public class DatasetTest extends TestCase {
 	@Before
 	public void setUp() throws Exception {
 		mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
+		ClientHttpRequestFactory requestFactory =
+			new MockMvcClientHttpRequestFactory(mockMvc);
+		restTemplate = new RestTemplate(requestFactory);
 	}
 
-	public String createDataset(String name, String resolution,
+	public DatasetResponse createDataset(String name, String resolution,
 			String abs, String precision)
 			throws Exception {
-		MvcResult mvcResult = mockMvc
+		MvcResult result = mockMvc
 			.perform(post("/Dataset.xml")
 				.param("name", name)
 				.param("resolution", resolution)
 				.param("dataAbstract", abs)
 				.param("precision", precision))
-			.andDo(print())
-			.andReturn();
-			// .andExpect(status().isOk())
-		if (mvcResult.getResolvedException() != null)
-			throw mvcResult.getResolvedException();
-		mvcResult = mockMvc.perform(asyncDispatch(mvcResult))
 			.andExpect(status().isOk())
 			.andReturn();
-		return ((DatasetResponse) mvcResult.getAsyncResult(10L)).getId();
+		if (result.getResolvedException() != null)
+			throw result.getResolvedException();
+		return (DatasetResponse) result.getModelAndView()
+			.getModel().get("Response");
+	}
+
+	@Test
+	public void testProducesXml() throws Exception {
+		mockMvc.perform(post("/Dataset.xml")
+				.param("name", "foo")
+				.param("resolution", "m500")
+				.param("dataAbstract", "bar")
+				.param("precision", "1"))
+			.andExpect(xpath("/Dataset/name").string("foo"))
+			.andExpect(xpath("/Dataset/dataAbstract").string("bar"))
+			.andExpect(xpath("/Dataset/@precision").number(1.0))
+			.andReturn();
+	}
+
+	@Test
+	public void testProducesJson() throws Exception {
+		mockMvc.perform(post("/Dataset.json")
+				.param("name", "foo")
+				.param("resolution", "m500")
+				.param("dataAbstract", "bar")
+				.param("precision", "1"))
+			.andExpect(jsonPath("$.name").value("foo"))
+			.andExpect(jsonPath("$.dataAbstract").value("bar"))
+			.andExpect(jsonPath("$.precision").value(1));
 	}
 
 	@Test

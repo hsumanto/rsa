@@ -28,10 +28,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,14 +46,14 @@ import org.vpac.ndg.Utils;
 import org.vpac.ndg.common.datamodel.CellSize;
 import org.vpac.ndg.query.Query;
 import org.vpac.ndg.query.QueryDefinition.DatasetInputDefinition;
-import org.vpac.ndg.query.QueryException;
-import org.vpac.ndg.query.QueryDefinition;
+import org.vpac.ndg.query.QueryDefinition.DatasetOutputDefinition;
 import org.vpac.ndg.query.QueryDefinition.FilterDefinition;
+import org.vpac.ndg.query.QueryDefinition.GridDefinition;
 import org.vpac.ndg.query.QueryDefinition.LiteralDefinition;
 import org.vpac.ndg.query.QueryDefinition.SamplerDefinition;
-import org.vpac.ndg.query.QueryDefinition.DatasetOutputDefinition;
-import org.vpac.ndg.query.QueryDefinition.GridDefinition;
 import org.vpac.ndg.query.QueryDefinition.VariableDefinition;
+import org.vpac.ndg.query.QueryDefinition;
+import org.vpac.ndg.query.QueryException;
 import org.vpac.ndg.query.filter.Foldable;
 import org.vpac.ndg.query.io.DatasetProvider;
 import org.vpac.ndg.query.io.ProviderRegistry;
@@ -77,9 +75,8 @@ import org.vpac.web.model.response.DatasetResponse;
 import org.vpac.web.model.response.QueryResponse;
 import org.vpac.web.model.response.TabularResponse;
 import org.vpac.web.util.ControllerHelper;
-
-import ucar.nc2.NetcdfFileWriter;
 import ucar.nc2.NetcdfFileWriter.Version;
+import ucar.nc2.NetcdfFileWriter;
 
 @Controller
 @RequestMapping("/Dataset")
@@ -95,13 +92,13 @@ public class DatasetController {
 
 	@Autowired
 	BandDao bandDao;
-	
+
 	@Autowired
 	JobProgressDao jobProgressDao;
 
 	@Autowired
 	StatisticsDao statisticsDao;
-	
+
 	@Autowired
 	DatasetUtil datasetUtil;
 
@@ -110,8 +107,8 @@ public class DatasetController {
 
 	@Autowired
 	DatasetProvider previewDatasetProvider;
-	
-	
+
+
 	@InitBinder
 	public void binder(WebDataBinder binder) {
 		helper.BindDateTimeFormatter(binder);
@@ -134,8 +131,13 @@ public class DatasetController {
 	@RequestMapping(value = "/Search", method = RequestMethod.GET)
 	public String searchDataset(@RequestParam(required = false) String name,
 			@RequestParam(required = false) String resolution, ModelMap model) {
-		List<Dataset> list = datasetDao.search(name,
-				CellSize.fromHumanString(resolution));
+		CellSize res;
+		if (resolution == null)
+			res = null;
+		else
+			res = CellSize.fromHumanString(resolution);
+		List<Dataset> list = datasetDao.search(name, res);
+		log.debug("Found {} datasets", list.size());
 		model.addAttribute(ControllerHelper.RESPONSE_ROOT,
 				new DatasetCollectionResponse(list));
 		return "List";
@@ -312,7 +314,7 @@ public class DatasetController {
 		}
 	}
 
-	
+
 	private String findPathVariable(String url, String varName) {
 		String returnValue = null;
 		int timeSliceLocation = url.indexOf(varName);
@@ -392,14 +394,13 @@ public class DatasetController {
 		log.debug("Abstract: {}", dr.getDataAbstract());
 
 		long precision = Utils.parseTemporalPrecision(dr.getPrecision());
+		Dataset ds;
 		if (dr.getId() == null || dr.getId().isEmpty()) {
-			Dataset newDataset = new Dataset(dr.getName(),
+			ds = new Dataset(dr.getName(),
 					dr.getDataAbstract(), dr.getResolution(), precision);
-			datasetDao.create(newDataset);
-			model.addAttribute(ControllerHelper.RESPONSE_ROOT,
-					new DatasetResponse(newDataset));
+			datasetDao.create(ds);
 		} else {
-			Dataset ds = datasetDao.retrieve(dr.getId());
+			ds = datasetDao.retrieve(dr.getId());
 			if (ds == null)
 				throw new ResourceNotFoundException(String.format(
 						"Dataset with ID = \"%s\" not found.", dr.getId()));
@@ -412,10 +413,10 @@ public class DatasetController {
 				ds.setName(dr.getName());
 				datasetUtil.update(ds);
 			}
-			model.addAttribute(ControllerHelper.RESPONSE_ROOT,
-					new DatasetResponse(ds));
 		}
 
+		model.addAttribute(ControllerHelper.RESPONSE_ROOT,
+			new DatasetResponse(ds));
 		return "Success";
 	}
 
