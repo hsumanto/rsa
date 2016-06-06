@@ -114,8 +114,8 @@ public class StatisticsTest extends WebServiceTestBase {
 				.param("name", "foo"))
 			.andDo(print())
 			.andExpect(status().isOk())
-			.andExpect(xpath("/Table/@categorisation").string("foo"))
 			.andExpect(xpath("/Table/@tableType").string("categories"))
+			.andExpect(xpath("/Table/@categorisation").string("foo"))
 			.andExpect(xpath("/Table/columns").nodeCount(3))
 			.andExpect(xpath("/Table/rows").nodeCount(2));
 	}
@@ -140,6 +140,7 @@ public class StatisticsTest extends WebServiceTestBase {
 		TaskLedger tl = new TaskLedger();
 		tl.setJob(job);
 		tl.setLedger(ledger);
+		tl.setKey("foo");
 		tl.setOutputResolution(CellSize.m100);
 		statisticsDao.saveLedger(tl);
 
@@ -147,17 +148,20 @@ public class StatisticsTest extends WebServiceTestBase {
 		sessionFactory.getCurrentSession().flush();
 		System.out.println(job.getId());
 
-		MvcResult result = mockMvc.perform(get(
-					"/Data/Task/{tid}/table.xml", job.getId())
-				.param("name", "foo")
-				.param("resolution", "m500")
-				.param("dataAbstract", "bar")
-				.param("precision", "1"))
+		mockMvc.perform(get(
+					"/Data/Task/{tid}/table.xml", job.getId()))
 			.andDo(print())
 			.andExpect(status().isOk())
-			.andExpect(xpath("/Dataset/name").string("foo"))
-			.andExpect(xpath("/Dataset/dataAbstract").string("bar"))
-			.andExpect(xpath("/Dataset/@precision").number(1.0))
-			.andReturn();
+			.andExpect(xpath("/Table/@tableType").string("ledger"))
+			.andExpect(xpath("/Table/@categorisation").string("foo"))
+			.andExpect(xpath("/Table/columns").nodeCount(4));
+
+		mockMvc.perform(get(
+					"/Data/Task/{tid}/table.json", job.getId()))
+			.andDo(print())
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.tableType", is("ledger")))
+			.andExpect(jsonPath("$.categorisation", is("foo")))
+			.andExpect(jsonPath("$.columns", hasSize(4)));
 	}
 }

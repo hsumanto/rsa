@@ -30,7 +30,7 @@ import org.vpac.ndg.query.stats.Ledger;
  * Unstructured data.
  */
 @XmlRootElement(name = "Table")
-public class TabularResponseLedger extends TabularResponse<List<Double>> {
+public class TabularResponseLedger extends TabularResponse<TableRowRaw> {
     public TabularResponseLedger() {
         setTableType("ledger");
     }
@@ -54,12 +54,13 @@ public class TabularResponseLedger extends TabularResponse<List<Double>> {
         setColumns(columns);
 
         double cellArea = resolution.toDouble() * resolution.toDouble();
-        List<List<Double>> rows = new ArrayList<>();
+        List<TableRowRaw> rows = new ArrayList<>();
         for (Map.Entry<List<Double>, Long> entry : ledger.entrySet()) {
-            List<Double> cells = new ArrayList<>(entry.getKey());
+            List<Double> cells = new ArrayList<>();
+            cells.addAll(entry.getKey());
             cells.add(entry.getValue() * cellArea);
             cells.add(unfilteredLedger.get(entry.getKey()) * cellArea);
-            rows.add(cells);
+            rows.add(new TableRowRaw(cells));
         }
         setRows(rows);
 

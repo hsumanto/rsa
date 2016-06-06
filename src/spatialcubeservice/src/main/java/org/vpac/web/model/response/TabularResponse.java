@@ -32,7 +32,7 @@ import org.vpac.ndg.query.stats.Ledger;
 public class TabularResponse <T> {
 	private String tableType;
 	private String categorisation;
-	private List<T> table;
+	private List<T> rows;
 	private List<TableColumn> columns;
 
 	public TabularResponse() {
@@ -48,10 +48,10 @@ public class TabularResponse <T> {
 
 	@XmlElement
 	public List<T> getRows() {
-		return table;
+		return rows;
 	}
-	public void setRows(List<T> table) {
-		this.table = table;
+	public void setRows(List<T> rows) {
+		this.rows = rows;
 	}
 
 	@XmlAttribute
