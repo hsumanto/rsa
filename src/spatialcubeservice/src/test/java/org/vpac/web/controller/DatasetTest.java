@@ -15,6 +15,7 @@
  *
  * Copyright 2013 CRCSI - Cooperative Research Centre for Spatial Information
  * http://www.crcsi.com.au/
+ * Copyright 2016 VPAC Innovations
  */
 
 package org.vpac.web.controller;
@@ -23,23 +24,15 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
 import org.springframework.http.client.ClientHttpRequestFactory;
-import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.client.MockMvcClientHttpRequestFactory;
-import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.context.WebApplicationContext;
-import org.vpac.web.controller.DatasetController;
 import org.vpac.web.model.response.DatasetCollectionResponse;
 import org.vpac.web.model.response.DatasetResponse;
-import org.vpac.web.util.ControllerHelper;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -47,30 +40,15 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@WebAppConfiguration
-@ContextConfiguration({
-	"file:src/main/webapp/WEB-INF/mvc-dispatcher-servlet.xml",
-	"file:src/main/webapp/WEB-INF/applicationContext.xml"})
 @Transactional
-public class DatasetTest {
+public class DatasetTest extends WebServiceTestBase {
 	final String BASE_URL = "http://localhost";
 
-	// @Autowired
 	RestTemplate restTemplate;
-
-	@Autowired
-	WebApplicationContext wac;
-	MockMvc mockMvc;
-
-	@Autowired
-	DatasetController datasetController;
-
-	@Autowired
-	MockHttpServletRequest request;
 
 	@Before
 	public void setUp() throws Exception {
-		mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
+		super.setUp();
 		ClientHttpRequestFactory requestFactory =
 			new MockMvcClientHttpRequestFactory(mockMvc);
 		restTemplate = new RestTemplate(requestFactory);
@@ -102,8 +80,7 @@ public class DatasetTest {
 				.param("precision", "1"))
 			.andExpect(xpath("/Dataset/name").string("foo"))
 			.andExpect(xpath("/Dataset/dataAbstract").string("bar"))
-			.andExpect(xpath("/Dataset/@precision").number(1.0))
-			.andReturn();
+			.andExpect(xpath("/Dataset/@precision").number(1.0));
 	}
 
 	@Test
