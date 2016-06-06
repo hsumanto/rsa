@@ -17,7 +17,7 @@
  * http://www.crcsi.com.au/
  */
 
-package org.vpac.test;
+package org.vpac.web.controller;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -36,7 +36,7 @@ import org.junit.runner.RunWith;
 
 import junit.framework.TestCase;
 
-@RunWith(SpringJUnit4ClassRunner.class)  
+@RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("file:src/main/webapp/WEB-INF/applicationContext.xml")
 public class BandTest extends TestCase {
 	final String BASE_URL = "http://localhost:8080/rsa";

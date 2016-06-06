@@ -17,7 +17,7 @@
  * http://www.crcsi.com.au/
  */
 
-package org.vpac.test;
+package org.vpac.web.controller;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,12 +30,12 @@ public class PagingTest extends TestCase {
 
 	public PagingTest() {
 	}
-	
+
 	public void testDefault() {
 		PagingRequest pr = new PagingRequest();
 		assertEquals(0, pr.getPage());
 		assertEquals(50, pr.getPageSize());
-		
+
 		pr.setPageSize(2);
 		List<String> testList = new ArrayList<String>();
 		// here are zero page
@@ -52,7 +52,7 @@ public class PagingTest extends TestCase {
 		testList.add("eight");
 		// here are four page
 		testList.add("nine");
-		
+
 		Pager<String> pager = new Pager<String>();
 		pr.setPage(2);
 		List<String> resultList = pager.page(testList, pr);
@@ -62,10 +62,9 @@ public class PagingTest extends TestCase {
 		resultList = pager.page(testList, pr);
 		assertEquals(1, resultList.size());
 		assertEquals("nine", resultList.get(0));
-		
+
 		pr.setPage(-1);
 		resultList = pager.page(testList, pr);
 		assertEquals(9, resultList.size());
 	}
 }
-

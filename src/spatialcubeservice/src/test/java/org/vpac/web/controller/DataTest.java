@@ -17,7 +17,7 @@
  * http://www.crcsi.com.au/
  */
 
-package org.vpac.test;
+package org.vpac.web.controller;
 
 import java.io.File;
 
@@ -46,11 +46,11 @@ import org.vpac.web.model.response.ExportResponse;
 import org.vpac.web.model.response.QueryResponse;
 
 
-@RunWith(SpringJUnit4ClassRunner.class)  
+@RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("file:src/main/webapp/WEB-INF/applicationContext.xml")
 public class DataTest extends TestCase {
 	final String BASE_URL = "http://localhost:8080/rsa";
-	
+
 	@Autowired
 	protected RestTemplate restTemplate;
 
@@ -58,7 +58,7 @@ public class DataTest extends TestCase {
 	public void testDummy() {
 	}
 
-	/*	
+	/*
 	@Test
 	public void testGetTasks() {
 		String testURL;
@@ -73,7 +73,7 @@ public class DataTest extends TestCase {
 		response = restTemplate.getForObject(testURL, TaskCollectionResponse.class);
 		assertThat(response.getItems().size(), is(0));
 	}
-	
+
 	@Test
 	public void testGetTaskById() {
 		String testURL;
@@ -113,7 +113,7 @@ public class DataTest extends TestCase {
 		response = restTemplate.postForObject(testURL, null, ImportResponse.class, fileId);
 		assertNotNull(response.getTaskId());
 	}
-	
+
 	@Test(expected=Exception.class)
 	public void testImportWithoutFileId() {
 		String testURL;
@@ -156,7 +156,7 @@ public class DataTest extends TestCase {
 		response = restTemplate.postForObject(testURL, null, ExportResponse.class, datasetId, startDate, endDate, projection, topX, topY, bottomX, bottomY);
 		assertNotNull(response.getTaskId());
 	}
-	
+
 	@Test
 	public void testExportFloatJson() {
 		String testURL;
@@ -180,7 +180,7 @@ public class DataTest extends TestCase {
 		String testURL;
 		FileInfoResponse response;
 		testURL = BASE_URL + "/Data/Upload.xml";
-		
+
 		MultiValueMap<String, Object> mvm = new LinkedMultiValueMap<String, Object>();
 	    mvm.add("datasetId", "TestParameter");
 	    mvm.add("fileId", "2c9f85243827bc64013827bc67b20006");
@@ -190,8 +190,8 @@ public class DataTest extends TestCase {
 	    response = restTemplate.postForObject(testURL, mvm, FileInfoResponse.class);
 	    assertNotSame(response.getId(), is(""));
 	}
-*/	
-	
+*/
+
 	@Test
 	public void testCleanUp() {
 		String testURL = BASE_URL + "/Data/CleanUp.xml?force={force}";
@@ -259,6 +259,3 @@ public class DataTest extends TestCase {
 		assertNotNull(response.getTaskId());
 	}
 }
-
-
-

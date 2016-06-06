@@ -17,7 +17,7 @@
  * http://www.crcsi.com.au/
  */
 
-package org.vpac.test;
+package org.vpac.web.controller;
 
 import junit.framework.TestCase;
 
@@ -34,7 +34,7 @@ import org.vpac.web.model.response.TimeSliceCollectionResponse;
 import org.vpac.web.model.response.TimeSliceLockCollectionResponse;
 import org.vpac.web.model.response.TimeSliceResponse;
 
-@RunWith(SpringJUnit4ClassRunner.class)  
+@RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("file:src/main/webapp/WEB-INF/applicationContext.xml")
 public class TimeSliceTest extends TestCase {
 	final String BASE_URL = "http://localhost:8080/rsa";
@@ -82,7 +82,7 @@ public class TimeSliceTest extends TestCase {
 		assertNotNull(response);
 	}
 
-	
+
 	@Test(expected=Exception.class)
 	public void testNoDatasetId() {
 		TimeSliceCollectionResponse response;
@@ -92,7 +92,7 @@ public class TimeSliceTest extends TestCase {
 		assertNotSame(response.getItems().size(), 0);
 	}
 
-	
+
 	@Test(expected=Exception.class)
 	public void testPageParameterValidatingPage() {
 		TimeSliceCollectionResponse response;
