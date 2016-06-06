@@ -22,7 +22,11 @@ package org.vpac.web.model.response;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
+import javax.xml.bind.annotation.XmlList;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlValue;
 import org.vpac.ndg.common.datamodel.CellSize;
 import org.vpac.ndg.query.stats.Ledger;
 
@@ -31,6 +35,9 @@ import org.vpac.ndg.query.stats.Ledger;
  */
 @XmlRootElement(name = "Table")
 public class TabularResponseLedger extends TabularResponse<TableRowRaw> {
+
+    private ArrayList<ArrayList<Double>> foos;
+
     public TabularResponseLedger() {
         setTableType("ledger");
     }
@@ -55,16 +62,36 @@ public class TabularResponseLedger extends TabularResponse<TableRowRaw> {
 
         double cellArea = resolution.toDouble() * resolution.toDouble();
         List<TableRowRaw> rows = new ArrayList<>();
+        ArrayList<ArrayList<Double>> foos = new ArrayList<>();
         for (Map.Entry<List<Double>, Long> entry : ledger.entrySet()) {
-            List<Double> cells = new ArrayList<>();
+            ArrayList<Double> cells = new ArrayList<>();
             cells.addAll(entry.getKey());
             cells.add(entry.getValue() * cellArea);
             cells.add(unfilteredLedger.get(entry.getKey()) * cellArea);
             rows.add(new TableRowRaw(cells));
+            foos.add(cells);
         }
         setRows(rows);
+        this.foos = foos;
 
         // Should set min and max on the input columns too; need to get this
         // info from unfilteredLedger.
+    }
+
+    @XmlElementWrapper
+    @XmlElement(name="foo")
+    public ArrayList<ArrayList<Double>> getFoos() {
+        return foos;
+    }
+
+    public void setFoos(List<List<Double>> foos) {
+        if (foos == null) {
+            this.foos = null;
+            return;
+        }
+        ArrayList<ArrayList<Double>> newFoos = new ArrayList<>();
+        for (List<Double> f : foos)
+            newFoos.add(new ArrayList<>(f));
+        this.foos = newFoos;
     }
 }
