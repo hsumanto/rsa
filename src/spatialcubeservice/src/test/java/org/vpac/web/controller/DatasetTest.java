@@ -53,10 +53,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 	"file:src/main/webapp/WEB-INF/applicationContext.xml"})
 @Transactional
 public class DatasetTest {
-	final String BASE_URL = "http://localhost:8080/rsa";
-
-	private static String TestDatasetName = "DatasetTest";
-	private String testDatasetId;
+	final String BASE_URL = "http://localhost";
 
 	// @Autowired
 	RestTemplate restTemplate;
@@ -127,27 +124,32 @@ public class DatasetTest {
 		createDataset("DatasetTest2", "500m", "foo", "1");
 		createDataset("DatasetTest3", "500m", "foo", "1");
 
-		MvcResult mvcResult;
-		DatasetCollectionResponse response;
+		MvcResult response;
+		DatasetCollectionResponse result;
 
-		mvcResult = mockMvc
+		response = mockMvc
 			.perform(get("/Dataset.xml"))
 			.andExpect(status().isOk())
 			.andReturn();
-		response = (DatasetCollectionResponse) mvcResult.getAsyncResult(10L);
-		assertNotSame(response.getItems().size(), is(0));
+		result = (DatasetCollectionResponse) response.getModelAndView()
+			.getModel().get("Response");
+		assertThat(result.getItems().size(), greaterThan(0));
 
-		mvcResult = mockMvc
+		response = mockMvc
 			.perform(get("/Dataset.xml")
 				.param("name", "DatasetTest"))
 			.andExpect(status().isOk())
 			.andReturn();
-		response = (DatasetCollectionResponse) mvcResult.getAsyncResult(10L);
-		assertSame(response.getItems().size(), is(3));
+		result = (DatasetCollectionResponse) response.getModelAndView()
+			.getModel().get("Response");
+		assertThat(result.getItems().size(), is(3));
 	}
 
 	@Test(expected=Exception.class)
-	public void testPageParameterValidatingPage() {
+	public void testPageParameterValidatingPage() throws Exception {
+		createDataset("DatasetTest1", "500m", "foo", "1");
+		createDataset("DatasetTest2", "500m", "foo", "1");
+		createDataset("DatasetTest3", "500m", "foo", "1");
 		DatasetCollectionResponse response;
 		String testURL;
 		testURL = BASE_URL + "/Dataset.xml?page=-1&pageSize=2";
@@ -157,7 +159,10 @@ public class DatasetTest {
 	}
 
 	@Test(expected=Exception.class)
-	public void testPageParameterValidatingPageSize() {
+	public void testPageParameterValidatingPageSize() throws Exception {
+		createDataset("DatasetTest1", "500m", "foo", "1");
+		createDataset("DatasetTest2", "500m", "foo", "1");
+		createDataset("DatasetTest3", "500m", "foo", "1");
 		DatasetCollectionResponse response;
 		String testURL;
 		testURL = BASE_URL + "/Dataset.xml?page=1&pageSize=-2";
@@ -167,19 +172,13 @@ public class DatasetTest {
 	}
 
 	@Test
-	public void testGetDatasetById() {
+	public void testGetDatasetById() throws Exception {
+		String id = createDataset("DatasetTest1", "500m", "foo", "1").getId();
 		String testURL = BASE_URL + "/Dataset/{id}.xml";
-		DatasetResponse response = restTemplate.getForObject(testURL, DatasetResponse.class, testDatasetId);
-		assertEquals(response.getId(), testDatasetId);
+		DatasetResponse response = restTemplate.getForObject(testURL, DatasetResponse.class, id);
+		assertEquals(response.getId(), id);
 	}
 
-/*	@Test
-	public void testGetDatasetToDummyResponse() {
-		String testURL = BASE_URL + "/Dataset/{id}.xml";
-		DummyResponse response = restTemplate.getForObject(testURL, DummyResponse.class, testDateasetId);
-		assertThat(response.getId(), is(testDateasetId));
-	}
-*/
 	@Test
 	public void testSearchDataset() {
 		String searchString = "11";
@@ -200,66 +199,13 @@ public class DatasetTest {
 	}
 
 	@Test
-	public void testCreateDataset() {
-		String name = TestDatasetName;
-		String resolution = "10m";
-		String dataAbstract = "testAbs";
-
-		String checkUrl = BASE_URL + "/Dataset.xml?name={name}&resolution={resolution}";
-		DatasetCollectionResponse getResponse = restTemplate.getForObject(checkUrl, DatasetCollectionResponse.class, name, resolution);
-
-		if(getResponse.getItems().size() == 0) {
-			DatasetResponse response = testCreateDataset(name, resolution, dataAbstract);
-			assertNotNull(response.getId());
-			assertThat(response.getName(), is(name));
-			assertThat(response.getDataAbstract(), is(dataAbstract));
-		}
-	}
-
-/*
-Seems like the annotation and the way we create dataset by JSON is having issue,
-THUS COMMENTED THIS CODE AT THE MOMENT, ALTERNATIVELY JSON TEST CAN BE CONDUCTED USING /WEB_INF/pages/DatasetForm.jsp
-org.springframework.validation.BindException: org.springframework.validation.BeanPropertyBindingResult: 4 errors
-Field error in object 'datasetRequest' on field 'precision': rejected value [null]; codes [NotNull.datasetRequest.precision,NotNull.precision,NotNull.java.lang.String,NotNull]; arguments [org.springframework.context.support.DefaultMessageSourceResolvable: codes [datasetRequest.precision,precision]; arguments []; default message [precision]]; default message [may not be null]
-Field error in object 'datasetRequest' on field 'dataAbstract': rejected value [null]; codes [NotNull.datasetRequest.dataAbstract,NotNull.dataAbstract,NotNull.java.lang.String,NotNull]; arguments [org.springframework.context.support.DefaultMessageSourceResolvable: codes [datasetRequest.dataAbstract,dataAbstract]; arguments []; default message [dataAbstract]]; default message [may not be null]
-Field error in object 'datasetRequest' on field 'name': rejected value [null]; codes [NotNull.datasetRequest.name,NotNull.name,NotNull.java.lang.String,NotNull]; arguments [org.springframework.context.support.DefaultMessageSourceResolvable: codes [datasetRequest.name,name]; arguments []; default message [name]]; default message [may not be null]
-Field error in object 'datasetRequest' on field 'resolution': rejected value [null]; codes [NotNull.datasetRequest.resolution,NotNull.resolution,NotNull.org.vpac.ndg.common.datamodel.CellSize,NotNull]; arguments [org.springframework.context.support.DefaultMessageSourceResolvable: codes [datasetRequest.resolution,resolution]; arguments []; default message [resolution]]; default message [may not be null]
-	@Test
-	public void testCreateDatasetByJson() {
-		String name = "testCreateDatasetByJson";
-		String resolution = "m500";
-		String dataAbstract = "testAbs";
-
-		String checkUrl = BASE_URL + "/Dataset.xml?name={name}&resolution={resolution}";
-		DatasetCollectionResponse getResponse = restTemplate.getForObject(checkUrl, DatasetCollectionResponse.class, name, resolution);
-
-		if(getResponse.getItems().size() == 0) {
-			List<MediaType> mediaTypes = new ArrayList<MediaType>();
-			mediaTypes.add(MediaType.APPLICATION_JSON);
-
-			HttpHeaders headers = new HttpHeaders();
-			headers.setAccept(mediaTypes);
-			String requestJson = String.format("{name : \'%s\', resolution: \'%s\', dataAbstract : \'%s\', precision : \'1\'}", name, resolution, dataAbstract);
-			HttpEntity<String> entity = new HttpEntity<String>(requestJson, headers);
-			String testURL = BASE_URL + "/Dataset.xml";
-			DatasetResponse response = restTemplate.postForObject(testURL, entity, DatasetResponse.class);
-			assertThat(response.getName(), is("test"));
-		}
-	}
-*/
-
-	@Test(expected=Exception.class)
-	public void testCreateDatasetAbnormalResolution() {
-		String name = TestDatasetName;
-		String resolution = "50m";
-		String dataAbstract = "testAbs";
-		@SuppressWarnings("unused")
-		DatasetResponse response = testCreateDataset(name, resolution, dataAbstract);
+	public void testCreateDatasetAbnormalResolution() throws Exception {
+		mockMvc.perform(post("/Dataset.xml")
+				.param("name", "DatasetTest1")
+				.param("resolution", "51m")
+				.param("dataAbstract", "bar")
+				.param("precision", "1"))
+			.andExpect(status().isBadRequest());
 		// Should be resulted in 500 (Internal Server Error) because resolution is rejected.
-	}
-
-	private DatasetResponse testCreateDataset(String name, String resolution, String dataAbstract) {
-		String testURL = BASE_URL + "/Dataset.xml?name={name}&resolution={resolution}&dataAbstract={dataAbstract}&precision=1";
-		return restTemplate.postForObject(testURL, null, DatasetResponse.class, name, resolution, dataAbstract);
 	}
 }
