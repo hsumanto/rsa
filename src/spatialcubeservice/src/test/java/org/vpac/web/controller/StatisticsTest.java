@@ -73,8 +73,85 @@ public class StatisticsTest extends WebServiceTestBase {
 	private SessionFactory sessionFactory;
 
 	@Test
-	public void testCategorical() throws Exception {
+	public void testIntrinsicCats() throws Exception {
+		TaskCats tc = createTaskCats();
 
+		mockMvc.perform(get(
+					"/Data/Task/{tid}/table/value.xml", tc.getTaskId())
+				.param("name", "value"))
+			.andDo(print())
+			.andExpect(status().isOk())
+			.andExpect(xpath("/Table/@tableType").string("histogram"))
+			.andExpect(xpath("/Table/@categorisation").string("value"))
+			.andExpect(xpath("/Table/columns").nodeCount(4))
+			// .andExpect(xpath("/Table/rows").nodeCount(2))
+			;
+
+		mockMvc.perform(get(
+					"/Data/Task/{tid}/table/value.json", tc.getTaskId())
+				.param("name", "value"))
+			.andDo(print())
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.tableType", is("histogram")))
+			.andExpect(jsonPath("$.categorisation", is("value")))
+			.andExpect(jsonPath("$.columns", hasSize(4)))
+			.andExpect(jsonPath("$.rows", hasSize(3)))
+			.andExpect(jsonPath("$.rows", everyItem(hasSize(4))));
+	}
+
+	@Test
+	public void testExtrinsicCats() throws Exception {
+		TaskCats tc = createTaskCats();
+
+		mockMvc.perform(get(
+					"/Data/Task/{tid}/table/foo.xml", tc.getTaskId())
+				.param("name", "foo"))
+			.andDo(print())
+			.andExpect(status().isOk())
+			.andExpect(xpath("/Table/@tableType").string("categories"))
+			.andExpect(xpath("/Table/@categorisation").string("foo"))
+			.andExpect(xpath("/Table/columns").nodeCount(3))
+			// .andExpect(xpath("/Table/rows").nodeCount(2))
+			;
+
+		mockMvc.perform(get(
+					"/Data/Task/{tid}/table/foo.json", tc.getTaskId())
+				.param("name", "foo"))
+			.andDo(print())
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.tableType", is("categories")))
+			.andExpect(jsonPath("$.categorisation", is("foo")))
+			.andExpect(jsonPath("$.columns", hasSize(3)))
+			.andExpect(jsonPath("$.rows", hasSize(2)))
+			.andExpect(jsonPath("$.rows", everyItem(hasSize(3))));
+	}
+
+	@Test
+	public void testLedger() throws Exception {
+		TaskLedger tl = createTaskLedger();
+
+		mockMvc.perform(get(
+					"/Data/Task/{tid}/table.xml", tl.getJob().getId()))
+			.andDo(print())
+			.andExpect(status().isOk())
+			.andExpect(xpath("/Table/@tableType").string("ledger"))
+			.andExpect(xpath("/Table/@categorisation").string("foo"))
+			.andExpect(xpath("/Table/columns").nodeCount(4))
+			// .andExpect(xpath("/Table/rows").nodeCount(3))
+			;
+
+		mockMvc.perform(get(
+					"/Data/Task/{tid}/table.json", tl.getJob().getId()))
+			.andDo(print())
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.tableType", is("ledger")))
+			.andExpect(jsonPath("$.categorisation", is("foo")))
+			.andExpect(jsonPath("$.columns", hasSize(4)))
+			.andExpect(jsonPath("$.rows", hasSize(3)))
+			.andExpect(jsonPath("$.rows", everyItem(hasSize(4))));
+	}
+
+	private TaskCats createTaskCats() {
 		ElementInt category = new ElementInt();
 		ElementInt value = new ElementInt();
 		List<Pair<Integer, Integer>> permutations = Arrays.asList(
@@ -107,33 +184,10 @@ public class StatisticsTest extends WebServiceTestBase {
 
 		// Ensure objects have IDs
 		sessionFactory.getCurrentSession().flush();
-		System.out.println(job.getId());
-
-		mockMvc.perform(get(
-					"/Data/Task/{tid}/table/foo.xml", job.getId())
-				.param("name", "foo"))
-			.andDo(print())
-			.andExpect(status().isOk())
-			.andExpect(xpath("/Table/@tableType").string("categories"))
-			.andExpect(xpath("/Table/@categorisation").string("foo"))
-			.andExpect(xpath("/Table/columns").nodeCount(3))
-			// .andExpect(xpath("/Table/rows").nodeCount(2))
-			;
-
-		mockMvc.perform(get(
-					"/Data/Task/{tid}/table/foo.json", job.getId())
-				.param("name", "foo"))
-			.andDo(print())
-			.andExpect(status().isOk())
-			.andExpect(jsonPath("$.tableType", is("categories")))
-			.andExpect(jsonPath("$.categorisation", is("foo")))
-			.andExpect(jsonPath("$.columns", hasSize(3)))
-			.andExpect(jsonPath("$.rows", hasSize(2)))
-			.andExpect(jsonPath("$.rows", everyItem(hasSize(3))));
+		return tc;
 	}
 
-	@Test
-	public void testLedger() throws Exception {
+	private TaskLedger createTaskLedger() {
 		Ledger ledger = new Ledger();
 		ledger.setBucketingStrategies(
 			Arrays.asList("categorical", "categorical"));
@@ -158,26 +212,6 @@ public class StatisticsTest extends WebServiceTestBase {
 
 		// Ensure objects have IDs
 		sessionFactory.getCurrentSession().flush();
-		System.out.println(job.getId());
-
-		mockMvc.perform(get(
-					"/Data/Task/{tid}/table.xml", job.getId()))
-			.andDo(print())
-			.andExpect(status().isOk())
-			.andExpect(xpath("/Table/@tableType").string("ledger"))
-			.andExpect(xpath("/Table/@categorisation").string("foo"))
-			.andExpect(xpath("/Table/columns").nodeCount(4))
-			// .andExpect(xpath("/Table/rows").nodeCount(3))
-			;
-
-		mockMvc.perform(get(
-					"/Data/Task/{tid}/table.json", job.getId()))
-			.andDo(print())
-			.andExpect(status().isOk())
-			.andExpect(jsonPath("$.tableType", is("ledger")))
-			.andExpect(jsonPath("$.categorisation", is("foo")))
-			.andExpect(jsonPath("$.columns", hasSize(4)))
-			.andExpect(jsonPath("$.rows", hasSize(3)))
-			.andExpect(jsonPath("$.rows", everyItem(hasSize(4))));
+		return tl;
 	}
 }
