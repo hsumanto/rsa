@@ -68,6 +68,7 @@ import org.vpac.ndg.storage.model.Dataset;
 import org.vpac.ndg.storage.model.DatasetCats;
 import org.vpac.ndg.storage.util.DatasetUtil;
 import org.vpac.web.exception.ResourceNotFoundException;
+import org.vpac.web.model.TableBuilder;
 import org.vpac.web.model.request.DatasetRequest;
 import org.vpac.web.model.request.PagingRequest;
 import org.vpac.web.model.response.DatasetCollectionResponse;
@@ -361,17 +362,17 @@ public class DatasetController {
 		Band band =  bandDao.retrieve(bandId);
 		DatasetCats dsCat = dsCats.get(0);
 
-		TabularResponse<?> response;
+		TabularResponse response;
 		if (catType.equals("value")) {
 			// Viewing intrinsic data; use extrinsic filter.
 			List<Integer> values = helper.stringsToInts(categories);
-			response = TabularResponse.tabulateIntrinsic(dsCat.getCats(),
+			response = new TableBuilder().buildIntrinsic(dsCat.getCats(),
 					values, ds.getResolution(), !band.isContinuous());
 
 		} else {
 			// Viewing extrinsic categories; use intrinsic filter.
 			List<Double> values = helper.stringsToDoubles(categories);
-			response = TabularResponse.tabulateExtrinsic(dsCat.getCats(),
+			response = new TableBuilder().buildExtrinsic(dsCat.getCats(),
 					lower, upper, values, ds.getResolution(),
 					!band.isContinuous());
 		}

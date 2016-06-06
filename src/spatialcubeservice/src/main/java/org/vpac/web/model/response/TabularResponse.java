@@ -19,9 +19,11 @@
 
 package org.vpac.web.model.response;
 
+import java.util.ArrayList;
 import java.util.List;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import org.vpac.ndg.common.datamodel.CellSize;
 import org.vpac.ndg.query.stats.Cats;
@@ -29,10 +31,10 @@ import org.vpac.ndg.query.stats.Hist;
 import org.vpac.ndg.query.stats.Ledger;
 
 @XmlRootElement(name = "Table")
-public class TabularResponse <T> {
+public class TabularResponse {
 	private String tableType;
 	private String categorisation;
-	private List<T> rows;
+	private List<ArrayList<Double>> table;
 	private List<TableColumn> columns;
 
 	public TabularResponse() {
@@ -46,12 +48,13 @@ public class TabularResponse <T> {
 		this.categorisation = categorisation;
 	}
 
-	@XmlElement
-	public List<T> getRows() {
-		return rows;
+	@XmlElementWrapper
+	@XmlElement(name="row")
+	public List<ArrayList<Double>> getRows() {
+		return table;
 	}
-	public void setRows(List<T> rows) {
-		this.rows = rows;
+	public void setRows(List<ArrayList<Double>> table) {
+		this.table = table;
 	}
 
 	@XmlAttribute
@@ -68,56 +71,5 @@ public class TabularResponse <T> {
 	}
 	public void setColumns(List<TableColumn> columns) {
 		this.columns = columns;
-	}
-
-	/**
-	 * @return A table of data, with each row representing a bucket in the
-	 * histograms of the Cats object.
-	 */
-	public static TabularResponse<?> tabulateIntrinsic(Cats cats,
-			List<Integer> categories, CellSize resolution, boolean categorical) {
-		Cats filteredCats = cats.filterExtrinsic(categories);
-		Hist filteredHist = filteredCats.summarise();
-		Hist unfilteredHist = cats.summarise();
-
-		if (categorical) {
-			TabularResponseCategorical table = new TabularResponseCategorical();
-			table.setRows(filteredHist, unfilteredHist, resolution);
-			return table;
-		} else {
-			TabularResponseContinuous table = new TabularResponseContinuous();
-			table.setRows(filteredHist, unfilteredHist, resolution);
-			return table;
-		}
-	}
-
-	/**
-	 * @return A table of data, with each row representing a category of the
-	 * provided Cats object.
-	 */
-	public static TabularResponse<?> tabulateExtrinsic(Cats cats,
-			List<Double> lower, List<Double> upper, List<Double> values,
-			CellSize resolution, boolean categorical) {
-		Cats filteredCats;
-		if (categorical)
-			filteredCats = cats.filterIntrinsic(values);
-		else
-			filteredCats = cats.filterIntrinsic(lower, upper);
-
-		TabularResponseCategorical table = new TabularResponseCategorical();
-		table.setRows(filteredCats, cats, resolution);
-		return table;
-	}
-
-	public static TabularResponse<?> tabulateLedger(Ledger ledger,
-			List<Integer> columns, CellSize resolution) {
-		// Filtering columns does not result in a "filtered" ledger. Only a
-		// ledger with a different volume (i.e. data *removed* due to
-		// filtered rows) would be considered filtered.
-		if (columns != null && columns.size() > 0)
-			ledger = ledger.filter(columns);
-		TabularResponseLedger table = new TabularResponseLedger();
-		table.setData(ledger, ledger, resolution);
-		return table;
 	}
 }

@@ -112,6 +112,7 @@ import org.vpac.web.model.response.QueryResponse;
 import org.vpac.web.model.response.TabularResponse;
 import org.vpac.web.model.response.TaskCollectionResponse;
 import org.vpac.web.model.response.TaskResponse;
+import org.vpac.web.model.TableBuilder;
 import org.vpac.web.util.ControllerHelper;
 import org.vpac.web.util.Pager;
 import org.vpac.web.util.QueryMutator;
@@ -354,17 +355,19 @@ public class DataController {
 
 		TaskCats tCat = tCats.get(0);
 
-		TabularResponse<?> response;
+		TabularResponse response;
 		if (catType.equals("value")) {
 			// Viewing intrinsic data; use extrinsic filter.
 			List<Integer> values = helper.stringsToInts(categories);
-			response = TabularResponse.tabulateIntrinsic(tCat.getCats(),
-					values, tCat.getOutputResolution(), tCat.isCategorical());
+			TableBuilder tb = new TableBuilder();
+			response = tb.buildIntrinsic(tCat.getCats(), values,
+				tCat.getOutputResolution(), tCat.isCategorical());
 
 		} else {
 			// Viewing extrinsic categories; use intrinsic filter.
 			List<Double> values = helper.stringsToDoubles(categories);
-			response = TabularResponse.tabulateExtrinsic(tCat.getCats(), lower,
+			TableBuilder tb = new TableBuilder();
+			response = tb.buildExtrinsic(tCat.getCats(), lower,
 					upper, values, tCat.getOutputResolution(),
 					tCat.isCategorical());
 		}
@@ -393,7 +396,7 @@ public class DataController {
 		}
 
 		TaskLedger tl = tls.get(0);
-		TabularResponse<?> response = TabularResponse.tabulateLedger(
+		TabularResponse response = new TableBuilder().buildLedger(
 			tl.getLedger(), columns, tl.getOutputResolution());
 		response.setCategorisation(tl.getKey());
 		model.addAttribute(ControllerHelper.RESPONSE_ROOT, response);

@@ -73,7 +73,7 @@ public class StatisticsTest extends WebServiceTestBase {
 	private SessionFactory sessionFactory;
 
 	@Test
-	public void testCats() throws Exception {
+	public void testCategorical() throws Exception {
 
 		ElementInt category = new ElementInt();
 		ElementInt value = new ElementInt();
@@ -117,7 +117,19 @@ public class StatisticsTest extends WebServiceTestBase {
 			.andExpect(xpath("/Table/@tableType").string("categories"))
 			.andExpect(xpath("/Table/@categorisation").string("foo"))
 			.andExpect(xpath("/Table/columns").nodeCount(3))
-			.andExpect(xpath("/Table/rows").nodeCount(2));
+			// .andExpect(xpath("/Table/rows").nodeCount(2))
+			;
+
+		mockMvc.perform(get(
+					"/Data/Task/{tid}/table/foo.json", job.getId())
+				.param("name", "foo"))
+			.andDo(print())
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.tableType", is("categories")))
+			.andExpect(jsonPath("$.categorisation", is("foo")))
+			.andExpect(jsonPath("$.columns", hasSize(3)))
+			.andExpect(jsonPath("$.rows", hasSize(2)))
+			.andExpect(jsonPath("$.rows", everyItem(hasSize(3))));
 	}
 
 	@Test
@@ -154,7 +166,9 @@ public class StatisticsTest extends WebServiceTestBase {
 			.andExpect(status().isOk())
 			.andExpect(xpath("/Table/@tableType").string("ledger"))
 			.andExpect(xpath("/Table/@categorisation").string("foo"))
-			.andExpect(xpath("/Table/columns").nodeCount(4));
+			.andExpect(xpath("/Table/columns").nodeCount(4))
+			// .andExpect(xpath("/Table/rows").nodeCount(3))
+			;
 
 		mockMvc.perform(get(
 					"/Data/Task/{tid}/table.json", job.getId()))
@@ -162,6 +176,8 @@ public class StatisticsTest extends WebServiceTestBase {
 			.andExpect(status().isOk())
 			.andExpect(jsonPath("$.tableType", is("ledger")))
 			.andExpect(jsonPath("$.categorisation", is("foo")))
-			.andExpect(jsonPath("$.columns", hasSize(4)));
+			.andExpect(jsonPath("$.columns", hasSize(4)))
+			.andExpect(jsonPath("$.rows", hasSize(3)))
+			.andExpect(jsonPath("$.rows", everyItem(hasSize(4))));
 	}
 }
