@@ -113,7 +113,7 @@ public class TableBuilder {
 				.description("The category of the data."));
 		columns.add(new TableColumn()
 				.key(1).name("Area").units("m^2").type("area")
-				.portionOf("rawArea")
+				.portionOf(2)
 				.description("The area of land that matches the filters."));
 		columns.add(new TableColumn()
 				.key(2).name("Unfiltered Area").units("m^2").type("area")
@@ -176,7 +176,7 @@ public class TableBuilder {
 				.description("The upper bound of the grouping (value range)."));
 		columns.add(new TableColumn()
 				.key(2).name("Area").units("m^2").type("area")
-				.portionOf("rawArea")
+				.portionOf(3)
 				.description("The area of land that matches the filters."));
 		columns.add(new TableColumn()
 				.key(3).name("Unfiltered Area").units("m^2")
@@ -218,7 +218,7 @@ public class TableBuilder {
 		}
 		columns.add(new TableColumn()
 				.key(i++).name("Area").units("m^2").type("area")
-				.portionOf("rawArea")
+				.portionOf(i+1)
 				.description("The area of land that matches the filters."));
 		columns.add(new TableColumn()
 				.key(i++).name("Unfiltered Area").units("m^2")
