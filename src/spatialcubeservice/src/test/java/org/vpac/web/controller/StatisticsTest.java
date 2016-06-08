@@ -153,6 +153,9 @@ public class StatisticsTest extends WebServiceTestBase {
 			.andExpect(jsonPath("$.tableType", is("ledger")))
 			.andExpect(jsonPath("$.categorisation", is("foo")))
 			.andExpect(jsonPath("$.columns", hasSize(4)))
+			.andExpect(jsonPath("$.columns[0].type", is("category")))
+			.andExpect(jsonPath("$.columns[1].type", is("lowerBound")))
+			.andExpect(jsonPath("$.columns[2,3].type", everyItem(is("area"))))
 			.andExpect(jsonPath("$.rows", hasSize(3)))
 			.andExpect(jsonPath("$.rows", everyItem(hasSize(4))));
 	}
@@ -196,13 +199,13 @@ public class StatisticsTest extends WebServiceTestBase {
 	private TaskLedger createTaskLedger() {
 		Ledger ledger = new Ledger();
 		ledger.setBucketingStrategies(
-			Arrays.asList("categorical", "categorical"));
+			Arrays.asList("categorical", "log"));
 		ledger.add(Arrays.asList(0.0, 1.0));
 		ledger.add(Arrays.asList(1.0, 2.0));
 		ledger.add(Arrays.asList(0.0, 1.0));
-		ledger.add(Arrays.asList(1.0, 2.0));
+		ledger.add(Arrays.asList(1.0, 3.0));
 		ledger.add(Arrays.asList(1.0, 1.0));
-		ledger.add(Arrays.asList(1.0, 2.0));
+		ledger.add(Arrays.asList(1.0, 4.0));
 		statisticsDao.save(ledger);
 
 		JobProgress job = new JobProgress("testStoreLedger");

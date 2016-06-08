@@ -218,9 +218,15 @@ public class TableBuilder {
 		List<TableColumn> columns = new ArrayList<TableColumn>();
 		int i = 0;
 		for (String bs : ledger.getBucketingStrategies()) {
-			columns.add(new TableColumn()
-				.key(i++).name("Lower Bound").type("lowerBound")
-				.description("The lower bound of the grouping (value range)."));
+			if (bs.equals("categorical")) {
+				columns.add(new TableColumn()
+					.key(i++).name("Category").type("category")
+					.description("The category of the data."));
+			} else {
+				columns.add(new TableColumn()
+					.key(i++).name("Lower Bound").type("lowerBound")
+					.description("The lower bound of the grouping (value range)."));
+			}
 		}
 		TableColumn area = new TableColumn()
 			.key(i++).name("Area").units("m^2").type("area")
