@@ -10,7 +10,7 @@ public class TableColumn {
 	private String description;
 	private String units;
 	private String type;
-	private String portionOf;
+	private Integer portionOf;
 	private Double min;
 	private Double max;
 
@@ -78,13 +78,13 @@ public class TableColumn {
 	}
 
 	@XmlAttribute
-	public String getPortionOf() {
+	public Integer getPortionOf() {
 		return portionOf;
 	}
-	public void setPortionOf(String portionOf) {
+	public void setPortionOf(Integer portionOf) {
 		this.portionOf = portionOf;
 	}
-	public TableColumn portionOf(String portionOf) {
+	public TableColumn portionOf(Integer portionOf) {
 		this.portionOf = portionOf;
 		return this;
 	}
