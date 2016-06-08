@@ -95,6 +95,9 @@ public class StatisticsTest extends WebServiceTestBase {
 			.andExpect(jsonPath("$.tableType", is("histogram")))
 			.andExpect(jsonPath("$.categorisation", is("value")))
 			.andExpect(jsonPath("$.columns", hasSize(4)))
+			.andExpect(jsonPath("$.columns[0,1,3].portionOf",
+				everyItem(is(nullValue()))))
+			.andExpect(jsonPath("$.columns[2].portionOf", is(notNullValue())))
 			.andExpect(jsonPath("$.rows", hasSize(3)))
 			.andExpect(jsonPath("$.rows", everyItem(hasSize(4))));
 	}
@@ -122,6 +125,9 @@ public class StatisticsTest extends WebServiceTestBase {
 			.andExpect(jsonPath("$.tableType", is("categories")))
 			.andExpect(jsonPath("$.categorisation", is("foo")))
 			.andExpect(jsonPath("$.columns", hasSize(3)))
+			.andExpect(jsonPath("$.columns[0,2].portionOf",
+				everyItem(is(nullValue()))))
+			.andExpect(jsonPath("$.columns[1].portionOf", is(notNullValue())))
 			.andExpect(jsonPath("$.rows", hasSize(2)))
 			.andExpect(jsonPath("$.rows", everyItem(hasSize(3))));
 	}

@@ -108,16 +108,19 @@ public class TableBuilder {
 
 	private List<TableColumn> categoricalColumns() {
 		List<TableColumn> columns = new ArrayList<TableColumn>();
-		columns.add(new TableColumn()
-				.key(0).name("Category").type("category")
-				.description("The category of the data."));
-		columns.add(new TableColumn()
-				.key(1).name("Area").units("m^2").type("area")
-				.portionOf(2)
-				.description("The area of land that matches the filters."));
-		columns.add(new TableColumn()
-				.key(2).name("Unfiltered Area").units("m^2").type("area")
-				.description("The area of available land."));
+		TableColumn category = new TableColumn()
+			.key(0).name("Category").type("category")
+			.description("The category of the data.");
+		TableColumn area = new TableColumn()
+			.key(1).name("Area").units("m^2").type("area")
+			.description("The area of land that matches the filters.");
+		TableColumn rawArea = new TableColumn()
+			.key(2).name("Unfiltered Area").units("m^2").type("area")
+			.description("The area of available land.");
+		area.portionOf(rawArea.getKey());
+		columns.add(category);
+		columns.add(area);
+		columns.add(rawArea);
 		return columns;
 	}
 
@@ -168,20 +171,23 @@ public class TableBuilder {
 
 	private List<TableColumn> continuousColumns() {
 		List<TableColumn> columns = new ArrayList<TableColumn>();
-		columns.add(new TableColumn()
-				.key(0).name("Lower Bound").type("lowerBound")
-				.description("The lower bound of the grouping (value range)."));
-		columns.add(new TableColumn()
-				.key(1).name("Upper Bound").type("upperBound")
-				.description("The upper bound of the grouping (value range)."));
-		columns.add(new TableColumn()
-				.key(2).name("Area").units("m^2").type("area")
-				.portionOf(3)
-				.description("The area of land that matches the filters."));
-		columns.add(new TableColumn()
-				.key(3).name("Unfiltered Area").units("m^2")
-				.type("area")
-				.description("The area of available land."));
+		TableColumn lower = new TableColumn()
+			.key(0).name("Lower Bound").type("lowerBound")
+			.description("The lower bound of the grouping (value range).");
+		TableColumn upper = new TableColumn()
+			.key(1).name("Upper Bound").type("upperBound")
+			.description("The upper bound of the grouping (value range).");
+		TableColumn area = new TableColumn()
+			.key(2).name("Area").units("m^2").type("area")
+			.description("The area of land that matches the filters.");
+		TableColumn rawArea = new TableColumn()
+			.key(3).name("Unfiltered Area").units("m^2").type("area")
+			.description("The area of available land.");
+		area.portionOf(rawArea.getKey());
+		columns.add(lower);
+		columns.add(upper);
+		columns.add(area);
+		columns.add(rawArea);
 		return columns;
 	}
 
@@ -216,14 +222,16 @@ public class TableBuilder {
 				.key(i++).name("Lower Bound").type("lowerBound")
 				.description("The lower bound of the grouping (value range)."));
 		}
-		columns.add(new TableColumn()
-				.key(i++).name("Area").units("m^2").type("area")
-				.portionOf(i+1)
-				.description("The area of land that matches the filters."));
-		columns.add(new TableColumn()
-				.key(i++).name("Unfiltered Area").units("m^2")
-				.type("area")
-				.description("The area of available land."));
+		TableColumn area = new TableColumn()
+			.key(i++).name("Area").units("m^2").type("area")
+			.portionOf(i+1)
+			.description("The area of land that matches the filters.");
+		TableColumn rawArea = new TableColumn()
+			.key(i++).name("Unfiltered Area").units("m^2").type("area")
+			.description("The area of available land.");
+		area.portionOf(rawArea.getKey());
+		columns.add(area);
+		columns.add(rawArea);
 		return columns;
 	}
 
