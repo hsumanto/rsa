@@ -1,13 +1,7 @@
+# The base service is referenced in other projects.
 base:
     build: .
 
-rsa:
-    extends:
-        service: base
-    links:
-        - postgres:rsadb
-    volumes_from:
-        - data
 
 dev:
     extends:
@@ -19,6 +13,41 @@ dev:
     entrypoint: []
     command: bash
 
+
+web:
+    extends:
+        service: base
+    links:
+        - seed
+        - postgres:rsadb
+    volumes_from:
+        - data
+    command: web
+
+
+seed:
+    extends:
+        service: base
+    # Hostname acts like a link to self
+    hostname: seed
+    links:
+        - postgres:rsadb
+    volumes_from:
+        - data
+    command: seed
+
+
+worker:
+    extends:
+        service: base
+    links:
+        - seed
+        - postgres:rsadb
+    volumes_from:
+        - data
+    command: worker
+
+
 data:
     build: .
     volumes:
@@ -29,6 +58,7 @@ data:
         - ./.gradle-cache:/root/.gradle/caches
     entrypoint: []
     command: echo "RSA test data container"
+
 
 postgres:
     image: postgres:9

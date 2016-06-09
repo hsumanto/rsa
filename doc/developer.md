@@ -21,7 +21,9 @@ The following services are provided:
  - `data`: A data-only container with volumes for tile storage.
  - `dev`: A development environment that drops you into a shell in the source
     directory.
- - `rsa`: A runtime environment that lets you test the RSA.
+ - `web`: The web services running in Tomcat.
+ - `worker`: Backend cluster nodes.
+ - `seed`: Cluster manager.
 
 Copy the config to an out-of-source location so you can modify it without git
 noticing. If you follow this convention, docker-compose will mount it as a
@@ -39,14 +41,12 @@ there's no need to copy it to an out-of-source location.
 Start a new local RSA cluster with:
 
 ```
-sudo docker-compose up rsa seed
-sudo docker-compose up rsa worker
-sudo docker-compose up rsa worker
-sudo docker-compose up rsa web
+sudo docker-compose up -d web seed worker
+sudo docker-compose scale worker=5
 ```
 
 Start as many workers as you like, but make sure you have at least two: the
-first one doesn't do any actual work. All of the cluster nodes will write store
+first one doesn't do any actual work. All of the cluster nodes will write
 data in the `postgres` and `data` containers. They have volumes mapped to the
 live source directory, so any changes you make to your code will show up in the
 running instances (perhaps after a compile and restart).
@@ -68,6 +68,38 @@ gradle --daemon --continuous compileJava
 After the first dev build, you will have `.classpath.txt` files in your source
 directory. These can be used for autocompletion, e.g. using [Atom's
 autocomplete-java package][aj].
+
+
+## Redeploying
+
+The source directories are mounted as Docker volumes, so changes you make should
+immediately show up in the running containers. However you may need to restart
+them for the changes to be visible:
+
+```
+sudo docker-compose up -d --force-recreate --no-deps web
+```
+
+You can rebuild and relaunch individual services like this:
+
+```
+sudo docker-compose up -d --build --no-deps web worker
+```
+
+[Docker]: https://docs.docker.com/linux/
+[dc]: https://docs.docker.com/compose/install/
+
+
+## Stopping
+
+To stop it run:
+
+```
+sudo docker-compose stop
+```
+
+**Warning:** `docker-compose down` will remove your databases, and you'll have
+to import your data again.
 
 [dp]: https://github.com/silarsis/docker-proxy
 [dc]: https://docs.docker.com/compose/
