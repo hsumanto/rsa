@@ -158,6 +158,18 @@ public class StatisticsTest extends WebServiceTestBase {
 			.andExpect(jsonPath("$.columns[2,3].type", everyItem(is("area"))))
 			.andExpect(jsonPath("$.rows", hasSize(3)))
 			.andExpect(jsonPath("$.rows", everyItem(hasSize(4))));
+
+		mockMvc.perform(get(
+					"/Data/Task/{tid}/table.json?columns=1", tl.getJob().getId()))
+			.andDo(print())
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.tableType", is("ledger")))
+			.andExpect(jsonPath("$.categorisation", is("foo")))
+			.andExpect(jsonPath("$.columns", hasSize(3)))
+			.andExpect(jsonPath("$.columns[0].type", is("lowerBound")))
+			.andExpect(jsonPath("$.columns[1,2].type", everyItem(is("area"))))
+			.andExpect(jsonPath("$.rows", hasSize(2)))
+			.andExpect(jsonPath("$.rows", everyItem(hasSize(3))));
 	}
 
 	private TaskCats createTaskCats() {

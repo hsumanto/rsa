@@ -379,13 +379,13 @@ public class DataController {
 	}
 
 	@RequestMapping(value="/Task/{taskId}/table", method = RequestMethod.GET)
-	public String getTableByTaskId(
+	public String getLedger(
 			@PathVariable String taskId,
 			@RequestParam(required = false) List<Integer> columns,
 			@RequestParam(required = false) String key,
 			ModelMap model) throws ResourceNotFoundException {
 
-		log.info("Data getTableByTaskId");
+		log.info("Data getLedger");
 		log.debug("Task ID: {}", taskId);
 
 		List<TaskLedger> tls = statisticsDao.searchTaskLedger(taskId, key);
