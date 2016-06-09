@@ -13,8 +13,11 @@ import com.typesafe.config.ConfigFactory;
 import scala.concurrent.duration.Duration;
 import scala.concurrent.duration.FiniteDuration;
 import scala.concurrent.Await;
+import akka.actor.ActorSystem;
 
 import java.io.IOException;
+import java.lang.Runnable;
+
 import java.net.InetAddress;
 import java.net.Inet4Address;
 import java.net.InetSocketAddress;
@@ -27,7 +30,6 @@ import java.util.Set;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
-import java.lang.Runnable;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -78,6 +80,40 @@ public class Main {
 		Config conf = ConfigFactory.load("seed");
 		ActorSystem system = ActorSystem.create(systemName, conf);
 		system.actorOf(Props.create(SeedActor.class), "seed");
+		registerStopSystem(system);
+	}
+
+	public void registerStopSystem(ActorSystem system) {
+        Cluster.get(system).registerOnMemberRemoved(new Runnable() {
+          @Override
+          public void run() {
+            // exit JVM when ActorSystem has been terminated
+            final Runnable exit = new Runnable() {
+              @Override public void run() {
+                System.exit(0);
+              }
+            };
+            system.registerOnTermination(exit);
+         
+            // shut down ActorSystem
+            system.terminate();
+         
+            // In case ActorSystem shutdown takes longer than 10 seconds,
+            // exit the JVM forcefully anyway.
+            // We must spawn a separate thread to not block current thread,
+            // since that would have blocked the shutdown of the ActorSystem.
+            new Thread() {
+              @Override public void run(){
+                try {
+                  Await.ready(system.whenTerminated(), Duration.create(10, TimeUnit.SECONDS));
+                } catch (Exception e) {
+                  System.exit(-1);
+                }
+         
+              }
+            }.start();
+          }
+        });
 	}
 
 	public static void main(String[] args) throws InterruptedException, IOException {
@@ -91,7 +127,7 @@ public class Main {
 		}
 	}
 
-	public static Address startMaster() {
+	public Address startMaster() {
 		ActorSystem system = createSystem("master");
     	system.actorOf(
         	ClusterSingletonManager.props(
@@ -105,7 +141,7 @@ public class Main {
 		return Cluster.get(system).selfAddress();
 	}
 
-	public static void startWorker(Address masterAddress) {
+	public void startWorker(Address masterAddress) {
 		ActorSystem system = createSystem("worker");
 		System.out.println("Worker Started!!!" + masterAddress);
 
@@ -116,7 +152,7 @@ public class Main {
 	    system.actorOf(Worker.props(clusterClient, Props.create(WorkExecutor.class)), "worker");
 	}
 	
-	public static ActorSystem createSystem(String role) {
+	public ActorSystem createSystem(String role) {
 		Config conf = ConfigFactory.load(role);
 		ActorSystem system = ActorSystem.create(systemName, conf);
 		return system;
