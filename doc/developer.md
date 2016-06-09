@@ -23,6 +23,19 @@ The following services are provided:
     directory.
  - `rsa`: A runtime environment that lets you test the RSA.
 
+Copy the config to an out-of-source location so you can modify it without git
+noticing. If you follow this convention, docker-compose will mount it as a
+volume when starting your containers:
+
+```
+mkdir -p ../config
+cp -a config ../config/rsa
+```
+
+Note that during testing, the config in `test-config` will be used instead.
+Changes to test-config should usually be checked in to the source code, so
+there's no need to copy it to an out-of-source location.
+
 Start a new local RSA cluster with:
 
 ```

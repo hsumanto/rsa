@@ -1,12 +1,17 @@
-rsa:
+base:
     build: .
+
+rsa:
+    extends:
+        service: base
     links:
         - postgres:rsadb
     volumes_from:
         - data
 
 dev:
-    build: .
+    extends:
+        service: base
     links:
         - postgres:rsadb
     volumes_from:
@@ -19,7 +24,7 @@ data:
     volumes:
         - ./src:/var/src/rsa/src
         - ./data:/var/src/rsa/data
-        - ./config:/var/src/rsa/config
+        - ../config/rsa:/var/src/rsa/config
         - ./test-config:/var/src/rsa/test-config
         - ./.gradle-cache:/root/.gradle/caches
     entrypoint: []

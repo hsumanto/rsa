@@ -67,7 +67,24 @@ RUN mkdir -p /var/tmp/ndg \
         /var/spool/ndg/tmp \
         /var/spool/ndg/upload \
         /var/spool/ndg/pickup \
-        /var/lib/ndg/storagepool
+        /var/lib/ndg/storagepool \
+        /var/src/rsa/config
+
+# Copy over gradle build files by themselves first, so we can don't need to
+# fetch dependencies every time the source code changes.
+COPY src/*.gradle /var/src/rsa/src/
+COPY src/cmdclient/build.gradle /var/src/rsa/src/cmdclient/
+COPY src/rsa-common/build.gradle /var/src/rsa/src/rsa-common/
+COPY src/rsaquery/build.gradle /var/src/rsa/src/rsaquery/
+COPY src/rsaworkers/build.gradle /var/src/rsa/src/rsaworkers/
+COPY src/spatialcubeservice/build.gradle /var/src/rsa/src/spatialcubeservice/
+COPY src/storagemanager/build.gradle /var/src/rsa/src/storagemanager/
+
+WORKDIR /var/src/rsa/src
+
+# Try gradle multiple times in case the first time fails; this can happen if
+# one of the repositories returns a transitory error
+RUN (gradle || gradle || gradle)
 
 COPY src /var/src/rsa/src
 COPY data /var/src/rsa/data
@@ -77,10 +94,7 @@ VOLUME /var/spool/ndg/pickup \
     /var/spool/ndg/upload \
     /var/lib/ndg/storagepool
 
-WORKDIR /var/src/rsa/src
-
-# Try gradle multiple times in case the first time fails; this can happen if
-# one of the repositories returns a transitory error
+# Run the build again now that the source is available.
 RUN (gradle || gradle || gradle)
 
 RUN mkdir -p /var/lib/tomcat${TOMCAT_VERSION}/webapps/rsa \
