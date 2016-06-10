@@ -22,6 +22,8 @@
 	<logger name="org.vpac" level="info"/>
 	<logger name="org.hibernate" level="error"/>
 	<logger name="org.springframework" level="error"/>
+	<!-- p6spy logs SQL statements by intercepting database access -->
+	<logger name="p6spy" level="error"/>
 	<logger name="com.mchange" level="warn"/>
 
 </configuration>

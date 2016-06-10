@@ -69,7 +69,6 @@ dependencies {
         'javax.el:javax.el-api:3.0.0',
         'com.jayway.jsonpath:json-path:2.2.0',
         'org.apache.commons:commons-dbcp2:2.1.1',
-        'p6spy:p6spy:2.3.0',
     )
 }
 

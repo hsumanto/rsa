@@ -22,19 +22,19 @@ dependencies {
     )
 
     runtime (
-        'com.mchange:c3p0:0.9.5.2',
         'cglib:cglib:3.2.2',
+        'com.mchange:c3p0:0.9.5.2',
         'org.hibernate.javax.persistence:hibernate-jpa-2.1-api:1.0.0.Final',
         'org.postgresql:postgresql:9.4-1201-jdbc41',
         "org.springframework:spring-aop:$springVersion",
         "org.springframework:spring-core:$springVersion",
         "org.springframework:spring-expression:$springVersion",
         "org.springframework:spring-jdbc:$springVersion",
+        'p6spy:p6spy:2.3.0',
     )
 
     testRuntime (
         'org.apache.commons:commons-dbcp2:2.1.1',
-        'p6spy:p6spy:2.3.0',
     )
 }
 

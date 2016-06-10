@@ -7,14 +7,17 @@ case ${mode} in
     "web")
         cp -f /var/src/rsa/config/* \
             /var/lib/tomcat${TOMCAT_VERSION}/webapps/rsa/WEB-INF/classes/
+        echo "Starting RSA web server"
         exec /usr/share/tomcat${TOMCAT_VERSION}/bin/catalina.sh run
         ;;
 
     "worker")
+        echo "Starting RSA worker"
         exec ${projdir}/rsaworkers/build/install/rsaworkers/bin/rsaworkers
         ;;
 
     "seed")
+        echo "Starting RSA cluster seed"
         exec ${projdir}/rsaworkers/build/install/rsaworkers/bin/rsaworkers seed
         ;;
 
