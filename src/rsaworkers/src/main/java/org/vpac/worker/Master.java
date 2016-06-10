@@ -95,15 +95,7 @@ public class Master extends UntypedActor {
 	@Override
 	public void onReceive(Object message) throws Exception {
 		//log.info("message:" + message.toString());
-		if (message instanceof UnreachableMember) {
-			UnreachableMember unreachable = (UnreachableMember) message;
-			cluster.leave(unreachable.member().address());
-			log.info("Member is UnreachableMember: {}", unreachable.member());
-		} else if (message instanceof MemberRemoved) {
-			MemberRemoved mRemoved = (MemberRemoved) message;
-			cluster.leave(mRemoved.member().address());
-			log.info("Member is Removed: {}", mRemoved.member());
-		} else if (message instanceof RegisterWorker) {
+		if (message instanceof RegisterWorker) {
 			InetAddress localhost = Inet4Address.getLocalHost();
 			String sAddress = URLDecoder.decode(getSender().path().toString().replace(getSender().path().parent().toString() + "/", ""), "utf-8");
 			Option<String> sHost = getContext().actorSelection(sAddress).anchorPath().address().host();

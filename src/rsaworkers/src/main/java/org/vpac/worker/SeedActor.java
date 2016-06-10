@@ -5,10 +5,12 @@ import akka.actor.UntypedActor;
 import akka.cluster.Cluster;
 import akka.cluster.ClusterEvent;
 import akka.cluster.ClusterEvent.*;
+import akka.actor.ActorSystem;
 
 public class SeedActor extends UntypedActor {
 
-    Cluster cluster = Cluster.get(getContext().system());
+    ActorSystem system = getContext().system();
+    Cluster cluster = Cluster.get(system);
 
     public SeedActor() {
         System.out.println("SeedActor constructor");
@@ -21,11 +23,15 @@ public class SeedActor extends UntypedActor {
     }
 
     @Override
+    public void postStop() {
+        cluster.unsubscribe(getSelf());
+    }
+
+    @Override
     public void onReceive(Object message) throws Exception {
-        if (message instanceof UnreachableMember) {
-            UnreachableMember unreachable = (UnreachableMember) message;
-            cluster.leave(unreachable.member().address());
-            System.out.println("Member is UnreachableMember: " + unreachable.member());
+        System.out.println("message:" + message);
+        if (message instanceof MemberUp) {
+            // cluster.leave(cluster.selfAddress());
         }
     }
 }

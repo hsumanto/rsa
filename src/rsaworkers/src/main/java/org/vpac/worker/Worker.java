@@ -56,9 +56,6 @@ public class Worker extends UntypedActor {
 	public Worker(ActorRef clusterClient, Props workExecutorProps,
 			FiniteDuration registerInterval) {
 		this.clusterClient = clusterClient;
-		// for (ActorSelection act: clusterClient.contacts) {
-		// 	System.out.println("contact:" + act);
-		// }
 		this.workExecutorProps = workExecutorProps;
 		this.registerInterval = registerInterval;
 		this.workExecutor = getContext().watch(
@@ -106,8 +103,6 @@ public class Worker extends UntypedActor {
 
 	@Override
 	public void preStart() {
-		cluster.subscribe(getSelf(), ClusterEvent.initialStateAsEvents(), 
-		    MemberEvent.class, UnreachableMember.class);
 	}
 
 	@Override
@@ -194,21 +189,6 @@ public class Worker extends UntypedActor {
 			getContext().stop(getSelf());
 		} else if (message instanceof WorkIsReady) {
 			// do nothing
-		} else if (message instanceof UnreachableMember) {
-			UnreachableMember unreachable = (UnreachableMember) message;
-			cluster.leave(unreachable.member().address());
-			log.info("Member is UnreachableMember: {}", unreachable.member());
-		} else if (message instanceof MemberRemoved) {
-			MemberRemoved mRemoved = (MemberRemoved) message;
-			cluster.leave(mRemoved.member().address());
-			log.info("Member is Removed: {}", mRemoved.member());
-		} else if (message instanceof MemberUp) {
-			// MemberUp mUp = (MemberUp) message;
-			// log.info("Member is Up: {}", mUp.member().address().port().get());
-
-			// if (mUp.member().address().port().get().equals("2552")) {
-			// 	log.info("Master found: {}", mUp.member());
-			// }
 		} else {
 			super.unhandled(message);
 		}
