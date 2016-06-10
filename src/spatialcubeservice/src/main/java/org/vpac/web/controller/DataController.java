@@ -733,7 +733,9 @@ public class DataController {
 
 			Dataset dataset = datasetDao.findDatasetByName(baseRsaDatasetName, baseRsaDatasetResolution);
 			if(dataset == null)
-				throw new IllegalArgumentException("No dataset found");
+				throw new IllegalArgumentException(
+					String.format("No dataset found: %s at %s",
+					baseRsaDatasetName, baseRsaDatasetResolution));
 			String datasetId = dataset.getId();
 			List<TimeSlice> tsList = datasetDao.getTimeSlices(datasetId);
 			if(tsList == null)

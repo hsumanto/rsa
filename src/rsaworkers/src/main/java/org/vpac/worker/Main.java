@@ -1,41 +1,41 @@
 package org.vpac.worker;
 
 import akka.actor.*;
+import akka.actor.ActorSystem;
 import akka.cluster.Cluster;
 import akka.cluster.client.ClusterClient;
 import akka.cluster.client.ClusterClientSettings;
 import akka.cluster.singleton.ClusterSingletonManager;
 import akka.cluster.singleton.ClusterSingletonManagerSettings;
-
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
-
-import scala.concurrent.duration.Duration;
-import scala.concurrent.duration.FiniteDuration;
-import scala.concurrent.Await;
-import akka.actor.ActorSystem;
-
+import com.typesafe.config.ConfigValue;
+import com.typesafe.config.ConfigValueFactory;
 import java.io.IOException;
 import java.lang.Runnable;
-
-import java.net.InetAddress;
 import java.net.Inet4Address;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.net.Socket;
-import java.net.UnknownHostException;
-import java.net.NetworkInterface;
 import java.net.InterfaceAddress;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.List;
+import java.net.NetworkInterface;
+import java.net.Socket;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
-
+import org.apache.commons.net.util.*;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.vpac.ndg.query.io.DatasetProvider;
 import org.vpac.ndg.query.io.ProviderRegistry;
-import org.apache.commons.net.util.*;
+import scala.concurrent.Await;
+import scala.concurrent.duration.Duration;
+import scala.concurrent.duration.FiniteDuration;
 
 public class Main {
 	private static String systemName = "Workers";
@@ -78,6 +78,7 @@ public class Main {
 
 	public void startSeed() {
 		Config conf = ConfigFactory.load("seed");
+		conf = AkkaUtil.patchConfig(conf);
 		ActorSystem system = ActorSystem.create(systemName, conf);
 		system.actorOf(Props.create(SeedActor.class), "seed");
 		registerStopSystem(system);
@@ -94,10 +95,10 @@ public class Main {
               }
             };
             system.registerOnTermination(exit);
-         
+
             // shut down ActorSystem
             system.terminate();
-         
+
             // In case ActorSystem shutdown takes longer than 10 seconds,
             // exit the JVM forcefully anyway.
             // We must spawn a separate thread to not block current thread,
@@ -109,7 +110,7 @@ public class Main {
                 } catch (Exception e) {
                   System.exit(-1);
                 }
-         
+
               }
             }.start();
           }
@@ -151,9 +152,10 @@ public class Main {
 
 	    system.actorOf(Worker.props(clusterClient, Props.create(WorkExecutor.class)), "worker");
 	}
-	
+
 	public ActorSystem createSystem(String role) {
 		Config conf = ConfigFactory.load(role);
+		conf = AkkaUtil.patchConfig(conf);
 		ActorSystem system = ActorSystem.create(systemName, conf);
 		return system;
 	}

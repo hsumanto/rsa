@@ -35,6 +35,7 @@ dependencies {
         "org.springframework:spring-webmvc:$springVersion",
         project(':rsaquery'),
         project(':rsaquery').sourceSets.filter.output,
+        project(':rsaworkers'),
         project(':storagemanager'),
         project(':rsa-common'),
     )
