@@ -6,6 +6,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement(name = "Column")
 public class TableColumn {
 	private int key;
+	private Integer inputIndex;
 	private String name;
 	private String description;
 	private String units;
@@ -26,6 +27,18 @@ public class TableColumn {
 	}
 	public TableColumn key(int key) {
 		this.key = key;
+		return this;
+	}
+
+	@XmlAttribute
+	public Integer getInputIndex() {
+		return inputIndex;
+	}
+	public void setInputIndex(Integer inputIndex) {
+		this.inputIndex = inputIndex;
+	}
+	public TableColumn inputIndex(Integer inputIndex) {
+		this.inputIndex = inputIndex;
 		return this;
 	}
 

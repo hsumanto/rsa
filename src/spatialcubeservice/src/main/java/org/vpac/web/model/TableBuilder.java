@@ -21,18 +21,20 @@ package org.vpac.web.model;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Map;
 import org.vpac.ndg.common.datamodel.CellSize;
-import org.vpac.ndg.query.stats.Ledger;
-import org.vpac.web.model.response.TableColumn;
-import org.vpac.web.model.response.TabularResponse;
 import org.vpac.ndg.common.datamodel.CellSize;
 import org.vpac.ndg.query.stats.Bucket;
+import org.vpac.ndg.query.stats.BucketingStrategy;
+import org.vpac.ndg.query.stats.BucketingStrategyCategorical;
 import org.vpac.ndg.query.stats.Cats;
 import org.vpac.ndg.query.stats.Hist;
 import org.vpac.ndg.query.stats.Ledger;
+import org.vpac.ndg.query.stats.Ledger;
 import org.vpac.ndg.query.stats.Stats;
+import org.vpac.web.model.response.TableColumn;
+import org.vpac.web.model.response.TabularResponse;
 
 /**
  * Unstructured data.
@@ -97,11 +99,10 @@ public class TableBuilder {
 		// Filtering columns does not result in a "filtered" ledger. Only a
 		// ledger with a different volume (i.e. data *removed* due to
 		// filtered rows) would be considered filtered.
-		if (columns != null && columns.size() > 0)
-			ledger = ledger.filter(columns);
+		ledger = ledger.filter(columns);
 		TabularResponse table = new TabularResponse();
 		table.setTableType("ledger");
-		table.setColumns(ledgerColumns(ledger));
+		table.setColumns(ledgerColumns(ledger, columns));
 		table.setRows(ledgerRows(ledger, ledger, resolution));
 		return table;
 	}
@@ -214,19 +215,33 @@ public class TableBuilder {
 		return rows;
 	}
 
-	public List<TableColumn> ledgerColumns(Ledger ledger) {
+	public List<TableColumn> ledgerColumns(Ledger ledger,
+			List<Integer> originalColumnIndices) {
 		List<TableColumn> columns = new ArrayList<TableColumn>();
 		int i = 0;
+		int ii = 0;
 		for (String bs : ledger.getBucketingStrategies()) {
+			int inputIndex = originalColumnIndices.get(ii);
 			if (bs.equals("categorical")) {
 				columns.add(new TableColumn()
-					.key(i++).name("Category").type("category")
-					.description("The category of the data."));
+					.key(i++).inputIndex(inputIndex)
+					.name("Category").type("category")
+					.description(String.format(
+						"Category values of attribute %d.",
+						inputIndex)));
 			} else {
 				columns.add(new TableColumn()
-					.key(i++).name("Lower Bound").type("lowerBound")
-					.description("The lower bound of the grouping (value range)."));
+					.key(i++).inputIndex(inputIndex)
+					.name("Lower Bound").type("lowerBound")
+					.description(String.format(
+						"Lower bounds of attribute %d.", inputIndex)));
+				columns.add(new TableColumn()
+					.key(i++).inputIndex(inputIndex)
+					.name("Upper Bound").type("upperBound")
+					.description(String.format(
+						"Upper bounds of attribute %d.", inputIndex)));
 			}
+			ii++;
 		}
 		TableColumn area = new TableColumn()
 			.key(i++).name("Area").units("m^2").type("area")
@@ -244,10 +259,20 @@ public class TableBuilder {
 	public List<ArrayList<Double>> ledgerRows(Ledger ledger,
 			Ledger unfilteredLedger, CellSize resolution) {
 		double cellArea = resolution.toDouble() * resolution.toDouble();
+		List<BucketingStrategy> bss = ledger._getBucketingStrategies();
 		List<ArrayList<Double>> rows = new ArrayList<>();
 		for (Map.Entry<List<Double>, Long> entry : ledger.entrySet()) {
+			List<Double> key = entry.getKey();
 			ArrayList<Double> cells = new ArrayList<>();
-			cells.addAll(entry.getKey());
+			for (int i = 0; i < key.size(); i++) {
+				if (bss.get(i) instanceof BucketingStrategyCategorical) {
+					cells.add(key.get(i));
+				} else {
+					double[] bounds = bss.get(i).computeBucketBounds(key.get(i));
+					cells.add(bounds[0]);
+					cells.add(bounds[1]);
+				}
+			}
 			cells.add(entry.getValue() * cellArea);
 			cells.add(unfilteredLedger.get(entry.getKey()) * cellArea);
 			rows.add(new ArrayList<>(cells));

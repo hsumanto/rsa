@@ -396,6 +396,15 @@ public class DataController {
 		}
 
 		TaskLedger tl = tls.get(0);
+
+		if (columns == null || columns.size() == 0) {
+			columns = new ArrayList<>();
+			int nColumns = tl.getLedger().getBucketingStrategies().size();
+			for (int i = 0; i < nColumns; i++) {
+				columns.add(i);
+			}
+		}
+
 		TabularResponse response = new TableBuilder().buildLedger(
 			tl.getLedger(), columns, tl.getOutputResolution());
 		response.setCategorisation(tl.getKey());
