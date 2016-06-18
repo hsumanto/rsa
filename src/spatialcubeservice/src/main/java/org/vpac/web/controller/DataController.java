@@ -318,7 +318,7 @@ public class DataController {
 	@RequestMapping(value="/Task/{id}", method = RequestMethod.GET)
 	public String getTaskById(@PathVariable String id, ModelMap model ) throws ResourceNotFoundException {
 
-		log.info("Data getTaskById");
+		log.debug("Data getTaskById");
 		log.debug("Task ID: {}", id);
 
 		JobProgress j = jobProgressDao.retrieve(id);

@@ -313,12 +313,27 @@ public class Master extends UntypedActor {
 		for (WorkInfo w : list) {
 			Map<String, Foldable<?>> map = (Map<String, Foldable<?>>) w.result;
 			for (Entry<String, ?> v : map.entrySet()) {
-				VectorCats baseResult = (VectorCats) resultMap.get(v.getKey());
-				VectorCats currentResult = (VectorCats) v.getValue();
-				if (baseResult == null)
-					resultMap.put(v.getKey(), currentResult);
-				else
-					resultMap.put(v.getKey(), baseResult.fold(currentResult));
+				Foldable<?> result;
+				if (VectorCats.class.isAssignableFrom(v.getValue().getClass())) {
+					VectorCats baseResult = (VectorCats) resultMap.get(v.getKey());
+					VectorCats currentResult = (VectorCats) v.getValue();
+					if (baseResult == null)
+						result = currentResult;
+					else
+						result = baseResult.fold(currentResult);
+				} else if (Ledger.class.isAssignableFrom(v.getValue().getClass())) {
+					Ledger baseResult = (Ledger) resultMap.get(v.getKey());
+					Ledger currentResult = (Ledger) v.getValue();
+					if (baseResult == null)
+						result = currentResult;
+					else
+						result = baseResult.fold(currentResult);
+				} else {
+					log.warning("Ignorning unrecognised query result {}",
+							v.getValue().getClass());
+					continue;
+				}
+				resultMap.put(v.getKey(), result);
 			}
 		}
 
@@ -340,8 +355,9 @@ public class Master extends UntypedActor {
 				database.tell(msg, getSelf());
 
 			} else {
-				log.debug("Ignorning unrecognised query result {}",
+				log.warning("Ignorning unrecognised query result {}",
 						value.getClass());
+				continue;
 			}
 		}
 	}
