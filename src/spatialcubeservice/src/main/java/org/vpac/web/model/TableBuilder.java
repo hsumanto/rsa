@@ -266,18 +266,23 @@ public class TableBuilder {
 			ArrayList<Double> cells = new ArrayList<>();
 			int nValid = 0;
 			for (int i = 0; i < key.size(); i++) {
-				if (key.get(i) == null) {
-					cells.add(null);
-					continue;
-				}
-				nValid++;
 				if (bss.get(i) instanceof BucketingStrategyCategorical) {
+					if (key.get(i) == null) {
+						cells.add(null);
+						continue;
+					}
 					cells.add(key.get(i));
 				} else {
+					if (key.get(i) == null) {
+						cells.add(null);
+						cells.add(null);
+						continue;
+					}
 					double[] bounds = bss.get(i).computeBucketBounds(key.get(i));
 					cells.add(bounds[0]);
 					cells.add(bounds[1]);
 				}
+				nValid++;
 			}
 			if (nValid == 0)
 				continue;
