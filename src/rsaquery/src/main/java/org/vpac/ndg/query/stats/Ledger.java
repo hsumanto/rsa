@@ -42,8 +42,12 @@ public class Ledger implements Foldable<Ledger>, Serializable {
 	public void add(List<Double> combination) {
 		bucketedCombination.clear();
 		for (int i = 0; i < combination.size(); i++) {
-			double component = combination.get(i);
-			double bucketedValue = bss.get(i).computeBucketBounds(component)[0];
+			Double component = combination.get(i);
+			Double bucketedValue;
+			if (component != null)
+				bucketedValue = bss.get(i).computeBucketBounds(component)[0];
+			else
+				bucketedValue = null;
 			bucketedCombination.add(bucketedValue);
 		}
 		if (!bucketedCombination.equals(currentCombination)) {

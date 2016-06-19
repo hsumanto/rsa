@@ -84,6 +84,8 @@ public class StatisticsDaoTest {
 		Ledger ledger = new Ledger();
 		ledger.setBucketingStrategies(
 			Arrays.asList("categorical", "categorical"));
+		ledger.add(Arrays.asList(0.0, null));
+		ledger.add(Arrays.asList(null, 1.0));
 		ledger.add(Arrays.asList(0.0, 1.0));
 		ledger.add(Arrays.asList(0.0, 1.0));
 		ledger.add(Arrays.asList(1.0, 1.0));
@@ -98,7 +100,7 @@ public class StatisticsDaoTest {
 		Ledger l2 = statisticsDao.getLedger(ledgerId);
 		assertNotNull(l2);
 		assertFalse(l2 == ledger);
-		assertEquals("Ledger(2x2)", l2.toString());
+		assertEquals("Ledger(2x4)", l2.toString());
 		for (List<Double> key : ledger.keySet()) {
 			assertEquals(ledger.get(key), l2.get(key));
 		}

@@ -618,6 +618,12 @@ public class QueryTest extends TestCase {
 			Comparator<T> natural = Comparator.<T>naturalOrder();
 			int len = Math.min(a.size(), b.size());
 			for (int i = 0; i < len; i++) {
+				if (a.get(i) == null && b.get(i) == null)
+					return 0;
+				else if (a.get(i) == null)
+					return -1;
+				else if (b.get(i) == null)
+					return 1;
 				int ord = natural.compare(a.get(i), b.get(i));
 				if (ord != 0)
 					return ord;

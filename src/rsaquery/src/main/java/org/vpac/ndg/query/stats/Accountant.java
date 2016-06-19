@@ -72,10 +72,17 @@ public class Accountant implements Filter, Accumulator<Ledger> {
 	public void kernel(VectorReal coords) throws IOException {
 		Element<?> pixel = input.getPixel(coords);
 		List<Double> components = new ArrayList<>();
+		int nValid = 0;
 		for (ScalarElement c : pixel.getComponents()) {
-			components.add(c.doubleValue());
+			if (c.isValid()) {
+				components.add(c.doubleValue());
+				nValid++;
+			} else {
+				components.add(null);
+			}
 		}
-		ledger.add(components);
+		if (nValid > 0)
+			ledger.add(components);
 		output.set(pixel);
 	}
 

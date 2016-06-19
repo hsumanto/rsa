@@ -264,7 +264,13 @@ public class TableBuilder {
 		for (Map.Entry<List<Double>, Long> entry : ledger.entrySet()) {
 			List<Double> key = entry.getKey();
 			ArrayList<Double> cells = new ArrayList<>();
+			int nValid = 0;
 			for (int i = 0; i < key.size(); i++) {
+				if (key.get(i) == null) {
+					cells.add(null);
+					continue;
+				}
+				nValid++;
 				if (bss.get(i) instanceof BucketingStrategyCategorical) {
 					cells.add(key.get(i));
 				} else {
@@ -273,6 +279,8 @@ public class TableBuilder {
 					cells.add(bounds[1]);
 				}
 			}
+			if (nValid == 0)
+				continue;
 			cells.add(entry.getValue() * cellArea);
 			cells.add(unfilteredLedger.get(entry.getKey()) * cellArea);
 			rows.add(new ArrayList<>(cells));

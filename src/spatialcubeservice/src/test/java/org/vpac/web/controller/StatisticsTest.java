@@ -159,7 +159,7 @@ public class StatisticsTest extends WebServiceTestBase {
 			.andExpect(jsonPath("$.columns[3,4].type", everyItem(is("area"))))
 			.andExpect(jsonPath("$.columns[?(@.inputIndex == 0)]", hasSize(1)))
 			.andExpect(jsonPath("$.columns[?(@.inputIndex == 1)]", hasSize(2)))
-			.andExpect(jsonPath("$.rows", hasSize(3)))
+			.andExpect(jsonPath("$.rows", hasSize(4)))
 			.andExpect(jsonPath("$.rows", everyItem(hasSize(5))));
 
 		mockMvc.perform(get(
@@ -232,6 +232,7 @@ public class StatisticsTest extends WebServiceTestBase {
 		Ledger ledger = new Ledger();
 		ledger.setBucketingStrategies(
 			Arrays.asList("categorical", "log"));
+		ledger.add(Arrays.asList(null, 1.0));
 		ledger.add(Arrays.asList(0.0, 1.0));
 		ledger.add(Arrays.asList(1.0, 2.0));
 		ledger.add(Arrays.asList(0.0, 1.0));
