@@ -28,13 +28,13 @@ public interface ITask {
 	/**
 	 * Perform initialisation on the task.
 	 * @throws TaskInitialisationException An error encountered during initialisation of the task.
-	 */	
+	 */
 	public void initialise() throws TaskInitialisationException;
 	/**
 	 * Perform the execution of the task.
 	 * @throws TaskException An error ecountered during execution of the task.
 	 */
-	public void execute(Collection<String> actionLog) throws TaskException;
+	public void execute(Collection<String> actionLog, IProgressCallback progressCallback) throws TaskException;
 	/**
 	 * Perform the required rollback action when task execution has failed.
 	 */
@@ -48,5 +48,8 @@ public interface ITask {
 	 * @return Returns the description of the task.
 	 */
 	public String getDescription();
-
+	/**
+	 * Get the contribution of this task to task piplines overall progress
+	 */
+	public double getProgressWeight();
 }

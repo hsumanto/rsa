@@ -57,10 +57,10 @@ public class GraphicsFileCreator extends Task {
 		if(target == null) {
 			throw new TaskInitialisationException(getDescription(), Constant.ERR_TARGET_DATASET_NOT_SPECIFIED);
 		}
-	}	
-	
+	}
+
 	@Override
-	public void execute(Collection<String> actionLog) throws TaskException {
+	public void execute(Collection<String> actionLog, IProgressCallback progressCallback) throws TaskException {
 		if(source.isEmpty()) {
 			throw new TaskException(getDescription(), Constant.ERR_NO_INPUT_IMAGES);
 		}
@@ -87,12 +87,12 @@ public class GraphicsFileCreator extends Task {
 
 	@Override
 	public void rollback() {
-		// Do nothing		
+		// Do nothing
 	}
 
 	@Override
 	public void finalise() {
-		// Do nothing		
+		// Do nothing
 	}
 
 	public void setSource(List<TileBand> source) {

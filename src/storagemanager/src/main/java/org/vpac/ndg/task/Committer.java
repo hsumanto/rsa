@@ -48,7 +48,7 @@ import org.vpac.ndg.storage.util.TimeSliceUtil;
  * This class is responsible for copy the tile from their temporary storage into
  * the storage pool. Once all tiles have been successfully moved into storage pool
  * then save them into database and increase upload counter for TimeSlice.
- * 
+ *
  * @author hsumanto
  *
  */
@@ -103,7 +103,7 @@ public class Committer extends Task {
 	// FIXME: This is not actually transactional because this class is not a spring bean!
 	@Transactional
 	@Override
-	public void execute(Collection<String> actionLog) throws TaskException {
+	public void execute(Collection<String> actionLog, IProgressCallback progressCallback) throws TaskException {
 		log.debug("TASK = {}", getDescription());
 
 		// If nothing to commit then do nothing
@@ -113,13 +113,13 @@ public class Committer extends Task {
 
 		actionLog.add("Renaming tiles");
 		for(TileBand tileband: source) {
-			log.debug("SOURCE = {}", tileband.getFileLocation());	
+			log.debug("SOURCE = {}", tileband.getFileLocation());
 			// Rename an existing tileband by adding .old extension into the tileband name.
 			tileband.renameExistingTileAsOld();
 			// Copy the tileband into its default location in storagepool.
-			tileband.copyIntoDefaultLocationInStoragePool();		
+			tileband.copyIntoDefaultLocationInStoragePool();
 			// Add tileband into tile list if it doesn't exist in this time slice
-			log.debug("TARGET = {}", tileband.getFileLocation());						
+			log.debug("TARGET = {}", tileband.getFileLocation());
 			log.info("Committing {} tile = {}", tileband.getBand().getName(),
 					tileband.getTileNameWithExtention());
 		}
@@ -147,7 +147,7 @@ public class Committer extends Task {
 		} catch (IOException e) {
 			throw new TaskException(e);
 		}
-		
+
 		if (band.getNodata() == null || band.getType() == null) {
 			if (band.getNodata() != null) {
 				if (!band.getNodata().equals(dstnodata))
@@ -160,7 +160,7 @@ public class Committer extends Task {
 					throw new TaskException("Can't change band's type.");
 			}
 			band.setType(datatype);
-			
+
 			try {
 				bandUtil.createBlankTile(dataset, band);
 			} catch (IOException e) {
@@ -184,7 +184,7 @@ public class Committer extends Task {
 		if(source == null) {
 			return;
 		}
-		
+
 		// Move back to old location
 		for(TileBand tileband: source) {
 			try {
@@ -202,7 +202,7 @@ public class Committer extends Task {
 		if(source == null) {
 			return;
 		}
-		
+
 		// Delete old tiles
 		for(TileBand tileband: source) {
 			tileband.deleteTileInPreviousStorage();
@@ -220,7 +220,7 @@ public class Committer extends Task {
 	public void setTarget(TimeSlice target) {
 		this.target = target;
 	}
-	
+
 	public TimeSlice getTarget() {
 		return target;
 	}

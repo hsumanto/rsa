@@ -19,8 +19,10 @@
 
 package org.vpac.ndg.task;
 
-import org.vpac.ndg.storage.model.JobProgress;
+import java.util.Collection;
 
+import org.vpac.ndg.storage.model.JobProgress;
+import org.vpac.ndg.exceptions.TaskException;
 /**
  * This abstract class represents a command to be executed.
  * @author hsumanto
@@ -37,6 +39,8 @@ public abstract class Task implements ITask {
 	private boolean cleanupTarget;
 	/** Perform checking on source during execution */
 	private boolean checkSource;
+	/** Weight indicating how much contribution this task has to a task pipeline*/
+	private double progressWeight = 0.0;
 	/**
 	 * Construct a task using the specified description.
 	 * @param description The given task description.
@@ -49,7 +53,12 @@ public abstract class Task implements ITask {
 		// By default check source during execution
 		setCheckSource(true);
 	}
-	
+
+	public void execute(Collection<String> actionLog) throws TaskException {
+		//implemented to maintain compatibility with previous ITask interface
+		this.execute(actionLog, null);
+	}
+
 	public void setDescription(String description) {
 		this.description = description;
 	}
@@ -90,4 +99,11 @@ public abstract class Task implements ITask {
 		this.checkSource = checkSource;
 	}
 
+	public double getProgressWeight() {
+		return progressWeight;
+	}
+
+	public void setProgressWeight(double progressWeight) {
+		this.progressWeight = progressWeight;
+	}
 }

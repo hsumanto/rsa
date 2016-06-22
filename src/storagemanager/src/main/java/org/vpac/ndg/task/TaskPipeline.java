@@ -40,7 +40,7 @@ import org.vpac.ndg.storage.model.JobProgress;
  * Manages a collection of tasks as a transaction.
  * @author hsumanto
  */
-public class TaskPipeline {
+public class TaskPipeline implements IProgressCallback {
 
 	final private Logger log = LoggerFactory.getLogger(TaskPipeline.class);
 
@@ -55,6 +55,9 @@ public class TaskPipeline {
 	/** for differentiating main pipeline and child pipeline */
 	private boolean isMain;
 	private Collection<String> actionLog;
+
+	/** if it remains zero, task contribution weights are ignored */
+	private double totalTaskPipelineWeight = 0.0;
 
 	public TaskPipeline() {
 		this(true);
@@ -93,7 +96,7 @@ public class TaskPipeline {
 	 */
 	public void initialise() throws TaskInitialisationException {
 		// This must be done first to ensure the task ID is initialised.
-		taskpipelineCurrentState(TaskState.RUNNING); 
+		taskpipelineCurrentState(TaskState.RUNNING);
 
 		String tab = Constant.EMPTY;
 		if (!isMain) {
@@ -108,6 +111,7 @@ public class TaskPipeline {
 					currTaskStep, task.getDescription()));
 			task.initialise();
 			currTaskStep++;
+			totalTaskPipelineWeight += task.getProgressWeight();
 		}
 
 	}
@@ -133,7 +137,7 @@ public class TaskPipeline {
 		for (ITask task : queue) {
 			log.debug(String.format("%sTASK_EXEC [%s] = %s", tab,
 					currTaskStep, task.getDescription()));
-			task.execute(actionLog);
+			task.execute(actionLog, this);
 			taskpipelineCurrentStep(currTaskStep, task.getDescription());
 			currTaskStep++;
 		}
@@ -175,7 +179,7 @@ public class TaskPipeline {
 
 		log.info("{}START OF TASK FINALISE", tab);
 
-		// Reverse the order of task in the queue so that 
+		// Reverse the order of task in the queue so that
 		// cleaning up is performed from the last task to the beginning task
 		Collections.reverse(queue);
 
@@ -226,7 +230,7 @@ public class TaskPipeline {
 	 * Set the name for the current taskpipeline.
 	 * Also set the progress name and its task type.
 	 * @param name The name for this taskpipeline.
-	 * @param description The description for this taskpipeline. 
+	 * @param description The description for this taskpipeline.
 	 * @param taskType The type of taskpipeline.
 	 */
 	private void setProgressName(String name, TaskType taskType) {
@@ -266,8 +270,45 @@ public class TaskPipeline {
 			return;
 		}
 
-		getProgress().setCurrentStep(currTaskStep, currTaskDesc);
-		getProgress().updateProgressBasedOnCurrentStep();
+		if (totalTaskPipelineWeight == 0.0) {
+			//set progress based only on number of completed steps
+			getProgress().setCurrentStep(currTaskStep, currTaskDesc);
+			getProgress().updateProgressBasedOnCurrentStep();
+		} else {
+			//calculate based on weights of each task
+			double weightedProgressSum = 0.0;
+			for (int i = 0; i < currTaskStep; i++) {
+				ITask t = queue.get(i);
+				weightedProgressSum += t.getProgressWeight();
+			}
+			double weightedProgressPercent = weightedProgressSum / totalTaskPipelineWeight * 100.0;
+
+			getProgress().setCurrentStep(currTaskStep, currTaskDesc);
+			getProgress().setCurrentStepProgress(weightedProgressPercent);
+		}
+
+		jobProgressDao.save(getProgress());
+	}
+
+	public void progressUpdated(double progress) {
+		//progress updated via callback
+
+		int currentStep = getProgress().getCurrentStep();
+
+		//calculate weighted sum of completed tasks
+		double weightedProgressSum = 0.0;
+		for (int i = 0; i < currentStep; i++) {
+			ITask t = queue.get(i);
+			weightedProgressSum += t.getProgressWeight();
+		}
+
+		double partialTaskProgress =
+			(progress / 100.0) * queue.get(currentStep).getProgressWeight();
+		weightedProgressSum += partialTaskProgress;
+
+		double weightedProgressPercent = weightedProgressSum / totalTaskPipelineWeight * 100.0;
+
+		getProgress().setCurrentStepProgress(weightedProgressPercent);
 		jobProgressDao.save(getProgress());
 	}
 

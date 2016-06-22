@@ -30,7 +30,7 @@ import org.vpac.ndg.storagemanager.GraphicsFile;
 /**
  * WMTS Query Creator uses a number of gdal commands to build a set of tiles suitable
  * for consumption by a Web Mapping Tiling Service (WMTS) client
- * 
+ *
  * @author lachlan
  *
  */
@@ -39,7 +39,7 @@ public class WmtsQueryCreator extends Application {
     public static final String WMTS_TILE_DIR = "wmts";
 
     final private Logger log = LoggerFactory.getLogger(WmtsQueryCreator.class);
-    
+
     private String queryJobProgressId;
 
     // Legacy; replaced by palette
@@ -49,9 +49,9 @@ public class WmtsQueryCreator extends Application {
 
     JobProgressDao jobProgressDao;
     NdgConfigManager ndgConfigManager;
-    
+
     DatasetUtil datasetUtil;
-    
+
     public WmtsQueryCreator() {
         ApplicationContext appContext = ApplicationContextProvider.getApplicationContext();
         jobProgressDao = (JobProgressDao) appContext.getBean("jobProgressDao");
@@ -59,7 +59,7 @@ public class WmtsQueryCreator extends Application {
 
         datasetUtil = new DatasetUtil();
     }
-    
+
 
     @Override
     protected void initialise() throws TaskInitialisationException {
@@ -74,7 +74,7 @@ public class WmtsQueryCreator extends Application {
         JobProgress jobProgress = jobProgressDao.retrieve(queryJobProgressId);
         if(jobProgress == null) {
             // Capture if dataset not exist
-            throw new TaskInitialisationException(String.format("Job/Task with ID = \"%s\" not found.", queryJobProgressId));         
+            throw new TaskInitialisationException(String.format("Job/Task with ID = \"%s\" not found.", queryJobProgressId));
         }
 
         // Get a palette.
@@ -93,7 +93,7 @@ public class WmtsQueryCreator extends Application {
         }
 
         log.info("Query Job Progress : {}", jobProgress);
-        
+
         if (jobProgress.getState() == TaskState.FINISHED && jobProgress.getTaskType() == TaskType.Query) {
             //then the task does refer to a query, that has completed execution
         }
@@ -114,25 +114,25 @@ public class WmtsQueryCreator extends Application {
 		}
     }
 
-    
+
     /**
      * make the tasks that will run the tile creation process.
      * @throws TaskException
      */
-    protected void createTasks() throws TaskInitialisationException 
+    protected void createTasks() throws TaskInitialisationException
     {
-        
+
         if (queryJobProgressId == null) {
             throw new TaskInitialisationException("Query job/task id not specified");
         }
-        
+
         createTasksForQuery(this.queryJobProgressId);
     }
-    
-    protected void createTasksForQuery(String queryJobProgressId) throws TaskInitialisationException 
+
+    protected void createTasksForQuery(String queryJobProgressId) throws TaskInitialisationException
     {
 
-        
+
         //
         // TASK 2
         // Make a VRT file containing all the timeslices netcdf files for a single band
@@ -148,7 +148,7 @@ public class WmtsQueryCreator extends Application {
         if (sampleFiles.size() > 0) {
             outputInfo.setSource(getQueryResultsDirectory());
         }
-        
+
         GraphicsFile allQueryTiles = new GraphicsFile(getQueryResultsDirectory());
         List<GraphicsFile> translateInputs = new ArrayList<>();
         VrtBuilder sourceVrtBuilder = new VrtBuilder("Create VRT of single band/timeslice");
@@ -177,11 +177,12 @@ public class WmtsQueryCreator extends Application {
         // Get the min and max for the dataset so we can scale this into a range of 0-255 appropriately
         //
         FileStatistics stats = new FileStatistics();
+        stats.setProgressWeight(5.0);
         stats.setSource(vrtMosaicFile);
         stats.setApproximate(false);
         sourceVrtBuilder.setTarget(vrtMosaicFile);
         //NOTE: we grab some of the scalar recievers from this task to feed values into the next task
-        
+
         //
         // TASK 4
         // Convert vrt file into a byte based geotiff, gdal was having problems with too many nested vrts
@@ -189,8 +190,9 @@ public class WmtsQueryCreator extends Application {
         Path tifByte = getWorkingDirectory().resolve(targetName + "_byte" + GdalFormat.GEOTIFF.getExtension());
         GraphicsFile tifByteFile = new GraphicsFile(tifByte);
         tifByteFile.setFormat(GdalFormat.GEOTIFF);
-        
+
         Translator vrtToByteTif = new Translator("Translating vrt (nc based) into tif file of type byte");
+        vrtToByteTif.setProgressWeight(5.0);
         setTaskCleanupOptions(vrtToByteTif);
         vrtToByteTif.setSource(vrtMosaicFile);
         vrtToByteTif.setTarget(tifByteFile);
@@ -199,7 +201,7 @@ public class WmtsQueryCreator extends Application {
         byteLowestValue.set(1.0);
         ScalarReceiver<Double> byteHighestValue = new ScalarReceiver<Double>();
         byteHighestValue.set(255.0);
-        
+
         //set the scale using scalar recievers as this info will not be know till the previous task is run
         List<ScalarReceiver<Double>> scale = new ArrayList<ScalarReceiver<Double>>();
         scale.add(stats.getMin());
@@ -207,27 +209,29 @@ public class WmtsQueryCreator extends Application {
         scale.add(byteLowestValue);
         scale.add(byteHighestValue);
         vrtToByteTif.setScale(scale);
-        
+
         //
         // TASK 5
         // Make another vrt file so that we can insert a colour table into it
         Path vrtWithNoColour = getWorkingDirectory().resolve(targetName + "_noColour" + Constant.EXT_VRT);
         GraphicsFile vrtWithNoColourFile = new GraphicsFile(vrtWithNoColour);
-        
+
         VrtBuilder noColourVrtBuilder = new VrtBuilder("Building VRT based on Byte layer");
+        noColourVrtBuilder.setProgressWeight(2.0);
         setTaskCleanupOptions(noColourVrtBuilder);
         noColourVrtBuilder.setSource(tifByteFile);
         noColourVrtBuilder.setTarget(vrtWithNoColourFile);
         noColourVrtBuilder.setTemporaryLocation(getWorkingDirectory());
         noColourVrtBuilder.setCopyToStoragePool(false);
-        
+
         //
         // TASK 6
         // Make a VRT file with colour table
         Path vrtWithColour = getWorkingDirectory().resolve(targetName + "_Colour" + Constant.EXT_VRT);
         GraphicsFile vrtWithColourFile = new GraphicsFile(vrtWithColour);
-        
+
         VrtColouriser vrtColourer = new VrtColouriser();
+        vrtColourer.setProgressWeight(10.0);
         setTaskCleanupOptions(vrtColourer);
         vrtColourer.setSource(vrtWithNoColourFile);
         vrtColourer.setTarget(vrtWithColourFile);
@@ -241,25 +245,27 @@ public class WmtsQueryCreator extends Application {
         Path vrtWithColourExpanded = getWorkingDirectory().resolve(targetName + "_Colour_Expanded" + Constant.EXT_VRT);
         GraphicsFile vrtWithColourExpandedFile = new GraphicsFile(vrtWithColourExpanded);
         vrtWithColourExpandedFile.setFormat(GdalFormat.VRT);
-        
+
         Translator vrtToExpandedVrt = new Translator("Expanding vrt with colour table");
+        vrtToExpandedVrt.setProgressWeight(20.0);
         setTaskCleanupOptions(vrtToExpandedVrt);
         vrtToExpandedVrt.setSource(vrtWithColourFile);
         vrtToExpandedVrt.setTarget(vrtWithColourExpandedFile);
         log.info("TASK 7, vrtWithColourFile:" + vrtWithColourFile);
         vrtToExpandedVrt.setExpand("rgba");
-        
+
         //
         // TASK 8
         // Use gdal2tiles.py to actually build the tiles (HORAy)
         Path wmtsDir = getWorkingDirectory().resolve(targetName);
-        
+
         TileBuilder tileBuilder = new TileBuilder();
+        tileBuilder.setProgressWeight(70.0);
         tileBuilder.setSource(vrtWithColourExpandedFile);
         tileBuilder.setTarget(wmtsDir);
         tileBuilder.setProfile("raster");
-        
-        
+
+
         // ADD TASKS
         getTaskPipeline().addTask(outputInfo);
         getTaskPipeline().addTask(sourceVrtBuilder);
@@ -269,7 +275,7 @@ public class WmtsQueryCreator extends Application {
         getTaskPipeline().addTask(vrtColourer);
         getTaskPipeline().addTask(vrtToExpandedVrt);
         getTaskPipeline().addTask(tileBuilder);
-        
+
     }
 
     private List<Path> getSourceFilesFromPath(Path dir) {
@@ -288,7 +294,7 @@ public class WmtsQueryCreator extends Application {
         return sourceFiles;
     }
 
-    
+
     /**
      * stop the task pipeline from deleting the output files automatically
      * @param t
@@ -297,7 +303,7 @@ public class WmtsQueryCreator extends Application {
         t.setCleanupSource(false);
         t.setCleanupTarget(false);
     }
-    
+
     /**
      * returns the directory where the results for this query were placed
      * @return
@@ -305,22 +311,22 @@ public class WmtsQueryCreator extends Application {
     protected Path getQueryResultsDirectory() {
         Path pickupPath = Paths.get(ndgConfigManager.getConfig().getDefaultPickupLocation());
         Path queryPickupPath = pickupPath.resolve(getQueryJobProgressId());
-        
+
         return queryPickupPath;
     }
-    
+
     /**
-     * working directory for the WMTS Query creator is currently under the queries pickup dir 
+     * working directory for the WMTS Query creator is currently under the queries pickup dir
      */
     protected Path getWorkingDirectory() {
         Path queryPickupPath = getQueryResultsDirectory();
-        
+
         Path wd = queryPickupPath.resolve(WMTS_TILE_DIR);
         if (!wd.toFile().exists())
             wd.toFile().mkdirs();
         return wd;
     }
-    
+
     @Override
     protected String getJobName() {
         return "building wmts tiles";
@@ -338,7 +344,7 @@ public class WmtsQueryCreator extends Application {
         else
             return "Builing WMTS query tiles";
     }
-    
+
     public String getQueryJobProgressId() {
         return queryJobProgressId;
     }

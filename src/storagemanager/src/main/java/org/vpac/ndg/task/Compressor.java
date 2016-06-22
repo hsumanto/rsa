@@ -65,7 +65,7 @@ public class Compressor extends Task {
 	}
 
 	@Override
-	public void execute(Collection<String> actionLog) throws TaskException {
+	public void execute(Collection<String> actionLog, IProgressCallback progressCallback) throws TaskException {
 		// Collate all source files.
 		List<Path> paths = new ArrayList<>();
 		for (List<GraphicsFile> gs : sourceGraphicsFiles) {
@@ -75,7 +75,7 @@ public class Compressor extends Task {
 					log.info("Non-existent file excluded from compression process:\n{}", g.getFileLocation());
 					continue;
 				}
-				
+
 				paths.add(g.getFileLocation());
 			}
 		}

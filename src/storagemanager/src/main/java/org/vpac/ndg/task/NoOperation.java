@@ -41,7 +41,7 @@ public class NoOperation extends Task {
 	}
 
 	@Override
-	public void execute(Collection<String> actionLog) throws TaskException {
+	public void execute(Collection<String> actionLog, IProgressCallback progressCallback) throws TaskException {
 		// Do nothing
 	}
 

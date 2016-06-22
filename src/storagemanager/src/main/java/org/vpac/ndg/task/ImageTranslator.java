@@ -32,9 +32,9 @@ import org.vpac.ndg.storagemanager.GraphicsFile;
 /**
  * This class responsible to translate an image from one format to another
  * format.
- * 
+ *
  * @author hsumanto
- * 
+ *
  */
 public class ImageTranslator extends Translator {
 
@@ -72,7 +72,7 @@ public class ImageTranslator extends Translator {
 	}
 
 	@Override
-	public void execute(Collection<String> actionLog) throws TaskException {
+	public void execute(Collection<String> actionLog, IProgressCallback progressCallback) throws TaskException {
 		if (getLayerIndex() < 1) {
 			// If invalid layer index specified then throws exception
 			throw new TaskException(getDescription(),

@@ -32,22 +32,22 @@ public class OutputDirStatistics extends Task {
     private final String STATS_MIN = "STATISTICS_MINIMUM";
     private final String PIXEL_TYPE = "PIXELTYPE";
     private final String NO_DATA = "NoData Value";
-    
+
     private Path sourceDir;
     private boolean approximate;
-    
+
     //the gathered stats
     private ScalarReceiver<Double> max;
     private ScalarReceiver<Double> min;
     private ScalarReceiver<Double> nodata;
     private ScalarReceiver<String> pixelType;
 
-    
-    
+
+
     public OutputDirStatistics() {
         this("Extracting statistics from output dir");
     }
-    
+
     public OutputDirStatistics(String description) {
         super(description);
     }
@@ -69,28 +69,28 @@ public class OutputDirStatistics extends Task {
 
         command.add("-noct");
         // command.add("-mm");
-        
+
         if (approximate) {
             command.add("-approx_stats");
         } else {
             command.add("-stats");
         }
-        
+
         // command.add(source.getFileLocation().toString());
         // log.info("command:" + command);
         return command;
     }
 
-    
-    
+
+
     @Override
-    public void execute(Collection<String> actionLog) throws TaskException {
-        
+    public void execute(Collection<String> actionLog, IProgressCallback progressCallback) throws TaskException {
+
         try {
             Files.walk(sourceDir).forEach(filePath -> {
                 String stdout = "";
                 List<String> command = prepareCommand();
-                
+
                 String listString = "";
                 for (String s : command) {
                     listString += s + " ";
@@ -106,7 +106,7 @@ public class OutputDirStatistics extends Task {
                         actionLog.add(StringUtils.join(command, " "));
                         ProcessBuilder pb = new ProcessBuilder(command);
                         Process process = pb.start();
-                        
+
                         BufferedReader br = new BufferedReader(new InputStreamReader(process.getInputStream()));
                         StringBuilder builder = new StringBuilder();
                         String line = null;
@@ -123,8 +123,8 @@ public class OutputDirStatistics extends Task {
                     //We'll end up with a block of data at the end of this similar to
                     //STATISTICS_MAXIMUM=389
                     //STATISTICS_MINIMUM=300
-                     
-                    
+
+
                     //Read the info we're after and put it in some scalar receivers
                     String lines[] = stdout.split(System.lineSeparator());
                     for (String line2: lines) {
@@ -160,7 +160,7 @@ public class OutputDirStatistics extends Task {
         String numberBit = line.substring(line.indexOf('=')+1);
         return Double.parseDouble(numberBit);
     }
-    
+
     private void setComputedValues(String line) {
         String minAndMax = line.substring(line.indexOf('=')+1);
         Double min = Double.parseDouble(minAndMax.split(",")[0]);

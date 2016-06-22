@@ -32,9 +32,9 @@ public class VrtColouriser extends Task {
 
     public static final int NUMBER_OF_COLOURS = 256;
     public static final String INSERT_BEFORE_DEFAULT = "<ColorInterp>";
-    
+
     private String insertBefore;
-    
+
     private GraphicsFile source;
     private GraphicsFile target;
     private Palette palette;
@@ -42,7 +42,7 @@ public class VrtColouriser extends Task {
     public VrtColouriser() {
         this("Adding Colour Table to VRT file");
     }
-    
+
     public VrtColouriser(String description) {
         super(description);
         this.insertBefore = INSERT_BEFORE_DEFAULT;
@@ -59,19 +59,19 @@ public class VrtColouriser extends Task {
             throw new TaskInitialisationException(getDescription(),
                     Constant.ERR_TARGET_DATASET_NOT_SPECIFIED);
         }
-        
+
         if (!getSource().getFileLocation().toFile().toString().endsWith(Constant.EXT_VRT)) {
             throw new TaskInitialisationException(getDescription(),
                     "Source must be a VRT file");
         }
-        
+
         if (!getTarget().getFileLocation().toFile().toString().endsWith(Constant.EXT_VRT)) {
             throw new TaskInitialisationException(getDescription(),
                     "Target must be a VRT file");
         }
 
     }
-    
+
     /**
      * tests weather the xml should be included at this line
      * @param line
@@ -81,16 +81,16 @@ public class VrtColouriser extends Task {
         String trimmed = line.trim();
         return trimmed.startsWith(insertBefore);
     }
-    
+
     @Override
-    public void execute(Collection<String> actionLog) throws TaskException {
+    public void execute(Collection<String> actionLog, IProgressCallback progressCallback) throws TaskException {
         if (source == null) {
             // Can't work with zero input files. Just return; the output list
             // will not be populated. This is not an error.
             log.debug("Source is empty; will not create a VRT.");
             return;
         }
-        
+
         //delete the target file if it exists (as we'll overwrite it anyway)
         if (target.getFileLocation().toFile().exists()) {
             actionLog.add(String.format("rm %s", target.getFileLocation()));
@@ -103,7 +103,7 @@ public class VrtColouriser extends Task {
         log.info("Using palette {}", palette);
 
         actionLog.add(String.format("Reading VRT from %s", source.getFileLocation()));
-        //Read all the lines in the source VRT file, this shouldn't be large 
+        //Read all the lines in the source VRT file, this shouldn't be large
         List<String> lines;
         try {
             lines = Files.readAllLines(source.getFileLocation(), Charset.defaultCharset());
@@ -118,7 +118,7 @@ public class VrtColouriser extends Task {
             File output = target.getFileLocation().toFile();
 
             writer = new BufferedWriter(new FileWriter(output));
-            
+
             //write each line of the source to the target, and add in some xml along the way...
             for (String line: lines) {
                 if (isInsertionPoint(line)) {
@@ -140,8 +140,8 @@ public class VrtColouriser extends Task {
             } catch (Exception e) {
             }
         }
-        
-        
+
+
 
     }
 
@@ -150,16 +150,16 @@ public class VrtColouriser extends Task {
      * @return
      */
     public String getColourTable() {
-        
+
         Color[] colours = getColours();
-        
+
         StringBuilder sb = new StringBuilder();
         sb.append("<ColorTable>" + System.lineSeparator());
-        
+
         for (Color c: colours) {
             sb.append("    " + colourToVrtXml(c) + System.lineSeparator());
         }
-        
+
         sb.append("</ColorTable>" + System.lineSeparator());
         //log.info("ColorTable:"+ sb.toString());
         return sb.toString();
@@ -183,14 +183,14 @@ public class VrtColouriser extends Task {
      * @return
      */
     private String colourToVrtXml(Color colour) {
-        
-        return String.format("<Entry c1=\"%d\" c2=\"%d\" c3=\"%d\" c4=\"%d\" />", 
-                             colour.getRed(), 
-                             colour.getGreen(), 
-                             colour.getBlue(), 
-                             colour.getAlpha());   
+
+        return String.format("<Entry c1=\"%d\" c2=\"%d\" c3=\"%d\" c4=\"%d\" />",
+                             colour.getRed(),
+                             colour.getGreen(),
+                             colour.getBlue(),
+                             colour.getAlpha());
     }
-    
+
     @Override
     public void rollback() {
         // nothing to do
@@ -242,18 +242,18 @@ public class VrtColouriser extends Task {
      * @param args
      */
     public static void main (String[] args) {
-        
+
         VrtColouriser colouriser = new VrtColouriser();
 
         colouriser.setPalette(NamedPalette.get("hash255", 1, 255));
         System.out.println(colouriser.getColourTable());
         System.out.println();
-        
+
         colouriser.setPalette(NamedPalette.get("rainbow240", 1, 255));
         System.out.println(colouriser.getColourTable());
         System.out.println();
-        
+
     }
-    
-    
+
+
 }

@@ -48,7 +48,7 @@ public class TileUpdater extends Task {
 
 	private List<TileBand> source;
 	private List<TileBand> target;
-	private TimeSlice timeSlice;	
+	private TimeSlice timeSlice;
 	private TaskPipeline innerTaskPipeline = new TaskPipeline(false);
 	private Path tempDir;
 	private String srcnodata;
@@ -57,7 +57,7 @@ public class TileUpdater extends Task {
 	TimeSliceDao timeSliceDao;
 	TimeSliceUtil timeSliceUtil;
 	TileManager tileManager;
-	
+
 	public TileUpdater() {
 		this(Constant.TASK_DESCRIPTION_TILEUPDATER);
 	}
@@ -76,10 +76,10 @@ public class TileUpdater extends Task {
 	}
 
 	@Override
-	public void execute(Collection<String> actionLog) throws TaskException {
+	public void execute(Collection<String> actionLog, IProgressCallback progressCallback) throws TaskException {
 		innerTaskPipeline.setActionLog(actionLog);
 
-		for(TileBand tileband: source) {			
+		for(TileBand tileband: source) {
 			Tile t = tileband.getTile();
 			Dataset dataset = timeSliceDao.getParentDataset(timeSlice.getId());
 			Box tileBounds = tileManager.getNngGrid().getBounds(t.getIndex(), dataset.getResolution());
@@ -96,11 +96,11 @@ public class TileUpdater extends Task {
 				log.trace("Found tile {}", t);
 				// Find location of existing tile
 				Path defaultFileLocationForPreviousUpload = tileband.getDefaultFileLocation();
-				// Get new and existing tile images 
+				// Get new and existing tile images
 				GraphicsFile newImage = new GraphicsFile(tileband.getFileLocation());
 				GraphicsFile oldImage = new GraphicsFile(defaultFileLocationForPreviousUpload);
 				log.trace("Old tile: {}", defaultFileLocationForPreviousUpload);
-				// Construct source from new and existing tile images 
+				// Construct source from new and existing tile images
 				List<GraphicsFile> sourceTiles = new ArrayList<GraphicsFile>();
 				sourceTiles.add(oldImage);
 				sourceTiles.add(newImage);
@@ -110,7 +110,7 @@ public class TileUpdater extends Task {
 				Path transformTileFileLocation = tempDir.resolve(transformTileFilename);
 				targetTile.setFileLocation(transformTileFileLocation); // targetTile.setFileLocation("/var/tmp/.../Band1_tile_x1_y1.nc.composite");
 				tileband.setFileLocation(targetTile.getFileLocation());
-				
+
 				Transformer mosaickingTask = new Transformer("Composite new tile on top of exisiting tile " + t.getIndex());
 				// Set up source image
 				mosaickingTask.setSource(sourceTiles);
@@ -138,18 +138,18 @@ public class TileUpdater extends Task {
 		}
 
 		// Run each specific task in inner pipeline
-		innerTaskPipeline.run();	
+		innerTaskPipeline.run();
 		return;
 	}
 
 	@Override
 	public void rollback() {
-		// Call each child task roll back 
+		// Call each child task roll back
 		innerTaskPipeline.rollback();
 	}
 
 	@Override
-	public void finalise() {	
+	public void finalise() {
 		// Call each child task finalise
 		innerTaskPipeline.finalise();
 	}
