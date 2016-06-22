@@ -5,9 +5,15 @@ projdir=$(dirname $0)
 
 case ${mode} in
     "web")
-        cp -f /var/src/rsa/config/* \
-            /var/lib/tomcat${TOMCAT_VERSION}/webapps/rsa/WEB-INF/classes/
         echo "Starting RSA web server"
+        # The web server resources need to be in a special directory. To support
+        # out-of-container rebuilds (via a mounted Docker volume), these
+        # resources are copied in every time.
+        cd /var/lib/tomcat${TOMCAT_VERSION}/webapps/rsa \
+            && jar -xvf ${projdir}/spatialcubeservice/build/libs/rsa*.war \
+            && cp -f ${projdir}/../config/* ./WEB-INF/classes/ \
+            && cd ${HOME} \
+            || exit 1
         exec /usr/share/tomcat${TOMCAT_VERSION}/bin/catalina.sh run
         ;;
 

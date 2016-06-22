@@ -68,7 +68,8 @@ RUN mkdir -p /var/tmp/ndg \
         /var/spool/ndg/upload \
         /var/spool/ndg/pickup \
         /var/lib/ndg/storagepool \
-        /var/src/rsa/config
+        /var/src/rsa/config \
+        /var/lib/tomcat${TOMCAT_VERSION}/webapps/rsa
 
 # Copy over gradle build files by themselves first, so we can don't need to
 # fetch dependencies every time the source code changes.
@@ -96,10 +97,6 @@ VOLUME /var/spool/ndg/pickup \
 
 # Run the build again now that the source is available.
 RUN (gradle || gradle || gradle)
-
-RUN mkdir -p /var/lib/tomcat${TOMCAT_VERSION}/webapps/rsa \
-    && cd /var/lib/tomcat${TOMCAT_VERSION}/webapps/rsa \
-    && jar -xvf /var/src/rsa/src/spatialcubeservice/build/libs/rsa*.war
 
 ENTRYPOINT ["/var/src/rsa/src/rsa_docker_start.sh"]
 
