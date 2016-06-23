@@ -94,16 +94,17 @@ public class TableBuilder {
 		return table;
 	}
 
-	public TabularResponse buildLedger(Ledger ledger,
+	public TabularResponse buildLedger(Ledger ledger, Ledger unfiltered,
 			List<Integer> columns, CellSize resolution) {
 		// Filtering columns does not result in a "filtered" ledger. Only a
 		// ledger with a different volume (i.e. data *removed* due to
 		// filtered rows) would be considered filtered.
 		ledger = ledger.filter(columns);
+		unfiltered = unfiltered.filter(columns);
 		TabularResponse table = new TabularResponse();
 		table.setTableType("ledger");
 		table.setColumns(ledgerColumns(ledger, columns));
-		table.setRows(ledgerRows(ledger, ledger, resolution));
+		table.setRows(ledgerRows(ledger, unfiltered, resolution));
 		return table;
 	}
 

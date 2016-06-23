@@ -19,6 +19,9 @@
 
 package org.vpac.web.controller;
 
+import akka.actor.ActorRef;
+import akka.cluster.Cluster;
+import akka.cluster.Member;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -28,15 +31,16 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import javax.xml.bind.DatatypeConverter;
-
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,6 +48,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -69,8 +74,8 @@ import org.vpac.ndg.geometry.Tile;
 import org.vpac.ndg.geometry.TileManager;
 import org.vpac.ndg.lock.ProcessUpdateTimer;
 import org.vpac.ndg.query.Query;
-import org.vpac.ndg.query.QueryDefinition;
 import org.vpac.ndg.query.QueryDefinition.DatasetInputDefinition;
+import org.vpac.ndg.query.QueryDefinition;
 import org.vpac.ndg.query.QueryException;
 import org.vpac.ndg.query.Resolve;
 import org.vpac.ndg.query.math.BoxReal;
@@ -80,6 +85,7 @@ import org.vpac.ndg.query.sampling.ArrayAdapter;
 import org.vpac.ndg.query.sampling.ArrayAdapterImpl;
 import org.vpac.ndg.query.sampling.NodataStrategy;
 import org.vpac.ndg.query.sampling.NodataStrategyFactory;
+import org.vpac.ndg.query.stats.Ledger;
 import org.vpac.ndg.storage.dao.DatasetDao;
 import org.vpac.ndg.storage.dao.JobProgressDao;
 import org.vpac.ndg.storage.dao.StatisticsDao;
@@ -99,6 +105,7 @@ import org.vpac.ndg.task.Importer;
 import org.vpac.ndg.task.WmtsBandCreator;
 import org.vpac.ndg.task.WmtsQueryCreator;
 import org.vpac.web.exception.ResourceNotFoundException;
+import org.vpac.web.model.TableBuilder;
 import org.vpac.web.model.request.DataExportRequest;
 import org.vpac.web.model.request.FileRequest;
 import org.vpac.web.model.request.PagingRequest;
@@ -112,23 +119,18 @@ import org.vpac.web.model.response.QueryResponse;
 import org.vpac.web.model.response.TabularResponse;
 import org.vpac.web.model.response.TaskCollectionResponse;
 import org.vpac.web.model.response.TaskResponse;
-import org.vpac.web.model.TableBuilder;
 import org.vpac.web.util.ControllerHelper;
 import org.vpac.web.util.Pager;
 import org.vpac.web.util.QueryMutator;
 import org.vpac.web.util.QueryPreviewHelper;
-
-import ucar.ma2.Array;
-import ucar.ma2.InvalidRangeException;
-import ucar.nc2.NetcdfFileWriter;
-import ucar.nc2.NetcdfFileWriter.Version;
-import ucar.nc2.Variable;
-import ucar.nc2.dataset.NetcdfDataset;
-import akka.actor.ActorRef;
-import akka.cluster.Member;
-import akka.cluster.Cluster;
 import scala.collection.Iterator;
 import scala.collection.immutable.SortedSet;
+import ucar.ma2.Array;
+import ucar.ma2.InvalidRangeException;
+import ucar.nc2.NetcdfFileWriter.Version;
+import ucar.nc2.NetcdfFileWriter;
+import ucar.nc2.Variable;
+import ucar.nc2.dataset.NetcdfDataset;
 
 @Controller
 @RequestMapping("/Data")
@@ -378,11 +380,14 @@ public class DataController {
 		return "List";
 	}
 
+	static final Pattern FILTER_PARAM = Pattern.compile("^filter__(\\d+)__(\\w+)$");
+
 	@RequestMapping(value="/Task/{taskId}/table", method = RequestMethod.GET)
 	public String getLedger(
 			@PathVariable String taskId,
 			@RequestParam(required = false) List<Integer> columns,
 			@RequestParam(required = false) String key,
+			@RequestParam MultiValueMap<String, String> params,
 			ModelMap model) throws ResourceNotFoundException {
 
 		log.info("Data getLedger");
@@ -405,8 +410,48 @@ public class DataController {
 			}
 		}
 
+		Map<Integer, Set<Double>> colIds = new HashMap<>();
+		Map<Integer, List<Double>> colLowerBounds = new HashMap<>();
+		Map<Integer, List<Double>> colUpperBounds = new HashMap<>();
+		for (Map.Entry<String, List<String>> entry : params.entrySet()) {
+			Matcher matcher = FILTER_PARAM.matcher(entry.getKey());
+			if (!matcher.matches())
+				continue;
+			int colIndex = Integer.parseInt(matcher.group(1));
+			String type = matcher.group(2);
+			if (type.equals("cat")) {
+				Set<Double> collection = new HashSet<>();
+				for (String value : entry.getValue())
+					collection.add(Double.parseDouble(value));
+				colIds.put(colIndex, collection);
+			} else if (type.equals("lower")) {
+				List<Double> collection = new ArrayList<>();
+				for (String value : entry.getValue())
+					collection.add(Double.parseDouble(value));
+				colLowerBounds.put(colIndex, collection);
+			} else if (type.equals("upper")) {
+				List<Double> collection = new ArrayList<>();
+				for (String value : entry.getValue())
+					collection.add(Double.parseDouble(value));
+				colUpperBounds.put(colIndex, collection);
+			} else {
+				continue;
+			}
+		}
+
+		Ledger unfiltered = tl.getLedger();
+		Ledger ledger = unfiltered.copy();
+		for (Map.Entry<Integer, Set<Double>> entry : colIds.entrySet()) {
+			ledger = ledger.filterRows(entry.getKey(), entry.getValue());
+		}
+		for (Map.Entry<Integer, List<Double>> entry : colLowerBounds.entrySet()) {
+			List<Double> lowerBounds = entry.getValue();
+			List<Double> upperBounds = colUpperBounds.get(entry.getKey());
+			ledger = ledger.filterRows(entry.getKey(), lowerBounds, upperBounds);
+		}
+
 		TabularResponse response = new TableBuilder().buildLedger(
-			tl.getLedger(), columns, tl.getOutputResolution());
+			ledger, unfiltered, columns, tl.getOutputResolution());
 		response.setCategorisation(tl.getKey());
 		model.addAttribute(ControllerHelper.RESPONSE_ROOT, response);
 

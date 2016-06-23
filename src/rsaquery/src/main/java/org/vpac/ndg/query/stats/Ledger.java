@@ -144,6 +144,88 @@ public class Ledger implements Foldable<Ledger>, Serializable {
 		return res;
 	}
 
+	/**
+	 * Remove all but the specified rows from this ledger.
+	 * @return a new Ledger.
+	 */
+	public Ledger filterRows(int column, Set<Double> ids) {
+		BucketingStrategyFactory bf = new BucketingStrategyFactory();
+		Ledger res = new Ledger();
+
+		for (BucketingStrategy bs : bss) {
+			res.bss.add(bf.create(bs.getDef()));
+		}
+
+		for (Entry<List<Double>, Long> entry : entries.entrySet()) {
+			if (!ids.contains(entry.getKey().get(column)))
+				continue;
+			List<Double> key = new ArrayList<>(entry.getKey().size());
+			key.addAll(entry.getKey());
+			res.entries.put(key, entry.getValue());
+		}
+
+		return res;
+	}
+
+	private boolean intersects(double[] bounds, double lower, double upper) {
+		if (bounds[0] == lower)
+			return true;
+		else if (bounds[0] >= upper)
+			return false;
+		else if (bounds[1] <= lower)
+			return false;
+		return true;
+	}
+
+	private boolean intersects(double[] bounds, List<Double> lower, List<Double> upper) {
+		for (int i = 0; i < lower.size(); i++) {
+			double lb = lower.get(i);
+			double ub = upper.get(i);
+			if (intersects(bounds, lb, ub))
+				return true;
+		}
+		return false;
+	}
+
+	/**
+	 * Remove all but the specified rows from this ledger.
+	 * @return a new Ledger.
+	 */
+	public Ledger filterRows(int column, List<Double> lower, List<Double> upper) {
+		if (lower == null && upper != null)
+			throw new IndexOutOfBoundsException("Lower and upper bounds don't match");
+
+		if (lower == null)
+			return copy();
+
+		if (lower.size() != upper.size())
+			throw new IndexOutOfBoundsException("Lower and upper bounds don't match");
+
+		BucketingStrategyFactory bf = new BucketingStrategyFactory();
+		Ledger res = new Ledger();
+
+		for (BucketingStrategy bs : bss) {
+			res.bss.add(bf.create(bs.getDef()));
+		}
+
+		BucketingStrategy bs = res.bss.get(column);
+		for (Entry<List<Double>, Long> entry : entries.entrySet()) {
+			Double component = entry.getKey().get(column);
+			if (component == null) {
+				// No way to request null rows.
+				continue;
+			}
+			double[] bounds = bs.computeBucketBounds(component);
+			if (!intersects(bounds, lower, upper))
+				continue;
+			List<Double> key = new ArrayList<>(entry.getKey().size());
+			key.addAll(entry.getKey());
+			res.entries.put(key, entry.getValue());
+		}
+
+		return res;
+	}
+
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		int width = 0;

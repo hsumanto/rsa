@@ -190,6 +190,42 @@ public class StatisticsTest extends WebServiceTestBase {
 			.andExpect(jsonPath("$.columns[?(@.inputIndex == 1)]", hasSize(2)))
 			.andExpect(jsonPath("$.rows", hasSize(2)))
 			.andExpect(jsonPath("$.rows", everyItem(hasSize(4))));
+
+		mockMvc.perform(get(
+					"/Data/Task/{tid}/table.json?filter__0__cat=0", tl.getJob().getId()))
+			.andDo(print())
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.tableType", is("ledger")))
+			.andExpect(jsonPath("$.categorisation", is("foo")))
+			.andExpect(jsonPath("$.columns", hasSize(5)))
+			.andExpect(jsonPath("$.rows", hasSize(1)));
+
+		mockMvc.perform(get(
+					"/Data/Task/{tid}/table.json?filter__1__lower=1&filter__1__upper=2.1544346900318834", tl.getJob().getId()))
+			.andDo(print())
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.tableType", is("ledger")))
+			.andExpect(jsonPath("$.categorisation", is("foo")))
+			.andExpect(jsonPath("$.columns", hasSize(5)))
+			.andExpect(jsonPath("$.rows", hasSize(3)));
+
+		mockMvc.perform(get(
+					"/Data/Task/{tid}/table.json?filter__1__lower=2.1544346900318834&filter__1__upper=4.64158883361278", tl.getJob().getId()))
+			.andDo(print())
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.tableType", is("ledger")))
+			.andExpect(jsonPath("$.categorisation", is("foo")))
+			.andExpect(jsonPath("$.columns", hasSize(5)))
+			.andExpect(jsonPath("$.rows", hasSize(1)));
+
+		mockMvc.perform(get(
+					"/Data/Task/{tid}/table.json?filter__0__cat=1&filter__1__lower=1&filter__1__upper=2.1544346900318834", tl.getJob().getId()))
+			.andDo(print())
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.tableType", is("ledger")))
+			.andExpect(jsonPath("$.categorisation", is("foo")))
+			.andExpect(jsonPath("$.columns", hasSize(5)))
+			.andExpect(jsonPath("$.rows", hasSize(1)));
 	}
 
 	private TaskCats createTaskCats() {
