@@ -114,7 +114,15 @@ public class FileStatistics extends BaseTask {
             String result = builder.toString();
             stdout = result;
 
+            process.waitFor();
 
+            int processReturnValue = process.exitValue();
+            if (processReturnValue != 0) {
+                String message = " non-zero return value (" + Integer.toString(processReturnValue) + ")";
+                throw new TaskException(getDescription() + message);
+            }
+        } catch (InterruptedException e) {
+            throw new TaskException(getDescription(), e);
         } catch (IOException e) {
             throw new TaskException(getDescription(), e);
         }
