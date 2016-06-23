@@ -28,7 +28,7 @@ import org.vpac.ndg.exceptions.TaskException;
  * @author hsumanto
  *
  */
-public abstract class BaseTask implements ITask {
+public abstract class BaseTask implements Task {
 	/** Task description */
 	private String description;
 	/** Job progress on the task */
@@ -55,7 +55,7 @@ public abstract class BaseTask implements ITask {
 	}
 
 	public void execute(Collection<String> actionLog) throws TaskException {
-		//implemented to maintain compatibility with previous ITask interface
+		//implemented to maintain compatibility with previous Task interface
 		this.execute(actionLog, null);
 	}
 

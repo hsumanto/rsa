@@ -49,7 +49,7 @@ public class TaskPipeline implements IProgressCallback {
 	/** task pipeline name */
 	private String name;
 	/** task pipeline queue */
-	private List<ITask> queue;
+	private List<Task> queue;
 	/** for communicating a raster task's progress to the outside world */
 	private JobProgress progress;
 	/** for differentiating main pipeline and child pipeline */
@@ -66,7 +66,7 @@ public class TaskPipeline implements IProgressCallback {
 
 	public TaskPipeline(boolean isMain) {
 		setMain(isMain);
-		queue = new ArrayList<ITask>();
+		queue = new ArrayList<Task>();
 		ApplicationContext appContext = ApplicationContextProvider.getApplicationContext();
 		jobProgressDao = (JobProgressDao) appContext.getBean("jobProgressDao");
 		if(isMain()) {
@@ -87,7 +87,7 @@ public class TaskPipeline implements IProgressCallback {
 	 * Add a task into task pipeline.
 	 * @param task The task to add into pipeline.
 	 */
-	public void addTask(ITask task) {
+	public void addTask(Task task) {
 		queue.add(task);
 	}
 
@@ -107,7 +107,7 @@ public class TaskPipeline implements IProgressCallback {
 
 		int currTaskStep = 1;
 		// Perform any necessary initialisation before execution
-		for (ITask task : queue) {
+		for (Task task : queue) {
 			log.debug(String.format("%sTASK_INIT [%s] = %s", tab,
 					currTaskStep, task.getDescription()));
 			task.initialise();
@@ -135,7 +135,7 @@ public class TaskPipeline implements IProgressCallback {
 
 		int currTaskStep = 1;
 		// Perform execution of each task in pipeline
-		for (ITask task : queue) {
+		for (Task task : queue) {
 			log.debug(String.format("%sTASK_EXEC [%s] = %s", tab,
 					currTaskStep, task.getDescription()));
 			task.execute(actionLog, this);
@@ -159,7 +159,7 @@ public class TaskPipeline implements IProgressCallback {
 
 		log.info("{}ROLLBACK", tab);
 
-		for (ITask task : queue) {
+		for (Task task : queue) {
 			try {
 				task.rollback();
 			} catch (RuntimeException e) {
@@ -186,7 +186,7 @@ public class TaskPipeline implements IProgressCallback {
 
 		int currTaskStep = 1;
 		// Perform finalise of each task in pipeline
-		for (ITask task : queue) {
+		for (Task task : queue) {
 			try {
 				log.debug(String.format("%sTASK_CLEANUP [%s] = %s", tab,
 						currTaskStep, task.getDescription()));
@@ -208,7 +208,7 @@ public class TaskPipeline implements IProgressCallback {
 		return name;
 	}
 
-	public List<ITask> getQueue() {
+	public List<Task> getQueue() {
 		return queue;
 	}
 
@@ -274,7 +274,7 @@ public class TaskPipeline implements IProgressCallback {
 		//calculate progress based on weights of each task
 		double weightedProgressSum = 0.0;
 		for (int i = 0; i < currTaskStep; i++) {
-			ITask t = queue.get(i);
+			Task t = queue.get(i);
 			weightedProgressSum += t.getProgressWeight();
 		}
 		double weightedProgressPercent = weightedProgressSum / totalTaskPipelineWeight * 100.0;
@@ -292,7 +292,7 @@ public class TaskPipeline implements IProgressCallback {
 		//calculate weighted sum of completed tasks
 		double weightedProgressSum = 0.0;
 		for (int i = 0; i < currentStep; i++) {
-			ITask t = queue.get(i);
+			Task t = queue.get(i);
 			weightedProgressSum += t.getProgressWeight();
 		}
 

@@ -24,7 +24,7 @@ import java.util.Collection;
 import org.vpac.ndg.exceptions.TaskException;
 import org.vpac.ndg.exceptions.TaskInitialisationException;
 
-public interface ITask {
+public interface Task {
 	/**
 	 * Perform initialisation on the task.
 	 * @throws TaskInitialisationException An error encountered during initialisation of the task.
