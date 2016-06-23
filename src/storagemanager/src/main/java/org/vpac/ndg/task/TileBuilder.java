@@ -120,7 +120,7 @@ public class TileBuilder extends Task {
                 if (ch == '.') {
                     progressInt += 1;
                 }
-                double progressPercentage = (double)progressInt/(double)totalFullStops * 100.0;
+                double progressPercentage = (double)progressInt/(double)totalFullStops;
                 if (progressCallback != null) {
                     progressCallback.progressUpdated(progressPercentage);
                 }

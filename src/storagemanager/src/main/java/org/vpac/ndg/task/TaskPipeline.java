@@ -56,7 +56,8 @@ public class TaskPipeline implements IProgressCallback {
 	private boolean isMain;
 	private Collection<String> actionLog;
 
-	/** if it remains zero, task contribution weights are ignored */
+	/** Total weights from all tasks in pipeline, used to normalise individual
+	  * progress values */
 	private double totalTaskPipelineWeight = 0.0;
 
 	public TaskPipeline() {
@@ -270,23 +271,16 @@ public class TaskPipeline implements IProgressCallback {
 			return;
 		}
 
-		if (totalTaskPipelineWeight == 0.0) {
-			//set progress based only on number of completed steps
-			getProgress().setCurrentStep(currTaskStep, currTaskDesc);
-			getProgress().updateProgressBasedOnCurrentStep();
-		} else {
-			//calculate based on weights of each task
-			double weightedProgressSum = 0.0;
-			for (int i = 0; i < currTaskStep; i++) {
-				ITask t = queue.get(i);
-				weightedProgressSum += t.getProgressWeight();
-			}
-			double weightedProgressPercent = weightedProgressSum / totalTaskPipelineWeight * 100.0;
-
-			getProgress().setCurrentStep(currTaskStep, currTaskDesc);
-			getProgress().setCurrentStepProgress(weightedProgressPercent);
+		//calculate progress based on weights of each task
+		double weightedProgressSum = 0.0;
+		for (int i = 0; i < currTaskStep; i++) {
+			ITask t = queue.get(i);
+			weightedProgressSum += t.getProgressWeight();
 		}
+		double weightedProgressPercent = weightedProgressSum / totalTaskPipelineWeight * 100.0;
 
+		getProgress().setCurrentStep(currTaskStep, currTaskDesc);
+		getProgress().setCurrentStepProgress(weightedProgressPercent);
 		jobProgressDao.save(getProgress());
 	}
 
@@ -303,7 +297,7 @@ public class TaskPipeline implements IProgressCallback {
 		}
 
 		double partialTaskProgress =
-			(progress / 100.0) * queue.get(currentStep).getProgressWeight();
+			progress * queue.get(currentStep).getProgressWeight();
 		weightedProgressSum += partialTaskProgress;
 
 		double weightedProgressPercent = weightedProgressSum / totalTaskPipelineWeight * 100.0;

@@ -40,7 +40,7 @@ public abstract class Task implements ITask {
 	/** Perform checking on source during execution */
 	private boolean checkSource;
 	/** Weight indicating how much contribution this task has to a task pipeline*/
-	private double progressWeight = 0.0;
+	private double progressWeight = 1.0;
 	/**
 	 * Construct a task using the specified description.
 	 * @param description The given task description.
