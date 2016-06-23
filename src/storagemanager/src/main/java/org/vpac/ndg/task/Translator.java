@@ -40,7 +40,7 @@ import org.vpac.ndg.storagemanager.GraphicsFile;
  * @author lachlan
  *
  */
-public class Translator extends Task {
+public class Translator extends BaseTask {
 
 	final private Logger log = LoggerFactory.getLogger(Translator.class);
 

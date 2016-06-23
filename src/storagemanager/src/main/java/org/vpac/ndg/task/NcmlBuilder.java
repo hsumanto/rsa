@@ -36,7 +36,7 @@ import org.vpac.ndg.exceptions.TaskException;
 import org.vpac.ndg.exceptions.TaskInitialisationException;
 import org.vpac.ndg.storagemanager.GraphicsFile;
 
-public class NcmlBuilder extends Task {
+public class NcmlBuilder extends BaseTask {
 
 	final static Logger log = LoggerFactory.getLogger(NcmlBuilder.class);
 

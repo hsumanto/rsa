@@ -27,7 +27,7 @@ import org.vpac.ndg.storagemanager.GraphicsFile;
  * @author lachlan
  *
  */
-public class TileBuilder extends Task {
+public class TileBuilder extends BaseTask {
 
     private GraphicsFile source;
     private Path target;  //in this case the target is simply a directory

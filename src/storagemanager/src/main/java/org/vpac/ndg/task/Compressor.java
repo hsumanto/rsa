@@ -40,7 +40,7 @@ import org.vpac.ndg.exceptions.TaskException;
 import org.vpac.ndg.exceptions.TaskInitialisationException;
 import org.vpac.ndg.storagemanager.GraphicsFile;
 
-public class Compressor extends Task {
+public class Compressor extends BaseTask {
 
 	final Logger log = LoggerFactory.getLogger(Compressor.class);
 

@@ -23,7 +23,7 @@ import org.vpac.ndg.storagemanager.GraphicsFile;
  * @author lachlan
  *
  */
-public class OutputDirStatistics extends Task {
+public class OutputDirStatistics extends BaseTask {
 
     final private Logger log = LoggerFactory.getLogger(OutputDirStatistics.class);
 

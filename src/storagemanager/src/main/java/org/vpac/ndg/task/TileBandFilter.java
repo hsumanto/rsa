@@ -36,7 +36,7 @@ import org.vpac.ndg.storage.model.TileBand;
  * @author hsumanto
  * @author adfries
  */
-public class TileBandFilter extends Task {
+public class TileBandFilter extends BaseTask {
 
 	Logger log = LoggerFactory.getLogger(TileBandFilter.class);
 

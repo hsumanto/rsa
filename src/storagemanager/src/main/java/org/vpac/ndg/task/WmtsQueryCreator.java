@@ -299,7 +299,7 @@ public class WmtsQueryCreator extends Application {
      * stop the task pipeline from deleting the output files automatically
      * @param t
      */
-    private void setTaskCleanupOptions(Task t) {
+    private void setTaskCleanupOptions(BaseTask t) {
         t.setCleanupSource(false);
         t.setCleanupTarget(false);
     }

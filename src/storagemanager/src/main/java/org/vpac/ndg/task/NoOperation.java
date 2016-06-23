@@ -29,7 +29,7 @@ import org.vpac.ndg.exceptions.TaskException;
  * @author hsumanto
  *
  */
-public class NoOperation extends Task {
+public class NoOperation extends BaseTask {
 
 	public NoOperation(String description) {
 		super(Constant.TASK_DESCRIPTION_NOOP);

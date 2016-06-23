@@ -44,7 +44,7 @@ import org.vpac.ndg.storage.util.TimeSliceUtil;
 import org.vpac.ndg.storagemanager.GraphicsFile;
 import org.vpac.ndg.task.OutputDirStatistics;
 
-public class VrtBuilder extends Task {
+public class VrtBuilder extends BaseTask {
 
     final private Logger log = LoggerFactory.getLogger(VrtBuilder.class);
 

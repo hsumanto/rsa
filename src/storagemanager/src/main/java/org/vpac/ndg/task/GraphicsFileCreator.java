@@ -37,7 +37,7 @@ import org.vpac.ndg.storagemanager.GraphicsFile;
  * @author hsumanto
  *
  */
-public class GraphicsFileCreator extends Task {
+public class GraphicsFileCreator extends BaseTask {
 
 	Logger log = LoggerFactory.getLogger(GraphicsFileCreator.class);
 

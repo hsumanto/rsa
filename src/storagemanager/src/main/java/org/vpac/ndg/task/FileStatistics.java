@@ -21,7 +21,7 @@ import org.vpac.ndg.storagemanager.GraphicsFile;
  * @author lachlan
  *
  */
-public class FileStatistics extends Task {
+public class FileStatistics extends BaseTask {
 
     final private Logger log = LoggerFactory.getLogger(FileStatistics.class);
 

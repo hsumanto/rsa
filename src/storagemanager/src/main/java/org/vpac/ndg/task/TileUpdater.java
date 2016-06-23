@@ -42,7 +42,7 @@ import org.vpac.ndg.storage.model.TimeSlice;
 import org.vpac.ndg.storage.util.TimeSliceUtil;
 import org.vpac.ndg.storagemanager.GraphicsFile;
 
-public class TileUpdater extends Task {
+public class TileUpdater extends BaseTask {
 
 	final private Logger log = LoggerFactory.getLogger(TileUpdater.class);
 

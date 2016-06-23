@@ -26,7 +26,7 @@ import org.vpac.ndg.storagemanager.GraphicsFile;
  * @author lachlan
  *
  */
-public class VrtColouriser extends Task {
+public class VrtColouriser extends BaseTask {
 
     final private Logger log = LoggerFactory.getLogger(VrtColouriser.class);
 

@@ -44,7 +44,7 @@ import org.vpac.ndg.storage.model.TimeSlice;
  * @author hsumanto
  *
  */
-public class TileBandCreator extends Task {
+public class TileBandCreator extends BaseTask {
 
 	final private Logger log = LoggerFactory.getLogger(TileBandCreator.class);
 

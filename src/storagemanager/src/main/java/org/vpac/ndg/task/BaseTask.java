@@ -28,7 +28,7 @@ import org.vpac.ndg.exceptions.TaskException;
  * @author hsumanto
  *
  */
-public abstract class Task implements ITask {
+public abstract class BaseTask implements ITask {
 	/** Task description */
 	private String description;
 	/** Job progress on the task */
@@ -45,7 +45,7 @@ public abstract class Task implements ITask {
 	 * Construct a task using the specified description.
 	 * @param description The given task description.
 	 */
-	public Task(String description) {
+	public BaseTask(String description) {
 		setDescription(description);
 		// By default clean up source and target
 		setCleanupSource(true);

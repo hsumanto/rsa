@@ -42,7 +42,7 @@ import org.vpac.ndg.storagemanager.GraphicsFile;
  * @author hsumanto
  *
  */
-public class TileTransformer extends Task {
+public class TileTransformer extends BaseTask {
 
 	final private Logger log = LoggerFactory.getLogger(TileTransformer.class);
 

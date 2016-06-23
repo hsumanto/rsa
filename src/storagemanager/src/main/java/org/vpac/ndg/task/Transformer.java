@@ -44,7 +44,7 @@ import org.vpac.ndg.storagemanager.GraphicsFile;
  * @author hsumanto
  *
  */
-public class Transformer extends Task {
+public class Transformer extends BaseTask {
 
 	final private Logger log = LoggerFactory.getLogger(Transformer.class);
 

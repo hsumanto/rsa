@@ -52,7 +52,7 @@ import org.vpac.ndg.storage.util.TimeSliceUtil;
  * @author hsumanto
  *
  */
-public class Committer extends Task {
+public class Committer extends BaseTask {
 
 	final Logger log = LoggerFactory.getLogger(Committer.class);
 
