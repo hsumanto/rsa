@@ -84,7 +84,7 @@ public class OutputDirStatistics extends BaseTask {
 
 
     @Override
-    public void execute(Collection<String> actionLog, IProgressCallback progressCallback) throws TaskException {
+    public void execute(Collection<String> actionLog, ProgressCallback progressCallback) throws TaskException {
 
         try {
             Files.walk(sourceDir).forEach(filePath -> {

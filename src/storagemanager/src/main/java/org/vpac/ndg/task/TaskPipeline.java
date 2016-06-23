@@ -40,7 +40,7 @@ import org.vpac.ndg.storage.model.JobProgress;
  * Manages a collection of tasks as a transaction.
  * @author hsumanto
  */
-public class TaskPipeline implements IProgressCallback {
+public class TaskPipeline implements ProgressCallback {
 
 	final private Logger log = LoggerFactory.getLogger(TaskPipeline.class);
 

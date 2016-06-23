@@ -23,7 +23,7 @@ package org.vpac.ndg.task;
  * defines an interface that allows a child object to communicate progress without
  * being too aware of parent.
  */
-public interface IProgressCallback {
+public interface ProgressCallback {
     /** value between 0 and 100 indicating current progress being reported */
     public void progressUpdated(double progress);
 }

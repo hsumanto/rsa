@@ -83,7 +83,7 @@ public class Transformer extends BaseTask {
 	}
 
 	@Override
-	public void execute(Collection<String> actionLog, IProgressCallback progressCallback) throws TaskException {
+	public void execute(Collection<String> actionLog, ProgressCallback progressCallback) throws TaskException {
 		if(isCheckSource()) {
 			if(getSource().isEmpty()) {
 				// During import if no input images then throws exception

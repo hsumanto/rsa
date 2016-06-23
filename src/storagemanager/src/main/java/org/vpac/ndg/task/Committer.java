@@ -103,7 +103,7 @@ public class Committer extends BaseTask {
 	// FIXME: This is not actually transactional because this class is not a spring bean!
 	@Transactional
 	@Override
-	public void execute(Collection<String> actionLog, IProgressCallback progressCallback) throws TaskException {
+	public void execute(Collection<String> actionLog, ProgressCallback progressCallback) throws TaskException {
 		log.debug("TASK = {}", getDescription());
 
 		// If nothing to commit then do nothing

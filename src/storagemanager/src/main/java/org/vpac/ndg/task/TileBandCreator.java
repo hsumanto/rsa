@@ -98,7 +98,7 @@ public class TileBandCreator extends BaseTask {
 	}
 
 	@Override
-	public void execute(Collection<String> actionLog, IProgressCallback progressCallback) throws TaskException {
+	public void execute(Collection<String> actionLog, ProgressCallback progressCallback) throws TaskException {
 		// Perform some neccessary validation
 		Dataset ds = timeSliceDao.getParentDataset(getTimeSlice().getId());
 		if(ds == null) {

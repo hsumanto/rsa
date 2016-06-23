@@ -98,7 +98,7 @@ public class TileBuilder extends BaseTask {
     }
 
     @Override
-    public void execute(Collection<String> actionLog, IProgressCallback progressCallback) throws TaskException {
+    public void execute(Collection<String> actionLog, ProgressCallback progressCallback) throws TaskException {
 
         List<String> command = prepareCommand();
 		actionLog.add(StringUtils.join(command, " "));

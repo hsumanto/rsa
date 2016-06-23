@@ -109,7 +109,7 @@ public class TileAggregator extends BaseTask {
 	}
 
 	@Override
-	public void execute(Collection<String> actionLog, IProgressCallback progressCallback) throws TaskException {
+	public void execute(Collection<String> actionLog, ProgressCallback progressCallback) throws TaskException {
 		revalidateBeforeExecution();
 
 		List<Path> tileList = new ArrayList<Path>();

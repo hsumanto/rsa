@@ -65,7 +65,7 @@ public class Compressor extends BaseTask {
 	}
 
 	@Override
-	public void execute(Collection<String> actionLog, IProgressCallback progressCallback) throws TaskException {
+	public void execute(Collection<String> actionLog, ProgressCallback progressCallback) throws TaskException {
 		// Collate all source files.
 		List<Path> paths = new ArrayList<>();
 		for (List<GraphicsFile> gs : sourceGraphicsFiles) {

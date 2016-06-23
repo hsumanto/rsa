@@ -93,7 +93,7 @@ public class TileTransformer extends BaseTask {
 	}
 
 	@Override
-	public void execute(Collection<String> actionLog, IProgressCallback progressCallback) throws TaskException {
+	public void execute(Collection<String> actionLog, ProgressCallback progressCallback) throws TaskException {
 		innerTaskPipeline.setActionLog(actionLog);
 
 		for(TileBand tileBand: target) {

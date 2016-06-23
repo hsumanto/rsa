@@ -34,7 +34,7 @@ public interface Task {
 	 * Perform the execution of the task.
 	 * @throws TaskException An error ecountered during execution of the task.
 	 */
-	public void execute(Collection<String> actionLog, IProgressCallback progressCallback) throws TaskException;
+	public void execute(Collection<String> actionLog, ProgressCallback progressCallback) throws TaskException;
 	/**
 	 * Perform the required rollback action when task execution has failed.
 	 */

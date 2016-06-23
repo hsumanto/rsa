@@ -59,7 +59,7 @@ public class TileBandFilter extends BaseTask {
 	}
 
 	@Override
-	public void execute(Collection<String> actionLog, IProgressCallback progressCallback) throws TaskException {
+	public void execute(Collection<String> actionLog, ProgressCallback progressCallback) throws TaskException {
 		if (source.isEmpty()) {
 			throw new TaskException(getDescription(), Constant.ERR_NO_INPUT_IMAGES);
 		}

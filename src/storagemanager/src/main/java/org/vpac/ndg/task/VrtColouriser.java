@@ -83,7 +83,7 @@ public class VrtColouriser extends BaseTask {
     }
 
     @Override
-    public void execute(Collection<String> actionLog, IProgressCallback progressCallback) throws TaskException {
+    public void execute(Collection<String> actionLog, ProgressCallback progressCallback) throws TaskException {
         if (source == null) {
             // Can't work with zero input files. Just return; the output list
             // will not be populated. This is not an error.

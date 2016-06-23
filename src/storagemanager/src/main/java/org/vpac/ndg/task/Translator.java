@@ -157,7 +157,7 @@ public class Translator extends BaseTask {
 	}
 
 	@Override
-	public void execute(Collection<String> actionLog, IProgressCallback progressCallback) throws TaskException {
+	public void execute(Collection<String> actionLog, ProgressCallback progressCallback) throws TaskException {
 		if(isCheckSource()) {
 			if(!getSource().exists()) {
 				// During import if no input image then throws exception

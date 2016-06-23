@@ -72,7 +72,7 @@ public class ImageTranslator extends Translator {
 	}
 
 	@Override
-	public void execute(Collection<String> actionLog, IProgressCallback progressCallback) throws TaskException {
+	public void execute(Collection<String> actionLog, ProgressCallback progressCallback) throws TaskException {
 		if (getLayerIndex() < 1) {
 			// If invalid layer index specified then throws exception
 			throw new TaskException(getDescription(),
