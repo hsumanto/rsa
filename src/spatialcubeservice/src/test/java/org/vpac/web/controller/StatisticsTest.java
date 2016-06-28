@@ -191,6 +191,23 @@ public class StatisticsTest extends WebServiceTestBase {
 			.andExpect(jsonPath("$.rows", hasSize(2)))
 			.andExpect(jsonPath("$.rows", everyItem(hasSize(4))));
 
+		// Reversed column order
+		mockMvc.perform(get(
+					"/Data/Task/{tid}/table.json?columns=1&columns=0", tl.getJob().getId()))
+			.andDo(print())
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.tableType", is("ledger")))
+			.andExpect(jsonPath("$.categorisation", is("foo")))
+			.andExpect(jsonPath("$.columns", hasSize(5)))
+			.andExpect(jsonPath("$.columns[0].type", is("lowerBound")))
+			.andExpect(jsonPath("$.columns[1].type", is("upperBound")))
+			.andExpect(jsonPath("$.columns[2].type", is("category")))
+			.andExpect(jsonPath("$.columns[3,4].type", everyItem(is("area"))))
+			.andExpect(jsonPath("$.columns[?(@.inputIndex == 0)]", hasSize(1)))
+			.andExpect(jsonPath("$.columns[?(@.inputIndex == 1)]", hasSize(2)))
+			.andExpect(jsonPath("$.rows", hasSize(4)))
+			.andExpect(jsonPath("$.rows", everyItem(hasSize(5))));
+
 		mockMvc.perform(get(
 					"/Data/Task/{tid}/table.json?filter__0__cat=0", tl.getJob().getId()))
 			.andDo(print())

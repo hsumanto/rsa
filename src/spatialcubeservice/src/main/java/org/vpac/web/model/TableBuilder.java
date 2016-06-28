@@ -99,8 +99,8 @@ public class TableBuilder {
 		// Filtering columns does not result in a "filtered" ledger. Only a
 		// ledger with a different volume (i.e. data *removed* due to
 		// filtered rows) would be considered filtered.
-		ledger = ledger.filter(columns);
-		unfiltered = unfiltered.filter(columns);
+		ledger = ledger.filterColumns(columns);
+		unfiltered = unfiltered.filterColumns(columns);
 		TabularResponse table = new TabularResponse();
 		table.setTableType("ledger");
 		table.setColumns(ledgerColumns(ledger, columns));

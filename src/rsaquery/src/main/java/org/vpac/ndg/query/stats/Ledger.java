@@ -119,9 +119,7 @@ public class Ledger implements Foldable<Ledger>, Serializable {
 	 * @param columns The column indices to keep.
 	 * @return a new Ledger.
 	 */
-	public Ledger filter(List<Integer> columns) {
-		columns = new ArrayList<>(columns);
-		Collections.sort(columns);
+	public Ledger filterColumns(List<Integer> columns) {
 		BucketingStrategyFactory bf = new BucketingStrategyFactory();
 		Ledger res = new Ledger();
 
