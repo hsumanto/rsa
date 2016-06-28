@@ -12,21 +12,4 @@ To create a new filter and query:
     and outputs.
  3. Run the query using the QueryTest application.
 
-JUnit tests are provided; they may be run using Gradle. Alternatively,
-the test queries can be run manually using the QueryRunner class, after building
-with Gradle:
-
-	WORKSPACE=..
-
-	CLASSPATH=$WORKSPACE/rsaquery/build:\
-		$WORKSPACE/rsaquery/test-build:\
-		$WORKSPACE/rsaquery/lib/kxml2-min-2.3.0.jar:\
-		$WORKSPACE/rsaquery/lib/netcdfAll-4.2.jar:\
-		$WORKSPACE/rsaquery/lib/slf4j-api-1.6.1.jar:\
-		$WORKSPACE/rsaquery/lib/xstream-1.4.2.jar
-		  
-	java -Dfile.encoding=UTF-8 -classpath $CLASSPATH \
-		org.vpac.ndg.query.QueryRunner \
-		$WORKSPACE/rsaquery/data/config/activefire.xml
-
-See data/config/README.txt for information on each test.
+JUnit tests are provided; they may be run using Gradle.

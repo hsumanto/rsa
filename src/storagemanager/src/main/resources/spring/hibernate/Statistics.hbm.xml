@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC
-        "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
-        "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+		"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+		"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping>
 	<class name="org.vpac.ndg.storage.model.DatasetCats" table="DATASETCATS" lazy="false">
@@ -14,6 +14,7 @@
 		<property name="name" type="string" column="NAME" />
 		<many-to-one name="cats" class="org.vpac.ndg.query.stats.Cats" column="cat_id" cascade="all" lazy="false" />
 	</class>
+
 	<class name="org.vpac.ndg.storage.model.TaskCats" table="TASKCATS" lazy="false">
 		<id name="id" type="string" column="ID">
 			<generator class="uuid" />
@@ -23,13 +24,13 @@
 		<property name="outputResolution">
 			<type name="org.hibernate.type.EnumType">
 				<param name="enumClass">org.vpac.ndg.common.datamodel.CellSize</param>
-				<param name="identifierMethod">toInt</param>
-				<param name="valueOfMethod">fromInt</param>
+				<param name="useNamed">false</param>
 			</type>
 		</property>
 		<property name="categorical" type="boolean" column="CATEGORICAL" />
 		<many-to-one name="cats" class="org.vpac.ndg.query.stats.Cats" column="cat_id" cascade="all" lazy="false" />
 	</class>
+
 	<class name="org.vpac.ndg.query.stats.Cats" table="CATS" lazy="false">
 		<id name="id" type="string" column="ID">
 			<generator class="uuid" />
@@ -37,9 +38,10 @@
  		<map name="categories" cascade="all" lazy="false">
 			<key column="categories_id" />
 			<index column="cat_id" type="java.lang.Integer"/>
-			<one-to-many class="org.vpac.ndg.query.stats.Hist" /> 
+			<one-to-many class="org.vpac.ndg.query.stats.Hist" />
 		</map>
 	</class>
+
 	<class name="org.vpac.ndg.query.stats.Hist" table="HIST" lazy="false">
 		<id name="id" type="string" column="ID">
 			<generator class="uuid" />
@@ -53,6 +55,7 @@
 			<one-to-many class="org.vpac.ndg.query.stats.Bucket" />
 		</list>
 	</class>
+
 	<class name="org.vpac.ndg.query.stats.Bucket" table="BUCKET" lazy="false">
 		<id name="id" type="string" column="ID">
 			<generator class="uuid" />
@@ -61,6 +64,7 @@
 		<property name="upper" type="double" column="UPPER" />
 		<many-to-one name="stats" class="org.vpac.ndg.query.stats.Stats" column="stat_id" cascade="all" lazy="false" />
 	</class>
+
 	<class name="org.vpac.ndg.query.stats.Stats" table="STATS" lazy="false">
 		<id name="id" type="string" column="ID">
 			<generator class="uuid" />
@@ -69,5 +73,39 @@
 		<property name="min" type="double" column="MIN" />
 		<property name="max" type="double" column="MAX" />
 		<property name="mean" type="double" column="MEAN" />
+	</class>
+
+	<class name="org.vpac.ndg.storage.model.TaskLedger" lazy="false">
+		<id name="id" type="string">
+			<generator class="uuid" />
+		</id>
+		<property name="key" type="string" />
+		<many-to-one name="job" cascade="all" lazy="false" />
+		<property name="outputResolution">
+			<type name="org.hibernate.type.EnumType">
+				<param name="enumClass">org.vpac.ndg.common.datamodel.CellSize</param>
+				<param name="useNamed">false</param>
+			</type>
+		</property>
+		<many-to-one name="ledger" unique="true" not-null="true" cascade="all" lazy="false" />
+	</class>
+
+	<class name="org.vpac.ndg.query.stats.Ledger">
+		<id name="id" type="string">
+			<generator class="uuid" />
+		</id>
+		<property name="bucketingStrategies">
+			<column name="bucketingStrategies" />
+			<type name="org.vpac.ndg.storage.EmbeddedListType">
+				<param name="elementType">string</param>
+			</type>
+		</property>
+		<map name="entries" cascade="all" lazy="false">
+			<key column="ledger_id" />
+			<map-key type="org.vpac.ndg.storage.EmbeddedListType">
+				<column name="combination" />
+			</map-key>
+			<element column="count" type="long" />
+		</map>
 	</class>
 </hibernate-mapping>

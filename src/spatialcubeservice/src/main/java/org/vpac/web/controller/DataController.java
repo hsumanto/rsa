@@ -19,6 +19,9 @@
 
 package org.vpac.web.controller;
 
+import akka.actor.ActorRef;
+import akka.cluster.Cluster;
+import akka.cluster.Member;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -28,15 +31,16 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import javax.xml.bind.DatatypeConverter;
-
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,6 +48,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -69,8 +74,8 @@ import org.vpac.ndg.geometry.Tile;
 import org.vpac.ndg.geometry.TileManager;
 import org.vpac.ndg.lock.ProcessUpdateTimer;
 import org.vpac.ndg.query.Query;
-import org.vpac.ndg.query.QueryDefinition;
 import org.vpac.ndg.query.QueryDefinition.DatasetInputDefinition;
+import org.vpac.ndg.query.QueryDefinition;
 import org.vpac.ndg.query.QueryException;
 import org.vpac.ndg.query.Resolve;
 import org.vpac.ndg.query.math.BoxReal;
@@ -80,6 +85,7 @@ import org.vpac.ndg.query.sampling.ArrayAdapter;
 import org.vpac.ndg.query.sampling.ArrayAdapterImpl;
 import org.vpac.ndg.query.sampling.NodataStrategy;
 import org.vpac.ndg.query.sampling.NodataStrategyFactory;
+import org.vpac.ndg.query.stats.Ledger;
 import org.vpac.ndg.storage.dao.DatasetDao;
 import org.vpac.ndg.storage.dao.JobProgressDao;
 import org.vpac.ndg.storage.dao.StatisticsDao;
@@ -88,6 +94,7 @@ import org.vpac.ndg.storage.model.Band;
 import org.vpac.ndg.storage.model.Dataset;
 import org.vpac.ndg.storage.model.JobProgress;
 import org.vpac.ndg.storage.model.TaskCats;
+import org.vpac.ndg.storage.model.TaskLedger;
 import org.vpac.ndg.storage.model.TimeSlice;
 import org.vpac.ndg.storage.model.Upload;
 import org.vpac.ndg.storage.util.TimeSliceUtil;
@@ -98,6 +105,7 @@ import org.vpac.ndg.task.Importer;
 import org.vpac.ndg.task.WmtsBandCreator;
 import org.vpac.ndg.task.WmtsQueryCreator;
 import org.vpac.web.exception.ResourceNotFoundException;
+import org.vpac.web.model.TableBuilder;
 import org.vpac.web.model.request.DataExportRequest;
 import org.vpac.web.model.request.FileRequest;
 import org.vpac.web.model.request.PagingRequest;
@@ -115,18 +123,14 @@ import org.vpac.web.util.ControllerHelper;
 import org.vpac.web.util.Pager;
 import org.vpac.web.util.QueryMutator;
 import org.vpac.web.util.QueryPreviewHelper;
-
-import ucar.ma2.Array;
-import ucar.ma2.InvalidRangeException;
-import ucar.nc2.NetcdfFileWriter;
-import ucar.nc2.NetcdfFileWriter.Version;
-import ucar.nc2.Variable;
-import ucar.nc2.dataset.NetcdfDataset;
-import akka.actor.ActorRef;
-import akka.cluster.Member;
-import akka.cluster.Cluster;
 import scala.collection.Iterator;
 import scala.collection.immutable.SortedSet;
+import ucar.ma2.Array;
+import ucar.ma2.InvalidRangeException;
+import ucar.nc2.NetcdfFileWriter.Version;
+import ucar.nc2.NetcdfFileWriter;
+import ucar.nc2.Variable;
+import ucar.nc2.dataset.NetcdfDataset;
 
 @Controller
 @RequestMapping("/Data")
@@ -173,10 +177,10 @@ public class DataController {
 	public String displayExportForm() {
 		return "ExportForm";
 	}
-	
+
 	@RequestMapping(value="/Upload", method = RequestMethod.POST)
 	//public String uploadFile(@RequestParam String timeSliceId, @RequestParam MultipartFile file, @RequestParam(required = false) String fileId, @RequestParam(required = false) String count, ModelMap model) throws IOException {
-	public String uploadFile(@Valid FileRequest fileRequest, ModelMap model) throws Exception {	
+	public String uploadFile(@Valid FileRequest fileRequest, ModelMap model) throws Exception {
 
 		log.info("File Upload");
 		log.debug("Timeslice ID: {}", fileRequest.getTimeSliceId());
@@ -192,7 +196,7 @@ public class DataController {
 			upload = uploadDao.retrieve(fileRequest.getTaskId());
 			if(upload == null) {
 				// Capture if band not exist
-				throw new ResourceNotFoundException(String.format("Upload with task ID = \"%s\" not found.", fileRequest.getTaskId()));			
+				throw new ResourceNotFoundException(String.format("Upload with task ID = \"%s\" not found.", fileRequest.getTaskId()));
 			}
 			log.debug("Retrieve UploadFileId: {}", upload.getFileId());
 		}
@@ -208,7 +212,7 @@ public class DataController {
 		model.addAttribute(ControllerHelper.RESPONSE_ROOT, new FileInfoResponse(upload.getFileId()));
 		return "FileUploadSuccess";
 	}
-	
+
  	@RequestMapping(value="/Import", method = RequestMethod.POST)
 	public String importTimeSlice(@RequestParam(required=true) String taskId, @RequestParam(required=true) String bandId, @RequestParam(required=true) String srcnodata, @RequestParam(required=false) Boolean useBilinearInterpolation, ModelMap model ) throws TaskInitialisationException {
 
@@ -225,7 +229,7 @@ public class DataController {
 		importer.setSrcnodata(srcnodata);
 		if (useBilinearInterpolation != null)
 			importer.setUseBilinearInterpolation(useBilinearInterpolation);
-		
+
 		// After calling runInBackground, we can't access the exporter any more.
 		// So the model must be updated after configuration, but before the task
 		// is started.
@@ -248,7 +252,7 @@ public class DataController {
 		log.debug("Export resolution: {}", request.getResolution());
 		log.debug("Use Bilinear Interpolation: {}", request.getUseBilinearInterpolation());
 		log.debug("Format: {}", request.getFormat());
-		
+
 		CellSize exportResolution = null;
 		if (request.getResolution() != null) {
 			try {
@@ -268,8 +272,8 @@ public class DataController {
 				log.warn("Invalid export format string {}, defaulting to NetCDF", request.getFormat());
 			}
 		}
-		
-		
+
+
 		Exporter exporter = new Exporter();
 		// mandatory
 		exporter.setDatasetId(request.getDatasetId());
@@ -297,7 +301,7 @@ public class DataController {
 
 		return "Success";
 	}
-	
+
  	@RequestMapping(value="/Task", method = RequestMethod.GET)
 	public String getTasks(@Valid TaskSearchRequest request, @Valid PagingRequest page, ModelMap model ) {
 
@@ -316,7 +320,7 @@ public class DataController {
 	@RequestMapping(value="/Task/{id}", method = RequestMethod.GET)
 	public String getTaskById(@PathVariable String id, ModelMap model ) throws ResourceNotFoundException {
 
-		log.info("Data getTaskById");
+		log.debug("Data getTaskById");
 		log.debug("Task ID: {}", id);
 
 		JobProgress j = jobProgressDao.retrieve(id);
@@ -337,7 +341,7 @@ public class DataController {
 			@RequestParam(required = false) String filter,
 			ModelMap model) throws ResourceNotFoundException {
 
-		log.info("Data getTaskById");
+		log.info("Data getTableByTaskId");
 		log.debug("Task ID: {}", taskId);
 
 		List<TaskCats> tCats;
@@ -353,22 +357,102 @@ public class DataController {
 
 		TaskCats tCat = tCats.get(0);
 
-		TabularResponse<?> response;
+		TabularResponse response;
 		if (catType.equals("value")) {
 			// Viewing intrinsic data; use extrinsic filter.
 			List<Integer> values = helper.stringsToInts(categories);
-			response = TabularResponse.tabulateIntrinsic(tCat.getCats(),
-					values, tCat.getOutputResolution(), tCat.isCategorical());
+			TableBuilder tb = new TableBuilder();
+			response = tb.buildIntrinsic(tCat.getCats(), values,
+				tCat.getOutputResolution(), tCat.isCategorical());
 
 		} else {
 			// Viewing extrinsic categories; use intrinsic filter.
 			List<Double> values = helper.stringsToDoubles(categories);
-			response = TabularResponse.tabulateExtrinsic(tCat.getCats(), lower,
+			TableBuilder tb = new TableBuilder();
+			response = tb.buildExtrinsic(tCat.getCats(), lower,
 					upper, values, tCat.getOutputResolution(),
 					tCat.isCategorical());
 		}
 
 		response.setCategorisation(catType);
+		model.addAttribute(ControllerHelper.RESPONSE_ROOT, response);
+
+		return "List";
+	}
+
+	static final Pattern FILTER_PARAM = Pattern.compile("^filter__(\\d+)__(\\w+)$");
+
+	@RequestMapping(value="/Task/{taskId}/table", method = RequestMethod.GET)
+	public String getLedger(
+			@PathVariable String taskId,
+			@RequestParam(required = false) List<Integer> columns,
+			@RequestParam(required = false) String key,
+			@RequestParam MultiValueMap<String, String> params,
+			ModelMap model) throws ResourceNotFoundException {
+
+		log.info("Data getLedger");
+		log.debug("Task ID: {}", taskId);
+
+		List<TaskLedger> tls = statisticsDao.searchTaskLedger(taskId, key);
+
+		if (tls.size() == 0) {
+			throw new ResourceNotFoundException(
+					"No ledger found for this task ID.");
+		}
+
+		TaskLedger tl = tls.get(0);
+
+		if (columns == null || columns.size() == 0) {
+			columns = new ArrayList<>();
+			int nColumns = tl.getLedger().getBucketingStrategies().size();
+			for (int i = 0; i < nColumns; i++) {
+				columns.add(i);
+			}
+		}
+
+		Map<Integer, Set<Double>> colIds = new HashMap<>();
+		Map<Integer, List<Double>> colLowerBounds = new HashMap<>();
+		Map<Integer, List<Double>> colUpperBounds = new HashMap<>();
+		for (Map.Entry<String, List<String>> entry : params.entrySet()) {
+			Matcher matcher = FILTER_PARAM.matcher(entry.getKey());
+			if (!matcher.matches())
+				continue;
+			int colIndex = Integer.parseInt(matcher.group(1));
+			String type = matcher.group(2);
+			if (type.equals("cat")) {
+				Set<Double> collection = new HashSet<>();
+				for (String value : entry.getValue())
+					collection.add(Double.parseDouble(value));
+				colIds.put(colIndex, collection);
+			} else if (type.equals("lower")) {
+				List<Double> collection = new ArrayList<>();
+				for (String value : entry.getValue())
+					collection.add(Double.parseDouble(value));
+				colLowerBounds.put(colIndex, collection);
+			} else if (type.equals("upper")) {
+				List<Double> collection = new ArrayList<>();
+				for (String value : entry.getValue())
+					collection.add(Double.parseDouble(value));
+				colUpperBounds.put(colIndex, collection);
+			} else {
+				continue;
+			}
+		}
+
+		Ledger unfiltered = tl.getLedger();
+		Ledger ledger = unfiltered.copy();
+		for (Map.Entry<Integer, Set<Double>> entry : colIds.entrySet()) {
+			ledger = ledger.filterRows(entry.getKey(), entry.getValue());
+		}
+		for (Map.Entry<Integer, List<Double>> entry : colLowerBounds.entrySet()) {
+			List<Double> lowerBounds = entry.getValue();
+			List<Double> upperBounds = colUpperBounds.get(entry.getKey());
+			ledger = ledger.filterRows(entry.getKey(), lowerBounds, upperBounds);
+		}
+
+		TabularResponse response = new TableBuilder().buildLedger(
+			ledger, unfiltered, columns, tl.getOutputResolution());
+		response.setCategorisation(tl.getKey());
 		model.addAttribute(ControllerHelper.RESPONSE_ROOT, response);
 
 		return "List";
@@ -448,10 +532,10 @@ public class DataController {
 			Variable vary = dataset.findVariable("y");
 			int xIndex = getArrayIndex(varx, x);
 			int yIndex = getArrayIndex(vary, y);
-			
+
 			int[] origin = new int[] {0, yIndex, xIndex };
 			int[] shape = new int[] {tsList.size(), 1, 1 };
-			
+
 			Map<String, List<Pair>> bandPlotPair = new HashMap<String, List<Pair>>();
 			Array ar = null;
 			NodataStrategyFactory ndsfac = new NodataStrategyFactory();
@@ -479,16 +563,16 @@ public class DataController {
 			modelNView.addObject("pointY", y);
 
 			model.addAttribute(ControllerHelper.RESPONSE_ROOT, new DatasetPlotResponse(tsList, ar));
-			
+
 		} catch (IOException e) {
 			log.error(e.getStackTrace().toString());
 			throw e;
 		}
-		
-		
+
+
 		return modelNView;
 	}
-	
+
 //	private String toCSV(List<TimeSlice> tsList) {
 //		StringBuilder builder = new StringBuilder();
 //		for(TimeSlice ts : tsList) {
@@ -498,12 +582,12 @@ public class DataController {
 //		}
 //		return builder.toString();
 //	}
-//	
+//
 //	private String toCSV(Array ar) {
 //		StringBuilder builder = new StringBuilder();
 //		long arSize = ar.getIndex().getSize();
 //		for(int i = 0; i < arSize; i++) {
-//			if(builder.length() > 0) 
+//			if(builder.length() > 0)
 //				builder.append(',');
 //			builder.append(ar.getDouble(i));
 //		}
@@ -519,8 +603,8 @@ public class DataController {
 		}
 		return index;
 	}
-	
-	
+
+
 	/*
 	@RequestMapping(value = "/Download/{file_name}", method = RequestMethod.GET)
 	public void getFile(@PathVariable("file_name") String fileName,
@@ -552,7 +636,7 @@ public class DataController {
 
 	@RequestMapping(value = "/DQuery-test", method = RequestMethod.GET)
 	public String distributedQueryTest() throws IllegalAccessException, IOException, QueryException {
-		
+
 		final QueryDefinition qd = QueryDefinition.fromXML(Thread
 				.currentThread().getContextClassLoader()
 				.getResourceAsStream("test.xml"));
@@ -568,7 +652,7 @@ public class DataController {
 		String buckets = null;
 		List<String> groupBy = null;
 		ModelMap model = new ModelMap();
-		
+
 		return query(qd, threads, minX, minY, maxX, maxY, startDate, endDate,
 				netcdfVersion, buckets, groupBy, model);
 	}
@@ -583,16 +667,16 @@ public class DataController {
 				"", null), ActorRef.noSender());
 		return "Success";
 	}
-	
+
 	@RequestMapping(value = "/WmtsDatasetGenerate", method = RequestMethod.POST)
-	public String wmtsDatasetGenerate(@RequestParam(required = false) String datasetId, 
+	public String wmtsDatasetGenerate(@RequestParam(required = false) String datasetId,
 	                                  @RequestParam(required = false) String timesliceId,
 	                                  @RequestParam(required = false) String bandId,
 	                                  @RequestParam(required = false) String queryJobProgressId,
 	                                  @RequestParam(required = false) Boolean continuous,
 	                                  @RequestParam(required = false) String palette,
 	                                  ModelMap model) throws TaskInitialisationException, IllegalAccessException {
-	    
+
 	    if (queryJobProgressId != null) {
 	        //then generate tiles for the query results
 	        WmtsQueryCreator bandCreator = new WmtsQueryCreator();
@@ -605,7 +689,7 @@ public class DataController {
 	        bandCreator.configure();
 	        model.addAttribute(ControllerHelper.RESPONSE_ROOT, new ExportResponse(bandCreator.getTaskId()));
 	        bandCreator.runInBackground();
-	           
+
 	        return "Success";
 	    } else if (datasetId != null && bandId != null) {
 	        //then generate tiles for something stored in the storage pool
@@ -624,10 +708,10 @@ public class DataController {
 	    } else {
 	        throw new IllegalAccessException("Failed to specify a query job progress id, or a dataset and band id");
 	    }
-	    
-	    
+
+
 	}
-	
+
 
 	@RequestMapping(value = "/Query", method = RequestMethod.POST,
 			headers = "content-type=multipart/form-data*")
@@ -680,8 +764,8 @@ public class DataController {
 
 		String baseRsaDatasetRef = resolve.decompose(qd.output.grid.ref).getNodeId();
 		String baseRsaDatasetName = "";
-		CellSize baseRsaDatasetResolution = null;		
-		
+		CellSize baseRsaDatasetResolution = null;
+
 		DatasetInputDefinition diGrid = null;
 		for (DatasetInputDefinition di : qd.inputs) {
 			if (di.id.equals(baseRsaDatasetRef)) {
@@ -703,12 +787,14 @@ public class DataController {
 
 			Dataset dataset = datasetDao.findDatasetByName(baseRsaDatasetName, baseRsaDatasetResolution);
 			if(dataset == null)
-				throw new IllegalArgumentException("No dataset found");
+				throw new IllegalArgumentException(
+					String.format("No dataset found: %s at %s",
+					baseRsaDatasetName, baseRsaDatasetResolution));
 			String datasetId = dataset.getId();
 			List<TimeSlice> tsList = datasetDao.getTimeSlices(datasetId);
 			if(tsList == null)
 				throw new IllegalArgumentException("No timeslice on this dataset");
-			
+
 			extent = timeSliceUtil.aggregateBounds(tsList);
 		} else if (diGrid.href.startsWith("epiphany")) {
 			baseRsaDatasetResolution = CellSize.m100;
@@ -757,8 +843,8 @@ public class DataController {
 		model.addAttribute(ControllerHelper.RESPONSE_ROOT, new QueryResponse(job.getId()));
 		return "Success";
 	}
-	
-	
+
+
 	@RequestMapping(value = "/QueryOutput", method = RequestMethod.POST)
 	public String queryOutput(@RequestParam(required = false) String query,
 			@RequestParam(required = false) String threads,
@@ -775,7 +861,7 @@ public class DataController {
 		final QueryDefinition qd = QueryDefinition.fromString(query);
 		if(minX != null)
 			qd.output.grid.bounds = String.format("%f %f %f %f", minX, minY, maxX, maxY);
-		
+
 		if(startDate != null) {
 			qd.output.grid.timeMin = startDate;
 			qd.output.grid.timeMax = endDate;
@@ -819,7 +905,7 @@ public class DataController {
 		thread.start();
 		model.addAttribute(ControllerHelper.RESPONSE_ROOT, new QueryResponse(taskId));
 		return "Success";
-	}	
+	}
 
 	@RequestMapping(value = "/PreviewQuery", method = RequestMethod.POST)
 	public void previewQuery(@RequestParam(required = false) String query,
@@ -837,7 +923,7 @@ public class DataController {
 		final QueryDefinition qd = QueryDefinition.fromString(query);
 		if(minX != null)
 			qd.output.grid.bounds = String.format("%f %f %f %f", minX, minY, maxX, maxY);
-		
+
 		if(startDate != null) {
 			qd.output.grid.timeMin = startDate;
 			qd.output.grid.timeMax = endDate;
@@ -925,7 +1011,7 @@ public class DataController {
 		final QueryDefinition qd = QueryDefinition.fromString(query);
 		if(minX != null)
 			qd.output.grid.bounds = String.format("%f %f %f %f", minX, minY, maxX, maxY);
-		
+
 		if(startDate != null) {
 			qd.output.grid.timeMin = startDate;
 			qd.output.grid.timeMax = endDate;
@@ -1048,12 +1134,12 @@ public class DataController {
 	public class Pair {
 		private Date date;
 		private Double value;
-		
+
 		public Pair(Date d, Double v) {
 			this.date = d;
 			this.value = v;
 		}
-		
+
 		@Override
 		public String toString() {
 			return String.format("[%s, %f]", date.getTime(), value);

@@ -29,7 +29,6 @@ import org.vpac.ndg.storage.model.Dataset;
 import org.vpac.ndg.storage.model.JobProgress;
 import org.vpac.ndg.storage.model.TimeSlice;
 import org.vpac.ndg.storage.util.DatasetUtil;
-import org.vpac.ndg.task.Task;
 import org.vpac.ndg.task.WmtsBandCreator;
 import org.vpac.ndg.task.WmtsQueryCreator;
 
@@ -42,9 +41,9 @@ public class TmsServlet extends HttpServlet {
     private TimeSliceDao timeSliceDao;
     private JobProgressDao jobProgressDao;
     private NdgConfigManager ndgConfigManager;
-    
+
     private DatasetUtil datasetUtil;
-    
+
     @Override
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
@@ -56,7 +55,7 @@ public class TmsServlet extends HttpServlet {
         this.timeSliceDao = (TimeSliceDao) ctx.getBean("timeSliceDao");
         this.jobProgressDao = (JobProgressDao) ctx.getBean("jobProgressDao");
         this.ndgConfigManager = (NdgConfigManager) ctx.getBean("ndgConfigManager");
-        
+
         datasetUtil = new DatasetUtil();
     }
 
@@ -68,8 +67,8 @@ public class TmsServlet extends HttpServlet {
         }
         return null;
     }
-    
-    
+
+
     public void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
@@ -130,7 +129,7 @@ public class TmsServlet extends HttpServlet {
             doGetDataset(dataset, timesliceId, bandId, urlRemainder, request, response);
             return;
         }
-        
+
         //If we've made it this far then either the dataset or progress Id just doesn't exist
         response.setContentType("text/html");
         response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -143,11 +142,11 @@ public class TmsServlet extends HttpServlet {
             throws ServletException, IOException {
         Path datasetDir = datasetUtil.getPath(dataset);
         Path wmtsDir = datasetDir.resolve(WmtsBandCreator.WMTS_TILE_DIR);
-        
+
         String tsAndBandPath = String.format("%s/%s/%s", timesliceId, bandId, urlRemainder);
-        
+
         Path resolvedWmtsTileFile = wmtsDir.resolve(tsAndBandPath);
-        
+
         if (Files.notExists(resolvedWmtsTileFile)) {
             response.setContentType("text/html");
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
@@ -155,7 +154,7 @@ public class TmsServlet extends HttpServlet {
             out.println("No tile");
         }
         else {
-            writeFileToResponse(resolvedWmtsTileFile, response);   
+            writeFileToResponse(resolvedWmtsTileFile, response);
         }
     }
 
@@ -184,20 +183,20 @@ public class TmsServlet extends HttpServlet {
 
     protected Path getQueryWmtsDirectory(String queryJobProgressId) {
         Path pickupPath = Paths.get(ndgConfigManager.getConfig().getDefaultPickupLocation());
-        
+
         String wmtsPath = String.format("%s/%s/%s", queryJobProgressId, WmtsQueryCreator.WMTS_TILE_DIR, queryJobProgressId);
         Path queryPickupPath = pickupPath.resolve(wmtsPath);
-        
+
         return queryPickupPath;
     }
-    
+
     private void doGetQuery(JobProgress progress, String urlRemainder, HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
+
         Path queryWmtsDir = getQueryWmtsDirectory(progress.getId());
-        
+
         Path resolvedWmtsTileFile = queryWmtsDir.resolve(urlRemainder.substring(1));
-        
+
         if (Files.notExists(resolvedWmtsTileFile)) {
             response.setContentType("text/html");
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
@@ -205,7 +204,7 @@ public class TmsServlet extends HttpServlet {
             out.println("No tile");
         }
         else {
-            writeFileToResponse(resolvedWmtsTileFile, response);   
+            writeFileToResponse(resolvedWmtsTileFile, response);
         }
     }
 

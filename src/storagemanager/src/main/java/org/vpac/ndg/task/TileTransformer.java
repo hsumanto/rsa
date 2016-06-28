@@ -42,7 +42,7 @@ import org.vpac.ndg.storagemanager.GraphicsFile;
  * @author hsumanto
  *
  */
-public class TileTransformer extends Task {
+public class TileTransformer extends BaseTask {
 
 	final private Logger log = LoggerFactory.getLogger(TileTransformer.class);
 
@@ -70,7 +70,7 @@ public class TileTransformer extends Task {
 	}
 
 	@Override
-	public void initialise() throws TaskInitialisationException {	
+	public void initialise() throws TaskInitialisationException {
 		// Perform validation on source and target fields;
 		if(source == null || getSource().isEmpty()) {
 			throw new TaskInitialisationException(getDescription(), Constant.ERR_NO_INPUT_IMAGES);
@@ -93,10 +93,10 @@ public class TileTransformer extends Task {
 	}
 
 	@Override
-	public void execute(Collection<String> actionLog) throws TaskException {
+	public void execute(Collection<String> actionLog, ProgressCallback progressCallback) throws TaskException {
 		innerTaskPipeline.setActionLog(actionLog);
 
-		for(TileBand tileBand: target) {		
+		for(TileBand tileBand: target) {
 			Transformer makeTile = new Transformer("Make Tile " + tileBand.getTileNameWithExtention());
 
 			GraphicsFile transformTile = new GraphicsFile();
@@ -107,7 +107,7 @@ public class TileTransformer extends Task {
 			if(epsgId != -1) {
 				transformTile.setEpsgId(epsgId);
 			}
-			transformTile.setResolution(timeSliceDao.getParentDataset(tileBand.getTimeSlice().getId()).getResolution());			
+			transformTile.setResolution(timeSliceDao.getParentDataset(tileBand.getTimeSlice().getId()).getResolution());
 
 			// Set up source image
 			makeTile.setSource(source);
@@ -137,14 +137,14 @@ public class TileTransformer extends Task {
 
 	@Override
 	public void rollback() {
-		// Call each transformer roll back 
+		// Call each transformer roll back
 		innerTaskPipeline.rollback();
 	}
 
 	@Override
 	public void finalise() {
 		// Call each transformer finalise
-		innerTaskPipeline.finalise();		
+		innerTaskPipeline.finalise();
 	}
 
 	public void setSource(List<GraphicsFile> source) {

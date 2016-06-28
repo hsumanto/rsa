@@ -34,13 +34,13 @@ public class ActivityDaoImpl extends CustomHibernateDaoSupport implements Activi
 	@Transactional
 	@Override
 	public void save(ActivityInfo activity) {
-		getHibernateTemplate().saveOrUpdate(activity);
+		getSession().saveOrUpdate(activity);
 	}
 
 	@Transactional
 	@Override
 	public ActivityInfo retrieve(String id) {
-		return getHibernateTemplate().get(ActivityInfo.class, id);
+		return (ActivityInfo) getSession().get(ActivityInfo.class, id);
 	}
 
 	@Transactional
@@ -50,9 +50,9 @@ public class ActivityDaoImpl extends CustomHibernateDaoSupport implements Activi
 		Session session = getSession();
 		Criteria criteria = session.createCriteria(ActivityInfo.class);
 
-		if(state != null) 
+		if(state != null)
 			criteria.add(Restrictions.eq("state", state));
-		
+
 		criteria.setMaxResults(pageSize);
 		criteria.setFirstResult(page * pageSize);
 		return criteria.list();

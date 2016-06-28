@@ -33,8 +33,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-import org.apache.commons.lang.time.DateFormatUtils;
-import org.apache.commons.lang.time.DateUtils;
+import org.apache.commons.lang3.time.DateFormatUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -70,7 +70,7 @@ public class TimeSliceUtil {
 	DatasetUtil datasetUtil;
 	@Autowired
 	NdgConfigManager ndgConfigManager;
-	
+
 	public DatasetUtil getDatasetUtil() {
 		return datasetUtil;
 	}
@@ -107,10 +107,10 @@ public class TimeSliceUtil {
 		String relLocation = getRelativeLocation(ts);
 		return location.resolve(relLocation);
 	}
-	
+
 	public String getRelativeLocation(TimeSlice ts) {
 		DateFormat formatter = Utils.getTimestampFormatter();
-		return formatter.format(ts.getCreated());		
+		return formatter.format(ts.getCreated());
 	}
 
 	public boolean isEmpty(TimeSlice ts) {
@@ -137,7 +137,7 @@ public class TimeSliceUtil {
 
 	/**
 	 * Find appropriate units for the time dimension.
-	 * 
+	 *
 	 * @param timeSlices
 	 *            The time slices to find a unit for.
 	 * @param dates
@@ -386,7 +386,7 @@ public class TimeSliceUtil {
 			});
 		} catch (IOException e) {
 			log.error("Error restoring {} caused by {}", tsPath, e);
-		}		
+		}
 	}
 
 	public void delete(TimeSlice ts) throws IOException {
@@ -397,7 +397,7 @@ public class TimeSliceUtil {
 		} catch (NoSuchFileException e) {
 			log.warn("Could not find dataset directory {}. Continuing with deletion anyway", tsPath);
 		}
-		
+
 		timeSliceDao.delete(ts);
 	}
 
@@ -407,7 +407,7 @@ public class TimeSliceUtil {
 
 		Path newTsPath = Paths.get(p.toString().replace(oldTs.getCreated().toString(), newTs.getCreated().toString()));
 		FileUtils.move(p, newTsPath);
-		
+
 		timeSliceDao.update(newTs);
 
 	}

@@ -1,5 +1,7 @@
 package org.vpac.ndg.task;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -16,6 +18,7 @@ import org.vpac.ndg.common.StringUtils;
 import org.vpac.ndg.exceptions.TaskException;
 import org.vpac.ndg.exceptions.TaskInitialisationException;
 import org.vpac.ndg.rasterservices.ProcessException;
+import org.vpac.ndg.storage.model.JobProgress;
 import org.vpac.ndg.storagemanager.GraphicsFile;
 
 /**
@@ -24,21 +27,21 @@ import org.vpac.ndg.storagemanager.GraphicsFile;
  * @author lachlan
  *
  */
-public class TileBuilder extends Task {
+public class TileBuilder extends BaseTask {
 
     private GraphicsFile source;
     private Path target;  //in this case the target is simply a directory
     private String profile;
     private int zoomMax = 7;
     private int zoomMin = 0;
-    
+
     private CommandUtil commandUtil;
-    final private Logger log = LoggerFactory.getLogger(VrtBuilder.class);
-    
+    final private Logger log = LoggerFactory.getLogger(TileBuilder.class);
+
     public TileBuilder() {
         this("Building tiles");
     }
-    
+
     public TileBuilder(String description) {
         super(description);
         commandUtil = new CommandUtil();
@@ -55,7 +58,7 @@ public class TileBuilder extends Task {
             throw new TaskInitialisationException(getDescription(),
                     Constant.ERR_TARGET_DATASET_NOT_SPECIFIED);
         }
-        
+
         if (getTarget().toFile().exists()) {
             //then delete it, will be old data
             try {
@@ -64,7 +67,7 @@ public class TileBuilder extends Task {
                 throw new TaskInitialisationException("Unable to delete old WMTS tiles directory", e);
             }
         }
-        
+
         boolean created = getTarget().toFile().mkdirs();
         if (!created) {
             throw new TaskInitialisationException("Could not create directory for output WMTS tiles");
@@ -94,23 +97,47 @@ public class TileBuilder extends Task {
         return command;
     }
 
-    
-    
     @Override
-    public void execute(Collection<String> actionLog) throws TaskException {
-        
+    public void execute(Collection<String> actionLog, ProgressCallback progressCallback) throws TaskException {
+
         List<String> command = prepareCommand();
 		actionLog.add(StringUtils.join(command, " "));
         try {
-            commandUtil.start(command);
-        } catch (ProcessException e) {
-            throw new TaskException(getDescription(), e);
+            ProcessBuilder pb = new ProcessBuilder(command);
+            Process process = pb.start();
+
+            //gdal2tiles runs from 0-100 twice, once for base tiles, and once for overlay tiles
+            //to count progress all we do is sum up the total number of dots printed to stdout
+            // there should be a total of 62, including the ones after "done".
+            int progressInt = 0;
+            int totalFullStops = 62;
+
+            InputStreamReader r = new InputStreamReader(process.getInputStream());
+            int intch;
+
+            while ((intch = r.read()) != -1) {
+                char ch = (char) intch;
+                if (ch == '.') {
+                    progressInt += 1;
+                }
+                double progressPercentage = (double)progressInt/(double)totalFullStops;
+                if (progressCallback != null) {
+                    progressCallback.progressUpdated(progressPercentage);
+                }
+            }
+
+            process.waitFor();
+
+            int processReturnValue = process.exitValue();
+            if (processReturnValue != 0) {
+                String message = " non-zero return value (" + Integer.toString(processReturnValue) + ")";
+                throw new TaskException(getDescription() + message);
+            }
         } catch (InterruptedException e) {
             throw new TaskException(getDescription(), e);
         } catch (IOException e) {
             throw new TaskException(getDescription(), e);
         }
-
     }
 
     @Override
@@ -125,7 +152,7 @@ public class TileBuilder extends Task {
 
     }
 
-    
+
     public int getZoomMax() {
         return zoomMax;
     }
@@ -170,9 +197,9 @@ public class TileBuilder extends Task {
         this.profile = process;
     }
 
-    
-    
-    
-    
-    
+
+
+
+
+
 }

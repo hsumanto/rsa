@@ -11,7 +11,7 @@
 	<appender name="MINIMAL" class="ch.qos.logback.core.ConsoleAppender">
 		<target>System.err</target>
 		<encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
-			<layout class="org.vpac.ndg.application.TimeDeltaLayout">
+			<layout class="org.vpac.ndg.TimeDeltaLayout">
 				<pattern>%-5level %msg%n</pattern>
 			</layout>
 		</encoder>
@@ -23,7 +23,7 @@
 	<appender name="TIMER" class="ch.qos.logback.core.ConsoleAppender">
 		<target>System.err</target>
 		<encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
-			<layout class="org.vpac.ndg.application.TimeDeltaLayout">
+			<layout class="org.vpac.ndg.TimeDeltaLayout">
 				<pattern>%-5level %logger{5} - %msg%n</pattern>
 			</layout>
 		</encoder>
@@ -50,10 +50,18 @@
 		<appender-ref ref="TIMER"/>
 	</logger>
 
+	<logger name="org.vpac.web" level="debug" additivity="false">
+		<appender-ref ref="TIMER"/>
+	</logger>
+
 	<logger name="org.vpac.ndg.query" level="debug" additivity="false">
 		<appender-ref ref="TIMER"/>
 	</logger>
+	<logger name="com.gargoylesoftware.htmlunit" level="debug"/>
 	<logger name="org.hibernate" level="error"/>
-	<logger name="org.springframework" level="error"/>
+	<!-- p6spy logs SQL statements by intercepting database access -->
+	<logger name="p6spy" level="info"/>
+	<logger name="org.springframework" level="debug"/>
+	<logger name="org.springframework.beans" level="error"/>
 
 </configuration>

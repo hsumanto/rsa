@@ -30,29 +30,30 @@ public class UploadDaoImpl extends CustomHibernateDaoSupport implements UploadDa
 	@Override
 	public Upload create(Upload u) {
 		// manual check cause no foreign key in database
-		TimeSlice ts = getHibernateTemplate().get(TimeSlice.class, u.getTimeSliceId());
+		TimeSlice ts = (TimeSlice) getSession()
+			.get(TimeSlice.class, u.getTimeSliceId());
 		if(ts == null)
 			throw new IllegalArgumentException(String.format("TimeSlice \"%s\" not found.", u.getTimeSliceId()));
 
-		getHibernateTemplate().save(u);
+		getSession().save(u);
 		return u;
 	}
 
 	@Transactional
 	@Override
 	public void update(Upload u) {
-		getHibernateTemplate().update(u);
+		getSession().update(u);
 	}
 
 	@Transactional
 	@Override
 	public void delete(Upload u) {
-		getHibernateTemplate().delete(u);
+		getSession().delete(u);
 	}
 
 	@Transactional
 	@Override
 	public Upload retrieve(String id) {
-		return getHibernateTemplate().get(Upload.class, id);
+		return (Upload) getSession().get(Upload.class, id);
 	}
 }

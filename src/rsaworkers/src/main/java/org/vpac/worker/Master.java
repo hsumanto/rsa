@@ -1,54 +1,54 @@
 package org.vpac.worker;
 
+import akka.actor.ActorPath;
+import akka.actor.ActorRef;
+import akka.actor.ActorSelection;
+import akka.actor.Cancellable;
+import akka.actor.Props;
+import akka.actor.UntypedActor;
+import akka.cluster.Cluster;
+import akka.cluster.ClusterEvent.MemberEvent;
+import akka.cluster.ClusterEvent.MemberRemoved;
+import akka.cluster.ClusterEvent.MemberUp;
+import akka.cluster.ClusterEvent.UnreachableMember;
+import akka.cluster.ClusterEvent;
+import akka.cluster.client.ClusterClientReceptionist;
+import akka.cluster.pubsub.DistributedPubSub;
+import akka.cluster.pubsub.DistributedPubSubMediator.Put;
+import akka.cluster.pubsub.DistributedPubSubMediator;
+import akka.event.Logging;
+import akka.event.LoggingAdapter;
+import java.net.Inet4Address;
+import java.net.InetAddress;
+import java.net.InterfaceAddress;
+import java.net.NetworkInterface;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
-
-import java.net.InetAddress;
-import java.net.Inet4Address;
-import java.net.NetworkInterface;
-import java.net.InterfaceAddress;
-import java.net.URLDecoder;
-
+import org.vpac.ndg.common.datamodel.CellSize;
 import org.vpac.ndg.common.datamodel.TaskState;
 import org.vpac.ndg.query.filter.Foldable;
 import org.vpac.ndg.query.math.VectorReal;
 import org.vpac.ndg.query.stats.VectorCats;
+import org.vpac.ndg.query.stats.Ledger;
 import org.vpac.worker.Job.Work;
 import org.vpac.worker.MasterDatabaseProtocol.JobUpdate;
 import org.vpac.worker.MasterDatabaseProtocol.SaveCats;
+import org.vpac.worker.MasterDatabaseProtocol.SaveLedger;
 import org.vpac.worker.MasterWorkerProtocol.*;
 import org.vpac.worker.master.Ack;
 import org.vpac.worker.master.WorkResult;
-
+import scala.Option;
 import scala.concurrent.duration.Deadline;
 import scala.concurrent.duration.FiniteDuration;
-import scala.Option;
-import akka.actor.ActorRef;
-import akka.actor.ActorSelection;
-import akka.actor.ActorPath;
-import akka.actor.Cancellable;
-import akka.actor.Props;
-import akka.actor.UntypedActor;
-import akka.cluster.Cluster;
-import akka.cluster.ClusterEvent;
-import akka.cluster.ClusterEvent.MemberEvent;
-import akka.cluster.ClusterEvent.MemberUp;
-import akka.cluster.ClusterEvent.MemberRemoved;
-import akka.cluster.ClusterEvent.UnreachableMember;
-import akka.cluster.client.ClusterClientReceptionist;
-import akka.cluster.pubsub.DistributedPubSub;
-import akka.cluster.pubsub.DistributedPubSubMediator;
-import akka.cluster.pubsub.DistributedPubSubMediator.Put;
-import akka.event.Logging;
-import akka.event.LoggingAdapter;
 
 public class Master extends UntypedActor {
 
@@ -83,7 +83,7 @@ public class Master extends UntypedActor {
 
 	@Override
 	public void preStart() {
-		cluster.subscribe(getSelf(), ClusterEvent.initialStateAsEvents(), 
+		cluster.subscribe(getSelf(), ClusterEvent.initialStateAsEvents(),
 		    MemberEvent.class, UnreachableMember.class);
 	}
 
@@ -124,7 +124,7 @@ public class Master extends UntypedActor {
 							Idle.instance));
 					if (!pendingWork.isEmpty())
 						getSender().tell(WorkIsReady.getInstance(), getSelf());
-				}				
+				}
 			}
 		} else if (message instanceof WorkerRequestsWork) {
 			WorkerRequestsWork msg = (WorkerRequestsWork) message;
@@ -313,27 +313,51 @@ public class Master extends UntypedActor {
 		for (WorkInfo w : list) {
 			Map<String, Foldable<?>> map = (Map<String, Foldable<?>>) w.result;
 			for (Entry<String, ?> v : map.entrySet()) {
-				VectorCats baseResult = (VectorCats) resultMap.get(v.getKey());
-				VectorCats currentResult = (VectorCats) v.getValue();
-				if (baseResult == null)
-					resultMap.put(v.getKey(), currentResult);
-				else
-					resultMap.put(v.getKey(), baseResult.fold(currentResult));
+				Foldable<?> result;
+				if (VectorCats.class.isAssignableFrom(v.getValue().getClass())) {
+					VectorCats baseResult = (VectorCats) resultMap.get(v.getKey());
+					VectorCats currentResult = (VectorCats) v.getValue();
+					if (baseResult == null)
+						result = currentResult;
+					else
+						result = baseResult.fold(currentResult);
+				} else if (Ledger.class.isAssignableFrom(v.getValue().getClass())) {
+					Ledger baseResult = (Ledger) resultMap.get(v.getKey());
+					Ledger currentResult = (Ledger) v.getValue();
+					if (baseResult == null)
+						result = currentResult;
+					else
+						result = baseResult.fold(currentResult);
+				} else {
+					log.warning("Ignorning unrecognised query result {}",
+							v.getValue().getClass());
+					continue;
+				}
+				resultMap.put(v.getKey(), result);
 			}
 		}
 
 		for (String key : resultMap.keySet()) {
+			// The key is the name of the filter that generated the data
 			Foldable<?> value = resultMap.get(key);
 			ActorSelection database = getContext().system().actorSelection(
 					"akka://Workers/user/database");
+			String jobId = currentWorkInfo.work.jobProgressId;
+			CellSize resolution = currentWorkInfo.work.outputResolution;
 			if (VectorCats.class.isAssignableFrom(value.getClass())) {
-				SaveCats msg = new SaveCats(currentWorkInfo.work.jobProgressId,
-						key, currentWorkInfo.work.outputResolution,
-						(VectorCats) value);
+				SaveCats msg = new SaveCats(jobId, key, resolution,
+					(VectorCats) value);
 				database.tell(msg, getSelf());
+
+			} else if (Ledger.class.isAssignableFrom(value.getClass())) {
+				SaveLedger msg = new SaveLedger(jobId, key, resolution,
+					(Ledger) value);
+				database.tell(msg, getSelf());
+
 			} else {
-				log.debug("Ignorning unrecognised query result {}",
+				log.warning("Ignorning unrecognised query result {}",
 						value.getClass());
+				continue;
 			}
 		}
 	}

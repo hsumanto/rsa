@@ -44,7 +44,7 @@ import org.vpac.ndg.storage.util.TimeSliceUtil;
 import org.vpac.ndg.storagemanager.GraphicsFile;
 import org.vpac.ndg.task.OutputDirStatistics;
 
-public class VrtBuilder extends Task {
+public class VrtBuilder extends BaseTask {
 
     final private Logger log = LoggerFactory.getLogger(VrtBuilder.class);
 
@@ -134,7 +134,7 @@ public class VrtBuilder extends Task {
         command.add("gdalbuildvrt");
 
         command.add("-overwrite");
-        
+
         if (targetResolutionSet) {
             command.add("-tr");
             command.add(Double.toString(targetResolutionX));
@@ -164,7 +164,7 @@ public class VrtBuilder extends Task {
                 if (os.getPixelType().get().equals("SIGNEDBYTE")) {
                     // Convert to byte value
                     // For example -1 nodata value not working for vrtbuilder
-                    // when output file's nodata type is byte and it's over 
+                    // when output file's nodata type is byte and it's over
                     // the boundary of byte, need to be convert
                     int nodataValue = srcNodata.byteValue() & 0xFF;
                     command.add(Integer.toString(nodataValue));
@@ -176,9 +176,9 @@ public class VrtBuilder extends Task {
                 command.add(os.getNodata().get().toString());
             }
         }
-        
+
         command.add(target.getFileLocation().toString());
-        
+
         if (source != null) {
             for (TileBand tileband : source) {
                 command.add(tileband.getFileLocation().toString());
@@ -209,10 +209,10 @@ public class VrtBuilder extends Task {
         }
         return sourceFiles;
     }
-    
-    
+
+
     @Override
-    public void execute(Collection<String> actionLog) throws TaskException {
+    public void execute(Collection<String> actionLog, ProgressCallback progressCallback) throws TaskException {
         if (source == null && sourceFile == null && source.isEmpty()) {
             // Can't work with zero input files. Just return; the output list
             // will not be populated. This is not an error.
@@ -294,7 +294,7 @@ public class VrtBuilder extends Task {
      * set the target resolution flag (-tr) passed to gdalbuildvrt, this will
      * prevent the '-resolution' arguement from being included in the command
      * line (obviously as the gdal docs state)
-     * 
+     *
      * @param resolutionX
      * @param resolutionY
      */
@@ -306,7 +306,7 @@ public class VrtBuilder extends Task {
 
     /**
      * set the target extents flag (-te) passed to gdalbuildvrt
-     * 
+     *
      * @param xmin
      * @param ymin
      * @param xmax
@@ -322,7 +322,7 @@ public class VrtBuilder extends Task {
     public void setSource(List<TileBand> source) {
         this.source = source;
     }
-    
+
     /**
      * Sets a graphics file as the source to use in the construction of a VRT file
      * @param source
@@ -361,7 +361,7 @@ public class VrtBuilder extends Task {
 
     /**
      * Set the temporary location for storing temporary .ncml file.
-     * 
+     *
      * @param temporaryLocation
      *            The specified temporary location.
      */

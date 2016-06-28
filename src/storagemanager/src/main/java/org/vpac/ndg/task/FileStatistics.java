@@ -21,7 +21,7 @@ import org.vpac.ndg.storagemanager.GraphicsFile;
  * @author lachlan
  *
  */
-public class FileStatistics extends Task {
+public class FileStatistics extends BaseTask {
 
     final private Logger log = LoggerFactory.getLogger(FileStatistics.class);
 
@@ -33,10 +33,10 @@ public class FileStatistics extends Task {
     private final String COMPUTED_MINMAX = "Computed Min/Max";
     private final String PIXEL_TYPE = "PIXELTYPE";
     private final String NO_DATA = "NoData Value";
-    
+
     private GraphicsFile source;
     private boolean approximate;
-    
+
     //the gathered stats
     private ScalarReceiver<Double> max;
     private ScalarReceiver<Double> min;
@@ -45,12 +45,12 @@ public class FileStatistics extends Task {
     private ScalarReceiver<Double> nodata;
     private ScalarReceiver<String> pixelType;
 
-    
-    
+
+
     public FileStatistics() {
         this("Extracting file statistics");
     }
-    
+
     public FileStatistics(String description) {
         super(description);
     }
@@ -72,38 +72,38 @@ public class FileStatistics extends Task {
 
         command.add("-noct");
         // command.add("-mm");
-        
+
         if (approximate) {
             command.add("-approx_stats");
         } else {
             command.add("-stats");
         }
-        
+
         command.add(source.getFileLocation().toString());
         log.info("command:" + command);
         return command;
     }
 
-    
-    
+
+
     @Override
-    public void execute(Collection<String> actionLog) throws TaskException {
+    public void execute(Collection<String> actionLog, ProgressCallback progressCallback) throws TaskException {
         List<String> command = prepareCommand();
-        
+
         String listString = "";
         for (String s : command) {
             listString += s + " ";
         }
         log.info(listString);
-        
+
         String stdout = "";
         try {
-            
+
             //in this case we dont use the command util as we care about the stdout stuff
             actionLog.add(StringUtils.join(command, " "));
             ProcessBuilder pb = new ProcessBuilder(command);
             Process process = pb.start();
-            
+
             BufferedReader br = new BufferedReader(new InputStreamReader(process.getInputStream()));
             StringBuilder builder = new StringBuilder();
             String line = null;
@@ -114,7 +114,15 @@ public class FileStatistics extends Task {
             String result = builder.toString();
             stdout = result;
 
+            process.waitFor();
 
+            int processReturnValue = process.exitValue();
+            if (processReturnValue != 0) {
+                String message = " non-zero return value (" + Integer.toString(processReturnValue) + ")";
+                throw new TaskException(getDescription() + message);
+            }
+        } catch (InterruptedException e) {
+            throw new TaskException(getDescription(), e);
         } catch (IOException e) {
             throw new TaskException(getDescription(), e);
         }
@@ -125,9 +133,9 @@ public class FileStatistics extends Task {
            STATISTICS_MINIMUM=300
            STATISTICS_STDDEV=23.6484643221
          */
-        
+
         int foundCount = 0;
-        
+
         //Read the info we're after and put it in some scalar receivers
         String lines[] = stdout.split(System.lineSeparator());
         for (String line: lines) {
@@ -136,7 +144,7 @@ public class FileStatistics extends Task {
                 getMax().set(getStatsValue(line));
                 log.info("Found max of " + getMax().get().toString());
                 foundCount++;
-            } else 
+            } else
             if (line.startsWith(STATS_MEAN)) {
                 getMean().set(getStatsValue(line));
                 log.info("Found mean of " + getMean().get().toString());
@@ -161,12 +169,12 @@ public class FileStatistics extends Task {
 
             // } else if (line.startsWith(COMPUTED_MINMAX)) {
             //     setComputedValues(line);
-            //     log.info("Computed Min and Max of " + getMin().get().toString() 
+            //     log.info("Computed Min and Max of " + getMin().get().toString()
             //         + "," + getMax().get().toString());
             //     foundCount += 2;
             }
         }
-        
+
         if (foundCount < 4) {
             StringBuilder sb = new StringBuilder();
             int start = lines.length - 11;
@@ -192,7 +200,7 @@ public class FileStatistics extends Task {
         String numberBit = line.substring(line.indexOf('=')+1);
         return Double.parseDouble(numberBit);
     }
-    
+
     private void setComputedValues(String line) {
         String minAndMax = line.substring(line.indexOf('=')+1);
         Double min = Double.parseDouble(minAndMax.split(",")[0]);

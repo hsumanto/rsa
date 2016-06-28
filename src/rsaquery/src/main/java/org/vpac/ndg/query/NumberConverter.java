@@ -28,7 +28,7 @@ public class NumberConverter {
 	private Pattern[] patterns;
 	private Method[] converters;
 
-	public NumberConverter() throws QueryRuntimeException {
+	public NumberConverter() {
 		try {
 			patterns = new Pattern[] {
 					Pattern.compile("^([-+0-9]+)b$"), // byte
@@ -47,7 +47,7 @@ public class NumberConverter {
 					Long.class.getMethod("parseLong", String.class),
 			};
 		} catch (Exception e) {
-			throw new QueryRuntimeException("Could not create number parsers.", e);
+			throw new QueryException("Could not create number parsers.", e);
 		}
 	}
 
@@ -62,7 +62,7 @@ public class NumberConverter {
 					return converters[i].invoke(null, matcher.group(1));
 			}
 		} catch (Exception e) {
-			throw new QueryRuntimeException(e);
+			throw new QueryException(e);
 		}
 
 		for (Method m : converters) {

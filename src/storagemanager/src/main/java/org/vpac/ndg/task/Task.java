@@ -19,75 +19,37 @@
 
 package org.vpac.ndg.task;
 
-import org.vpac.ndg.storage.model.JobProgress;
+import java.util.Collection;
 
-/**
- * This abstract class represents a command to be executed.
- * @author hsumanto
- *
- */
-public abstract class Task implements ITask {
-	/** Task description */
-	private String description;
-	/** Job progress on the task */
-	private JobProgress progress;
-	/** Perform cleaning up on source during finalise */
-	private boolean cleanupSource;
-	/** Perform cleaning up on target during finalise */
-	private boolean cleanupTarget;
-	/** Perform checking on source during execution */
-	private boolean checkSource;
+import org.vpac.ndg.exceptions.TaskException;
+import org.vpac.ndg.exceptions.TaskInitialisationException;
+
+public interface Task {
 	/**
-	 * Construct a task using the specified description.
-	 * @param description The given task description.
+	 * Perform initialisation on the task.
+	 * @throws TaskInitialisationException An error encountered during initialisation of the task.
 	 */
-	public Task(String description) {
-		setDescription(description);
-		// By default clean up source and target
-		setCleanupSource(true);
-		setCleanupTarget(true);
-		// By default check source during execution
-		setCheckSource(true);
-	}
-	
-	public void setDescription(String description) {
-		this.description = description;
-	}
-
-	public String getDescription() {
-		return description;
-	}
-
-	public void setProgress(JobProgress progress) {
-		this.progress = progress;
-	}
-
-	public JobProgress getProgress() {
-		return progress;
-	}
-
-	public void setCleanupSource(boolean cleanupSource) {
-		this.cleanupSource = cleanupSource;
-	}
-
-	public boolean isCleanupSource() {
-		return cleanupSource;
-	}
-
-	public void setCleanupTarget(boolean cleanupTarget) {
-		this.cleanupTarget = cleanupTarget;
-	}
-
-	public boolean isCleanupTarget() {
-		return cleanupTarget;
-	}
-
-	public boolean isCheckSource() {
-		return checkSource;
-	}
-
-	public void setCheckSource(boolean checkSource) {
-		this.checkSource = checkSource;
-	}
-
+	public void initialise() throws TaskInitialisationException;
+	/**
+	 * Perform the execution of the task.
+	 * @throws TaskException An error ecountered during execution of the task.
+	 */
+	public void execute(Collection<String> actionLog, ProgressCallback progressCallback) throws TaskException;
+	/**
+	 * Perform the required rollback action when task execution has failed.
+	 */
+	public void rollback();
+	/**
+	 * Perform cleaning up action required at the end of the task.
+	 */
+	public void finalise();
+	/**
+	 * Get description of the task.
+	 * @return Returns the description of the task.
+	 */
+	public String getDescription();
+	/**
+	 * Get the contribution of this task to task piplines overall progress
+	 */
+	public double getProgressWeight();
 }

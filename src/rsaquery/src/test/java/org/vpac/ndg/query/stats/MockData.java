@@ -2,6 +2,7 @@ package org.vpac.ndg.query.stats;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import org.vpac.ndg.query.iteration.Pair;
 
@@ -21,6 +22,34 @@ public class MockData {
 			}
 		}
 		return permutations;
+	}
+
+	public static class ParallelRand {
+		Random generator;
+		List<double[]> bounds;
+		public ParallelRand(List<double[]> bounds) {
+			generator = new Random(0L);
+			for (double[] b : bounds) {
+				if (b.length != 2) {
+					throw new IllegalArgumentException(
+						"Bounds must be in pairs");
+				}
+			}
+			this.bounds = bounds;
+		}
+
+		public List<Double> nextDoubles() {
+			List<Double> res = new ArrayList<>(bounds.size());
+			for (int i = 0; i < bounds.size(); i++) {
+				double[] b = bounds.get(i);
+				res.add(lerp(b[0], b[1], generator.nextDouble()));
+			}
+			return res;
+		}
+
+		private double lerp(double a, double b, double fac) {
+			return ((b - a) * fac) + a;
+		}
 	}
 
 	/**

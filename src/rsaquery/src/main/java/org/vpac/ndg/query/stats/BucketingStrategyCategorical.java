@@ -29,4 +29,24 @@ public class BucketingStrategyCategorical implements BucketingStrategy,
 	public void checkConfiguration() throws QueryException {
 		// Nothing to check.
 	}
+
+	@Override
+	public String getDef() {
+		return "categorical";
+	}
+
+	@Override
+	public String toString() {
+		return String.format("BucketingStrategyCategorical(%s)", getDef());
+	}
+
+	@Override
+	public boolean equals(Object other) {
+		return other instanceof BucketingStrategyCategorical;
+	}
+
+	@Override
+	public int hashCode() {
+		return 17;
+	}
 }

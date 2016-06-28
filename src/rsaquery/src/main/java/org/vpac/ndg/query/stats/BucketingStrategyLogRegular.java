@@ -71,4 +71,43 @@ public class BucketingStrategyLogRegular extends BucketingStrategyLog {
 				"LogRegular bucketing strategy: base must be greater than n.");
 		}
 	}
+
+	@Override
+	public String getDef() {
+		return String.format(
+			"logRegular/base/%s/n/%s/scale/%s",
+			base, n, scale);
+	}
+
+	@Override
+	public String toString() {
+		return String.format("BucketingStrategyLogRegular(%s)", getDef());
+	}
+
+	@Override
+	public boolean equals(Object other) {
+		if (!(other instanceof BucketingStrategyLogRegular))
+			return false;
+		BucketingStrategyLogRegular b = (BucketingStrategyLogRegular) other;
+		if (b.base != base)
+			return false;
+		if (b.n != n)
+			return false;
+		if (b.scale != scale)
+			return false;
+		return true;
+	}
+
+	@Override
+	public int hashCode() {
+		int result = 17;
+		long d;
+		d = Double.doubleToLongBits(base);
+		result = 37 * result + (int)(d ^ (d >>> 32));
+		d = Double.doubleToLongBits(n);
+		result = 37 * result + (int)(d ^ (d >>> 32));
+		d = Double.doubleToLongBits(scale);
+		result = 37 * result + (int)(d ^ (d >>> 32));
+		return result;
+	}
 }

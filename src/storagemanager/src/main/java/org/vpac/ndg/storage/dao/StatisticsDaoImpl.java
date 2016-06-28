@@ -1,3 +1,24 @@
+/*
+ * This file is part of the Raster Storage Archive (RSA).
+ *
+ * The RSA is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
+ *
+ * The RSA is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * the RSA.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * Copyright 2013 CRCSI - Cooperative Research Centre for Spatial Information
+ * http://www.crcsi.com.au/
+ *
+ * Copyright 2016 VPAC Innovations
+ */
+
 package org.vpac.ndg.storage.dao;
 
 import java.util.List;
@@ -7,8 +28,10 @@ import org.hibernate.Session;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.vpac.ndg.query.stats.Ledger;
 import org.vpac.ndg.storage.model.DatasetCats;
 import org.vpac.ndg.storage.model.TaskCats;
+import org.vpac.ndg.storage.model.TaskLedger;
 import org.vpac.ndg.storage.util.CustomHibernateDaoSupport;
 
 public class StatisticsDaoImpl extends CustomHibernateDaoSupport implements StatisticsDao {
@@ -16,20 +39,20 @@ public class StatisticsDaoImpl extends CustomHibernateDaoSupport implements Stat
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public void saveCats(TaskCats c) {
-		getHibernateTemplate().save(c);
+		getSession().save(c);
 	}
 
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public void saveCats(DatasetCats dc) {
-		getHibernateTemplate().save(dc);
+		getSession().save(dc);
 	}
 
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public void saveOrReplaceCats(TaskCats tc) {
 		for (TaskCats oldTc : searchCats(tc.getTaskId(), tc.getName())) {
-			getHibernateTemplate().delete(oldTc);
+			getSession().delete(oldTc);
 		}
 		saveCats(tc);
 	}
@@ -38,7 +61,7 @@ public class StatisticsDaoImpl extends CustomHibernateDaoSupport implements Stat
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public void saveOrReplaceCats(DatasetCats dc) {
 		for (DatasetCats oldDc : searchCats(dc.getDatasetId(), dc.getTimeSliceId(), dc.getBandId(), dc.getName())) {
-			getHibernateTemplate().delete(oldDc);
+			getSession().delete(oldDc);
 		}
 		saveCats(dc);
 	}
@@ -51,6 +74,7 @@ public class StatisticsDaoImpl extends CustomHibernateDaoSupport implements Stat
 		c.add(Restrictions.eq("tc.taskId", taskId));
 		if (catType != null)
 			c.add(Restrictions.eq("tc.name", catType));
+		@SuppressWarnings("unchecked")
 		List<TaskCats> cats = c.list();
 		// Ensure the objects have been fully fetched before leaving the
 		// transaction.
@@ -72,6 +96,7 @@ public class StatisticsDaoImpl extends CustomHibernateDaoSupport implements Stat
 			c.add(Restrictions.eq("dc.bandId", bandId));
 		if (catType != null)
 			c.add(Restrictions.eq("dc.name", catType));
+		@SuppressWarnings("unchecked")
 		List<DatasetCats> cats = c.list();
 		// Ensure the objects have been fully fetched before leaving the
 		// transaction.
@@ -80,4 +105,46 @@ public class StatisticsDaoImpl extends CustomHibernateDaoSupport implements Stat
 		return cats;
 	}
 
+	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
+	public void save(Ledger l) {
+		getSession().save(l);
+	}
+
+	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
+	public void saveLedger(TaskLedger tl) {
+		getSession().save(tl);
+	}
+
+	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
+	public Ledger getLedger(String id) {
+		return getSession().get(Ledger.class, id);
+	}
+
+	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
+	public void saveOrReplaceLedger(TaskLedger tl) {
+		List<TaskLedger> oldTls = searchTaskLedger(tl.getId(), tl.getKey());
+		if (oldTls.size() > 0)
+			getSession().delete(oldTls.get(0));
+		saveLedger(tl);
+	}
+
+	@Override
+	@Transactional
+	public List<TaskLedger> searchTaskLedger(String jobId, String key) {
+		Session session = getSession();
+		Criteria c = session.createCriteria(TaskLedger.class, "tl");
+		c.add(Restrictions.eq("tl.job.id", jobId));
+		if (key != null)
+			c.add(Restrictions.eq("tl.key", key));
+		@SuppressWarnings("unchecked")
+		List<TaskLedger> tls = c.list();
+		// Ensure the objects have been fully fetched before leaving the
+		// transaction.
+		for (TaskLedger tl : tls) {}
+		return tls;
+	}
 }

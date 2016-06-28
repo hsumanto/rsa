@@ -187,4 +187,41 @@ public class BucketingStrategyLog implements BucketingStrategy, Serializable {
 					"Log bucketing strategy: scale is too small.");
 		}
 	}
+
+	@Override
+	public String getDef() {
+		return String.format("log/base/%s/n/%s/scale/%s", base, n, scale);
+	}
+
+	@Override
+	public String toString() {
+		return String.format("BucketingStrategyLog(%s)", getDef());
+	}
+
+	@Override
+	public boolean equals(Object other) {
+		if (!(other instanceof BucketingStrategyLog))
+			return false;
+		BucketingStrategyLog b = (BucketingStrategyLog) other;
+		if (b.base != base)
+			return false;
+		if (b.n != n)
+			return false;
+		if (b.scale != scale)
+			return false;
+		return true;
+	}
+
+	@Override
+	public int hashCode() {
+		int result = 17;
+		long d;
+		d = Double.doubleToLongBits(base);
+		result = 37 * result + (int)(d ^ (d >>> 32));
+		d = Double.doubleToLongBits(n);
+		result = 37 * result + (int)(d ^ (d >>> 32));
+		d = Double.doubleToLongBits(scale);
+		result = 37 * result + (int)(d ^ (d >>> 32));
+		return result;
+	}
 }

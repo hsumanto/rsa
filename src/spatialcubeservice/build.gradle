@@ -13,35 +13,44 @@ apply plugin: 'war'
 apply plugin: 'com.bmuschko.tomcat'
 
 dependencies {
-    def springVersion = '3.1.1.RELEASE'
-    def tomcatVersion = '7.0.69'
+    ext.tomcatVersion = '7.0.69'
 
     providedCompile (
-        'javax.servlet:javax.servlet-api:3.0.1',
+        'javax.servlet:javax.servlet-api:3.1.0',
     )
 
     compile (
+        'com.fasterxml.jackson.core:jackson-databind:2.7.4',
         'com.googlecode.lambdaj:lambdaj:2.3.3',
-        'com.sun.xml.bind:jaxb-impl:2.1',
+        'com.sun.xml.bind:jaxb-impl:2.2',
+        'com.rometools:rome:1.6.0',
         'com.typesafe.akka:akka-actor_2.11:2.4.2',
         'com.typesafe.akka:akka-cluster_2.11:2.4.2',
         'com.typesafe.akka:akka-cluster-tools_2.11:2.4.2',
-        'commons-io:commons-io:1.3.2',
-        'commons-net:commons-net:3.4',
-        'javax.validation:validation-api:1.0.0.GA',
-        'org.codehaus.jackson:jackson-mapper-asl:1.7.1',
-        'org.hibernate:hibernate-validator:4.2.0.Final',
-        "org.springframework:org.springframework.web:$springVersion",
-        "org.springframework:org.springframework.web.servlet:$springVersion",
-        'rome:rome:1.0',
-        files('/usr/lib/gdal.jar'),
+        'commons-io:commons-io:2.5',
+        'commons-net:commons-net:3.5',
+        'javax.validation:validation-api:1.1.0.Final',
+        'org.hamcrest:hamcrest-all:1.3',
+        'org.hibernate:hibernate-validator:5.2.4.Final',
+        "org.springframework:spring-webmvc:$springVersion",
         project(':rsaquery'),
         project(':rsaquery').sourceSets.filter.output,
+        project(':rsaworkers'),
         project(':storagemanager'),
+        project(':rsa-common'),
     )
 
+    // Some of these runtime dependencies only get used when rendering certain
+    // content types. So when upgrading them, make sure you test all supported
+    // response types e.g:
+    // - /rsa/Dataset.xml
+    // - /rsa/Dataset.json
+    // - /rsa/Dataset.rss
+    // - /rsa/Dataset.atom
     runtime (
-        'commons-fileupload:commons-fileupload:1.2',
+        'commons-fileupload:commons-fileupload:1.3.1',
+        'jstl:jstl:1.2',
+        'org.apache.taglibs:taglibs-standard-impl:1.2.5',
         "org.springframework:spring-oxm:$springVersion",
     )
 
@@ -53,8 +62,14 @@ dependencies {
 
     testCompile (
         'com.carrotsearch:junit-benchmarks:0.4.0',
-        "org.springframework:org.springframework.test:$springVersion",
+        "org.springframework:spring-test:$springVersion",
         sourceSets.main.output,
+    )
+
+    testRuntime (
+        'javax.el:javax.el-api:3.0.0',
+        'com.jayway.jsonpath:json-path:2.2.0',
+        'org.apache.commons:commons-dbcp2:2.1.1',
     )
 }
 

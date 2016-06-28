@@ -66,7 +66,7 @@ public class FilterFactory {
 
 	/**
 	 * Create a list of filters based on a list of filter definitions.
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	public List<FilterAdapter> createFilters(List<FilterDefinition> fds)
 			throws QueryException, IOException {
@@ -293,7 +293,13 @@ public class FilterFactory {
 			// DatasetInput class because then each sampler would be shared by
 			// all threads. The VariableAdapter is already shared, which means
 			// the samplers will share the cache where possible.
-			VariableAdapter var = inputDataset.getVariableAdapter(nr.getSocketName());
+			VariableAdapter var;
+			try {
+				var = inputDataset.getVariableAdapter(nr.getSocketName());
+			} catch (Exception e) {
+				throw new QueryException(String.format(
+						"Failed to get pixel source %s", nr), e);
+			}
 			SamplerScalar sampler = new SamplerScalar(var, context);
 
 			// Configure coordinate transform. Note that this is a transform

@@ -21,22 +21,20 @@ package org.vpac.web.model.response;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map.Entry;
-
 import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
-
 import org.vpac.ndg.common.datamodel.CellSize;
-import org.vpac.ndg.query.stats.Bucket;
 import org.vpac.ndg.query.stats.Cats;
 import org.vpac.ndg.query.stats.Hist;
-import org.vpac.ndg.query.stats.Stats;
+import org.vpac.ndg.query.stats.Ledger;
 
 @XmlRootElement(name = "Table")
-public class TabularResponse <T> {
+public class TabularResponse {
 	private String tableType;
 	private String categorisation;
-	private List<T> table;
+	private List<ArrayList<Double>> table;
 	private List<TableColumn> columns;
 
 	public TabularResponse() {
@@ -50,11 +48,12 @@ public class TabularResponse <T> {
 		this.categorisation = categorisation;
 	}
 
-	@XmlAttribute
-	public List<T> getRows() {
+	@XmlElementWrapper
+	@XmlElement(name="row")
+	public List<ArrayList<Double>> getRows() {
 		return table;
 	}
-	public void setRows(List<T> table) {
+	public void setRows(List<ArrayList<Double>> table) {
 		this.table = table;
 	}
 
@@ -66,171 +65,11 @@ public class TabularResponse <T> {
 		this.tableType = tableType;
 	}
 
-	@XmlAttribute
+	@XmlElement
 	public List<TableColumn> getColumns() {
 		return columns;
 	}
 	public void setColumns(List<TableColumn> columns) {
 		this.columns = columns;
-	}
-
-	/**
-	 * Data suitable for displaying as a bar chart. Each row has an ID.
-	 */
-	public static class TabularResponseCategorical extends TabularResponse<TableRow> {
-		public TabularResponseCategorical() {
-			setTableType("categories");
-
-			List<TableColumn> columns = new ArrayList<TableColumn>();
-			columns.add(new TableColumn()
-					.key("id").name("Category").type("category")
-					.description("The category of the data."));
-			columns.add(new TableColumn()
-					.key("area").name("Area").units("m^2").type("area")
-					.portionOf("rawArea")
-					.description("The area of land that matches the filters."));
-			columns.add(new TableColumn().key("rawArea")
-					.name("Unfiltered Area").units("m^2").type("area")
-					.description("The area of available land."));
-			setColumns(columns);
-		}
-
-		public void setRows(Cats cats, Cats unfilteredCats, CellSize resolution) {
-			double cellArea = resolution.toDouble() * resolution.toDouble();
-			List<TableRow> rows = new ArrayList<TableRow>();
-			for (Entry<Integer, Hist> entry : cats.getCategories().entrySet()) {
-				TableRow row = new TableRow();
-				row.setId(entry.getKey());
-
-				Hist hist = entry.getValue();
-				Stats s = hist.summarise();
-				row.setArea(s.getCount() * cellArea);
-
-				Hist unfilteredHist = unfilteredCats.get(entry.getKey());
-				if (unfilteredHist != null) {
-					s = unfilteredHist.summarise();
-					row.setRawArea(s.getCount() * cellArea);
-				}
-
-				rows.add(row);
-			}
-			setRows(rows);
-		}
-
-		public void setRows(Hist hist, Hist unfilteredHist, CellSize resolution) {
-			double cellArea = resolution.toDouble() * resolution.toDouble();
-			List<TableRow> rows = new ArrayList<TableRow>();
-			for (Bucket b : hist.getBuckets()) {
-				TableRow row = new TableRow();
-				row.setId(b.getLower());
-
-				Stats s = b.getStats();
-				row.setArea(s.getCount() * cellArea);
-
-				Bucket ub = unfilteredHist.getBucket(b.getLower());
-				if (ub != null) {
-					s = ub.getStats();
-					row.setRawArea(s.getCount() * cellArea);
-				}
-
-				rows.add(row);
-			}
-			setRows(rows);
-		}
-	}
-
-	/**
-	 * Data suitable for displaying as a histogram. Each row has a lower and
-	 * upper bound.
-	 */
-	public static class TabularResponseContinuous extends TabularResponse<TableRowRanged> {
-		public TabularResponseContinuous() {
-			setTableType("histogram");
-
-			List<TableColumn> columns = new ArrayList<TableColumn>();
-			columns.add(new TableColumn()
-					.key("lower").name("Lower Bound").type("lowerBound")
-					.description("The lower bound of the grouping (value range)."));
-			columns.add(new TableColumn()
-					.key("upper").name("Upper Bound").type("upperBound")
-					.description("The upper bound of the grouping (value range)."));
-			columns.add(new TableColumn()
-					.key("area").name("Area").units("m^2").type("area")
-					.portionOf("rawArea")
-					.description("The area of land that matches the filters."));
-			columns.add(new TableColumn()
-					.key("rawArea").name("Unfiltered Area").units("m^2")
-					.type("area")
-					.description("The area of available land."));
-			setColumns(columns);
-		}
-
-		public void setRows(Hist hist, Hist unfilteredHist, CellSize resolution) {
-			double cellArea = resolution.toDouble() * resolution.toDouble();
-			List<TableRowRanged> rows = new ArrayList<TableRowRanged>();
-			for (Bucket b : hist.getBuckets()) {
-				TableRowRanged row = new TableRowRanged();
-				row.setLower(b.getLower());
-				row.setUpper(b.getUpper());
-
-				Stats s = b.getStats();
-				row.setArea(s.getCount() * cellArea);
-
-				Bucket ub = unfilteredHist.getBucket(b.getLower());
-				if (ub != null) {
-					s = ub.getStats();
-					row.setRawArea(s.getCount() * cellArea);
-				}
-
-				rows.add(row);
-			}
-			this.setRows(rows);
-
-			// Set min and max of value column. These can't be determined from
-			// the data in the rows because it is grouped into buckets.
-			Stats s = unfilteredHist.summarise();
-			getColumns().get(0)
-				.min(s.getMin())
-				.max(s.getMax());
-		}
-	}
-
-	/**
-	 * @return A table of data, with each row representing a bucket in the
-	 * histograms of the Cats object.
-	 */
-	public static TabularResponse<?> tabulateIntrinsic(Cats cats,
-			List<Integer> categories, CellSize resolution, boolean categorical) {
-		Cats filteredCats = cats.filterExtrinsic(categories);
-		Hist filteredHist = filteredCats.summarise();
-		Hist unfilteredHist = cats.summarise();
-
-		if (categorical) {
-			TabularResponseCategorical table = new TabularResponseCategorical();
-			table.setRows(filteredHist, unfilteredHist, resolution);
-			return table;
-		} else {
-			TabularResponseContinuous table = new TabularResponseContinuous();
-			table.setRows(filteredHist, unfilteredHist, resolution);
-			return table;
-		}
-	}
-
-	/**
-	 * @return A table of data, with each row representing a category of the
-	 * provided Cats object.
-	 */
-	public static TabularResponse<?> tabulateExtrinsic(Cats cats,
-			List<Double> lower, List<Double> upper, List<Double> values,
-			CellSize resolution, boolean categorical) {
-		Cats filteredCats;
-		if (categorical)
-			filteredCats = cats.filterIntrinsic(values);
-		else
-			filteredCats = cats.filterIntrinsic(lower, upper);
-
-		TabularResponseCategorical table = new TabularResponseCategorical();
-		table.setRows(filteredCats, cats, resolution);
-		return table;
 	}
 }

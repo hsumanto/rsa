@@ -40,7 +40,7 @@ import org.vpac.ndg.storage.model.JobProgress;
  * Manages a collection of tasks as a transaction.
  * @author hsumanto
  */
-public class TaskPipeline {
+public class TaskPipeline implements ProgressCallback {
 
 	final private Logger log = LoggerFactory.getLogger(TaskPipeline.class);
 
@@ -49,12 +49,16 @@ public class TaskPipeline {
 	/** task pipeline name */
 	private String name;
 	/** task pipeline queue */
-	private List<ITask> queue;
+	private List<Task> queue;
 	/** for communicating a raster task's progress to the outside world */
 	private JobProgress progress;
 	/** for differentiating main pipeline and child pipeline */
 	private boolean isMain;
 	private Collection<String> actionLog;
+
+	/** Total weights from all tasks in pipeline, used to normalise individual
+	  * progress values */
+	private double totalTaskPipelineWeight = 0.0;
 
 	public TaskPipeline() {
 		this(true);
@@ -62,7 +66,7 @@ public class TaskPipeline {
 
 	public TaskPipeline(boolean isMain) {
 		setMain(isMain);
-		queue = new ArrayList<ITask>();
+		queue = new ArrayList<Task>();
 		ApplicationContext appContext = ApplicationContextProvider.getApplicationContext();
 		jobProgressDao = (JobProgressDao) appContext.getBean("jobProgressDao");
 		if(isMain()) {
@@ -83,7 +87,7 @@ public class TaskPipeline {
 	 * Add a task into task pipeline.
 	 * @param task The task to add into pipeline.
 	 */
-	public void addTask(ITask task) {
+	public void addTask(Task task) {
 		queue.add(task);
 	}
 
@@ -93,7 +97,7 @@ public class TaskPipeline {
 	 */
 	public void initialise() throws TaskInitialisationException {
 		// This must be done first to ensure the task ID is initialised.
-		taskpipelineCurrentState(TaskState.RUNNING); 
+		taskpipelineCurrentState(TaskState.RUNNING);
 
 		String tab = Constant.EMPTY;
 		if (!isMain) {
@@ -103,11 +107,12 @@ public class TaskPipeline {
 
 		int currTaskStep = 1;
 		// Perform any necessary initialisation before execution
-		for (ITask task : queue) {
+		for (Task task : queue) {
 			log.debug(String.format("%sTASK_INIT [%s] = %s", tab,
 					currTaskStep, task.getDescription()));
 			task.initialise();
 			currTaskStep++;
+			totalTaskPipelineWeight += task.getProgressWeight();
 		}
 
 	}
@@ -130,10 +135,10 @@ public class TaskPipeline {
 
 		int currTaskStep = 1;
 		// Perform execution of each task in pipeline
-		for (ITask task : queue) {
+		for (Task task : queue) {
 			log.debug(String.format("%sTASK_EXEC [%s] = %s", tab,
 					currTaskStep, task.getDescription()));
-			task.execute(actionLog);
+			task.execute(actionLog, this);
 			taskpipelineCurrentStep(currTaskStep, task.getDescription());
 			currTaskStep++;
 		}
@@ -154,7 +159,7 @@ public class TaskPipeline {
 
 		log.info("{}ROLLBACK", tab);
 
-		for (ITask task : queue) {
+		for (Task task : queue) {
 			try {
 				task.rollback();
 			} catch (RuntimeException e) {
@@ -175,13 +180,13 @@ public class TaskPipeline {
 
 		log.info("{}START OF TASK FINALISE", tab);
 
-		// Reverse the order of task in the queue so that 
+		// Reverse the order of task in the queue so that
 		// cleaning up is performed from the last task to the beginning task
 		Collections.reverse(queue);
 
 		int currTaskStep = 1;
 		// Perform finalise of each task in pipeline
-		for (ITask task : queue) {
+		for (Task task : queue) {
 			try {
 				log.debug(String.format("%sTASK_CLEANUP [%s] = %s", tab,
 						currTaskStep, task.getDescription()));
@@ -203,7 +208,7 @@ public class TaskPipeline {
 		return name;
 	}
 
-	public List<ITask> getQueue() {
+	public List<Task> getQueue() {
 		return queue;
 	}
 
@@ -226,7 +231,7 @@ public class TaskPipeline {
 	 * Set the name for the current taskpipeline.
 	 * Also set the progress name and its task type.
 	 * @param name The name for this taskpipeline.
-	 * @param description The description for this taskpipeline. 
+	 * @param description The description for this taskpipeline.
 	 * @param taskType The type of taskpipeline.
 	 */
 	private void setProgressName(String name, TaskType taskType) {
@@ -266,8 +271,38 @@ public class TaskPipeline {
 			return;
 		}
 
+		//calculate progress based on weights of each task
+		double weightedProgressSum = 0.0;
+		for (int i = 0; i < currTaskStep; i++) {
+			Task t = queue.get(i);
+			weightedProgressSum += t.getProgressWeight();
+		}
+		double weightedProgressPercent = weightedProgressSum / totalTaskPipelineWeight * 100.0;
+
 		getProgress().setCurrentStep(currTaskStep, currTaskDesc);
-		getProgress().updateProgressBasedOnCurrentStep();
+		getProgress().setCurrentStepProgress(weightedProgressPercent);
+		jobProgressDao.save(getProgress());
+	}
+
+	public void progressUpdated(double progress) {
+		//progress updated via callback
+
+		int currentStep = getProgress().getCurrentStep();
+
+		//calculate weighted sum of completed tasks
+		double weightedProgressSum = 0.0;
+		for (int i = 0; i < currentStep; i++) {
+			Task t = queue.get(i);
+			weightedProgressSum += t.getProgressWeight();
+		}
+
+		double partialTaskProgress =
+			progress * queue.get(currentStep).getProgressWeight();
+		weightedProgressSum += partialTaskProgress;
+
+		double weightedProgressPercent = weightedProgressSum / totalTaskPipelineWeight * 100.0;
+
+		getProgress().setCurrentStepProgress(weightedProgressPercent);
 		jobProgressDao.save(getProgress());
 	}
 

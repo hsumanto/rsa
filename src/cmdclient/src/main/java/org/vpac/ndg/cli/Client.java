@@ -36,10 +36,9 @@ import java.util.TimeZone;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.GnuParser;
+import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
-import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.slf4j.Logger;
@@ -71,7 +70,6 @@ import org.vpac.ndg.geometry.Point;
 import org.vpac.ndg.geometry.Tile;
 import org.vpac.ndg.geometry.TileManager;
 import org.vpac.ndg.query.QueryException;
-import org.vpac.ndg.query.QueryRuntimeException;
 import org.vpac.ndg.query.io.DatasetProvider;
 import org.vpac.ndg.query.io.ProviderRegistry;
 import org.vpac.ndg.rasterdetails.RasterDetails;
@@ -93,7 +91,7 @@ public class Client {
 
 	final Logger log = LoggerFactory.getLogger(Client.class);
 
-	public final static String USAGE = 
+	public final static String USAGE =
 			"rsa <category> <action> [options] [arguments...]\n" +
 			"rsa dataset list [options] [KEYWORD]\n" +
 			"rsa dataset create [options] [-a] <NAME> <RESOLUTION>\n" +
@@ -130,7 +128,7 @@ public class Client {
 	TimeSliceUtil timeSliceUtil;
 	TileManager tileManager;
 
-	
+
 	public Client(Path workingDirectory) {
 		log.debug("client starting");
 		this.workingDirectory = workingDirectory.toAbsolutePath();
@@ -301,7 +299,7 @@ public class Client {
 		} catch (IndexOutOfBoundsException | NumberFormatException e) {
 			throw new IllegalArgumentException("Spatial extents invalid.");
 		}
-		
+
 		// Spatial extents specified by user
 		Date startDate = null;
 		Date endDate = null;
@@ -314,12 +312,12 @@ public class Client {
 		} catch (IndexOutOfBoundsException | IllegalArgumentException e) {
 			throw new IllegalArgumentException("Time date extents are invalid.");
 		}
-		
+
 		if (cmd.hasOption("tiles")) {
 			printTileInfo(id, extents, startDate, endDate);
 			return;
 		}
-		
+
 		DatasetConnector dsc = sm.getDatasetConnector();
 		if (cmd.hasOption("cdl")) {
 			// Write CDL output and return.
@@ -363,7 +361,7 @@ public class Client {
 		} else {
 			System.out.println("    Null spatial extents; this dataset contains no data.");
 		}
-		
+
 		System.out.format("    Image shape (x y):            %d %d\n",
 				(int)xres, (int)yres);
 
@@ -386,9 +384,9 @@ public class Client {
 					formatter.format(first.getCreated()),
 					formatter.format(last.getCreated()));
 		}
-		
+
 		if (extents != null) {
-			boolean bIntersect = bounds.intersects(extents); 
+			boolean bIntersect = bounds.intersects(extents);
 
 			System.out.format("\n    Given bounds (x1 y1 x2 y2):   %.8g %.8g %.8g %.8g\n",
 					extents.getXMin(), extents.getYMin(),
@@ -559,12 +557,12 @@ public class Client {
 
 		if(name.trim().isEmpty()) {
 			// Capture if dataset name not specified
-			throw new IllegalArgumentException("Dataset name not specified.");			
+			throw new IllegalArgumentException("Dataset name not specified.");
 		}
 
 		if(resolution.trim().isEmpty()) {
 			// Capture if resolution not specified
-			throw new IllegalArgumentException("Resolution not specified.");			
+			throw new IllegalArgumentException("Resolution not specified.");
 		}
 
 		// Abstract
@@ -676,22 +674,22 @@ public class Client {
 		} catch (IndexOutOfBoundsException | NumberFormatException e) {
 			throw new IllegalArgumentException("Spatial extents invalid.");
 		}
-				
+
 		TimesliceConnector tsc = sm.getTimesliceConnector();
 		log.debug("fetching metadata");
 		TimeSlice ts = tsc.get(id);
 		Dataset ds = tsc.getDataset(id);
 
-		
+
 		if (ts == null) {
 			throw new IllegalArgumentException("Dataset not found.");
 		}
-		
+
 		if (cmd.hasOption("tiles")) {
 			printTileBandInfo(ds, ts, extents);
 			return;
 		}
-		
+
 		List<TimeSliceLock> tsls = tsc.listLocks(id);
 
 		log.trace("printing");
@@ -744,12 +742,12 @@ public class Client {
 
 		if(dsid.trim().isEmpty()) {
 			// Capture if dataset ID not specified
-			throw new IllegalArgumentException("Dataset ID not specified.");			
+			throw new IllegalArgumentException("Dataset ID not specified.");
 		}
 
 		if(date.trim().isEmpty()) {
 			// Capture if dataset ID not specified
-			throw new IllegalArgumentException("Creation date not specified.");			
+			throw new IllegalArgumentException("Creation date not specified.");
 		}
 
 		// Abstract
@@ -839,12 +837,12 @@ public class Client {
 
 		if(dsid.trim().isEmpty()) {
 			// Capture if dataset ID not specified
-			throw new IllegalArgumentException("Dataset ID not specified.");			
+			throw new IllegalArgumentException("Dataset ID not specified.");
 		}
 
 		if(name.trim().isEmpty()) {
 			// Capture if band name not specified
-			throw new IllegalArgumentException("Band name not specified.");						
+			throw new IllegalArgumentException("Band name not specified.");
 		}
 
 		/** Whether the domain is continuous (e.g. float) not categorical.
@@ -853,7 +851,7 @@ public class Client {
 			isContinuous = "true";
 		}
 
-		/** Whether the data is metadata band or non-metadata band. */		
+		/** Whether the data is metadata band or non-metadata band. */
 		if (cmd.hasOption('m')) {
 			isMetadata = "true";
 		}
@@ -909,12 +907,12 @@ public class Client {
 
 	/**
 	 * Upload files, then run the import tool.
-	 * 
+	 *
 	 * @param remainingArgs
 	 *            The files to import. The first file is the primary file; the
 	 *            others are supporting files (optional).
-	 * @throws TaskException 
-	 * @throws TaskInitialisationException 
+	 * @throws TaskException
+	 * @throws TaskInitialisationException
 	 */
 	public void importData(List<String> remainingArgs)
 			throws TaskInitialisationException, TaskException {
@@ -941,12 +939,12 @@ public class Client {
 
 		if(timeSliceId.trim().isEmpty()) {
 			// Capture if timeslice ID not specified
-			throw new IllegalArgumentException("Timeslice ID not specified.");			
+			throw new IllegalArgumentException("Timeslice ID not specified.");
 		}
 
 		if(bandId.trim().isEmpty()) {
 			// Capture if band ID not specified
-			throw new IllegalArgumentException("Band ID not specified.");			
+			throw new IllegalArgumentException("Band ID not specified.");
 		}
 
 		if (cmd.hasOption("srcnodata")) {
@@ -1055,7 +1053,7 @@ public class Client {
 	 * @param remainingArgs dataset ID
 	 * @throws TaskInitialisationException
 	 * @throws TaskException
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	public void exportData(List<String> remainingArgs)
 			throws TaskInitialisationException, TaskException, IOException {
@@ -1076,7 +1074,7 @@ public class Client {
 
 		if(dsid.trim().isEmpty()) {
 			// Capture if dataset ID not specified
-			throw new IllegalArgumentException("Dataset ID not specified.");			
+			throw new IllegalArgumentException("Dataset ID not specified.");
 		}
 
 		DatasetConnector dsc = sm.getDatasetConnector();
@@ -1110,7 +1108,7 @@ public class Client {
 		// Band selection
 		if (cmd.hasOption("b")) {
 			String bandnames = cmd.getOptionValue("b");
-			String[] bandnamesArr = bandnames.split(","); 
+			String[] bandnamesArr = bandnames.split(",");
 			List<String> bandNamesFilter = new ArrayList<String>();
 			for(String bandname: bandnamesArr) {
 				if(bandname.trim().isEmpty()) {
@@ -1119,7 +1117,7 @@ public class Client {
 				bandNamesFilter.add(bandname);
 			}
 			if(bandNamesFilter.size() == 0) {
-				throw new IllegalArgumentException("Band names invalid.");					
+				throw new IllegalArgumentException("Band names invalid.");
 			}
 			exporter.setBandNamesFilter(bandNamesFilter);
 		}
@@ -1172,8 +1170,7 @@ public class Client {
 	 * @param remainingArgs query file name
 	 * @throws TaskInitialisationException
 	 * @throws TaskException
-	 * @throws IOException 
-	 * @throws QueryException 
+	 * @throws IOException
 	 */
 	public void queryData(List<String> remainingArgs) throws IOException,
 			TaskInitialisationException, TaskException {
@@ -1232,8 +1229,8 @@ public class Client {
 		Path outputFile = getFileLocation(defaultFileName);
 
 		queryRunner.setOutputPath(outputFile);
-		log.debug("running query");	
-		String taskId = queryRunner.start();	
+		log.debug("running query");
+		String taskId = queryRunner.start();
 		if (cmd.hasOption("async")) {
 			printTask(taskId);
 		} else {
@@ -1360,12 +1357,14 @@ public class Client {
 				"The type of data (default: BYTE).");
 		options.addOption("b", "band", true,
 				"Set the bands to export (comma-separated list of band names).");
-		options.addOption(OptionBuilder.withLongOpt("extents").hasArgs(4).
-				withDescription("Spatial extents (xmin ymin xmax ymax).").
-				create("e"));
-		options.addOption(OptionBuilder.withLongOpt("time-extents").hasArgs(2).
-				withDescription("Temporal extents (tmin tmax).").
-				create("t"));
+		options.addOption(Option.builder("e").longOpt("extents")
+				.numberOfArgs(4)
+				.desc("Spatial extents (xmin ymin xmax ymax).")
+				.build());
+		options.addOption(Option.builder("t").longOpt("time-extents")
+				.numberOfArgs(2)
+				.desc("Temporal extents (tmin tmax).")
+				.build());
 		options.addOption("p", "precision", true,
 				"The temporal precision (default: \"1 day\").");
 		options.addOption("o", "output", true, "The output file to write to. If"
@@ -1381,7 +1380,7 @@ public class Client {
 		options.addOption(null, "type", true, "The band data type.");
 		options.addOption(null, "acquisitiontime", true,
 				"The timeslice creation time.");
-		
+
 		options.addOption(null, "xmin", true, "The timeslice xmin value for updating.");
 		options.addOption(null, "xmax", true, "The timeslice xmax value for updating.");
 		options.addOption(null, "ymin", true, "The timeslice ymin value for updating.");
@@ -1410,9 +1409,9 @@ public class Client {
 				+ " task can be monitored using the return task ID. Only works"
 				+ " with --remote or when using Nailgun.");
 
-		
+
 		try {
-			CommandLineParser parser = new GnuParser();
+			CommandLineParser parser = new DefaultParser();
 			cmd = parser.parse(options, args);
 		} catch (ParseException e) {
 			log.error(e.getMessage());
@@ -1576,7 +1575,7 @@ public class Client {
 			return;
 
 		} catch (TaskInitialisationException | TaskException | IOException
-				| QueryRuntimeException e) {
+				| QueryException e) {
 			log.error("Execution failed: {}", e.getMessage());
 			if (e.getCause() != null)
 				log.error("Cause: {}", e.getCause().getMessage());
@@ -1603,8 +1602,8 @@ public class Client {
 
 	}
 
-	
-	
+
+
 	private void deleteBand(List<String> remainingArgs) throws IOException {
 		log.info("Deleting a band.");
 
@@ -1643,7 +1642,7 @@ public class Client {
 		System.out.println(String.format("Banb has been updated."));
 
 	}
-	
+
 	public Band parseBand(List<String> properties, String oldBandId) {
 		Band band = sm.getBandConnector().retrieve(oldBandId);
 		for(Option opt : cmd.getOptions()) {
@@ -1682,7 +1681,7 @@ public class Client {
 		return ds;
 	}
 
-	
+
 	public TimeSlice parseTimeslice(List<String> properties, String timesliceId) throws java.text.ParseException {
 		TimeSlice ts = sm.getTimesliceConnector().get(timesliceId);
 		for(Option opt : cmd.getOptions()) {
@@ -1711,7 +1710,7 @@ public class Client {
 		}
 		return ts;
 	}
-	
+
 	private void deleteTimeSlice(List<String> remainingArgs) throws IOException {
 		log.info("Deleting a timeslice.");
 
@@ -1740,7 +1739,7 @@ public class Client {
 				tsc.delete(id);
 				System.out.println(String.format("TimeSlice: %s has been deleted.", id));
 			}
-			
+
 		} catch (IndexOutOfBoundsException | IllegalArgumentException | IOException e) {
 			throw new IllegalArgumentException("Time date extents are invalid.");
 		}
@@ -1749,7 +1748,7 @@ public class Client {
 	private void updateTimeSlice(List<String> remainingArgs) {
 		log.info("Updating a timeslice.");
 		TimesliceConnector tc = sm.getTimesliceConnector();
-		
+
 		try {
 			TimeSlice newTs = parseTimeslice(remainingArgs, remainingArgs.get(0));
 			log.debug("updating time slice");
@@ -1763,9 +1762,9 @@ public class Client {
 		}
 		System.out.println(String.format("Timeslice has been updated."));
 
-		
+
 	}
-	
+
 	/**
 	 * @return Text that describes the enum values that one can enter on the
 	 *         command line.

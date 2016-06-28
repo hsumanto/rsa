@@ -36,10 +36,10 @@ import org.vpac.ndg.exceptions.TaskException;
 import org.vpac.ndg.exceptions.TaskInitialisationException;
 import org.vpac.ndg.storagemanager.GraphicsFile;
 
-public class NcmlBuilder extends Task {
+public class NcmlBuilder extends BaseTask {
 
 	final static Logger log = LoggerFactory.getLogger(NcmlBuilder.class);
-	
+
 	private List<GraphicsFile> rawSource;
 	private List<ScalarReceiver<AggregationDefinition>> nestedSource;
 
@@ -92,29 +92,29 @@ public class NcmlBuilder extends Task {
 	}
 
 	@Override
-	public void execute(Collection<String> actionLog) throws TaskException {
+	public void execute(Collection<String> actionLog, ProgressCallback progressCallback) throws TaskException {
 		AggregationDefinition ds = null;
 		try {
-			List<AggregationDefinition> children;			
+			List<AggregationDefinition> children;
 			switch (type) {
 			case UNION:
 				children = getChildren();
 				ds = factory.union(children, bandNames);
 				break;
-		
+
 			case JOIN_NEW:
 				children = getChildren();
 				ds = factory.joinNew(children, bandNames, newDimension,
 						coordinateValues);
 				break;
-		
+
 			default:
 				throw new TaskException(getDescription(),
 						String.format("Unrecognised aggregation type \"%s\" specified", type));
 			}
 		}
 		catch (IllegalArgumentException e) {
-			throw new TaskException(getDescription(), e.getMessage());			
+			throw new TaskException(getDescription(), e.getMessage());
 		}
 
 		if(ds == null) {
@@ -138,7 +138,7 @@ public class NcmlBuilder extends Task {
 	 * This class can have one of two input types: a list of
 	 * {@link GraphicsFile}s, or a list of {@link AggregationDefinition}s. This function
 	 * coerces them into a common type.
-	 * 
+	 *
 	 * @return The input for this task.
 	 * @throws TaskException
 	 *             If neither of the sources were specified.
@@ -165,7 +165,7 @@ public class NcmlBuilder extends Task {
 			for (ScalarReceiver<AggregationDefinition> child : nestedSource) {
 				AggregationDefinition aggDef = child.get();
 				if (aggDef != null) {
-					// If aggregation exists then only add this aggregation as child dataset  
+					// If aggregation exists then only add this aggregation as child dataset
 					children.add(child.get());
 					// Keep track valid time unit (of valid aggregation)
 					validCoordinateValues.add(coordinateValues.get(childIndex));
@@ -242,7 +242,7 @@ public class NcmlBuilder extends Task {
 	/**
 	 * Set which variables (bands) will be aggregated. When creating a union,
 	 * these must be specified.
-	 * 
+	 *
 	 * @param bandNames
 	 *            The name of each band to aggregate. This must have a 1:1
 	 *            mapping with the source images (see

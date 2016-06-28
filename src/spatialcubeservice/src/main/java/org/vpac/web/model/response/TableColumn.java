@@ -5,12 +5,13 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "Column")
 public class TableColumn {
-	private String key;
+	private int key;
+	private Integer inputIndex;
 	private String name;
 	private String description;
 	private String units;
 	private String type;
-	private String portionOf;
+	private Integer portionOf;
 	private Double min;
 	private Double max;
 
@@ -18,14 +19,26 @@ public class TableColumn {
 	}
 
 	@XmlAttribute
-	public String getKey() {
+	public int getKey() {
 		return key;
 	}
-	public void setKey(String key) {
+	public void setKey(int key) {
 		this.key = key;
 	}
-	public TableColumn key(String key) {
+	public TableColumn key(int key) {
 		this.key = key;
+		return this;
+	}
+
+	@XmlAttribute
+	public Integer getInputIndex() {
+		return inputIndex;
+	}
+	public void setInputIndex(Integer inputIndex) {
+		this.inputIndex = inputIndex;
+	}
+	public TableColumn inputIndex(Integer inputIndex) {
+		this.inputIndex = inputIndex;
 		return this;
 	}
 
@@ -78,13 +91,13 @@ public class TableColumn {
 	}
 
 	@XmlAttribute
-	public String getPortionOf() {
+	public Integer getPortionOf() {
 		return portionOf;
 	}
-	public void setPortionOf(String portionOf) {
+	public void setPortionOf(Integer portionOf) {
 		this.portionOf = portionOf;
 	}
-	public TableColumn portionOf(String portionOf) {
+	public TableColumn portionOf(Integer portionOf) {
 		this.portionOf = portionOf;
 		return this;
 	}

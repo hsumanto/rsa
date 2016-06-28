@@ -53,7 +53,7 @@ import org.vpac.ndg.query.sampling.Prototype;
 /**
  * A node in a query graph. This class wraps {@link Filter Filters}, providing
  * the extra functionality needed by the query engine.
- * 
+ *
  * @author Alex Fraser
  */
 public class FilterAdapter implements HasBounds, HasRank, Diagnostics {
@@ -216,7 +216,7 @@ public class FilterAdapter implements HasBounds, HasRank, Diagnostics {
 	/**
 	 * Get an output socket. Note that this must be called after the shape of
 	 * the filter has been set.
-	 * 
+	 *
 	 * @param name
 	 *            The name of the output socket.
 	 * @return A sampler that fetches filtered values from this filter.
@@ -261,7 +261,7 @@ public class FilterAdapter implements HasBounds, HasRank, Diagnostics {
 	 * given coordinate. If the filter has already been run for those
 	 * coordinates, cached values may be used for the outputs, in which case the
 	 * kernel will not be called.
-	 * 
+	 *
 	 * @param co
 	 *            The coordinates in the output image being written to.
 	 * @throws IOException
@@ -273,7 +273,7 @@ public class FilterAdapter implements HasBounds, HasRank, Diagnostics {
 				return;
 			internalCo.set(co);
 		} catch (IndexOutOfBoundsException e) {
-			throw new QueryRuntimeException(String.format(
+			throw new QueryException(String.format(
 					"Failed to set coordinates of filter \"%s\". Check "
 							+ "dimensionality. Class is %s", name,
 							innerFilter.getClass().getSimpleName()), e);
@@ -420,7 +420,7 @@ public class FilterAdapter implements HasBounds, HasRank, Diagnostics {
 
 	/**
 	 * Assign a uniform field by name.
-	 * 
+	 *
 	 * @param name
 	 *            The name of the field.
 	 * @param value

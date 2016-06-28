@@ -44,7 +44,7 @@ import org.vpac.ndg.storage.model.TimeSlice;
  * @author hsumanto
  *
  */
-public class TileBandCreator extends Task {
+public class TileBandCreator extends BaseTask {
 
 	final private Logger log = LoggerFactory.getLogger(TileBandCreator.class);
 
@@ -74,37 +74,37 @@ public class TileBandCreator extends Task {
 
 	@Override
 	public void initialise() throws TaskInitialisationException {
-		// Perform validation 
+		// Perform validation
 		if(source == null) {
 			throw new TaskInitialisationException(getDescription(), "Source extents not specified.");
 		}
-		
+
 		if(target == null) {
 			throw new TaskInitialisationException(getDescription(), "Target tileband not specified.");
 		}
-		
+
 		if(getTimeSlice() == null) {
 			throw new TaskInitialisationException(getDescription(), Constant.ERR_TIMESLICE_NOT_SPECIFIED);
 		}
-		
+
 		Dataset ds = timeSliceDao.getParentDataset(getTimeSlice().getId());
 		if(ds == null) {
 			throw new TaskInitialisationException(getDescription(), Constant.ERR_TIMESLICE_PARENT_NOT_SPECIFIED);
 		}
-		
+
 		if(band == null || (bandDao.find(ds.getId(), band.getName()) == null)) {
 			throw new TaskInitialisationException(getDescription(), Constant.ERR_DATASET_BANDS_NOT_SPECIFIED);
 		}
-	}	
-	
+	}
+
 	@Override
-	public void execute(Collection<String> actionLog) throws TaskException {
+	public void execute(Collection<String> actionLog, ProgressCallback progressCallback) throws TaskException {
 		// Perform some neccessary validation
 		Dataset ds = timeSliceDao.getParentDataset(getTimeSlice().getId());
 		if(ds == null) {
 			throw new TaskException(getDescription(), Constant.ERR_TIMESLICE_PARENT_NOT_SPECIFIED);
 		}
-		
+
 		if(band == null || (bandDao.find(ds.getId(), band.getName()) == null)) {
 			throw new TaskException(getDescription(), Constant.ERR_DATASET_BANDS_NOT_SPECIFIED);
 		}
@@ -113,9 +113,9 @@ public class TileBandCreator extends Task {
 		List<Tile> tiles = tileManager.getTiles(source, ds.getResolution());
 
 		// Create tileband for each tile
-		for(Tile tile : tiles) {	
-			TileBand tileband = new TileBand(tile, band, timeSlice); 
-			target.add(tileband);	
+		for(Tile tile : tiles) {
+			TileBand tileband = new TileBand(tile, band, timeSlice);
+			target.add(tileband);
 			log.trace("{}", tileband);
 			//log.debug("tileband resolution: {}", timeSlice.getParent().getResolution());
 		}
@@ -123,12 +123,12 @@ public class TileBandCreator extends Task {
 
 	@Override
 	public void rollback() {
-		// Do nothing		
+		// Do nothing
 	}
 
 	@Override
 	public void finalise() {
-		// Do nothing		
+		// Do nothing
 	}
 
 	public void setSource(Box source) {

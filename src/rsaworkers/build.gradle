@@ -10,18 +10,22 @@ dependencies {
     compile (
         'com.typesafe.akka:akka-cluster_2.11:2.4.2',
         'com.typesafe.akka:akka-cluster-tools_2.11:2.4.2',
-        'commons-net:commons-net:3.4',
-        files('/usr/lib/gdal.jar'),
+        'commons-net:commons-net:3.5',
         project(':rsaquery'),
         project(':storagemanager'),
+        project(':rsa-common'),
     )
 
     runtime (
-        project(':rsaquery').sourceSets.filter.output,
+        project(path: ':rsaquery', configuration: 'filter'),
     )
 
     testCompile (
         sourceSets.main.output,
+    )
+
+    testRuntime (
+        'org.apache.commons:commons-dbcp2:2.1.1',
     )
 }
 

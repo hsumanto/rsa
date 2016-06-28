@@ -38,13 +38,13 @@ import org.vpac.ndg.storagemanager.GraphicsFile;
 
 /**
  * The task of this class is to transform GraphicsFiles into the intended GraphicsFile.
- * In the target GraphicsFile, user could specify the intended projection, resolution, extents 
- * and format to transform to.  
- * 
+ * In the target GraphicsFile, user could specify the intended projection, resolution, extents
+ * and format to transform to.
+ *
  * @author hsumanto
  *
  */
-public class Transformer extends Task {
+public class Transformer extends BaseTask {
 
 	final private Logger log = LoggerFactory.getLogger(Transformer.class);
 
@@ -68,27 +68,27 @@ public class Transformer extends Task {
 		super(description);
 		commandUtil = new CommandUtil();
 	}
-	
+
 	@Override
 	public void initialise() throws TaskInitialisationException {
 		// Perform validation on source and target fields;
 		if(getSource() == null) {
 			throw new TaskInitialisationException(getDescription(), Constant.ERR_NO_INPUT_IMAGES);
 		}
-		
+
 		if(getTarget() == null) {
 			throw new TaskInitialisationException(getDescription(), Constant.ERR_TARGET_DATASET_NOT_SPECIFIED);
-		}	
-		
+		}
+
 	}
-	
+
 	@Override
-	public void execute(Collection<String> actionLog) throws TaskException {
+	public void execute(Collection<String> actionLog, ProgressCallback progressCallback) throws TaskException {
 		if(isCheckSource()) {
 			if(getSource().isEmpty()) {
 				// During import if no input images then throws exception
 				throw new TaskException(getDescription(), Constant.ERR_NO_INPUT_IMAGES);
-			}			
+			}
 		}
 		else {
 			if(getSource().isEmpty()) {
@@ -99,7 +99,7 @@ public class Transformer extends Task {
 				log.debug("Source is empty; will not transform.");
 				return;
 			}
-		}		
+		}
 
 		// Initialize command parameter list
 		command = new ArrayList<String>();
@@ -113,7 +113,7 @@ public class Transformer extends Task {
 		} else {
 			if(target.getSrs() != null && !target.getSrs().isEmpty()) {
 				command.add("-t_srs");
-				command.add(target.getSrs());							
+				command.add(target.getSrs());
 			}
 		}
 
@@ -127,7 +127,7 @@ public class Transformer extends Task {
 		}
 		else {
 			// Target extents
-			if (getTarget().getBounds() != null) {			
+			if (getTarget().getBounds() != null) {
 				command.add("-te");
 				command.add(Double.toString(getTarget().getBounds().getXMin()));
 				command.add(Double.toString(getTarget().getBounds().getYMin()));
@@ -198,24 +198,24 @@ public class Transformer extends Task {
 		}
 
 		// Output file
-		command.add(target.getFileLocation().toString());	
+		command.add(target.getFileLocation().toString());
 
 		actionLog.add(StringUtils.join(command, " "));
 		try {
-			// If source is raster dataset							
+			// If source is raster dataset
 			// If source is vector dataset
-			commandUtil.start(command);			
+			commandUtil.start(command);
 		} catch (ProcessException | InterruptedException | IOException e) {
 			throw new TaskException(getDescription(), e);
-		} 
+		}
 	}
 
 	@Override
 	public void rollback() {
-		// Remove the transformed image from temporary storage		
+		// Remove the transformed image from temporary storage
 		if(target.deleteIfExists()) {
 			log.trace("Deleted {}", target);
-		}		
+		}
 	}
 
 	@Override
@@ -249,7 +249,7 @@ public class Transformer extends Task {
 	public void setSource(List<GraphicsFile> source) {
 		this.source = source;
 	}
-	
+
 	public List<GraphicsFile> getSource() {
 		return source;
 	}
@@ -260,8 +260,8 @@ public class Transformer extends Task {
 
 	public GraphicsFile getTarget() {
 		return target;
-	}	
-	
+	}
+
 	public Box getExtents() {
 		return extents;
 	}
@@ -271,9 +271,9 @@ public class Transformer extends Task {
 	}
 
 	public void addExtraOptions(List<String> args) {
-		// SKIP_NOSOURCE=YES/NO: Skip all processing for chunks for which there is no corresponding input data. 
-		// This will disable initializing the destination (INIT_DEST) and all other processing, and so should be used careful. 
-		// Mostly useful to short circuit a lot of extra work in mosaicing situations.		
+		// SKIP_NOSOURCE=YES/NO: Skip all processing for chunks for which there is no corresponding input data.
+		// This will disable initializing the destination (INIT_DEST) and all other processing, and so should be used careful.
+		// Mostly useful to short circuit a lot of extra work in mosaicing situations.
 
 		// NOTE: This needs to be disable for netCDF format, as on some cases this option create the below error.
 		// ERROR 1: netCDF scanline fetch failed: NetCDF: Operation not allowed in define mode
@@ -311,5 +311,5 @@ public class Transformer extends Task {
 
 	public void setDatatype(RasterDetails datatype) {
 		this.datatype = datatype;
-	}	
+	}
 }

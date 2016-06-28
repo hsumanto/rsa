@@ -40,7 +40,7 @@ import org.vpac.ndg.storagemanager.GraphicsFile;
  * @author lachlan
  *
  */
-public class Translator extends Task {
+public class Translator extends BaseTask {
 
 	final private Logger log = LoggerFactory.getLogger(Translator.class);
 
@@ -112,13 +112,13 @@ public class Translator extends Task {
 		    command.add("-ot");
 		    command.add(outputType);
 		}
-		
+
 		//set the expand type
 		if (expand != null) {
 		    command.add("-expand");
 		    command.add(expand);
 		}
-		
+
 		// set the scale if specified
 		if (scale != null) {
 	        command.add("-scale");
@@ -127,7 +127,7 @@ public class Translator extends Task {
 	            log.info("value:" + d.get().toString());
 	        }
 		}
-		
+
 		// Add extra options such as Mosaicking options, Memory management options
 		addExtraOptions(command);
 
@@ -153,16 +153,16 @@ public class Translator extends Task {
 			log.error("Command failed: {}", e.getMessage());
 			log.error("Command was: {}", command);
 			throw new TaskException(getDescription(), e);
-		} 
+		}
 	}
 
 	@Override
-	public void execute(Collection<String> actionLog) throws TaskException {
+	public void execute(Collection<String> actionLog, ProgressCallback progressCallback) throws TaskException {
 		if(isCheckSource()) {
 			if(!getSource().exists()) {
 				// During import if no input image then throws exception
 				throw new TaskException(getDescription(), "Source file not exist:\n" + getSource().getFileLocation());
-			}	
+			}
 		}
 		else {
 			if(!getSource().exists()) {
@@ -230,10 +230,10 @@ public class Translator extends Task {
 	public void setTarget(GraphicsFile target) {
 		this.target = target;
 	}
-	
-	
-	
-	
+
+
+
+
 	public List<ScalarReceiver<Double>> getScale() {
         return scale;
     }
@@ -246,8 +246,8 @@ public class Translator extends Task {
         this.scale = scale;
     }
 
-    
-    
+
+
     public String getExpand() {
         return expand;
     }
@@ -263,9 +263,9 @@ public class Translator extends Task {
     public String getOutputType() {
         return outputType;
     }
-	
+
 	/**
-	 * sets the '-ot' argument passed to GDAL translate, must be one of 
+	 * sets the '-ot' argument passed to GDAL translate, must be one of
 	 * Byte/Int16/UInt16/UInt32/Int32/Float32/Float64/
      * CInt16/CInt32/CFloat32/CFloat64
 	 * @param outputType

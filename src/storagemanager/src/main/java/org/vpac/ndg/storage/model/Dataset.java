@@ -24,7 +24,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
-import org.apache.commons.lang.time.DateUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.vpac.ndg.common.datamodel.CellSize;
 
 public class Dataset implements java.io.Serializable {
