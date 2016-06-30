@@ -197,6 +197,7 @@ public class WmtsQueryCreator extends Application {
         vrtToByteTif.setSource(vrtMosaicFile);
         vrtToByteTif.setTarget(tifByteFile);
         vrtToByteTif.setOutputType("Byte");
+        vrtToByteTif.setNodata("0");
         ScalarReceiver<Double> byteLowestValue = new ScalarReceiver<Double>();
         byteLowestValue.set(1.0);
         ScalarReceiver<Double> byteHighestValue = new ScalarReceiver<Double>();
