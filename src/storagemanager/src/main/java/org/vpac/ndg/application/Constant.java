@@ -42,7 +42,7 @@ public class Constant {
 	public static final String TASK_DESCRIPTION_COMPRESSOR = "Packaging output into a zip file";
 	public static final String TASK_DESCRIPTION_NOOP = "No operation";
 	
-	public static final String GDAL_CACHEMAX_IN_MB = "1000";
+	public static final String GDAL_CACHEMAX_IN_MB = "300";
 	public static final String UNKNOWN = "unknown";
 	public static final String EXT_VRT = ".vrt";
 	public static final String EXT_NCML = ".ncml";
