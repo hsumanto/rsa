@@ -3,11 +3,13 @@ package org.vpac.ndg.task;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.FilenameFilter;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.nio.file.Path;
-import java.nio.file.Files;
+import java.lang.Math;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,6 +34,7 @@ public class OutputDirStatistics extends BaseTask {
     private final String STATS_MIN = "STATISTICS_MINIMUM";
     private final String PIXEL_TYPE = "PIXELTYPE";
     private final String NO_DATA = "NoData Value";
+    private final String OUTPUT_FILE_FORMAT = ".nc";
 
     private Path sourceDir;
     private boolean approximate;
@@ -87,7 +90,15 @@ public class OutputDirStatistics extends BaseTask {
     public void execute(Collection<String> actionLog, ProgressCallback progressCallback) throws TaskException {
 
         try {
-            Files.walk(sourceDir).forEach(filePath -> {
+
+            File dir = new File(sourceDir.toString());
+            File[] files = dir.listFiles(new FilenameFilter() {
+                public boolean accept(File dir, String name) {
+                    return name.toLowerCase().endsWith(OUTPUT_FILE_FORMAT);
+                }
+            });
+
+            for(File filePath : files) {
                 String stdout = "";
                 List<String> command = prepareCommand();
 
@@ -95,58 +106,63 @@ public class OutputDirStatistics extends BaseTask {
                 for (String s : command) {
                     listString += s + " ";
                 }
-                log.info("filePath:" + filePath);
 
-                if (Files.isRegularFile(filePath)) {
-                    try {
-                        listString += filePath;
-                        command.add(filePath.toString());
-                        log.info("command:" + command);
-                        //in this case we dont use the command util as we care about the stdout stuff
-                        actionLog.add(StringUtils.join(command, " "));
-                        ProcessBuilder pb = new ProcessBuilder(command);
-                        Process process = pb.start();
+                listString += filePath;
+                command.add(filePath.toString());
+                log.info("command:" + command);
+                //in this case we dont use the command util as we care about the stdout stuff
+                actionLog.add(StringUtils.join(command, " "));
+                ProcessBuilder pb = new ProcessBuilder(command);
+                Process process = pb.start();
 
-                        BufferedReader br = new BufferedReader(new InputStreamReader(process.getInputStream()));
-                        StringBuilder builder = new StringBuilder();
-                        String line = null;
-                        while ( (line = br.readLine()) != null) {
-                           builder.append(line);
-                           builder.append(System.lineSeparator());
-                        }
-                        String result = builder.toString();
-                        stdout = result;
-                    } catch (IOException e) {
-                        // throw new IOException(e.getMessage());
-                    }
+                BufferedReader br = new BufferedReader(new InputStreamReader(process.getInputStream()));
+                StringBuilder builder = new StringBuilder();
+                String line = null;
+                while ( (line = br.readLine()) != null) {
+                   builder.append(line);
+                   builder.append(System.lineSeparator());
+                }
+                String result = builder.toString();
+                stdout = result;
 
-                    //We'll end up with a block of data at the end of this similar to
-                    //STATISTICS_MAXIMUM=389
-                    //STATISTICS_MINIMUM=300
+                String lines[] = stdout.split(System.lineSeparator());
+                Double value;
+                ScalarReceiver<Double> sr;
 
-
-                    //Read the info we're after and put it in some scalar receivers
-                    String lines[] = stdout.split(System.lineSeparator());
-                    for (String line2: lines) {
-                        line2 = line2.trim();
-                        if (line2.startsWith(STATS_MAX)) {
+                for (String line2: lines) {
+                    line2 = line2.trim();
+                    if (line2.startsWith(STATS_MAX)) {
+                        //log.info("Found max of " + getStatsValue(line2));
+                        if (max == null || max.get() == null)
                             getMax().set(getStatsValue(line2));
-                            log.info("Found max of " + getMax().get().toString());
-                        } else if (line2.startsWith(STATS_MIN)) {
+                        else
+                            getMax().set(Math.max(max.get(), getStatsValue(line2)));
+                    } else if (line2.startsWith(STATS_MIN)) {
+                        //log.info("Found min of " + getStatsValue(line2));
+                        if (min == null || min.get() == null)
                             getMin().set(getStatsValue(line2));
-                            log.info("Found min of " + getMin().get().toString());
-                        } else if (line2.startsWith(PIXEL_TYPE)) {
-                            getPixelType().set(getPixelTypeValue(line2));
-                            log.info("Found pixel type of " + getPixelType().get());
-                        } else if (line2.startsWith(NO_DATA)) {
-                            getNodata().set(getStatsValue(line2));
-                            log.info("Found No data value of " + getNodata().get());
-                        }
+                        else
+                            getMin().set(Math.min(min.get(), getStatsValue(line2)));
+                    } else if (line2.startsWith(PIXEL_TYPE)) {
+                        getPixelType().set(getPixelTypeValue(line2));
+                        //log.info("Found pixel type of " + getPixelType().get());
+                    } else if (line2.startsWith(NO_DATA)) {
+                        getNodata().set(getStatsValue(line2));
+                        //log.info("Found No data value of " + getNodata().get());
                     }
                 }
-            });
-        } catch (IOException e) {
-            throw new TaskException(getDescription(), e);
+            }
+
+            log.info("Aggregated Min: " + min.get());
+            log.info("Aggregated Max: " + max.get());
+            // Check the madatory parameter is set
+            if (min == null || max == null || nodata == null)
+                throw new TaskException("Four mandatory field is not set");
+
+        } catch (TaskException te) {
+           throw te;
+        } catch (IOException ioe) {
+            throw new TaskException(getDescription(), ioe);
         }
     }
 
@@ -156,7 +172,7 @@ public class OutputDirStatistics extends BaseTask {
      * @param line
      * @return
      */
-    private double getStatsValue(String line) {
+    private Double getStatsValue(String line) {
         String numberBit = line.substring(line.indexOf('=')+1);
         return Double.parseDouble(numberBit);
     }
@@ -200,8 +216,7 @@ public class OutputDirStatistics extends BaseTask {
     }
 
     public void setMax(ScalarReceiver<Double> max) {
-        if (max.get() > this.max.get())
-            this.max = max;
+        this.max = max;
     }
 
     public ScalarReceiver<Double> getMin() {
@@ -211,8 +226,7 @@ public class OutputDirStatistics extends BaseTask {
     }
 
     public void setMin(ScalarReceiver<Double> min) {
-        if (min.get() < this.min.get())
-            this.min = min;
+        this.min = min;
     }
 
     public ScalarReceiver<Double> getNodata() {

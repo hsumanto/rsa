@@ -170,17 +170,17 @@ public class WmtsQueryCreator extends Application {
         ScalarReceiver<OutputDirStatistics> output = new ScalarReceiver<OutputDirStatistics>();
         output.set(outputInfo);
         sourceVrtBuilder.setOutputDirStatistics(output);
+        sourceVrtBuilder.setTarget(vrtMosaicFile);
         //nodata value is set based on the bands nodata
 
         //
         // TASK 3
         // Get the min and max for the dataset so we can scale this into a range of 0-255 appropriately
         //
-        FileStatistics stats = new FileStatistics();
-        stats.setProgressWeight(5.0);
-        stats.setSource(vrtMosaicFile);
-        stats.setApproximate(false);
-        sourceVrtBuilder.setTarget(vrtMosaicFile);
+        //FileStatistics stats = new FileStatistics();
+        //stats.setProgressWeight(5.0);
+        //stats.setSource(vrtMosaicFile);
+        //stats.setApproximate(false);
         //NOTE: we grab some of the scalar recievers from this task to feed values into the next task
 
         //
@@ -205,8 +205,8 @@ public class WmtsQueryCreator extends Application {
 
         //set the scale using scalar recievers as this info will not be know till the previous task is run
         List<ScalarReceiver<Double>> scale = new ArrayList<ScalarReceiver<Double>>();
-        scale.add(stats.getMin());
-        scale.add(stats.getMax());
+        scale.add(output.get().getMin());
+        scale.add(output.get().getMax());
         scale.add(byteLowestValue);
         scale.add(byteHighestValue);
         vrtToByteTif.setScale(scale);
@@ -270,7 +270,7 @@ public class WmtsQueryCreator extends Application {
         // ADD TASKS
         getTaskPipeline().addTask(outputInfo);
         getTaskPipeline().addTask(sourceVrtBuilder);
-        getTaskPipeline().addTask(stats);
+        //getTaskPipeline().addTask(stats);
         getTaskPipeline().addTask(vrtToByteTif);
         getTaskPipeline().addTask(noColourVrtBuilder);
         getTaskPipeline().addTask(vrtColourer);

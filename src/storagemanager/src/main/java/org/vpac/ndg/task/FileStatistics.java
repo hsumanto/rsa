@@ -166,12 +166,6 @@ public class FileStatistics extends BaseTask {
                 getNodata().set(getStatsValue(line));
                 log.info("Found No data value of " + getNodata().get());
                 foundCount++;
-
-            // } else if (line.startsWith(COMPUTED_MINMAX)) {
-            //     setComputedValues(line);
-            //     log.info("Computed Min and Max of " + getMin().get().toString()
-            //         + "," + getMax().get().toString());
-            //     foundCount += 2;
             }
         }
 

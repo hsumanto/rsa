@@ -17,21 +17,7 @@ public class SeedActor extends UntypedActor {
     }
 
     @Override
-    public void preStart() {
-        cluster.subscribe(getSelf(), ClusterEvent.initialStateAsEvents(), 
-            MemberEvent.class, MemberUp.class);
-    }
-
-    @Override
-    public void postStop() {
-        cluster.unsubscribe(getSelf());
-    }
-
-    @Override
     public void onReceive(Object message) throws Exception {
         System.out.println("message:" + message);
-        if (message instanceof MemberUp) {
-            // cluster.leave(cluster.selfAddress());
-        }
     }
 }

@@ -7,11 +7,6 @@ import akka.actor.Cancellable;
 import akka.actor.Props;
 import akka.actor.UntypedActor;
 import akka.cluster.Cluster;
-import akka.cluster.ClusterEvent.MemberEvent;
-import akka.cluster.ClusterEvent.MemberRemoved;
-import akka.cluster.ClusterEvent.MemberUp;
-import akka.cluster.ClusterEvent.UnreachableMember;
-import akka.cluster.ClusterEvent;
 import akka.cluster.client.ClusterClientReceptionist;
 import akka.cluster.pubsub.DistributedPubSub;
 import akka.cluster.pubsub.DistributedPubSubMediator.Put;
@@ -82,12 +77,6 @@ public class Master extends UntypedActor {
 	}
 
 	@Override
-	public void preStart() {
-		cluster.subscribe(getSelf(), ClusterEvent.initialStateAsEvents(),
-		    MemberEvent.class, UnreachableMember.class);
-	}
-
-	@Override
 	public void postStop() {
 		cleanupTask.cancel();
 	}
@@ -102,9 +91,6 @@ public class Master extends UntypedActor {
 			String loocalAddress = localhost.getHostAddress().toString();
 			Option<String> empty = scala.Option.apply(null);
 			String sHostAddress = sHost == empty ? "" : sHost.get();
-			// log.info("sAddress:" + sAddress);
-			// log.info("sHostAddress:" + sHostAddress);
-			// log.info("senderAddress:" + senderAddress);
 
 			if (loocalAddress.equals(sHostAddress))
 			{
