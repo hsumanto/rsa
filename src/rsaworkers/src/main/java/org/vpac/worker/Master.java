@@ -292,6 +292,7 @@ public class Master extends UntypedActor {
 		return list;
 	}
 
+	@SuppressWarnings("unchecked")
 	private void foldResults(WorkInfo currentWorkInfo) {
 		HashMap<String, Foldable<?>> resultMap = new HashMap<>();
 
