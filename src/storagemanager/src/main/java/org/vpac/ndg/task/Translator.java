@@ -122,7 +122,6 @@ public class Translator extends BaseTask {
 		// set the scale if specified
 		if (scale != null) {
 	        command.add("-scale");
-	        log.info("scale:" + scale.toString());
 
 	        for (ScalarReceiver<Double> d: scale) {
 	            command.add(d.get().toString());
