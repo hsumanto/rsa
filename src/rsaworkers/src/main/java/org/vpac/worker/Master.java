@@ -11,6 +11,10 @@ import akka.cluster.client.ClusterClientReceptionist;
 import akka.cluster.pubsub.DistributedPubSub;
 import akka.cluster.pubsub.DistributedPubSubMediator.Put;
 import akka.cluster.pubsub.DistributedPubSubMediator;
+import akka.cluster.ClusterEvent;
+import akka.cluster.ClusterEvent.MemberEvent;
+import akka.cluster.ClusterEvent.UnreachableMember;
+import akka.cluster.ClusterEvent.MemberRemoved;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import java.net.Inet4Address;
@@ -77,6 +81,12 @@ public class Master extends UntypedActor {
 	}
 
 	@Override
+    public void preStart() {
+        cluster.subscribe(getSelf(), ClusterEvent.initialStateAsEvents(), 
+            MemberEvent.class, UnreachableMember.class);
+    }
+
+	@Override
 	public void postStop() {
 		cleanupTask.cancel();
 	}
@@ -84,33 +94,36 @@ public class Master extends UntypedActor {
 	@Override
 	public void onReceive(Object message) throws Exception {
 		//log.info("message:" + message.toString());
-		if (message instanceof RegisterWorker) {
-			InetAddress localhost = Inet4Address.getLocalHost();
-			String sAddress = URLDecoder.decode(getSender().path().toString().replace(getSender().path().parent().toString() + "/", ""), "utf-8");
-			Option<String> sHost = getContext().actorSelection(sAddress).anchorPath().address().host();
-			String loocalAddress = localhost.getHostAddress().toString();
-			Option<String> empty = scala.Option.apply(null);
-			String sHostAddress = sHost == empty ? "" : sHost.get();
+		String sAddress = URLDecoder.decode(getSender().path().toString().replace(getSender().path().parent().toString() + "/", ""), "utf-8");
+		Option<String> sHost = getContext().actorSelection(sAddress).anchorPath().address().host();
+		Option<String> empty = scala.Option.apply(null);
+		String sHostAddress = sHost == empty ? "" : sHost.get();
 
-			if (loocalAddress.equals(sHostAddress))
-			{
-				log.info("Kill local worker:" + getSender().path());
-				getSender().tell(StopWorking.getInstance(), getSelf());
-			}
-			else
-			{
-				RegisterWorker msg = (RegisterWorker) message;
-				String workerId = msg.workerId;
-				if (workers.containsKey(workerId)) {
-					workers.put(workerId,
-							workers.get(workerId).copyWithRef(getSender()));
-				} else {
-					log.debug("Worker registered: {}", workerId);
-					workers.put(workerId, new WorkerState(getSender(),
-							Idle.instance));
-					if (!pendingWork.isEmpty())
-						getSender().tell(WorkIsReady.getInstance(), getSelf());
-				}
+		if (message instanceof UnreachableMember) {
+            UnreachableMember mUnreachable = (UnreachableMember) message;
+            log.info("Member detected as unreachable: {}", mUnreachable.member().address().toString());
+			if (mUnreachable.member().address().toString().equals(sHostAddress))
+				System.exit(-1);
+        } else if (message instanceof MemberRemoved) {
+            MemberRemoved mRemoved = (MemberRemoved) message;
+            log.info("Member is Removed: {}", mRemoved.member().address().toString());
+			if (mRemoved.member().address().toString().equals(sHostAddress))
+				System.exit(-1);
+        } else if (message instanceof RegisterWorker) {
+			InetAddress localhost = Inet4Address.getLocalHost();
+			String loocalAddress = localhost.getHostAddress().toString();
+
+			RegisterWorker msg = (RegisterWorker) message;
+			String workerId = msg.workerId;
+			if (workers.containsKey(workerId)) {
+				workers.put(workerId,
+						workers.get(workerId).copyWithRef(getSender()));
+			} else {
+				log.debug("Worker registered: {}", workerId);
+				workers.put(workerId, new WorkerState(getSender(),
+						Idle.instance));
+				if (!pendingWork.isEmpty())
+					getSender().tell(WorkIsReady.getInstance(), getSelf());
 			}
 		} else if (message instanceof WorkerRequestsWork) {
 			WorkerRequestsWork msg = (WorkerRequestsWork) message;

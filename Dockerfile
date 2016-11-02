@@ -12,16 +12,17 @@ MAINTAINER Jin Park <forjin@vpac-innovations.com.au>, Alex Fraser <alex@vpac-inn
 
 ENV JDK_VERSION=8 \
     TOMCAT_VERSION=7 \
-    GRADLE_VERSION=2.13
+    GRADLE_VERSION=2.13 \
+    DEBIAN_FRONTEND=noninteractive \
+    TERM=linux
 
 # Packages with a trailing dash (-) will be removed / not installed.
 COPY detect-proxy.sh /root
-RUN export DEBIAN_FRONTEND=noninteractive TERM=linux && \
-    apt-get update && \
+RUN apt-get update && \
     apt-get install -y --no-install-recommends \
         ca-certificates \
         software-properties-common && \
-    /root/detect-proxy.sh && \
+        /root/detect-proxy.sh && \
     add-apt-repository -y ppa:openjdk-r/ppa && \
     apt-get update && \
     apt-get install -y --no-install-recommends \
@@ -32,7 +33,6 @@ RUN export DEBIAN_FRONTEND=noninteractive TERM=linux && \
         libgdal-java \
         libproj0 \
         libtcnative-1 \
-        nmap \
         nano \
         openjdk-${JDK_VERSION}-jdk \
         python-gdal \
@@ -102,6 +102,7 @@ ENTRYPOINT ["/var/src/rsa/src/rsa_docker_start.sh"]
 
 # Expose ports.
 #   - 8080: web
-#   - 2552: akka
+#   - 2551, 2552: akka-seed
 EXPOSE 8080
+EXPOSE 2551
 EXPOSE 2552

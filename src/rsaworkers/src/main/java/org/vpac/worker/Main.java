@@ -71,19 +71,6 @@ public class Main {
 		ProviderRegistry.getInstance().addProvider(fileDatasetProvider);
 	}
 
-	public void startService() {
-		Address masterAddress = startMaster();
-		startWorker(masterAddress);
-	}
-
-	public void startSeed() {
-		Config conf = ConfigFactory.load("seed");
-		conf = AkkaUtil.patchConfig(conf);
-		ActorSystem system = ActorSystem.create(systemName, conf);
-		system.actorOf(Props.create(SeedActor.class), "seed");
-		registerStopSystem(system);
-	}
-
 	public void registerStopSystem(ActorSystem system) {
         Cluster.get(system).registerOnMemberRemoved(new Runnable() {
           @Override
@@ -119,16 +106,37 @@ public class Main {
 
 	public static void main(String[] args) throws InterruptedException, IOException {
 		Main main = new Main();
-		if (args.length == 0) {
+		String role = args[0];
+		System.out.println("role " + role);
+		if (role.equals("master")) {
+			System.out.println("MASTER Started!!!");
 			main.initBeans();
-			main.startService();
-		} else {
+			main.startMaster();
+		} else if (role.equals("worker")) {
+			System.out.println("WORKER Started!!!");
+			main.initBeans();
+			main.startWorker();
+		} else if (role.equals("seed")) {	
+			String port = args[1];
 			System.out.println("SEED Started!!!");
-			main.startSeed();
+			main.startSeed(port);
+		} else {
+			System.out.println("Proper role is needed");
+			System.exit(-1);
 		}
 	}
 
-	public Address startMaster() {
+	public void startSeed(String port) {
+		Config conf = ConfigFactory.load("seed");
+		Config portConfig = ConfigFactory.parseString("remote.netty.tcp.port=" + port);
+		conf = conf.withFallback(portConfig);
+		conf = AkkaUtil.patchConfig(conf);
+		Config config = ConfigFactory.load(conf);
+		ActorSystem system = ActorSystem.create(systemName, config);
+		system.actorOf(Props.create(SeedActor.class), "seed");
+	}
+
+	public void startMaster() {
 		ActorSystem system = createSystem("master");
     	system.actorOf(
         	ClusterSingletonManager.props(
@@ -137,19 +145,14 @@ public class Main {
             	ClusterSingletonManagerSettings.create(system).withRole("master")
         	),
         	"master");
-
 		system.actorOf(Props.create(DatabaseActor.class), "database");
-		return Cluster.get(system).selfAddress();
 	}
 
-	public void startWorker(Address masterAddress) {
+	public void startWorker() {
 		ActorSystem system = createSystem("worker");
-		System.out.println("Worker Started!!!" + masterAddress);
-
 	    ActorRef clusterClient = system.actorOf(
 	        ClusterClient.props(ClusterClientSettings.create(system)),
 	        "clusterClient");
-
 	    system.actorOf(Worker.props(clusterClient, Props.create(WorkExecutor.class)), "worker");
 	}
 

@@ -2,6 +2,7 @@
 
 mode=$1
 projdir=$(dirname $0)
+echo "mode" $1
 
 case ${mode} in
     "web")
@@ -17,18 +18,24 @@ case ${mode} in
         exec /usr/share/tomcat${TOMCAT_VERSION}/bin/catalina.sh run
         ;;
 
+    "master")
+        echo "Starting RSA master"
+        exec ${projdir}/rsaworkers/build/install/rsaworkers/bin/rsaworkers $mode
+        ;;
+
     "worker")
         echo "Starting RSA worker"
-        exec ${projdir}/rsaworkers/build/install/rsaworkers/bin/rsaworkers
+        exec ${projdir}/rsaworkers/build/install/rsaworkers/bin/rsaworkers $mode
         ;;
 
     "seed")
         echo "Starting RSA cluster seed"
-        exec ${projdir}/rsaworkers/build/install/rsaworkers/bin/rsaworkers seed
+        port=$2 
+        exec ${projdir}/rsaworkers/build/install/rsaworkers/bin/rsaworkers $mode $port
         ;;
 
     *)
-        echo "Specify a mode: [web, worker, seed]" >&2
+        echo "Specify a mode: [web, master, worker, seed]" >&2
         echo "If you want to run a different command, use --entrypoint" >&2
         exit 1
         ;;

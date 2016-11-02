@@ -7,6 +7,7 @@ dev:
     extends:
         service: base
     links:
+        - seed:seed
         - postgres:rsadb
     volumes_from:
         - data
@@ -18,7 +19,7 @@ web:
     extends:
         service: base
     links:
-        - seed
+        - seed:seed
         - postgres:rsadb
     volumes_from:
         - data
@@ -30,18 +31,27 @@ seed:
         service: base
     # Hostname acts like a link to self
     hostname: seed
+    volumes_from:
+        - data
+    command: seed 2552
+
+
+master:
+    extends:
+        service: base
     links:
+        - seed:seed
         - postgres:rsadb
     volumes_from:
         - data
-    command: seed
+    command: master
 
 
 worker:
     extends:
         service: base
     links:
-        - seed
+        - seed:seed
         - postgres:rsadb
     volumes_from:
         - data
@@ -61,4 +71,4 @@ data:
 
 
 postgres:
-    image: postgres:9
+    image: postgres:9.4
