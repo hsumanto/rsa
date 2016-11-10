@@ -133,7 +133,7 @@ public class Main {
 		conf = AkkaUtil.patchConfig(conf);
 		Config config = ConfigFactory.load(conf);
 		ActorSystem system = ActorSystem.create(systemName, config);
-		system.actorOf(Props.create(SeedActor.class), "seed");
+		// system.actorOf(Props.create(SeedActor.class), "seed");
 	}
 
 	public void startMaster() {
