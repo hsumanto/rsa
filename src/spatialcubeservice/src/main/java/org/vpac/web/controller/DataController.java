@@ -29,6 +29,7 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -657,14 +658,25 @@ public class DataController {
 				netcdfVersion, buckets, groupBy, model);
 	}
 
-	@RequestMapping(value = "/Akka-test", method = RequestMethod.GET)
-	public String akkaTest() throws IllegalAccessException, IOException, QueryException {
+	@RequestMapping(value = "/Akka-test/{mb}/{times}", method = RequestMethod.GET)
+	public String akkaTest(@PathVariable("mb") String mb, @PathVariable("times") String times) throws IllegalAccessException, IOException, QueryException {
 		ActorRef frontend = ActorCreator.getFrontend();
 	    log.info("path: " + frontend.toString());
 
-	    frontend.tell(new org.vpac.worker.Job.Work(
-				UUID.randomUUID().toString(), "", Version.netcdf4_classic, new BoxReal("0 0 0 0"),
-				"", null), ActorRef.noSender());
+		int KB     = 1024;
+		int MB     = 1024 * KB;
+		int m = Integer.parseInt(mb);
+		char[] chars = new char[m * MB];
+		// Optional step - unnecessary if you're happy with the array being full of \0
+		Arrays.fill(chars, 'f');
+		String emptyStrings =new String(chars);
+
+
+		for(int i = 0; i < Integer.parseInt(times); i ++) {
+			frontend.tell(new org.vpac.worker.Job.Work(
+					UUID.randomUUID().toString(), emptyStrings, Version.netcdf4_classic, new BoxReal("0 0 0 0"),
+					"bb", null), ActorRef.noSender());
+		}
 		return "Success";
 	}
 

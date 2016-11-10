@@ -1,10 +1,13 @@
 package org.vpac.worker;
 
 import java.io.Serializable;
+import java.util.List;
+
 import org.vpac.ndg.common.datamodel.CellSize;
 import org.vpac.ndg.common.datamodel.TaskState;
 import org.vpac.ndg.query.stats.Ledger;
 import org.vpac.ndg.query.stats.VectorCats;
+import org.vpac.worker.Job.WorkInfo;
 
 public abstract class MasterDatabaseProtocol {
 
@@ -74,6 +77,25 @@ public abstract class MasterDatabaseProtocol {
 			return String.format(
 				"SaveLedger{jobId=%s, resolution=%s, ledger=%s}",
 				jobId, resolution, ledger);
+		}
+	}
+
+	public static final class Fold implements Serializable {
+		private static final long serialVersionUID = 1L;
+		/** The name of the filter that generated the data */
+		public WorkInfo currentWorkInfo;
+		public final List<WorkInfo> list;
+
+		public Fold(List<WorkInfo> list, WorkInfo currentWorkInfo) {
+			this.list = list;
+			this.currentWorkInfo = currentWorkInfo;
+		}
+
+		@Override
+		public String toString() {
+			return "Fold{" + "list=" + list
+					+ ", currentWorkInfo=" + currentWorkInfo
+					+ '}';
 		}
 	}
 }

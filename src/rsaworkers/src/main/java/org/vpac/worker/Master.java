@@ -17,6 +17,7 @@ import akka.cluster.ClusterEvent.UnreachableMember;
 import akka.cluster.ClusterEvent.MemberRemoved;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
+
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.InterfaceAddress;
@@ -32,19 +33,23 @@ import java.util.Map.Entry;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
+
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.vpac.ndg.common.datamodel.CellSize;
 import org.vpac.ndg.common.datamodel.TaskState;
 import org.vpac.ndg.query.filter.Foldable;
-import org.vpac.ndg.query.math.VectorReal;
 import org.vpac.ndg.query.stats.VectorCats;
 import org.vpac.ndg.query.stats.Ledger;
 import org.vpac.worker.Job.Work;
+import org.vpac.worker.Job.WorkInfo;
+import org.vpac.worker.master.WorkResult;
+import org.vpac.worker.master.Ack;
 import org.vpac.worker.MasterDatabaseProtocol.JobUpdate;
 import org.vpac.worker.MasterDatabaseProtocol.SaveCats;
 import org.vpac.worker.MasterDatabaseProtocol.SaveLedger;
+import org.vpac.worker.MasterDatabaseProtocol.Fold;
 import org.vpac.worker.MasterWorkerProtocol.*;
-import org.vpac.worker.master.Ack;
-import org.vpac.worker.master.WorkResult;
 import scala.Option;
 import scala.concurrent.duration.Deadline;
 import scala.concurrent.duration.FiniteDuration;
@@ -52,7 +57,6 @@ import scala.concurrent.duration.FiniteDuration;
 public class Master extends UntypedActor {
 
 	public static String ResultsTopic = "results";
-
 	public static Props props(FiniteDuration workTimeout) {
 		return Props.create(Master.class, workTimeout);
 	}
@@ -170,7 +174,8 @@ public class Master extends UntypedActor {
 			}
 
 			if (totalNoOfWork == completedWork) {
-				foldResults(currentWorkInfo);
+				//foldResults(currentWorkInfo);
+				fold(currentWorkInfo);
 				updateTaskProgress(currentWorkInfo.work.jobProgressId,
 						completedArea, totalArea, TaskState.FINISHED, null);
 				removeWork(currentWorkInfo.work.jobProgressId);
@@ -306,61 +311,14 @@ public class Master extends UntypedActor {
 	}
 
 	@SuppressWarnings("unchecked")
-	private void foldResults(WorkInfo currentWorkInfo) {
-		HashMap<String, Foldable<?>> resultMap = new HashMap<>();
-
-		List<WorkInfo> list = getAllTaskWork(currentWorkInfo.work.jobProgressId);
-		for (WorkInfo w : list) {
-			Map<String, Foldable<?>> map = (Map<String, Foldable<?>>) w.result;
-			for (Entry<String, ?> v : map.entrySet()) {
-				Foldable<?> result;
-				if (VectorCats.class.isAssignableFrom(v.getValue().getClass())) {
-					VectorCats baseResult = (VectorCats) resultMap.get(v.getKey());
-					VectorCats currentResult = (VectorCats) v.getValue();
-					if (baseResult == null)
-						result = currentResult;
-					else
-						result = baseResult.fold(currentResult);
-				} else if (Ledger.class.isAssignableFrom(v.getValue().getClass())) {
-					Ledger baseResult = (Ledger) resultMap.get(v.getKey());
-					Ledger currentResult = (Ledger) v.getValue();
-					if (baseResult == null)
-						result = currentResult;
-					else
-						result = baseResult.fold(currentResult);
-				} else {
-					log.warning("Ignorning unrecognised query result {}",
-							v.getValue().getClass());
-					continue;
-				}
-				resultMap.put(v.getKey(), result);
-			}
-		}
-
-		for (String key : resultMap.keySet()) {
-			// The key is the name of the filter that generated the data
-			Foldable<?> value = resultMap.get(key);
-			ActorSelection database = getContext().system().actorSelection(
+	private void fold(WorkInfo currentWorkInfo) {
+		ActorSelection database = getContext().system().actorSelection(
 					"akka://Workers/user/database");
-			String jobId = currentWorkInfo.work.jobProgressId;
-			CellSize resolution = currentWorkInfo.work.outputResolution;
-			if (VectorCats.class.isAssignableFrom(value.getClass())) {
-				SaveCats msg = new SaveCats(jobId, key, resolution,
-					(VectorCats) value);
+		List<WorkInfo> list = getAllTaskWork(currentWorkInfo.work.jobProgressId);
+		Fold msg = new Fold(list, currentWorkInfo);
 				database.tell(msg, getSelf());
-
-			} else if (Ledger.class.isAssignableFrom(value.getClass())) {
-				SaveLedger msg = new SaveLedger(jobId, key, resolution,
-					(Ledger) value);
-				database.tell(msg, getSelf());
-
-			} else {
-				log.warning("Ignorning unrecognised query result {}",
-						value.getClass());
-				continue;
-			}
-		}
 	}
+
 
 	private void removeWork(String jobProgressId) {
 		// Remove jobs that are currently being worked on. This allows Master
@@ -518,22 +476,6 @@ public class Master extends UntypedActor {
 			return "CleanupTick";
 		}
 	};
-
-	private class WorkInfo {
-		public Work work;
-		public Object result;
-		public double processedArea;
-		public double area;
-
-		public WorkInfo(Work work, Object result) {
-			this.work = work;
-			this.result = result;
-			this.processedArea = 0;
-			VectorReal sub = work.bound.getMax().subNew(work.bound.getMin());
-			this.area = sub.get(0) * sub.get(1);
-		}
-	}
-
 	// TODO cleanup old workers
 	// TODO cleanup old workIds
 

@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 import org.vpac.ndg.common.datamodel.CellSize;
 import org.vpac.ndg.query.math.BoxReal;
-
+import org.vpac.ndg.query.math.VectorReal;
 import ucar.nc2.NetcdfFileWriter.Version;
 
 public class Job {
@@ -53,6 +53,22 @@ public class Job {
 			return "WorkComplete{" + "result=" + result + '}';
 		}
 	}
+
+	public static final class WorkInfo implements Serializable {
+		public Work work;
+		public Object result;
+		public double processedArea;
+		public double area;
+
+		public WorkInfo(Work work, Object result) {
+			this.work = work;
+			this.result = result;
+			this.processedArea = 0;
+			VectorReal sub = work.bound.getMax().subNew(work.bound.getMin());
+			this.area = sub.get(0) * sub.get(1);
+		}
+	}
+
 	
 	public static final class Error implements Serializable {
 		private static final long serialVersionUID = 1L;

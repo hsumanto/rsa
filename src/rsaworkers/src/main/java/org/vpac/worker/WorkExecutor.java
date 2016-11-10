@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
+import java.io.FileOutputStream;
+import java.io.ObjectOutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.file.Files;
@@ -17,6 +19,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.regex.Matcher;
+import java.util.UUID;
 import java.util.regex.Pattern;
 
 import org.springframework.context.ApplicationContext;
@@ -53,20 +56,18 @@ public class WorkExecutor extends UntypedActor {
 		public ApplicationContext appContext;
 
 		private AppContextSingleton() {
-			appContext = new ClassPathXmlApplicationContext(
-					new String[] { "spring/config/BeanLocations.xml" });
+			appContext = new ClassPathXmlApplicationContext(new String[] { "spring/config/BeanLocations.xml" });
 
 		}
 	}
 
 	public WorkExecutor() {
 		ApplicationContext appContext = AppContextSingleton.INSTANCE.appContext;
-		ndgConfigManager = (NdgConfigManager) appContext
-				.getBean("ndgConfigManager");
+		ndgConfigManager = (NdgConfigManager) appContext.getBean("ndgConfigManager");
+	
 	}
 
 	private NdgConfigManager ndgConfigManager;
-
 	private LoggingAdapter log = Logging.getLogger(getContext().system(), this);
 
 	@Override
@@ -88,9 +89,10 @@ public class WorkExecutor extends UntypedActor {
 							getContext().system().dispatcher(), null);
 
 			Map<String, Foldable<?>> output = null;
+			Path queryPath = null;
 			try {
 				QueryDefinition qd = preprocessQueryDef(work, tempFiles);
-				Path queryPath = getOutputPath(work);
+				queryPath = getOutputFile(work);
 				Files.deleteIfExists(queryPath);
 				output = executeQuery(qd, wp, queryPath, work.netcdfVersion);
 			} catch (Exception e) {
@@ -119,6 +121,7 @@ public class WorkExecutor extends UntypedActor {
 				if (!Serializable.class.isAssignableFrom(v.getValue()
 						.getClass()))
 					continue;
+				log.info("key : {}, value: {}", v.getKey(), v.getValue());
 				result.put(v.getKey(), v.getValue());
 			}
 			/* This code for the null result test
@@ -134,8 +137,33 @@ public class WorkExecutor extends UntypedActor {
 			}
 
 			*/
-			getSender().tell(new Job.WorkComplete(result), getSelf());
+			String fileId = SerializeResult(work, result);
+			getSender().tell(new Job.WorkComplete(fileId), getSelf());
 		}
+	}
+
+	private String SerializeResult(Work work, HashMap<String, Foldable<?>> result) {
+		String fileName = UUID.randomUUID().toString();
+		Path outputDir = Paths.get(ndgConfigManager.getConfig()
+		.getDefaultPickupLocation() + "/" + work.jobProgressId + "/temp");
+		try {
+			if (!Files.exists(outputDir))
+				try {
+					Files.createDirectories(outputDir);
+				} catch (IOException e1) {
+					log.error("directory creation error:", e1);
+					e1.printStackTrace();
+					throw e1;
+				}
+			FileOutputStream fileOut = new FileOutputStream(outputDir + "/" + fileName);
+			ObjectOutputStream out = new ObjectOutputStream(fileOut);
+			out.writeObject(result);
+			out.close();
+			fileOut.close();
+		} catch(IOException i) {
+				i.printStackTrace();
+		}
+		return fileName;
 	}
 
 	private QueryDefinition preprocessQueryDef(Work work,
@@ -164,7 +192,6 @@ public class WorkExecutor extends UntypedActor {
 
 		Path outputDir = Paths.get(ndgConfigManager.getConfig()
 				.getDefaultPickupLocation() + "/" + work.jobProgressId);
-		Path queryPath = outputDir.resolve(work.workId + "_out.nc");
 
 		if (!Files.exists(outputDir))
 			try {
@@ -174,7 +201,12 @@ public class WorkExecutor extends UntypedActor {
 				e1.printStackTrace();
 				throw e1;
 			}
-		return queryPath;
+		return outputDir;
+	}
+
+	private Path getOutputFile(Work work) throws IOException {
+		Path outputDir = getOutputPath(work);
+		return outputDir.resolve(work.workId + "_out.nc");
 	}
 
 	private Map<String, Foldable<?>> executeQuery(QueryDefinition qd,
