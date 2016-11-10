@@ -203,14 +203,4 @@ public class DatabaseActor extends UntypedActor {
 		.getDefaultPickupLocation() + "/" + wi.work.jobProgressId + "/temp/" + wi.result);
 		return outputDir;
 	}
-
-	// private List<WorkInfo> getAllTaskWork(String taskId) {
-	// 	List<WorkInfo> list = new ArrayList<>();
-	// 	for (WorkInfo wi : workProgress.values()) {
-	// 		if (wi.work.jobProgressId.equals(taskId))
-	// 			list.add(wi);
-	// 	}
-	// 	return list;
-	// }
-
 }
