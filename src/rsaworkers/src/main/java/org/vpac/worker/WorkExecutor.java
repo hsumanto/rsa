@@ -124,19 +124,7 @@ public class WorkExecutor extends UntypedActor {
 				log.info("key : {}, value: {}", v.getKey(), v.getValue());
 				result.put(v.getKey(), v.getValue());
 			}
-			/* This code for the null result test
-			*** DO NOT PUBLISH TO THE PUBLIC
 
-			HashMap<String, Foldable<?>> result = null;
-			try
-			{
-				Thread.sleep(5000);
-			}
-			catch(Exception e)
-			{
-			}
-
-			*/
 			String fileId = SerializeResult(work, result);
 			getSender().tell(new Job.WorkComplete(fileId), getSelf());
 		}
