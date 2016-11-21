@@ -1,75 +1,112 @@
-# The base service is referenced in other projects.
-base:
-    build: .
+version: '2'
+services:
+    # The base service is referenced in other projects.
+    base:
+        build: .
 
 
-dev:
-    extends:
-        service: base
-    links:
-        - postgres:rsadb
-    volumes_from:
-        - data
-    entrypoint: []
-    command: bash
+    # seed and postgres aren't linked to dev because that would create
+    # a cyclic dependency: gradle needs to be run in the dev service
+    # before the others can start.
+    # Even though there are no links, you can still access the other
+    # services (postgres, seed, ...) by name - if you need to test the
+    # components.
+    dev:
+        extends:
+            service: base
+        volumes_from:
+            - data
+        entrypoint: []
+        networks:
+            rsa:
+        command: bash
 
 
-web:
-    extends:
-        service: base
-    links:
-        - seed:seed
-        - postgres:rsadb
-    volumes_from:
-        - data
-    command: web
+    web:
+        extends:
+            service: base
+        links:
+            - seed:seed
+            - postgres:rsadb
+        volumes_from:
+            - data
+        networks:
+            rsa:
+        command: web
 
 
-seed:
-    extends:
-        service: base
-    # Hostname acts like a link to self
-    hostname: seed
-    volumes_from:
-        - data
-    command: seed 2552
+    seed:
+        extends:
+            service: base
+        # Hostname acts like a link to self
+        hostname: seed
+        volumes_from:
+            - data
+        networks:
+            rsa:
+        command: seed 2552
 
 
-master:
-    extends:
-        service: base
-    links:
-        - seed:seed
-        - postgres:rsadb
-    volumes_from:
-        - data
-    command: master
+    master:
+        extends:
+            service: base
+        links:
+            - seed:seed
+            - postgres:rsadb
+        volumes_from:
+            - data
+        networks:
+            rsa:
+        command: master
 
 
-worker:
-    extends:
-        service: base
-    links:
-        - seed:seed
-        - postgres:rsadb
-    volumes_from:
-        - data
-    command: worker
+    worker:
+        extends:
+            service: base
+        links:
+            - seed:seed
+            - postgres:rsadb
+        volumes_from:
+            - data
+        networks:
+            rsa:
+        command: worker
 
 
-data:
-    build: .
-    volumes:
-        - ./src:/var/src/rsa/src
-        - ./data:/var/src/rsa/data
-        - ../config/rsa:/var/src/rsa/config
-        - ./test-config:/var/src/rsa/test-config
-        - ./.gradle-cache:/root/.gradle/caches
-    entrypoint: []
-    command: echo "RSA test data container"
+    data:
+        build: .
+        volumes:
+            - ./src:/var/src/rsa/src
+            - ./data:/var/src/rsa/data
+            - ../config/rsa:/var/src/rsa/config
+            - ./test-config:/var/src/rsa/test-config
+            - ./.gradle-cache:/root/.gradle/caches
+        entrypoint: []
+        command: echo "RSA test data container"
 
 
-# Version pegged; for a discussion about upgrading database versions see:
-# http://stackoverflow.com/questions/40583196/if-i-upgrade-an-image-in-docker-compose-will-its-volumes-be-lost
-postgres:
-    image: postgres:9.6
+    # Version pegged; for a discussion about upgrading database versions see:
+    # http://stackoverflow.com/questions/40583196/if-i-upgrade-an-image-in-docker-compose-will-its-volumes-be-lost
+    postgres:
+        image: postgres:9.6
+        networks:
+            rsa:
+                aliases:
+                    - rsadb
+
+    dbadmin:
+        image: postgres:9.6
+        links:
+            - postgres
+        environment:
+            PGHOST: postgres
+            PGUSER: postgres
+            PGDATABASE: postgres
+            PGPASSWORD: postgres
+        networks:
+            rsa:
+        command: psql
+
+
+networks:
+    rsa:
