@@ -7,7 +7,6 @@ dev:
     extends:
         service: base
     links:
-        - seed:seed
         - postgres:rsadb
     volumes_from:
         - data
@@ -70,5 +69,7 @@ data:
     command: echo "RSA test data container"
 
 
+# Version pegged; for a discussion about upgrading database versions see:
+# http://stackoverflow.com/questions/40583196/if-i-upgrade-an-image-in-docker-compose-will-its-volumes-be-lost
 postgres:
-    image: postgres:9.4
+    image: postgres:9.6

@@ -12,13 +12,12 @@ MAINTAINER Jin Park <forjin@vpac-innovations.com.au>, Alex Fraser <alex@vpac-inn
 
 ENV JDK_VERSION=8 \
     TOMCAT_VERSION=7 \
-    GRADLE_VERSION=2.13 \
-    DEBIAN_FRONTEND=noninteractive \
-    TERM=linux
+    GRADLE_VERSION=2.13
 
 # Packages with a trailing dash (-) will be removed / not installed.
 COPY detect-proxy.sh /root
-RUN apt-get update && \
+RUN export DEBIAN_FRONTEND=noninteractive TERM=linux && \
+    apt-get update && \
     apt-get install -y --no-install-recommends \
         ca-certificates \
         software-properties-common && \
