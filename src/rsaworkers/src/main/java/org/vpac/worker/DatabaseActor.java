@@ -32,9 +32,7 @@ import org.vpac.ndg.storage.model.JobProgress;
 import org.vpac.ndg.storage.model.TaskCats;
 import org.vpac.ndg.storage.model.TaskLedger;
 import org.vpac.worker.MasterDatabaseProtocol.JobUpdate;
-import org.vpac.worker.MasterDatabaseProtocol.SaveCats;
 import org.vpac.worker.MasterDatabaseProtocol.Fold;
-import org.vpac.worker.MasterDatabaseProtocol.SaveLedger;
 import org.vpac.ndg.common.datamodel.TaskState;
 import org.vpac.ndg.query.filter.Foldable;
 import org.vpac.worker.Job.Work;
@@ -91,25 +89,6 @@ public class DatabaseActor extends UntypedActor {
 		} else if (message instanceof Fold) {
 			Fold fold = (Fold) message;
 			foldResults(fold.currentWorkInfo, fold.list);
-		} else if (message instanceof SaveCats) {
-			SaveCats saveCats = (SaveCats) message;
-			if (!isTaskCatsExist(saveCats.jobId, saveCats.key)) {
-				Cats cats = ((VectorCats) saveCats.cats).getComponents()[0];
-				cats = cats.optimise();
-				statisticsDao.saveCats(new TaskCats(saveCats.jobId,
-						saveCats.key, saveCats.outputResolution, cats, cats
-								.getBucketingStrategy().isCategorical()));
-			}
-
-		} else if (message instanceof SaveLedger) {
-			SaveLedger saveLedger = (SaveLedger) message;
-			TaskLedger taskLedger = new TaskLedger();
-			JobProgress progress = jobProgressDao.retrieve(saveLedger.jobId);
-			taskLedger.setJob(progress);
-			taskLedger.setKey(saveLedger.key);
-			taskLedger.setOutputResolution(saveLedger.resolution);
-			taskLedger.setLedger(saveLedger.ledger);
-			statisticsDao.saveOrReplaceLedger(taskLedger);
 
 		} else if (message instanceof String) {
 			System.out.println("message:" + message);
@@ -160,14 +139,22 @@ public class DatabaseActor extends UntypedActor {
 			String jobId = currentWorkInfo.work.jobProgressId;
 			CellSize resolution = currentWorkInfo.work.outputResolution;
 			if (VectorCats.class.isAssignableFrom(value.getClass())) {
-				SaveCats msg = new SaveCats(jobId, key, resolution,
-					(VectorCats) value);
-				getSelf().tell(msg, getSelf());
+				if (!isTaskCatsExist(jobId, key)) {
+					Cats cats = ((VectorCats) value).getComponents()[0];
+					cats = cats.optimise();
+					statisticsDao.saveCats(new TaskCats(jobId,
+						key, resolution, cats,
+						cats.getBucketingStrategy().isCategorical()));
+				}
 
 			} else if (Ledger.class.isAssignableFrom(value.getClass())) {
-				SaveLedger msg = new SaveLedger(jobId, key, resolution,
-					(Ledger) value);
-				getSelf().tell(msg, getSelf());
+				JobProgress progress = jobProgressDao.retrieve(jobId);
+				TaskLedger taskLedger = new TaskLedger();
+				taskLedger.setJob(progress);
+				taskLedger.setKey(key);
+				taskLedger.setOutputResolution(resolution);
+				taskLedger.setLedger((Ledger) value);
+				statisticsDao.saveOrReplaceLedger(taskLedger);
 
 			} else {
 				log.warning("Ignorning unrecognised query result {}",

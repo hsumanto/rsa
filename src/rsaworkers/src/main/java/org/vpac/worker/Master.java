@@ -46,8 +46,6 @@ import org.vpac.worker.Job.WorkInfo;
 import org.vpac.worker.master.WorkResult;
 import org.vpac.worker.master.Ack;
 import org.vpac.worker.MasterDatabaseProtocol.JobUpdate;
-import org.vpac.worker.MasterDatabaseProtocol.SaveCats;
-import org.vpac.worker.MasterDatabaseProtocol.SaveLedger;
 import org.vpac.worker.MasterDatabaseProtocol.Fold;
 import org.vpac.worker.MasterWorkerProtocol.*;
 import scala.Option;
@@ -86,7 +84,7 @@ public class Master extends UntypedActor {
 
 	@Override
     public void preStart() {
-        cluster.subscribe(getSelf(), ClusterEvent.initialStateAsEvents(), 
+        cluster.subscribe(getSelf(), ClusterEvent.initialStateAsEvents(),
             MemberEvent.class, UnreachableMember.class);
     }
 

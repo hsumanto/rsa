@@ -32,54 +32,6 @@ public abstract class MasterDatabaseProtocol {
 		}
 	}
 
-	public static final class SaveCats implements Serializable {
-		private static final long serialVersionUID = 1L;
-		public final String jobId;
-		/** The name of the filter that generated the data */
-		public final String key;
-		public final CellSize outputResolution;
-		public final VectorCats cats;
-
-		public SaveCats(String jobId, String key, CellSize outputResolution,
-				VectorCats cats) {
-			this.jobId = jobId;
-			this.key = key;
-			this.outputResolution = outputResolution;
-			this.cats = cats;
-		}
-
-		@Override
-		public String toString() {
-			return "SaveCats{" + "jobId=" + jobId + ",key=" + key
-					+ ",outputResolution=" + outputResolution.toHumanString()
-					+ '}';
-		}
-	}
-
-	public static final class SaveLedger implements Serializable {
-		private static final long serialVersionUID = 1L;
-		public final String jobId;
-		/** The name of the filter that generated the data */
-		public final String key;
-		public final CellSize resolution;
-		public final Ledger ledger;
-
-		public SaveLedger(String jobId, String key, CellSize resolution,
-				Ledger ledger) {
-			this.jobId = jobId;
-			this.key = key;
-			this.resolution = resolution;
-			this.ledger = ledger;
-		}
-
-		@Override
-		public String toString() {
-			return String.format(
-				"SaveLedger{jobId=%s, resolution=%s, ledger=%s}",
-				jobId, resolution, ledger);
-		}
-	}
-
 	public static final class Fold implements Serializable {
 		private static final long serialVersionUID = 1L;
 		/** The name of the filter that generated the data */
