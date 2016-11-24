@@ -75,7 +75,7 @@ installDist << {
     // create a symlink as src/dist/config, but in that case the contents of
     // the directory get *copied* to the output directory, which makes
     // overriding config (e.g. with a Docker volume) difficult.
-    delete "$buildDir/install/$applicationName/config"
+    "rm -rf ${buildDir}/install/${applicationName}/config".execute()
     def link = Paths.get("$buildDir/install/$applicationName/config")
     def target = Paths.get("$rootDir/../config").normalize()
     Files.createSymbolicLink link, target
