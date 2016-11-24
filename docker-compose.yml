@@ -78,8 +78,8 @@ services:
         volumes:
             - ./src:/var/src/rsa/src
             - ./data:/var/src/rsa/data
-            - ../config/rsa:/var/src/rsa/config
-            - ./test-config:/var/src/rsa/test-config
+            - ../config/rsa:/var/src/rsa/config:ro
+            - ./test-config:/var/src/rsa/test-config:ro
             - ./.gradle-cache:/root/.gradle/caches
         entrypoint: []
         command: echo "RSA test data container"
