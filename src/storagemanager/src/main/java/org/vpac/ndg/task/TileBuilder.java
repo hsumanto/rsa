@@ -32,6 +32,8 @@ public class TileBuilder extends BaseTask {
     private GraphicsFile source;
     private Path target;  //in this case the target is simply a directory
     private String profile;
+
+    private boolean zoomLevelsEnabled = false;
     private int zoomMax = 7;
     private int zoomMin = 0;
 
@@ -86,9 +88,11 @@ public class TileBuilder extends BaseTask {
             command.add(profile);
         }
 
-        //add zoom argument
-        command.add("-z");
-        command.add(Integer.toString(this.zoomMin) + "-" + Integer.toString(this.zoomMax));
+        if (this.zoomLevelsEnabled) {
+            //add zoom argument
+            command.add("-z");
+            command.add(Integer.toString(this.zoomMin) + "-" + Integer.toString(this.zoomMax));
+        }
 
         command.add(source.getFileLocation().toString());
         command.add(target.toString());
@@ -152,12 +156,28 @@ public class TileBuilder extends BaseTask {
 
     }
 
+    /*
+     * Passing the zoom levels arguement to gdal2tiles is disabled by default.
+     */
+    public void enableZoomLevels() {
+        this.zoomLevelsEnabled = true;
+    }
+
+    public void disableZoomLevels() {
+        this.zoomLevelsEnabled = false;
+    }
+
 
     public int getZoomMax() {
         return zoomMax;
     }
 
+    /**
+     * Sets the maximum zoom level that will be generated.
+     * Note: setting this will enable the zoom level arguement to gdal
+     */
     public void setZoomMax(int zoomMax) {
+        this.zoomLevelsEnabled = true;
         this.zoomMax = zoomMax;
     }
 
@@ -165,7 +185,12 @@ public class TileBuilder extends BaseTask {
         return zoomMin;
     }
 
+    /**
+     * Sets the minimum zoom level that will be generated.
+     * Note: setting this will enable the zoom level arguement to gdal
+     */
     public void setZoomMin(int zoomMin) {
+        this.zoomLevelsEnabled = true;
         this.zoomMin = zoomMin;
     }
 
