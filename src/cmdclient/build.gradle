@@ -70,15 +70,26 @@ startScripts {
     }
 }
 
-installDist << {
-    // Create a symlink to the primary config directory. An alternative is to
-    // create a symlink as src/dist/config, but in that case the contents of
-    // the directory get *copied* to the output directory, which makes
-    // overriding config (e.g. with a Docker volume) difficult.
-    "rm -rf ${buildDir}/install/${applicationName}/config".execute()
-    def link = Paths.get("$buildDir/install/$applicationName/config")
-    def target = Paths.get("$rootDir/../config").normalize()
-    Files.createSymbolicLink link, target
+installDist {
+    // Create a symlink to the primary config directory.
+    // This is rather complicated because the config directory needs to exist
+    // in src/dist so that it becomes part of the classpath, but in the end we
+    // want it to be a symlink to a common config directory.
+    //
+    // 1. During task setup, delete any old symlinks that would prevent the
+    //    dummy config from being copied.
+    // 2. After the main installDist task has run, delete the copy.
+    // 3. Create the symlink.
+    //
+    // We depend on the actual contents of the directory being read-only,
+    // otherwise they'll get deleted / zeroed by the delete command.
+    delete "$buildDir/install/$applicationName/config"
+    doLast {
+        delete "$buildDir/install/$applicationName/config"
+        def link = Paths.get("$buildDir/install/$applicationName/config")
+        def target = Paths.get("$rootDir/../config").normalize()
+        Files.createSymbolicLink link, target
+    }
 }
 
 // Prevent the contents of the config directory from being included in the

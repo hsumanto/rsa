@@ -19,6 +19,11 @@ services:
         entrypoint: []
         networks:
             rsa:
+        volumes:
+            - ./scratch:/root/scratch
+        environment:
+            HISTFILE: /root/scratch/bash_history
+            XDG_CONFIG_HOME: /root/scratch
         command: bash
 
 
@@ -105,6 +110,11 @@ services:
             PGPASSWORD: postgres
         networks:
             rsa:
+        volumes:
+            - ./scratch:/root/scratch
+        environment:
+            HISTFILE: /root/scratch/bash_history
+            XDG_CONFIG_HOME: /root/scratch
         command: psql
 
 
