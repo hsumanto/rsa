@@ -102,7 +102,7 @@ public class TableBuilder {
 		ledger = ledger.filterColumns(columns);
 		unfiltered = unfiltered.filterColumns(columns);
 		TabularResponse table = new TabularResponse();
-		table.setTableType("ledger");
+		table.setTableType("product");
 		table.setColumns(ledgerColumns(ledger, columns));
 		table.setRows(ledgerRows(ledger, unfiltered, resolution));
 		return table;
