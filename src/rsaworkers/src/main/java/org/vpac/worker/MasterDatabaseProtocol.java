@@ -36,9 +36,9 @@ public abstract class MasterDatabaseProtocol {
 		private static final long serialVersionUID = 1L;
 		/** The name of the filter that generated the data */
 		public WorkInfo currentWorkInfo;
-		public final List<WorkInfo> list;
+		public final List<String> list;
 
-		public Fold(List<WorkInfo> list, WorkInfo currentWorkInfo) {
+		public Fold(List<String> list, WorkInfo currentWorkInfo) {
 			this.list = list;
 			this.currentWorkInfo = currentWorkInfo;
 		}

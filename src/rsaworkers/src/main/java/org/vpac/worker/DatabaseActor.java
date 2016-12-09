@@ -75,7 +75,7 @@ public class DatabaseActor extends UntypedActor {
 
 	@Override
 	public void onReceive(Object message) throws Exception {
-		System.out.println("message:" + message);
+		//System.out.println("message:" + message);
 		if (message instanceof JobUpdate) {
 			JobUpdate job = (JobUpdate) message;
 			JobProgress progress = jobProgressDao.retrieve(job.jobId);
@@ -103,11 +103,11 @@ public class DatabaseActor extends UntypedActor {
 	}
 
 	@SuppressWarnings("unchecked")
-	private void foldResults(WorkInfo currentWorkInfo, List<WorkInfo> list) {
+	private void foldResults(WorkInfo currentWorkInfo, List<String> list) {
 		HashMap<String, Foldable<?>> resultMap = new HashMap<>();
 
-		for (WorkInfo w : list) {
-			Map<String, Foldable<?>> map = DeserializeResult(w);
+		for (String w : list) {
+			Map<String, Foldable<?>> map = DeserializeResult(currentWorkInfo.work.jobProgressId, w);
 			for (Entry<String, ?> v : map.entrySet()) {
 				Foldable<?> result;
 				if (VectorCats.class.isAssignableFrom(v.getValue().getClass())) {
@@ -165,9 +165,9 @@ public class DatabaseActor extends UntypedActor {
 	}
 
 	@SuppressWarnings("unchecked")
-	public HashMap<String, Foldable<?>> DeserializeResult(WorkInfo wi) {
+	public HashMap<String, Foldable<?>> DeserializeResult(String jobProgressId, String result) {
 		HashMap<String, Foldable<?>> value = null;
-		Path fileName = getOutputPath(wi);
+		Path fileName = getOutputPath(jobProgressId, result);
 		try {
 			FileInputStream fileIn = new FileInputStream(fileName.toString());
 			ObjectInputStream in = new ObjectInputStream(fileIn);
@@ -185,9 +185,9 @@ public class DatabaseActor extends UntypedActor {
 		return value;
 	}
 
-	public Path getOutputPath(WorkInfo wi) {
+	public Path getOutputPath(String jobProgressId, String result) {
 		Path outputDir = Paths.get(ndgConfigManager.getConfig()
-		.getDefaultPickupLocation() + "/" + wi.work.jobProgressId + "/temp/" + wi.result);
+		.getDefaultPickupLocation() + "/" + jobProgressId + "/temp/" + result);
 		return outputDir;
 	}
 }

@@ -101,17 +101,7 @@ public class Master extends UntypedActor {
 		Option<String> empty = scala.Option.apply(null);
 		String sHostAddress = sHost == empty ? "" : sHost.get();
 
-		if (message instanceof UnreachableMember) {
-            UnreachableMember mUnreachable = (UnreachableMember) message;
-            log.info("Member detected as unreachable: {}", mUnreachable.member().address().toString());
-			if (mUnreachable.member().address().toString().equals(sHostAddress))
-				System.exit(-1);
-        } else if (message instanceof MemberRemoved) {
-            MemberRemoved mRemoved = (MemberRemoved) message;
-            log.info("Member is Removed: {}", mRemoved.member().address().toString());
-			if (mRemoved.member().address().toString().equals(sHostAddress))
-				System.exit(-1);
-        } else if (message instanceof RegisterWorker) {
+		if (message instanceof RegisterWorker) {
 			InetAddress localhost = Inet4Address.getLocalHost();
 			String loocalAddress = localhost.getHostAddress().toString();
 
@@ -313,10 +303,14 @@ public class Master extends UntypedActor {
 		ActorSelection database = getContext().system().actorSelection(
 					"akka://Workers/user/database");
 		List<WorkInfo> list = getAllTaskWork(currentWorkInfo.work.jobProgressId);
-		Fold msg = new Fold(list, currentWorkInfo);
-				database.tell(msg, getSelf());
-	}
+		List<String> results = new ArrayList<>();
+		for (WorkInfo w : list) {
+			results.add(w.result.toString());
+		}
 
+		Fold msg = new Fold(results, currentWorkInfo);
+		database.tell(msg, getSelf());
+	}
 
 	private void removeWork(String jobProgressId) {
 		// Remove jobs that are currently being worked on. This allows Master
