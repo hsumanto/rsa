@@ -50,17 +50,30 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.transaction.annotation.Transactional;
 import org.vpac.web.util.ControllerHelper;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 
 @Controller
 @RequestMapping("/Status")
+@Transactional
 public class StatusController {
 
-	final private Logger log = LoggerFactory.getLogger(StatusController.class);
+	private Logger log = LoggerFactory.getLogger(StatusController.class);
+    @Autowired
+	private SessionFactory sessionFactory;
+
+	@RequestMapping(value = "/postgres", method = RequestMethod.GET)
+    @ResponseBody
+	public String checkPostgres() {
+        Session session = sessionFactory.getCurrentSession();
+        return "OK";
+	}
 
 	@RequestMapping(value = "/{role}", method = RequestMethod.GET)
     @ResponseBody
-	public String checkMaster(@PathVariable String role) {
+	public String checkRole(@PathVariable String role) {
         log.info("Cluster");
 		ActorSystem system = ActorCreator.getActorSystem();
         Cluster cluster = Cluster.get(system);
