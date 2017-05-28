@@ -109,6 +109,8 @@ public class DatasetController {
 	@Autowired
 	DatasetProvider previewDatasetProvider;
 
+	@Autowired
+	DataController dataController;
 
 	@InitBinder
 	public void binder(WebDataBinder binder) {
@@ -167,7 +169,7 @@ public class DatasetController {
 			@RequestParam(required = false) String buckets,
 			HttpServletRequest request,
 			ModelMap model)
-			throws ResourceNotFoundException, IOException, QueryException {
+			throws ResourceNotFoundException, IOException, QueryException, IllegalAccessException {
 		log.info("datasetId:" + datasetId);
 		String requestURL = request.getRequestURI().toString();
 		String timeSliceId = findPathVariable(requestURL, "TimeSlice");
@@ -242,7 +244,11 @@ public class DatasetController {
 				.ref(lastSocket));
 
 		System.out.println(qd.toXML());
+		System.out.println("Hello world");
 
+		return dataController.query(qd, null, null, null, null, null, null, null,
+				null, buckets, null, model);
+/*
 		final Version ver = Version.netcdf4_classic;
 
 		final QueryProgress qp = new QueryProgress(jobProgressDao);
@@ -299,6 +305,7 @@ public class DatasetController {
 		model.addAttribute(ControllerHelper.RESPONSE_ROOT, new QueryResponse(
 				taskId));
 		return "Success";
+*/
 	}
 
 	private void save(String datasetId, String timeSliceId, String bandId, Map<String, Foldable<?>> result) {
