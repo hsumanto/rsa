@@ -30,6 +30,7 @@ import org.vpac.ndg.storage.dao.JobProgressDao;
 import org.vpac.ndg.storage.dao.StatisticsDao;
 import org.vpac.ndg.storage.model.JobProgress;
 import org.vpac.ndg.storage.model.TaskCats;
+import org.vpac.ndg.storage.model.DatasetCats;
 import org.vpac.ndg.storage.model.TaskLedger;
 import org.vpac.worker.MasterDatabaseProtocol.JobUpdate;
 import org.vpac.worker.MasterDatabaseProtocol.Fold;
@@ -75,7 +76,7 @@ public class DatabaseActor extends UntypedActor {
 
 	@Override
 	public void onReceive(Object message) throws Exception {
-		//System.out.println("message:" + message);
+		log.info("message:" + message);
 		if (message instanceof JobUpdate) {
 			JobUpdate job = (JobUpdate) message;
 			JobProgress progress = jobProgressDao.retrieve(job.jobId);
@@ -138,7 +139,11 @@ public class DatabaseActor extends UntypedActor {
 			Foldable<?> value = resultMap.get(key);
 			String jobId = currentWorkInfo.work.jobProgressId;
 			CellSize resolution = currentWorkInfo.work.outputResolution;
-			if (VectorCats.class.isAssignableFrom(value.getClass())) {
+			log.info("value:" + value);
+			if (DatasetCats.class.isAssignableFrom(value.getClass())) {
+				log.info("DatasetCat matched");
+			}
+			else if (VectorCats.class.isAssignableFrom(value.getClass())) {
 				if (!isTaskCatsExist(jobId, key)) {
 					Cats cats = ((VectorCats) value).getComponents()[0];
 					cats = cats.optimise();

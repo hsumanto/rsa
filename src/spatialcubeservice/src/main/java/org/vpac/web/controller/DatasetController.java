@@ -243,11 +243,11 @@ public class DatasetController {
 				.name("nothing")
 				.ref(lastSocket));
 
-		System.out.println(qd.toXML());
-		System.out.println("Hello world");
+		log.info(qd.toXML());
+		log.info("Hello world");
 
 		return dataController.query(qd, null, null, null, null, null, null, null,
-				null, buckets, null, model);
+				null, buckets, null, datasetId, bandId, model);
 /*
 		final Version ver = Version.netcdf4_classic;
 

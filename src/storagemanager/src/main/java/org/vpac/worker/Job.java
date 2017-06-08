@@ -1,7 +1,6 @@
 package org.vpac.worker;
 
 import java.io.Serializable;
-
 import org.vpac.ndg.common.datamodel.CellSize;
 import org.vpac.ndg.query.math.BoxReal;
 import org.vpac.ndg.query.math.VectorReal;
@@ -19,23 +18,34 @@ public class Job {
 		public final BoxReal bound;
 		public final String jobProgressId;
 		public final CellSize outputResolution;
+		public final String datasetId;
+		public final String bandId;
 
 		public Work(String workId, String queryDefinitionString, Version ver,
-				BoxReal bound, String jobProgressId, CellSize outputResolution) {
+				BoxReal bound, String jobProgressId, CellSize outputResolution, 
+				String datasetId, String bandId) {
 			this.workId = workId;
 			this.queryDefinitionString = queryDefinitionString;
 			this.netcdfVersion = ver;
 			this.jobProgressId = jobProgressId;
 			this.bound = bound;
 			this.outputResolution = outputResolution;
+			this.datasetId = datasetId;
+			this.bandId = bandId;
 			// this.job = job;
 		}
 		
 		@Override
 		public String toString() {
-			return "Work{" + "workId='" + workId + '\'' + ", qd="
-					+ queryDefinitionString + ", ver=" + netcdfVersion
-					+ ", job=" + jobProgressId + ", bound=" + bound + ", outputResolution=" + outputResolution + '}';
+			return "Work{" + "workId='" + workId + '\'' 
+			        + ", qd=" + queryDefinitionString 
+					+ ", ver=" + netcdfVersion
+					+ ", job=" + jobProgressId 
+					+ ", bound=" + bound 
+					+ ", outputResolution=" + outputResolution 
+					+ ", datasetId=" + datasetId 
+					+ ", bandId=" + bandId 
+					+ '}';
 		}
 
 	}
