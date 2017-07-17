@@ -383,6 +383,13 @@ public class DataController {
 
 	static final Pattern FILTER_PARAM = Pattern.compile("^filter__(\\d+)__(\\w+)$");
 
+	private Double nullSafeParseDouble(String value) {
+		if (value == null || value.equals("null"))
+			return null;
+		else
+			return Double.parseDouble(value);
+	}
+
 	@RequestMapping(value="/Task/{taskId}/table", method = RequestMethod.GET)
 	public String getLedger(
 			@PathVariable String taskId,
@@ -423,17 +430,17 @@ public class DataController {
 			if (type.equals("cat")) {
 				Set<Double> collection = new HashSet<>();
 				for (String value : entry.getValue())
-					collection.add(Double.parseDouble(value));
+					collection.add(nullSafeParseDouble(value));
 				colIds.put(colIndex, collection);
 			} else if (type.equals("lower")) {
 				List<Double> collection = new ArrayList<>();
 				for (String value : entry.getValue())
-					collection.add(Double.parseDouble(value));
+					collection.add(nullSafeParseDouble(value));
 				colLowerBounds.put(colIndex, collection);
 			} else if (type.equals("upper")) {
 				List<Double> collection = new ArrayList<>();
 				for (String value : entry.getValue())
-					collection.add(Double.parseDouble(value));
+					collection.add(nullSafeParseDouble(value));
 				colUpperBounds.put(colIndex, collection);
 			} else {
 				continue;
