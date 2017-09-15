@@ -103,6 +103,7 @@ import org.vpac.ndg.storage.util.UploadUtil;
 import org.vpac.ndg.task.Exporter;
 import org.vpac.ndg.task.ImageTranslator;
 import org.vpac.ndg.task.Importer;
+import org.vpac.ndg.task.S3Importer;
 import org.vpac.ndg.task.WmtsBandCreator;
 import org.vpac.ndg.task.WmtsQueryCreator;
 import org.vpac.web.exception.ResourceNotFoundException;
@@ -236,6 +237,28 @@ public class DataController {
 		// is started.
 		importer.configure();
 		model.addAttribute(ControllerHelper.RESPONSE_ROOT, new ImportResponse(importer.getTaskId()));
+		importer.runInBackground();
+
+		return "Success";
+	}
+
+	@RequestMapping(value="/s3Import", method = RequestMethod.POST)
+	public String importS3Data(
+			@RequestParam(required=true) String bucket,
+			@RequestParam(required=true) String key)
+			throws TaskInitialisationException {
+
+		// Receive a request to retrieve data from AmazonS3 storage, retrieve data and commit to storage pool
+		log.info("s3 Import");
+		log.info("s3 Bucket: {}", bucket);
+		log.info("s3 Key: {}", key);
+
+		S3Importer importer = new S3Importer();
+		importer.setBucket(bucket);
+		importer.setKey(key);
+
+		importer.configure();
+
 		importer.runInBackground();
 
 		return "Success";

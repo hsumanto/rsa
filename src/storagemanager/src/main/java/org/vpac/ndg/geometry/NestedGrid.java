@@ -23,9 +23,9 @@ import java.util.Map;
 
 import org.vpac.ndg.common.datamodel.CellSize;
 
-/** 
+/**
  * Provides the functions to calculate National Nested Grid indices (NNGI).
- * 
+ *
  * @author glennf
  * @author adfries
  * @author hsumanto
@@ -64,7 +64,7 @@ public class NestedGrid {
 	 * @return The corresponding coordinate, as an offset from the origin.
 	 */
 	public Point<Double> mapToOffset(Point<Double> pnt) {
-		
+
 		Point<Double> origin = getMapGridOrigin();
 		return new Point<Double>(
 				pnt.getX() - origin.getX(),
@@ -85,11 +85,11 @@ public class NestedGrid {
 	 * in the grid, check whether either component is negative.
 	 */
 	public Point<Integer> offsetToCell(Point<Double> offset, CellSize cellsize) {
-			
+
 		// The offset represents the number of metres in the map projection from
 		// the origin. Divide each by the resolution, taking the floor of the
 		// value as the index.
-		
+
 		double fv = cellsize.toDouble();
 
 		// Note the asymmetry here: cellToOffset adds 0.5*cellsize to the
@@ -99,10 +99,10 @@ public class NestedGrid {
 		// In the map, Y increases as you go north; in the grid, Y increases as
 		// you go south.
 		double oy = 0d - (offset.getY() / fv);
-	
+
 		int oxc = (int) Math.floor(ox);
 		int oyc = (int) Math.floor(oy);
-		
+
 		Point<Integer> cell = new Point<Integer>(oxc, oyc);
 		return cell;
 	}
@@ -116,7 +116,7 @@ public class NestedGrid {
 			CellSize resolution) {
 
 		double fv = resolution.toDouble();
-		// cellToOffset	returns coordinate of the top left of the grid cell	
+		// cellToOffset	returns coordinate of the top left of the grid cell
 		Point<Double> offset = new Point<Double>(
 				cell.getX() * fv,
 				0.0 - cell.getY() * fv);
@@ -129,12 +129,12 @@ public class NestedGrid {
 	 * @param cellSize The cell size resolution.
 	 * @return Returns the 2D index of the tile.
 	 */
-	public Point<Integer> cellToTile(Point<Integer> cell, CellSize cellSize) {		
+	public Point<Integer> cellToTile(Point<Integer> cell, CellSize cellSize) {
 		int numOfCellsPerTile = resolutionList.get(cellSize);
-		
+
 		int tileX = cell.getX() / numOfCellsPerTile;
 		int tileY = cell.getY() / numOfCellsPerTile;
-		
+
 		Point<Integer> tile = new Point<Integer>(tileX, tileY);
 		return tile;
 	}
@@ -147,10 +147,10 @@ public class NestedGrid {
 	 */
 	public Point<Integer> tileToCell(Point<Integer> tile, CellSize cellSize) {
 		int numOfCellsPerTile = resolutionList.get(cellSize);
-		
+
 		int cellX = tile.getX() * numOfCellsPerTile;
 		int cellY = tile.getY() * numOfCellsPerTile;
-		
+
 		Point<Integer> cell = new Point<Integer>(cellX, cellY);
 		return cell;
 	}
@@ -191,7 +191,7 @@ public class NestedGrid {
 
 	/**
 	 * Convert an NNG tile to a point in map coordinates.
-	 * 
+	 *
 	 * @param tile The 2D tile index.
 	 * @param cellSize The grid resolution.
 	 * @return The point in map space. This is located at the top-left corner of
@@ -203,11 +203,11 @@ public class NestedGrid {
 
 	/**
 	 * Convert map coordinates into a NNGI.
-	 * 
+	 *
 	 * @param map The point to find a cell for in map coordinates.
 	 * @param resolution The cell resolution.
 	 * @return The equivalent NNGI.
-	 * 
+	 *
 	 * @throws GridError if a valid NNGI can not be created from the coordinate.
 	 */
 	public String mapToNngi(Point<Double> map, CellSize resolution)
@@ -251,7 +251,7 @@ public class NestedGrid {
 
 		if (resS.length() > 2)
 			throw new IllegalArgumentException("Resolution is too large.");
-		
+
 		String repr = resS + xS + yS;
 		return repr;
 	}
@@ -306,7 +306,7 @@ public class NestedGrid {
 		Point<Integer> max = new Point<Integer>(tile.getX() + 1, tile.getY() + 1);
 		Point<Double> minMap = tileToMap(min, resolution);
 		Point<Double> maxMap = tileToMap(max, resolution);
-		
+
 		return new Box(minMap, maxMap);
 	}
 

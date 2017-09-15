@@ -59,16 +59,16 @@ import org.vpac.ndg.storagemanager.GraphicsFile;
 
 /**
  * This is the tool to be used to import user specified dataset into ULA.
- * The class will create the import process and execute the import process as 
+ * The class will create the import process and execute the import process as
  * a transaction using command pattern design.
- * 
- * 
+ *
+ *
  * @author hsumanto
  * @author adfries
  *
  */
 public class Importer extends Application {
-	
+
 	final private Logger log = LoggerFactory.getLogger(Importer.class);
 
 	private String uploadId;
@@ -83,7 +83,7 @@ public class Importer extends Application {
 	private List<TileBand> mergedTilebands;
 	private ScalarReceiver<HasRunningState> lockBox;
 	private Boolean useBilinearInterpolation;
-	
+
 	UploadDao uploadDao;
 	TimeSliceDao timeSliceDao;
 	TimeSliceUtil timeSliceUtil;
@@ -121,7 +121,7 @@ public class Importer extends Application {
 	 * <p>Then this function would return "foo.ncml".</p>
 	 * @param dir The directory to search in.
 	 * @return The primary file.
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	private Path findPrimaryFile(Path dir) throws IOException {
 
@@ -200,7 +200,7 @@ public class Importer extends Application {
 
 	/**
 	 * Initialise the import process.
-	 * @throws TaskInitialisationException 
+	 * @throws TaskInitialisationException
 	 */
 	@Override
 	protected void createTasks() throws TaskInitialisationException {
@@ -237,7 +237,7 @@ public class Importer extends Application {
 		transformedBounds = tileManager.getNngGrid().alignToGrid(transformedBounds, dataset.getResolution());
 
 		// Create an empty container to capture all tilebands
-		List<TileBand> tilebands = new ArrayList<TileBand>(); 
+		List<TileBand> tilebands = new ArrayList<TileBand>();
 
 		// TASK 1: Create tile band for all bands on image extents
 		TileBandCreator tilebandCreator = new TileBandCreator();
@@ -287,7 +287,7 @@ public class Importer extends Application {
 		tileAggregator.setTemporaryLocation(getWorkingDirectory());
 
 		// Create an empty container to capture all merged tilebands
-		mergedTilebands = new ArrayList<TileBand>(); 		
+		mergedTilebands = new ArrayList<TileBand>();
 
 		// TASK 5: Insert tiles into the TimeSlice.
 		// If TimeSlice already existed, the updated tiles will be merged with
@@ -296,7 +296,7 @@ public class Importer extends Application {
 		// TimeSlice will need to be done in detached mode (Hibernate feature).
 		TileUpdater tileUpdater = new TileUpdater();
 		tileUpdater.setSource(tilebands);
-		tileUpdater.setTarget(mergedTilebands);					
+		tileUpdater.setTarget(mergedTilebands);
 		tileUpdater.setTimeSlice(timeSlice);
 		tileUpdater.setTemporaryLocation(getWorkingDirectory());
 		// The new tile and old tile should have dstnodata as nodata value
@@ -317,7 +317,7 @@ public class Importer extends Application {
 		lockBox = new ScalarReceiver<>();
 		committer.setTaskMonitor(lockBox);
 
-		// ADD TASK 
+		// ADD TASK
 		getTaskPipeline().addTask(tilebandCreator);
 		getTaskPipeline().addTask(tileTransformer);
 		if( ndgConfigManager.getConfig().isGenerateImportTileAggregation()) {
@@ -331,7 +331,7 @@ public class Importer extends Application {
 	/**
 	 * Perform the import only if can get write lock for the timeslice.
 	 * If unable to get write lock for the timeslice then throws exception
-	 * as other task is currently modifying the same timeslice. 
+	 * as other task is currently modifying the same timeslice.
 	 */
 	@Override
 	protected void preExecute() throws TaskException {
@@ -341,7 +341,7 @@ public class Importer extends Application {
 		}
 
 		if (!lock.writeLock().tryLock()) {
-			// Unable to get write lock for the timeslice as 
+			// Unable to get write lock for the timeslice as
 			// other task is currently modifying the same timeslice
 			throw new TaskException("Unable to perform task as the timeslice is currently locked by other task.");
 		}
@@ -377,7 +377,7 @@ public class Importer extends Application {
 	/**
 	 * Clean up previous tile backup when import is finished.
 	 * Note: This task is to be performed only when all tasks in task
-	 * pipeline have been executed (when task pipeline state is 
+	 * pipeline have been executed (when task pipeline state is
 	 * TaskState.FINISHED).
 	 */
 	private void cleanupOldBackupTiles() {
@@ -442,7 +442,7 @@ public class Importer extends Application {
 			dstnodata = sourceImage.getNoData();
 		} else if (!srcNodataExist && bandNodataExist) {
 			if (inputNodataExist) {
-				// if [-srcnodata] not specified 
+				// if [-srcnodata] not specified
 				// but primaryFile has nodata value, use it as srcnodata
 				srcnodata = sourceImage.getNoData();
 			}
