@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.vpac.ndg.ApplicationContextProvider;
 import org.vpac.ndg.application.Constant;
+import org.vpac.ndg.common.datamodel.CellSize;
 import org.vpac.ndg.common.datamodel.TaskType;
 import org.vpac.ndg.exceptions.TaskInitialisationException;
 import org.vpac.ndg.storage.dao.BandDao;
@@ -53,6 +54,10 @@ public class S3Importer extends Application {
   final private Logger log = LoggerFactory.getLogger(Importer.class);
 
   private String bucket;
+  private String dsName;
+  private CellSize dsResolution;
+  private String tsName;
+  private ArrayList<String> files;
   private String key;
   private Band band;
 
@@ -71,8 +76,20 @@ public class S3Importer extends Application {
     this.bucket = bucket;
   }
 
-  public void setKey(String key) {
-    this.key = key;
+  public void setDatasetName(String name) {
+    this.dsName = name;
+  }
+
+  public void setResolution(CellSize resolution) {
+    this.dsResolution = resolution;
+  }
+
+  public void setTimeSliceName(String name) {
+    this.tsName = name;
+  }
+
+  public void setS3Targets(ArrayList<String> files) {
+    this.files = files;
   }
 
   @Override
@@ -84,19 +101,19 @@ public class S3Importer extends Application {
 
   @Override
 	protected void createTasks() throws TaskInitialisationException {
-    // TASK 1: Download tiles from s3
+    // TASK: Download tiles directly into storagepool from s3 bucket
+    files.forEach((f) -> createDownloadTask(f));
+	}
+
+  protected void createDownloadTask(String tgtFile) {
+    String s3Key = dsName + "_" + dsResolution + "/" + tsName + "/" + tgtFile;
     S3Download s3Download = new S3Download();
     s3Download.setBucketName(bucket);
-    s3Download.setKey(key);
-
-    // TASK 2: Commit tiles to database
-    // Committer committer = new Committer();
+    s3Download.setKey(s3Key);
 
     // Add tasks to task pipeline
     getTaskPipeline().addTask(s3Download);
-    // getTaskPipeline().addTask(committer);
-	}
-
+  }
 
   @Override
   protected String getJobName() {
@@ -110,10 +127,10 @@ public class S3Importer extends Application {
 
   @Override
 	protected String getJobDescription() {
-		if (key != null && bucket != null) {
-				return String.format("Importing %s from s3 bucket: %s", key, bucket);
+		if (bucket != null) {
+				return String.format("Importing tiles from s3 bucket: %s", bucket);
 		} else {
-			return String.format("Importing %s", key);
+			return String.format("Importing tiles from s3");
 		}
 	}
 }

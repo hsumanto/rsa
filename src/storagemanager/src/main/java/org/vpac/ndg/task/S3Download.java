@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.Collection;
 
 import com.amazonaws.AmazonClientException;
@@ -68,12 +69,6 @@ public class S3Download extends BaseTask {
     String localFilename = "/var/lib/ndg/storagepool/" + key;
     Path path = Paths.get(localFilename);
 
-    if (Files.exists(path)) {
-      // Handle case that file has already been downloaded to RSA
-      log.info(String.format("File %s already exists", localFilename));
-      return;
-    }
-
     Path parentPath = path.getParent();
     try {
       Files.createDirectories(parentPath);
@@ -94,7 +89,7 @@ public class S3Download extends BaseTask {
       InputStream objectData = objectPortion.getObjectContent();
 
       try {
-        Files.copy(objectData, path);
+        Files.copy(objectData, path, StandardCopyOption.REPLACE_EXISTING);
       } catch (IOException i) {
         throw new TaskException(String.format(
           "Caught an IOException while trying to copy tile data to %s",
