@@ -19,29 +19,14 @@
 
 package org.vpac.ndg.task;
 
-import java.io.IOException;
-import java.nio.file.DirectoryStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationContext;
-import org.vpac.ndg.ApplicationContextProvider;
 import org.vpac.ndg.application.Constant;
 import org.vpac.ndg.common.datamodel.CellSize;
 import org.vpac.ndg.common.datamodel.TaskType;
 import org.vpac.ndg.exceptions.TaskInitialisationException;
-import org.vpac.ndg.storage.dao.BandDao;
-import org.vpac.ndg.storage.dao.TimeSliceDao;
-import org.vpac.ndg.storage.model.Band;
-import org.vpac.ndg.storage.model.Dataset;
-import org.vpac.ndg.storage.model.TimeSlice;
-import org.vpac.ndg.storage.util.TimeSliceUtil;
 
 /**
 * This is a tool to import user specified datasets from AWS d3 storage.
@@ -57,19 +42,13 @@ public class S3Importer extends Application {
   private String dsName;
   private CellSize dsResolution;
   private String tsName;
+  private String fileExtension;
   private ArrayList<String> files;
   private String key;
-  private Band band;
+  private String bandName;
 
-	TimeSliceDao timeSliceDao;
-  TimeSliceUtil timeSliceUtil;
-	BandDao bandDao;
 
   public S3Importer() {
-    ApplicationContext appContext = ApplicationContextProvider.getApplicationContext();
-    timeSliceDao = (TimeSliceDao) appContext.getBean("timeSliceDao");
-		timeSliceUtil = (TimeSliceUtil) appContext.getBean("timeSliceUtil");
-		bandDao = (BandDao) appContext.getBean("bandDao");
   }
 
   public void setBucket(String bucket) {
@@ -77,15 +56,23 @@ public class S3Importer extends Application {
   }
 
   public void setDatasetName(String name) {
-    this.dsName = name;
+    dsName = name;
   }
 
   public void setResolution(CellSize resolution) {
-    this.dsResolution = resolution;
+    dsResolution = resolution;
   }
 
   public void setTimeSliceName(String name) {
-    this.tsName = name;
+    tsName = name;
+  }
+
+  public void setBandName(String name) {
+    bandName = name;
+  }
+
+  public void setExtension(String ext) {
+    fileExtension = ext;
   }
 
   public void setS3Targets(ArrayList<String> files) {
@@ -95,19 +82,23 @@ public class S3Importer extends Application {
   @Override
 	protected void createTasks() throws TaskInitialisationException {
     // TASK: Download tiles directly into storagepool from s3 bucket
-    files.forEach((f) -> createDownloadTask(f));
-	}
+    String keyRoot = dsName + "_" + dsResolution + "/" + tsName + "/";
+    String storagePoolDir = "/var/lib/ndg/storagepool/" + keyRoot;
 
-  protected void createDownloadTask(String tgtFile) {
-    String s3Key = dsName + "_" + dsResolution + "/" + tsName + "/" + tgtFile;
     S3Download s3Download = new S3Download();
     s3Download.setTemporaryLocation(getWorkingDirectory());
-    s3Download.setBucketName(bucket);
-    s3Download.setKey(s3Key);
+    s3Download.setStoragePoolDir(storagePoolDir);
+    s3Download.setDatasetName(dsName);
+    s3Download.setResolution(dsResolution);
+    s3Download.setTimeSliceName(tsName);
+    s3Download.setBandName(bandName);
+    s3Download.setExtension(fileExtension);
 
-    // Add tasks to task pipeline
+    s3Download.setBucketName(bucket);
+    s3Download.setTargetFiles(files);
+
     getTaskPipeline().addTask(s3Download);
-  }
+	}
 
   @Override
   protected void finalise() {

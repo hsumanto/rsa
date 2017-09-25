@@ -21,23 +21,19 @@ package org.vpac.ndg.task;
 
 import java.io.InputStream;
 import java.io.IOException;
+import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
 import java.util.Collection;
-
-import com.amazonaws.AmazonClientException;
-import com.amazonaws.AmazonServiceException;
-import com.amazonaws.auth.EnvironmentVariableCredentialsProvider;
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3Client;
-import com.amazonaws.services.s3.model.GetObjectRequest;
-import com.amazonaws.services.s3.model.S3Object;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.vpac.ndg.FileUtils;
 import org.vpac.ndg.application.Constant;
+import org.vpac.ndg.common.datamodel.CellSize;
 import org.vpac.ndg.exceptions.TaskException;
 import org.vpac.ndg.exceptions.TaskInitialisationException;
 
@@ -50,9 +46,16 @@ public class S3Download extends BaseTask {
 
   final private Logger log = LoggerFactory.getLogger(S3Download.class);
 
-  private Path temporaryLocation;
+  private TaskPipeline innerTaskPipeline = new TaskPipeline(false);
+  private ArrayList<String> tgtFiles;
   private String bucketName;
-  private String key;
+  private String dsName;
+  private CellSize dsResolution;
+  private String tsName;
+  private String bandName;
+  private String extension;
+  private Path storagePoolDir;
+  private Path temporaryLocation;
 
   public S3Download() {
     super(Constant.TASK_DESCRIPTION_S3DOWNLOAD);
@@ -60,6 +63,38 @@ public class S3Download extends BaseTask {
 
   @Override
 	public void initialise() throws TaskInitialisationException {
+    if (bucketName == null) {
+      throw new TaskInitialisationException(getDescription(), Constant.ERR_S3_BUCKET_NOT_SPECIFIED);
+    }
+
+    if (tgtFiles == null || tgtFiles.isEmpty()) {
+      throw new TaskInitialisationException(getDescription(), Constant.ERR_S3_TARGET_FILES_NOT_SPECIFIED);
+    }
+
+    if (dsName == null) {
+      throw new TaskInitialisationException(getDescription(), "Dataset name not specified");
+    }
+
+    if (dsResolution == null) {
+      throw new TaskInitialisationException(getDescription(), "Dataset resolution not specified");
+    }
+
+    if (tsName == null) {
+      throw new TaskInitialisationException(getDescription(), "Timeslice name not specified");
+    }
+
+    if (bandName == null) {
+      throw new TaskInitialisationException(getDescription(), "Band name not specified");
+    }
+
+    if (extension == null) {
+      throw new TaskInitialisationException(getDescription(), "File extension not specified");
+    }
+
+    if (storagePoolDir == null) {
+      throw new TaskInitialisationException(getDescription(), "Storage pool directory not specified");
+    }
+
     if(temporaryLocation == null) {
       try {
         temporaryLocation = FileUtils.createTmpLocation();
@@ -69,109 +104,91 @@ public class S3Download extends BaseTask {
       }
       log.info("Temporary Location: {}", temporaryLocation);
     }
-
-    if (bucketName == null) {
-      throw new TaskInitialisationException(getDescription(), Constant.ERR_S3_BUCKET_NOT_SPECIFIED);
-    }
-
-    if (key == null) {
-      throw new TaskInitialisationException(getDescription(), Constant.ERR_S3_KEY_NOT_SPECIFIED);
-    }
   }
 
   @Override
 	public void execute(Collection<String> actionLog, ProgressCallback progressCallback) throws TaskException {
-    String s3Filename = "/tmp/" + bucketName + "/" + key;
-    String localFilename = "/var/lib/ndg/storagepool/" + key;
-    Path path = Paths.get(localFilename);
+    innerTaskPipeline.setActionLog(actionLog);
 
-    if (Files.exists(path)) {
+    // Create download task for each target tile
+    tgtFiles.forEach((f) -> createDownloadTask(f));
+
+    try {
+      innerTaskPipeline.initialise();
+    } catch (TaskInitialisationException e) {
+      throw new TaskException(e);
+    }
+
+    if (Files.exists(storagePoolDir)) {
+      // Move existing files for this band and extenstion type in storagepool
+      // to temporary storage directory.
       try {
-        // Move file to temporary directory in case we need to rollback
-        Files.move(path, temporaryLocation.resolve(path.getFileName()));
+        String fileFormat = bandName + "_tile*" + extension;
+        DirectoryStream<Path> ds = Files.newDirectoryStream(storagePoolDir, fileFormat);
+        for (Path from: ds) {
+          Path to = temporaryLocation.resolve(from.getFileName());
+          try {
+            FileUtils.move(from, to);
+          } catch (IOException e) {
+            throw new TaskException(String.format(Constant.ERR_MOVE_FILE_FAILED, from, to));
+          }
+        }
+      } catch (IOException e) {
+        throw new TaskException(String.format("Could not create directory stream for %s", storagePoolDir.toString()));
+      }
+    } else {
+      // Create storage pool directory
+      try {
+        Files.createDirectories(storagePoolDir);
       } catch (IOException e) {
         throw new TaskException(String.format(
-          "Caught an IOException while trying to move %s to temporary storage",
-          localFilename), e);
+          "Caught an IOException while trying to create directories %s",
+          storagePoolDir.toString()), e);
       }
     }
 
-    Path parentPath = path.getParent();
-    try {
-      Files.createDirectories(parentPath);
-    } catch (IOException e) {
-      throw new TaskException(String.format(
-        "Caught an IOException while trying to create directories %s",
-        parentPath.toString()), e);
-    }
-
-    // This role must have permission to access the s3 bucket.
-    AmazonS3 s3Client = new AmazonS3Client(new EnvironmentVariableCredentialsProvider());
-    try {
-      S3Object s3object = s3Client.getObject(new GetObjectRequest(bucketName, key));
-
-      GetObjectRequest objectRequest = new GetObjectRequest(bucketName, key);
-      S3Object objectPortion = s3Client.getObject(objectRequest);
-      InputStream objectData = objectPortion.getObjectContent();
-
-      try {
-        Files.copy(objectData, path, StandardCopyOption.REPLACE_EXISTING);
-      } catch (IOException e) {
-        throw new TaskException(String.format(
-          "Caught an IOException while trying to copy tile data to %s",
-          localFilename), e);
-      }
-
-      try {
-        objectPortion.close();
-      } catch (IOException e) {
-        throw new TaskException(
-        "Caught an IOException while attempting to close S3Object",
-        e);
-      }
-
-    } catch (AmazonServiceException ase) {
-      log.info("Caught an AmazonServiceException, which" +
-          " means your request made it" +
-          " to Amazon S3, but was rejected with an error response" +
-          " for some reason.");
-      log.info("Error Message:    " + ase.getMessage());
-      log.info("HTTP Status Code: " + ase.getStatusCode());
-      log.info("AWS Error Code:   " + ase.getErrorCode());
-      log.info("Error Type:       " + ase.getErrorType());
-      log.info("Request ID:       " + ase.getRequestId());
-      throw new TaskException(String.format("Failed to retrieve %s due to AmazonServiceException", s3Filename));
-    } catch (AmazonClientException ace) {
-      log.info("Caught an AmazonClientException, which means"+
-          " the client encountered" +
-          " an internal error while trying to" +
-          " communicate with S3," +
-          " such as not being able to access the network.");
-      log.info("Error Message: " + ace.getMessage());
-      throw new TaskException(String.format("Failed to retrieve %s due to AmazonClientException", s3Filename));
-    }
+    // Run tile download tasks
+    innerTaskPipeline.run();
   }
 
   @Override
   public void rollback() {
-    String localFilename = "/var/lib/ndg/storagepool/" + key;
-    Path path = Paths.get(localFilename);
-    Path tmpPath = temporaryLocation.resolve(path.getFileName());
+    // Rollback each of the tile download tasks
+    innerTaskPipeline.rollback();
 
-    // If file is present in temporary storage, delete file in storagepool then
-    // move file in temporary storage back to storagepool.
-    if (Files.exists(tmpPath)) {
-      try {
-        Files.deleteIfExists(path);
-        Files.move(tmpPath, path);
-      } catch (IOException e) {
-        log.error(e.getMessage());
+    // Restore original tiles in temporary storage back to storagepool
+    try {
+      DirectoryStream<Path> ds = Files.newDirectoryStream(temporaryLocation);
+      for (Path from: ds) {
+        Path to = storagePoolDir.resolve(from.getFileName());
+        try {
+          FileUtils.move(from, to);
+        } catch (IOException e) {
+          log.error(String.format(Constant.ERR_MOVE_FILE_FAILED, from, to));
+        }
       }
+    } catch(IOException e) {
+      log.error(String.format("Could not create directory stream for %s", storagePoolDir.toString()));
     }
   }
 
   @Override
   public void finalise() {
+    // Finalise each of the tile download tasks
+    innerTaskPipeline.finalise();
+  }
+
+  protected void createDownloadTask(String tgtFile) {
+    // Create a new download task for this file
+    String key = dsName + "_" + dsResolution + "/" + tsName + "/" + tgtFile;
+    Path storagePool = Paths.get("/var/lib/ndg/storagepool/");
+    S3DownloadTile tileDownload = new S3DownloadTile();
+    tileDownload.setStoragePool(storagePool);
+    tileDownload.setBucketName(bucketName);
+    tileDownload.setKey(key);
+
+    // Add download task to inner task pipeline
+    innerTaskPipeline.addTask(tileDownload);
   }
 
   public void setTemporaryLocation(Path temporaryLocation) {
@@ -182,11 +199,35 @@ public class S3Download extends BaseTask {
 		return temporaryLocation;
 	}
 
+  public void setStoragePoolDir(String dirPath) {
+    storagePoolDir = Paths.get(dirPath);
+  }
+
+  public void setDatasetName(String name) {
+    dsName = name;
+  }
+
+  public void setResolution(CellSize resolution) {
+    dsResolution = resolution;
+  }
+
+  public void setTimeSliceName(String name) {
+    tsName = name;
+  }
+
+  public void setBandName(String name) {
+    bandName = name;
+  }
+
+  public void setExtension(String ext) {
+    extension = ext;
+  }
+
   public void setBucketName(String bucketName) {
     this.bucketName = bucketName;
   }
 
-  public void setKey(String key) {
-    this.key = key;
+  public void setTargetFiles(ArrayList<String> files) {
+    this.tgtFiles = files;
   }
 }

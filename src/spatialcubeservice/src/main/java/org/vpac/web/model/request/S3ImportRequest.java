@@ -45,6 +45,8 @@ public class S3ImportRequest implements java.io.Serializable {
   private String nodata;
   @NotBlank
   private String precision;
+  @NotBlank
+  private String extension;
 
   @NotNull
   @Size(min = 1)
@@ -91,6 +93,10 @@ public class S3ImportRequest implements java.io.Serializable {
 
   public String getPrecision() {
     return this.precision;
+  }
+
+  public String getExtension() {
+    return this.extension;
   }
 
   public ArrayList<String> getFiles() {

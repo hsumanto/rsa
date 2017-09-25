@@ -41,7 +41,8 @@ public class Constant {
 	public static final String TASK_DESCRIPTION_COMMITTER = "Committing tiles into storagepool";
 	public static final String TASK_DESCRIPTION_COMPRESSOR = "Packaging output into a zip file";
 	public static final String TASK_DESCRIPTION_NOOP = "No operation";
-	public static final String TASK_DESCRIPTION_S3DOWNLOAD = "Downloading tiles from Amazon S3 storage";
+	public static final String TASK_DESCRIPTION_S3DOWNLOAD = "Downloading tiles from S3 storage";
+	public static final String TASK_DESCRIPTION_S3DOWNLOADTILE = "Downloading tile from S3 storage";
 
 	public static final String GDAL_CACHEMAX_IN_MB = "100";
 	public static final String UNKNOWN = "unknown";
@@ -106,7 +107,9 @@ public class Constant {
 	public static final String ERR_TASK_EXCEPTION = "TASK [%s] failed.\nDETAILS: %s";
 	public static final String ERR_GENERIC_EXCEPTION = "Error encountered: %s.\nDETAILS: %s";
 	public static final String ERR_S3_BUCKET_NOT_SPECIFIED = "No S3 bucket specified.";
+	public static final String ERR_S3_TARGET_FILES_NOT_SPECIFIED = "Target files in S3 bucket not specified.";
 	public static final String ERR_S3_KEY_NOT_SPECIFIED = "No S3 key specified.";
+	public static final String ERR_STORAGEPOOL_NOT_SPECIFIED = "Target destination in storagepool not specified.";
 
 	public static final String INFO_JOB_PROGRESS = "Job Progress";
 

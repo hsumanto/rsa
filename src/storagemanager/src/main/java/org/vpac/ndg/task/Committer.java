@@ -45,7 +45,7 @@ import org.vpac.ndg.storage.util.BandUtil;
 import org.vpac.ndg.storage.util.TimeSliceUtil;
 
 /**
- * This class is responsible for copy the tile from their temporary storage into
+ * This class is responsible for copying tiles from their temporary storage into
  * the storage pool. Once all tiles have been successfully moved into storage pool
  * then save them into database and increase upload counter for TimeSlice.
  *

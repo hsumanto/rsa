@@ -326,7 +326,9 @@ public class DataController {
 		importer.setDatasetName(dsName);
 		importer.setResolution(dsResolution);
 		importer.setTimeSliceName(tsName);
+		importer.setBandName(bandName);
 		importer.setS3Targets(files);
+		importer.setExtension(sir.getExtension());
 
 		importer.configure();
 		model.addAttribute(ControllerHelper.RESPONSE_ROOT, new ImportResponse(importer.getTaskId()));
