@@ -50,17 +50,16 @@ public class S3Download extends BaseTask {
 
   final private Logger log = LoggerFactory.getLogger(S3Download.class);
 
+  private Path temporaryLocation;
   private String bucketName;
   private String key;
 
   public S3Download() {
     super(Constant.TASK_DESCRIPTION_S3DOWNLOAD);
-    log.info("S3Download task constructed");
   }
 
   @Override
 	public void initialise() throws TaskInitialisationException {
-    log.info("S3Download task initialized");
   }
 
   @Override
@@ -69,20 +68,30 @@ public class S3Download extends BaseTask {
     String localFilename = "/var/lib/ndg/storagepool/" + key;
     Path path = Paths.get(localFilename);
 
+    if (Files.exists(path)) {
+      try {
+        // Move file to temporary directory in case we need to rollback
+        Files.move(path, temporaryLocation.resolve(path.getFileName()));
+      } catch (IOException e) {
+        throw new TaskException(String.format(
+          "Caught an IOException while trying to move %s to temporary storage",
+          localFilename), e);
+      }
+    }
+
     Path parentPath = path.getParent();
     try {
       Files.createDirectories(parentPath);
-    } catch (IOException i) {
+    } catch (IOException e) {
       throw new TaskException(String.format(
         "Caught an IOException while trying to create directories %s",
-        parentPath.toString()), i);
+        parentPath.toString()), e);
     }
 
     // This role must have permission to access the s3 bucket.
     AmazonS3 s3Client = new AmazonS3Client(new EnvironmentVariableCredentialsProvider());
     try {
       S3Object s3object = s3Client.getObject(new GetObjectRequest(bucketName, key));
-      log.info("Content-Type: " + s3object.getObjectMetadata().getContentType());
 
       GetObjectRequest objectRequest = new GetObjectRequest(bucketName, key);
       S3Object objectPortion = s3Client.getObject(objectRequest);
@@ -90,49 +99,71 @@ public class S3Download extends BaseTask {
 
       try {
         Files.copy(objectData, path, StandardCopyOption.REPLACE_EXISTING);
-      } catch (IOException i) {
+      } catch (IOException e) {
         throw new TaskException(String.format(
           "Caught an IOException while trying to copy tile data to %s",
-          localFilename), i);
+          localFilename), e);
       }
 
       try {
         objectPortion.close();
-      } catch (IOException i) {
+      } catch (IOException e) {
         throw new TaskException(
         "Caught an IOException while attempting to close S3Object",
-        i);
+        e);
       }
 
     } catch (AmazonServiceException ase) {
       log.info("Caught an AmazonServiceException, which" +
-          " means your request made it " +
-          "to Amazon S3, but was rejected with an error response" +
+          " means your request made it" +
+          " to Amazon S3, but was rejected with an error response" +
           " for some reason.");
       log.info("Error Message:    " + ase.getMessage());
       log.info("HTTP Status Code: " + ase.getStatusCode());
       log.info("AWS Error Code:   " + ase.getErrorCode());
       log.info("Error Type:       " + ase.getErrorType());
       log.info("Request ID:       " + ase.getRequestId());
+      throw new TaskException(String.format("Failed to retrieve %s due to AmazonServiceException", s3Filename));
     } catch (AmazonClientException ace) {
       log.info("Caught an AmazonClientException, which means"+
-          " the client encountered " +
-          "an internal error while trying to " +
-          "communicate with S3, " +
-          "such as not being able to access the network.");
+          " the client encountered" +
+          " an internal error while trying to" +
+          " communicate with S3," +
+          " such as not being able to access the network.");
       log.info("Error Message: " + ace.getMessage());
+      throw new TaskException(String.format("Failed to retrieve %s due to AmazonClientException", s3Filename));
     }
   }
 
   @Override
   public void rollback() {
-    log.info("S3Download rollback");
+    String localFilename = "/var/lib/ndg/storagepool/" + key;
+    Path path = Paths.get(localFilename);
+    Path tmpPath = temporaryLocation.resolve(path.getFileName());
+
+    // If file is present in temporary storage, delete file in storagepool then
+    // move file in temporary storage back to storagepool.
+    if (Files.exists(tmpPath)) {
+      try {
+        Files.deleteIfExists(path);
+        Files.move(tmpPath, path);
+      } catch (IOException e) {
+        log.error(e.getMessage());
+      }
+    }
   }
 
   @Override
   public void finalise() {
-    log.info("S3Download finalise");
   }
+
+  public void setTemporaryLocation(Path temporaryLocation) {
+		this.temporaryLocation = temporaryLocation;
+  }
+
+  public Path getTemporaryLocation() {
+		return temporaryLocation;
+	}
 
   public void setBucketName(String bucketName) {
     this.bucketName = bucketName;

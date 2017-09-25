@@ -93,13 +93,6 @@ public class S3Importer extends Application {
   }
 
   @Override
-	protected void initialise() throws TaskInitialisationException {
-    super.initialise();
-
-    this.finalise();
-  }
-
-  @Override
 	protected void createTasks() throws TaskInitialisationException {
     // TASK: Download tiles directly into storagepool from s3 bucket
     files.forEach((f) -> createDownloadTask(f));
@@ -108,11 +101,17 @@ public class S3Importer extends Application {
   protected void createDownloadTask(String tgtFile) {
     String s3Key = dsName + "_" + dsResolution + "/" + tsName + "/" + tgtFile;
     S3Download s3Download = new S3Download();
+    s3Download.setTemporaryLocation(getWorkingDirectory());
     s3Download.setBucketName(bucket);
     s3Download.setKey(s3Key);
 
     // Add tasks to task pipeline
     getTaskPipeline().addTask(s3Download);
+  }
+
+  @Override
+  protected void finalise() {
+    super.finalise();
   }
 
   @Override
