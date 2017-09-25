@@ -105,6 +105,8 @@ public class Constant {
 	public static final String ERR_TASK_INITIALISATION_EXCEPTION = "TASK INIT [%s] failed.\nDETAILS: %s";
 	public static final String ERR_TASK_EXCEPTION = "TASK [%s] failed.\nDETAILS: %s";
 	public static final String ERR_GENERIC_EXCEPTION = "Error encountered: %s.\nDETAILS: %s";
+	public static final String ERR_S3_BUCKET_NOT_SPECIFIED = "No S3 bucket specified.";
+	public static final String ERR_S3_KEY_NOT_SPECIFIED = "No S3 key specified.";
 
 	public static final String INFO_JOB_PROGRESS = "Job Progress";
 

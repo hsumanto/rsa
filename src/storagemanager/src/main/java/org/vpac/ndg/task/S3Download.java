@@ -60,6 +60,23 @@ public class S3Download extends BaseTask {
 
   @Override
 	public void initialise() throws TaskInitialisationException {
+    if(temporaryLocation == null) {
+      try {
+        temporaryLocation = FileUtils.createTmpLocation();
+      } catch (IOException e) {
+        log.error("Could not create temporary directory: {}", e);
+        throw new TaskInitialisationException(String.format("Error encountered when create temporary directory: %s", temporaryLocation));
+      }
+      log.info("Temporary Location: {}", temporaryLocation);
+    }
+
+    if (bucketName == null) {
+      throw new TaskInitialisationException(getDescription(), Constant.ERR_S3_BUCKET_NOT_SPECIFIED);
+    }
+
+    if (key == null) {
+      throw new TaskInitialisationException(getDescription(), Constant.ERR_S3_KEY_NOT_SPECIFIED);
+    }
   }
 
   @Override
