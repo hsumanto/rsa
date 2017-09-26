@@ -24,6 +24,10 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 import org.hibernate.validator.constraints.NotBlank;
+import org.vpac.ndg.common.datamodel.CellSize;
+import org.vpac.ndg.common.datamodel.Format;
+import org.vpac.ndg.rasterdetails.RasterDetails;
+
 /*
   Used for S3 tile import requests
  */
@@ -34,19 +38,20 @@ public class S3ImportRequest implements java.io.Serializable {
   @NotBlank
   private String dataset;
   @NotBlank
-  private String resolution;
-  @NotBlank
   private String timeslice;
   @NotBlank
   private String band;
   @NotBlank
-  private String type;
-  @NotBlank
   private String nodata;
   @NotBlank
   private String precision;
-  @NotBlank
-  private String extension;
+
+  @NotNull
+  private CellSize resolution;
+  @NotNull
+  private Format extension;
+  @NotNull
+  private RasterDetails type;
 
   @NotNull
   @Size(min = 1)
@@ -71,10 +76,6 @@ public class S3ImportRequest implements java.io.Serializable {
     return this.dataset;
   }
 
-  public String getResolution() {
-    return this.resolution;
-  }
-
   public String getTimeslice() {
     return this.timeslice;
   }
@@ -87,16 +88,20 @@ public class S3ImportRequest implements java.io.Serializable {
     return this.nodata;
   }
 
-  public String getType() {
-    return this.type;
-  }
-
   public String getPrecision() {
     return this.precision;
   }
 
-  public String getExtension() {
+  public CellSize getResolution() {
+    return this.resolution;
+  }
+
+  public Format getExtension() {
     return this.extension;
+  }
+
+  public RasterDetails getType() {
+    return this.type;
   }
 
   public ArrayList<String> getFiles() {

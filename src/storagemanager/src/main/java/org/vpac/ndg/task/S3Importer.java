@@ -25,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.vpac.ndg.application.Constant;
 import org.vpac.ndg.common.datamodel.CellSize;
+import org.vpac.ndg.common.datamodel.Format;
 import org.vpac.ndg.common.datamodel.TaskType;
 import org.vpac.ndg.exceptions.TaskInitialisationException;
 
@@ -42,7 +43,7 @@ public class S3Importer extends Application {
   private String dsName;
   private CellSize dsResolution;
   private String tsName;
-  private String fileExtension;
+  private Format fileFormat;
   private ArrayList<String> files;
   private String key;
   private String bandName;
@@ -71,8 +72,8 @@ public class S3Importer extends Application {
     bandName = name;
   }
 
-  public void setExtension(String ext) {
-    fileExtension = ext;
+  public void setFileFormat(Format format) {
+    fileFormat = format;
   }
 
   public void setS3Targets(ArrayList<String> files) {
@@ -92,7 +93,7 @@ public class S3Importer extends Application {
     s3Download.setResolution(dsResolution);
     s3Download.setTimeSliceName(tsName);
     s3Download.setBandName(bandName);
-    s3Download.setExtension(fileExtension);
+    s3Download.setFileFormat(fileFormat);
 
     s3Download.setBucketName(bucket);
     s3Download.setTargetFiles(files);

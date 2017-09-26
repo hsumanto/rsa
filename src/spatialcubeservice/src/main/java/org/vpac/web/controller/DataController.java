@@ -263,7 +263,7 @@ public class DataController {
 		S3Importer importer = new S3Importer();
 		String bucket = sir.getBucket();
 		String dsName = sir.getDataset();
-		CellSize dsResolution = CellSize.valueOf(sir.getResolution());
+		CellSize dsResolution = sir.getResolution();
 		long dsPrecision = Utils.parseTemporalPrecision(sir.getPrecision());
 
 		String tsName = sir.getTimeslice();
@@ -275,7 +275,7 @@ public class DataController {
 		String bandName = sir.getBand();
 		Boolean isContinuous = sir.isContinuous();
 		Boolean isMetadata = sir.isMetadata();
-		RasterDetails type = RasterDetails.valueOf(sir.getType());
+		RasterDetails type = sir.getType();
 		String noData = sir.getNodata();
 
 		ArrayList<String> files = sir.getFiles();
@@ -328,7 +328,7 @@ public class DataController {
 		importer.setTimeSliceName(tsName);
 		importer.setBandName(bandName);
 		importer.setS3Targets(files);
-		importer.setExtension(sir.getExtension());
+		importer.setFileFormat(sir.getExtension());
 
 		importer.configure();
 		model.addAttribute(ControllerHelper.RESPONSE_ROOT, new ImportResponse(importer.getTaskId()));

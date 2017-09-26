@@ -34,6 +34,7 @@ import org.slf4j.LoggerFactory;
 import org.vpac.ndg.FileUtils;
 import org.vpac.ndg.application.Constant;
 import org.vpac.ndg.common.datamodel.CellSize;
+import org.vpac.ndg.common.datamodel.Format;
 import org.vpac.ndg.exceptions.TaskException;
 import org.vpac.ndg.exceptions.TaskInitialisationException;
 
@@ -53,7 +54,7 @@ public class S3Download extends BaseTask {
   private CellSize dsResolution;
   private String tsName;
   private String bandName;
-  private String extension;
+  private Format fileFormat;
   private Path storagePoolDir;
   private Path temporaryLocation;
 
@@ -87,8 +88,8 @@ public class S3Download extends BaseTask {
       throw new TaskInitialisationException(getDescription(), "Band name not specified");
     }
 
-    if (extension == null) {
-      throw new TaskInitialisationException(getDescription(), "File extension not specified");
+    if (fileFormat == null) {
+      throw new TaskInitialisationException(getDescription(), "File format not specified");
     }
 
     if (storagePoolDir == null) {
@@ -120,11 +121,10 @@ public class S3Download extends BaseTask {
     }
 
     if (Files.exists(storagePoolDir)) {
-      // Move existing files for this band and extenstion type in storagepool
-      // to temporary storage directory.
       try {
-        String fileFormat = bandName + "_tile*" + extension;
-        DirectoryStream<Path> ds = Files.newDirectoryStream(storagePoolDir, fileFormat);
+        // Move existing files for this band and file format to temporary storage.
+        String namePattern = bandName + "_tile*" + fileFormat.getExtension();
+        DirectoryStream<Path> ds = Files.newDirectoryStream(storagePoolDir, namePattern);
         for (Path from: ds) {
           Path to = temporaryLocation.resolve(from.getFileName());
           try {
@@ -219,8 +219,8 @@ public class S3Download extends BaseTask {
     bandName = name;
   }
 
-  public void setExtension(String ext) {
-    extension = ext;
+  public void setFileFormat(Format format) {
+    fileFormat = format;
   }
 
   public void setBucketName(String bucketName) {
