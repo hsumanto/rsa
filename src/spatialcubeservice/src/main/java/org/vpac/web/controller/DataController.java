@@ -125,6 +125,7 @@ import org.vpac.web.model.response.ExportResponse;
 import org.vpac.web.model.response.FileInfoResponse;
 import org.vpac.web.model.response.ImportResponse;
 import org.vpac.web.model.response.QueryResponse;
+import org.vpac.web.model.response.S3ImportResponse;
 import org.vpac.web.model.response.TabularResponse;
 import org.vpac.web.model.response.TaskCollectionResponse;
 import org.vpac.web.model.response.TaskResponse;
@@ -306,14 +307,15 @@ public class DataController {
 		// Band
 		List<String> bandNames = Arrays.asList(bandName);
 		List<Band> bands = datasetDao.findBandsByName(ds.getId(), bandNames);
+		Band band;
 		if (bands.isEmpty()) {
 			log.info("Creating new Band");
-			Band band = new Band(bandName, isContinuous, isMetadata);
+			band = new Band(bandName, isContinuous, isMetadata);
 			band.setType(type);
 			band.setNodata(noData);
 			datasetDao.addBand(ds.getId(), band);
 		} else {
-			Band band = bands.get(0);
+			band = bands.get(0);
 			band.setContinuous(isContinuous);
 			band.setMetadata(isMetadata);
 			band.setType(type);
@@ -331,7 +333,8 @@ public class DataController {
 		importer.setFileFormat(sir.getExtension());
 
 		importer.configure();
-		model.addAttribute(ControllerHelper.RESPONSE_ROOT, new ImportResponse(importer.getTaskId()));
+		model.addAttribute(ControllerHelper.RESPONSE_ROOT,
+			new S3ImportResponse(importer.getTaskId(), ds, ts, band));
 		importer.runInBackground();
 
 		return "Success";
