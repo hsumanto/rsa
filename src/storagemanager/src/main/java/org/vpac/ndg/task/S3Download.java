@@ -26,17 +26,25 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationContext;
+import org.vpac.ndg.ApplicationContextProvider;
 import org.vpac.ndg.FileUtils;
+import org.vpac.ndg.Utils;
 import org.vpac.ndg.application.Constant;
 import org.vpac.ndg.common.datamodel.CellSize;
 import org.vpac.ndg.common.datamodel.Format;
 import org.vpac.ndg.exceptions.TaskException;
 import org.vpac.ndg.exceptions.TaskInitialisationException;
+import org.vpac.ndg.storage.model.Band;
+import org.vpac.ndg.storage.model.Dataset;
+import org.vpac.ndg.storage.model.TimeSlice;
+import org.vpac.ndg.storage.util.BandUtil;
 
 /**
  * The task of this class is to download tiles stored in an s3 bucket.
@@ -49,17 +57,21 @@ public class S3Download extends BaseTask {
 
   private TaskPipeline innerTaskPipeline = new TaskPipeline(false);
   private ArrayList<String> tgtFiles;
+  private Band band;
+  private Dataset dataset;
+  private TimeSlice timeSlice;
   private String bucketName;
-  private String dsName;
   private CellSize dsResolution;
-  private String tsName;
-  private String bandName;
   private Format fileFormat;
   private Path storagePoolDir;
   private Path temporaryLocation;
 
+  BandUtil bandUtil;
+
   public S3Download() {
     super(Constant.TASK_DESCRIPTION_S3DOWNLOAD);
+    ApplicationContext appContext = ApplicationContextProvider.getApplicationContext();
+		bandUtil = (BandUtil) appContext.getBean("bandUtil");
   }
 
   @Override
@@ -72,20 +84,20 @@ public class S3Download extends BaseTask {
       throw new TaskInitialisationException(getDescription(), Constant.ERR_S3_TARGET_FILES_NOT_SPECIFIED);
     }
 
-    if (dsName == null) {
-      throw new TaskInitialisationException(getDescription(), "Dataset name not specified");
+    if (dataset == null) {
+      throw new TaskInitialisationException(getDescription(), "Dataset not specified");
     }
 
     if (dsResolution == null) {
       throw new TaskInitialisationException(getDescription(), "Dataset resolution not specified");
     }
 
-    if (tsName == null) {
-      throw new TaskInitialisationException(getDescription(), "Timeslice name not specified");
+    if (timeSlice == null) {
+      throw new TaskInitialisationException(getDescription(), "Timeslice not specified");
     }
 
-    if (bandName == null) {
-      throw new TaskInitialisationException(getDescription(), "Band name not specified");
+    if (band == null) {
+      throw new TaskInitialisationException(getDescription(), "Band not specified");
     }
 
     if (fileFormat == null) {
@@ -93,7 +105,12 @@ public class S3Download extends BaseTask {
     }
 
     if (storagePoolDir == null) {
-      throw new TaskInitialisationException(getDescription(), "Storage pool directory not specified");
+      DateFormat formatter = Utils.getTimestampFormatter();
+      String dsName = dataset.getName();
+      String tsName = formatter.format(timeSlice.getCreated());
+      String bandName = band.getName();
+      String keyRoot = dsName + "_" + dsResolution + "/" + tsName + "/";
+      storagePoolDir = Paths.get("/var/lib/ndg/storagepool/" + keyRoot);
     }
 
     if(temporaryLocation == null) {
@@ -123,7 +140,7 @@ public class S3Download extends BaseTask {
     if (Files.exists(storagePoolDir)) {
       try {
         // Move existing files for this band and file format to temporary storage.
-        String namePattern = bandName + "_tile*" + fileFormat.getExtension();
+        String namePattern = band.getName() + "_tile*" + fileFormat.getExtension();
         DirectoryStream<Path> ds = Files.newDirectoryStream(storagePoolDir, namePattern);
         for (Path from: ds) {
           Path to = temporaryLocation.resolve(from.getFileName());
@@ -149,6 +166,13 @@ public class S3Download extends BaseTask {
 
     // Run tile download tasks
     innerTaskPipeline.run();
+
+    // Create blank tile
+    try {
+      bandUtil.createBlankTile(dataset, band);
+    } catch (IOException e) {
+      throw new TaskException(e);
+    }
   }
 
   @Override
@@ -180,6 +204,9 @@ public class S3Download extends BaseTask {
 
   protected void createDownloadTask(String tgtFile) {
     // Create a new download task for this file
+    DateFormat formatter = Utils.getTimestampFormatter();
+    String dsName = dataset.getName();
+    String tsName = formatter.format(timeSlice.getCreated());
     String key = dsName + "_" + dsResolution + "/" + tsName + "/" + tgtFile;
     Path storagePool = Paths.get("/var/lib/ndg/storagepool/");
     S3DownloadTile tileDownload = new S3DownloadTile();
@@ -203,20 +230,20 @@ public class S3Download extends BaseTask {
     storagePoolDir = Paths.get(dirPath);
   }
 
-  public void setDatasetName(String name) {
-    dsName = name;
+  public void setDataset(Dataset dataset) {
+    this.dataset = dataset;
   }
 
   public void setResolution(CellSize resolution) {
     dsResolution = resolution;
   }
 
-  public void setTimeSliceName(String name) {
-    tsName = name;
+  public void setTimeSlice(TimeSlice timeSlice) {
+    this.timeSlice = timeSlice;
   }
 
-  public void setBandName(String name) {
-    bandName = name;
+  public void setBand(Band band) {
+    this.band = band;
   }
 
   public void setFileFormat(Format format) {

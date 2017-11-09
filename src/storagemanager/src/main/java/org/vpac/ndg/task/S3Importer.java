@@ -28,7 +28,9 @@ import org.vpac.ndg.common.datamodel.CellSize;
 import org.vpac.ndg.common.datamodel.Format;
 import org.vpac.ndg.common.datamodel.TaskType;
 import org.vpac.ndg.exceptions.TaskInitialisationException;
-
+import org.vpac.ndg.storage.model.Band;
+import org.vpac.ndg.storage.model.Dataset;
+import org.vpac.ndg.storage.model.TimeSlice;
 /**
 * This is a tool to import user specified datasets from AWS d3 storage.
 *
@@ -39,15 +41,14 @@ public class S3Importer extends Application {
 
   final private Logger log = LoggerFactory.getLogger(Importer.class);
 
-  private String bucket;
-  private String dsName;
-  private CellSize dsResolution;
-  private String tsName;
-  private Format fileFormat;
   private ArrayList<String> files;
+  private String bucket;
   private String key;
-  private String bandName;
-
+  private Dataset dataset;
+  private TimeSlice timeSlice;
+  private Band band;
+  private CellSize dsResolution;
+  private Format fileFormat;
 
   public S3Importer() {
   }
@@ -56,20 +57,20 @@ public class S3Importer extends Application {
     this.bucket = bucket;
   }
 
-  public void setDatasetName(String name) {
-    dsName = name;
+  public void setDataset(Dataset dataset) {
+    this.dataset = dataset;
   }
 
   public void setResolution(CellSize resolution) {
     dsResolution = resolution;
   }
 
-  public void setTimeSliceName(String name) {
-    tsName = name;
+  public void setTimeSlice(TimeSlice timeSlice) {
+    this.timeSlice = timeSlice;
   }
 
-  public void setBandName(String name) {
-    bandName = name;
+  public void setBand(Band band) {
+    this.band = band;
   }
 
   public void setFileFormat(Format format) {
@@ -83,16 +84,12 @@ public class S3Importer extends Application {
   @Override
 	protected void createTasks() throws TaskInitialisationException {
     // TASK: Download tiles directly into storagepool from s3 bucket
-    String keyRoot = dsName + "_" + dsResolution + "/" + tsName + "/";
-    String storagePoolDir = "/var/lib/ndg/storagepool/" + keyRoot;
-
     S3Download s3Download = new S3Download();
     s3Download.setTemporaryLocation(getWorkingDirectory());
-    s3Download.setStoragePoolDir(storagePoolDir);
-    s3Download.setDatasetName(dsName);
+    s3Download.setDataset(dataset);
     s3Download.setResolution(dsResolution);
-    s3Download.setTimeSliceName(tsName);
-    s3Download.setBandName(bandName);
+    s3Download.setTimeSlice(timeSlice);
+    s3Download.setBand(band);
     s3Download.setFileFormat(fileFormat);
 
     s3Download.setBucketName(bucket);

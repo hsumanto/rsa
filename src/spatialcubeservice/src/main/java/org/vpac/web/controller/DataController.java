@@ -325,10 +325,10 @@ public class DataController {
 
 		// Import tile(s)
 		importer.setBucket(bucket);
-		importer.setDatasetName(dsName);
+		importer.setDataset(ds);
 		importer.setResolution(dsResolution);
-		importer.setTimeSliceName(tsName);
-		importer.setBandName(bandName);
+		importer.setTimeSlice(ts);
+		importer.setBand(band);
 		importer.setS3Targets(files);
 		importer.setFileFormat(sir.getExtension());
 
