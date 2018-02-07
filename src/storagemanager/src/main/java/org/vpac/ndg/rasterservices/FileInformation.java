@@ -319,7 +319,7 @@ public class FileInformation {
 				if (fielddef.GetTypeName().compareTo("String") == 0) {
 					// we also need a list of features for the string category
 					// items
-					int num = ds.GetLayer(i).GetFeatureCount();
+					int num = (int) ds.GetLayer(i).GetFeatureCount();
 					HashSet<String> set = new HashSet<String>();
 
 					String s = fielddef.GetName();
@@ -339,7 +339,7 @@ public class FileInformation {
 			}
 			
 			LayerInformation info = new LayerInformation(ds.GetLayer(i)
-					.GetName(), ds.GetLayer(i).GetFeatureCount(), ds
+					.GetName(), (int) ds.GetLayer(i).GetFeatureCount(), ds
 					.GetLayer(i).GetGeometryColumn(), ds.GetLayer(i)
 					.GetSpatialRef().ExportToWkt(), ds.GetLayer(i).GetExtent(),
 					fields);

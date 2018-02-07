@@ -6,12 +6,12 @@
 # rsa data container. See ../doc/docker.md for more information.
 #
 
-FROM ubuntu:14.04
+FROM ubuntu:17.10
 
 MAINTAINER Jin Park <forjin@vpac-innovations.com.au>, Alex Fraser <alex@vpac-innovations.com.au>
 
 ENV JDK_VERSION=8 \
-    TOMCAT_VERSION=7 \
+    TOMCAT_VERSION=8 \
     GRADLE_VERSION=2.13
 
 # Packages with a trailing dash (-) will be removed / not installed.
@@ -22,7 +22,6 @@ RUN export DEBIAN_FRONTEND=noninteractive TERM=linux && \
         ca-certificates \
         software-properties-common && \
         /root/detect-proxy.sh && \
-    add-apt-repository -y ppa:openjdk-r/ppa && \
     apt-get update && \
     apt-get install -y --no-install-recommends \
         curl \
@@ -30,10 +29,15 @@ RUN export DEBIAN_FRONTEND=noninteractive TERM=linux && \
         gdal-bin \
         libgdal-dev \
         libgdal-java \
-        libproj0 \
+        libproj-dev \
+        libproj-java \
+        libproj12 \
+        proj-bin \
+        proj-data \
         libtcnative-1 \
         nano \
         openjdk-${JDK_VERSION}-jdk \
+        openjdk-${JDK_VERSION}-jre \
         python-gdal \
         tomcat${TOMCAT_VERSION} \
         tomcat${TOMCAT_VERSION}-admin \
