@@ -144,6 +144,7 @@ public class WmtsQueryCreator extends Application {
         // Bug fix for vrt builder when one of the output files's datatype is
         // byte then vrt cannot convert it properly. So forcely set -1 to 255
         OutputDirStatistics outputInfo = new OutputDirStatistics();
+        outputInfo.setProgressWeight(5);
         List<Path> sampleFiles = getSourceFilesFromPath(getQueryResultsDirectory());
         if (sampleFiles.size() > 0) {
             outputInfo.setSource(getQueryResultsDirectory());
@@ -227,20 +228,6 @@ public class WmtsQueryCreator extends Application {
         log.info("TASK 6, palette:" + _palette);
         vrtColourer.setPalette(_palette);
 
-        //
-        // TASK 7
-        // Make a VRT with an expanded colour 'thing'. gdal2tiles requires this step fortunately it's quick
-        Path vrtWithColourExpanded = getWorkingDirectory().resolve(targetName + "_scaled_byte_colour_expanded" + Constant.EXT_VRT);
-        GraphicsFile vrtWithColourExpandedFile = new GraphicsFile(vrtWithColourExpanded);
-        vrtWithColourExpandedFile.setFormat(GdalFormat.VRT);
-
-        Translator vrtToExpandedVrt = new Translator("Expanding vrt with colour table");
-        vrtToExpandedVrt.setProgressWeight(20.0);
-        setTaskCleanupOptions(vrtToExpandedVrt);
-        vrtToExpandedVrt.setSource(vrtWithColourFile);
-        vrtToExpandedVrt.setTarget(vrtWithColourExpandedFile);
-        log.info("TASK 7, vrtWithColourFile:" + vrtWithColourFile);
-        vrtToExpandedVrt.setExpand("rgba");
 
         //
         // TASK 8
@@ -248,6 +235,7 @@ public class WmtsQueryCreator extends Application {
         Path wmtsDir = getWorkingDirectory().resolve(targetName);
 
         TileBuilder tileBuilder = new TileBuilder();
+        tileBuilder.setGdal2TilesCommand("gdal2tiles.rsa.py");
         tileBuilder.setProgressWeight(70.0);
         tileBuilder.setSource(vrtWithColourFile);
         tileBuilder.setTarget(wmtsDir);
@@ -260,7 +248,6 @@ public class WmtsQueryCreator extends Application {
         //getTaskPipeline().addTask(stats);
         getTaskPipeline().addTask(vrtToByteScaledVrt);
         getTaskPipeline().addTask(vrtColourer);
-        getTaskPipeline().addTask(vrtToExpandedVrt);
         getTaskPipeline().addTask(tileBuilder);
 
     }
