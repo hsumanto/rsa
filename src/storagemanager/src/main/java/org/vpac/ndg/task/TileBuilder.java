@@ -29,6 +29,8 @@ import org.vpac.ndg.storagemanager.GraphicsFile;
  */
 public class TileBuilder extends BaseTask {
 
+    final static String DEFAULT_GDAL2TILES_COMMAND = "gdal2tiles.py";
+
     private GraphicsFile source;
     private Path target;  //in this case the target is simply a directory
     private String profile;
@@ -40,6 +42,8 @@ public class TileBuilder extends BaseTask {
     private CommandUtil commandUtil;
     final private Logger log = LoggerFactory.getLogger(TileBuilder.class);
 
+    private String gdal2tilesCommand;
+
     public TileBuilder() {
         this("Building tiles");
     }
@@ -47,6 +51,7 @@ public class TileBuilder extends BaseTask {
     public TileBuilder(String description) {
         super(description);
         commandUtil = new CommandUtil();
+        gdal2tilesCommand = TileBuilder.DEFAULT_GDAL2TILES_COMMAND;
     }
 
     @Override
@@ -81,7 +86,7 @@ public class TileBuilder extends BaseTask {
         List<String> command = new ArrayList<String>();
 
         // get the input file list
-        command.add("gdal2tiles.py");
+        command.add(gdal2tilesCommand);
 
         if (profile != null) {
             command.add("-p");
@@ -222,7 +227,13 @@ public class TileBuilder extends BaseTask {
         this.profile = process;
     }
 
+    public void setGdal2TilesCommand(String command) {
+        this.gdal2tilesCommand = command;
+    }
 
+    public String getGdal2TilesCommand() {
+        return this.gdal2tilesCommand;
+    }
 
 
 
