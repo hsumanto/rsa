@@ -68,6 +68,58 @@ public class Ledger implements Foldable<Ledger>, Serializable {
 			return count;
 	}
 
+	public Double maxValue() {
+		Collection<Long> values = entries.values();
+		Long maxVal = Long.MIN_VALUE;
+
+		for (Long currentVal : values) {
+			if (currentVal != null && currentVal > maxVal) {
+				maxVal = currentVal;
+			}
+		}
+		return maxVal.doubleValue();
+	}
+
+	public Double minValue() {
+		Collection<Long> values = entries.values();
+		Long minVal = Long.MAX_VALUE;
+
+		for (Long currentVal : values) {
+			if (currentVal != null && currentVal < minVal) {
+				minVal = currentVal;
+			}
+		}
+		return minVal.doubleValue();
+	}
+
+	public Double maxKey(int column) {
+		Set<List<Double>> keys = entries.keySet();
+		Double maxKey = Double.MIN_VALUE;
+		Double currentKey;
+
+		for (List<Double> key : keys) {
+			currentKey = key.get(column);
+			if (currentKey != null && currentKey > maxKey) {
+				maxKey = currentKey;
+			}
+		}
+		return maxKey;
+	}
+
+	public Double minKey(int column) {
+		Set<List<Double>> keys = entries.keySet();
+		Double minKey = Double.MAX_VALUE;
+		Double currentKey;
+
+		for (List<Double> key : keys) {
+			currentKey = key.get(column);
+			if (currentKey != null && currentKey < minKey) {
+				minKey = currentKey;
+			}
+		}
+		return minKey;
+	}
+
 	public int size() {
 		return entries.size();
 	}

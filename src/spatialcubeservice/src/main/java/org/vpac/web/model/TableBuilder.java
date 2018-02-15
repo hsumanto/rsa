@@ -103,7 +103,7 @@ public class TableBuilder {
 		unfiltered = unfiltered.filterColumns(columns);
 		TabularResponse table = new TabularResponse();
 		table.setTableType("product");
-		table.setColumns(ledgerColumns(ledger, columns));
+		table.setColumns(ledgerColumns(ledger, unfiltered, columns, resolution));
 		table.setRows(ledgerRows(ledger, unfiltered, resolution));
 		return table;
 	}
@@ -216,41 +216,55 @@ public class TableBuilder {
 		return rows;
 	}
 
-	public List<TableColumn> ledgerColumns(Ledger ledger,
-			List<Integer> originalColumnIndices) {
+	public List<TableColumn> ledgerColumns(Ledger ledger, Ledger unfilteredLedger,
+			List<Integer> originalColumnIndices, CellSize resolution) {
 		List<TableColumn> columns = new ArrayList<TableColumn>();
-		int i = 0;
-		int ii = 0;
-		for (String bs : ledger.getBucketingStrategies()) {
-			int inputIndex = originalColumnIndices.get(ii);
-			if (bs.equals("categorical")) {
+		double cellArea = resolution.toDouble() * resolution.toDouble();
+		int outputColumnIndex = 0;
+		int inputColumnIndex = 0;
+		for (BucketingStrategy bs : ledger._getBucketingStrategies()) {
+			int attributeIndex = originalColumnIndices.get(inputColumnIndex);
+			if (bs.getDef().equals("categorical")) {
 				columns.add(new TableColumn()
-					.key(i++).inputIndex(inputIndex)
+					.key(outputColumnIndex).inputIndex(attributeIndex)
 					.name("Category").type("category")
 					.description(String.format(
-						"Category values of attribute %d.",
-						inputIndex)));
+						"Category values of attribute %d.", attributeIndex))
+					.min(unfilteredLedger.minKey(inputColumnIndex))
+					.max(unfilteredLedger.maxKey(inputColumnIndex)));
 			} else {
+				double min = unfilteredLedger.minKey(inputColumnIndex);
+				double max = unfilteredLedger.maxKey(inputColumnIndex);
+				double[] low_bounds = bs.computeBucketBounds(min);
+				double[] high_bounds = bs.computeBucketBounds(max);
 				columns.add(new TableColumn()
-					.key(i++).inputIndex(inputIndex)
+					.key(outputColumnIndex).inputIndex(attributeIndex)
 					.name("Lower Bound").type("lowerBound")
 					.description(String.format(
-						"Lower bounds of attribute %d.", inputIndex)));
+						"Lower bounds of attribute %d.", attributeIndex))
+					.min(low_bounds[0])
+					.max(high_bounds[0]));
+				outputColumnIndex++;
 				columns.add(new TableColumn()
-					.key(i++).inputIndex(inputIndex)
+					.key(outputColumnIndex).inputIndex(attributeIndex)
 					.name("Upper Bound").type("upperBound")
 					.description(String.format(
-						"Upper bounds of attribute %d.", inputIndex)));
+						"Upper bounds of attribute %d.", attributeIndex))
+					.min(low_bounds[1])
+					.max(high_bounds[1]));
 			}
-			ii++;
+			outputColumnIndex++;
+			inputColumnIndex++;
 		}
 		TableColumn area = new TableColumn()
-			.key(i++).name("Area").units("m^2").type("area")
-			.portionOf(i+1)
+			.key(outputColumnIndex++).name("Area").units("m^2").type("area")
+			.portionOf(outputColumnIndex + 1)
 			.description("The area of land that matches the filters.");
 		TableColumn rawArea = new TableColumn()
-			.key(i++).name("Unfiltered Area").units("m^2").type("area")
-			.description("The area of available land.");
+			.key(outputColumnIndex++).name("Unfiltered Area").units("m^2").type("area")
+			.description("The area of available land.")
+			.min(unfilteredLedger.minValue() * cellArea)
+			.max(unfilteredLedger.maxValue() * cellArea);
 		area.portionOf(rawArea.getKey());
 		columns.add(area);
 		columns.add(rawArea);
