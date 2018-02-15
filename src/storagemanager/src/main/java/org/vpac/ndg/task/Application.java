@@ -121,7 +121,7 @@ public abstract class Application implements Callable<Void> {
 	}
 
 	/**
-	 * Executes the task pipeline. 
+	 * Executes the task pipeline.
 	 * @throws TaskException When there is error when executing task pipeline.
 	 */
 	protected void executeTaskPipeline() throws TaskException {
@@ -176,11 +176,11 @@ public abstract class Application implements Callable<Void> {
 	}
 
 	protected void preExecute() throws TaskException {
-		
+
 	}
 
 	protected void postExecute() {
-		
+
 	}
 
 	/**

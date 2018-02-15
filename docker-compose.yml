@@ -3,6 +3,7 @@ services:
     # The base service is referenced in other projects.
     base:
         build: .
+        env_file: ../config/rsa/env.sh
 
 
     # seed and postgres aren't linked to dev because that would create

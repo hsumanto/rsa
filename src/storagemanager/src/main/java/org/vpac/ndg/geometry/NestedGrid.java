@@ -191,7 +191,7 @@ public class NestedGrid {
 
 	/**
 	 * Convert an NNG tile to a point in map coordinates.
-	 * 
+	 *
 	 * @param tile The 2D tile index.
 	 * @param cellSize The grid resolution.
 	 * @return The point in map space. This is located at the top-left corner of
@@ -203,11 +203,11 @@ public class NestedGrid {
 
 	/**
 	 * Convert map coordinates into a NNGI.
-	 * 
+	 *
 	 * @param map The point to find a cell for in map coordinates.
 	 * @param resolution The cell resolution.
 	 * @return The equivalent NNGI.
-	 * 
+	 *
 	 * @throws GridError if a valid NNGI can not be created from the coordinate.
 	 */
 	public String mapToNngi(Point<Double> map, CellSize resolution)
@@ -251,7 +251,7 @@ public class NestedGrid {
 
 		if (resS.length() > 2)
 			throw new IllegalArgumentException("Resolution is too large.");
-		
+
 		String repr = resS + xS + yS;
 		return repr;
 	}
@@ -306,7 +306,7 @@ public class NestedGrid {
 		Point<Integer> max = new Point<Integer>(tile.getX() + 1, tile.getY() + 1);
 		Point<Double> minMap = tileToMap(min, resolution);
 		Point<Double> maxMap = tileToMap(max, resolution);
-		
+
 		return new Box(minMap, maxMap);
 	}
 

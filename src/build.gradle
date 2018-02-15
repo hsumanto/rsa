@@ -16,10 +16,16 @@ subprojects {
     }
 
     dependencies {
+            compile (
+            'com.amazonaws:aws-lambda-java-core:1.1.0',
+            'com.amazonaws:aws-lambda-java-events:1.1.0',
+            'com.amazonaws:aws-java-sdk-lambda:1.11.188',
+            'com.fasterxml.jackson.core:jackson-databind:2.9.0',
+            'org.slf4j:slf4j-api:1.7.1'
+        )
         ext.springVersion = '4.2.6.RELEASE'
         ext.hibernateVersion = '5.1.0.Final'
 
-        compile 'org.slf4j:slf4j-api:1.7.1'
         testCompile 'junit:junit:4.12'
         runtime (
             'ch.qos.logback:logback-classic:1.0.13',

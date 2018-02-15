@@ -53,6 +53,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -61,6 +62,7 @@ import org.springframework.web.servlet.ModelAndView;
 import org.vpac.actor.ActorCreator;
 import org.vpac.ndg.CommandUtil;
 import org.vpac.ndg.FileUtils;
+import org.vpac.ndg.Utils;
 import org.vpac.ndg.common.datamodel.CellSize;
 import org.vpac.ndg.common.datamodel.Format;
 import org.vpac.ndg.common.datamodel.GdalFormat;
@@ -87,7 +89,10 @@ import org.vpac.ndg.query.sampling.ArrayAdapterImpl;
 import org.vpac.ndg.query.sampling.NodataStrategy;
 import org.vpac.ndg.query.sampling.NodataStrategyFactory;
 import org.vpac.ndg.query.stats.Ledger;
+import org.vpac.ndg.rasterdetails.RasterDetails;
+import org.vpac.ndg.storage.dao.BandDao;
 import org.vpac.ndg.storage.dao.DatasetDao;
+import org.vpac.ndg.storage.dao.TimeSliceDao;
 import org.vpac.ndg.storage.dao.JobProgressDao;
 import org.vpac.ndg.storage.dao.StatisticsDao;
 import org.vpac.ndg.storage.dao.UploadDao;
@@ -98,11 +103,13 @@ import org.vpac.ndg.storage.model.TaskCats;
 import org.vpac.ndg.storage.model.TaskLedger;
 import org.vpac.ndg.storage.model.TimeSlice;
 import org.vpac.ndg.storage.model.Upload;
+import org.vpac.ndg.storage.util.DatasetUtil;
 import org.vpac.ndg.storage.util.TimeSliceUtil;
 import org.vpac.ndg.storage.util.UploadUtil;
 import org.vpac.ndg.task.Exporter;
 import org.vpac.ndg.task.ImageTranslator;
 import org.vpac.ndg.task.Importer;
+import org.vpac.ndg.task.S3Importer;
 import org.vpac.ndg.task.WmtsBandCreator;
 import org.vpac.ndg.task.WmtsQueryCreator;
 import org.vpac.web.exception.ResourceNotFoundException;
@@ -110,6 +117,7 @@ import org.vpac.web.model.TableBuilder;
 import org.vpac.web.model.request.DataExportRequest;
 import org.vpac.web.model.request.FileRequest;
 import org.vpac.web.model.request.PagingRequest;
+import org.vpac.web.model.request.S3ImportRequest;
 import org.vpac.web.model.request.TaskSearchRequest;
 import org.vpac.web.model.response.CleanUpResponse;
 import org.vpac.web.model.response.DatasetPlotResponse;
@@ -117,6 +125,7 @@ import org.vpac.web.model.response.ExportResponse;
 import org.vpac.web.model.response.FileInfoResponse;
 import org.vpac.web.model.response.ImportResponse;
 import org.vpac.web.model.response.QueryResponse;
+import org.vpac.web.model.response.S3ImportResponse;
 import org.vpac.web.model.response.TabularResponse;
 import org.vpac.web.model.response.TaskCollectionResponse;
 import org.vpac.web.model.response.TaskResponse;
@@ -146,15 +155,21 @@ public class DataController {
 	@Autowired
 	DatasetDao datasetDao;
 	@Autowired
+	DatasetUtil datasetUtil;
+	@Autowired
 	UploadUtil uploadUtil;
 	@Autowired
 	JobProgressDao jobProgressDao;
 	@Autowired
 	StatisticsDao statisticsDao;
 	@Autowired
+	TimeSliceDao timeSliceDao;
+	@Autowired
 	TimeSliceUtil timeSliceUtil;
 	@Autowired
 	TileManager tileManager;
+	@Autowired
+	BandDao bandDao;
 
 	private Pager<JobProgress> pager = new Pager<JobProgress>();
 
@@ -236,6 +251,90 @@ public class DataController {
 		// is started.
 		importer.configure();
 		model.addAttribute(ControllerHelper.RESPONSE_ROOT, new ImportResponse(importer.getTaskId()));
+		importer.runInBackground();
+
+		return "Success";
+	}
+
+	@RequestMapping(value="/s3Import", method = RequestMethod.POST)
+	public String importS3Data(@Valid @RequestBody S3ImportRequest sir, ModelMap model ) throws TaskInitialisationException {
+
+		// Receive a request to retrieve data from AmazonS3 storage, retrieve data and commit to storage pool
+		log.info("s3 Import");
+		S3Importer importer = new S3Importer();
+		String bucket = sir.getBucket();
+		String dsName = sir.getDataset();
+		CellSize dsResolution = sir.getResolution();
+		long dsPrecision = Utils.parseTemporalPrecision(sir.getPrecision());
+
+		String tsName = sir.getTimeslice();
+		Date tsDate = Utils.parseDate(tsName);
+		ArrayList<Integer> xlims = sir.getXlims();
+		ArrayList<Integer> ylims = sir.getYlims();
+		Box bounds = new Box(xlims.get(0), ylims.get(0), xlims.get(1), ylims.get(1));
+
+		String bandName = sir.getBand();
+		Boolean isContinuous = sir.isContinuous();
+		Boolean isMetadata = sir.isMetadata();
+		RasterDetails type = sir.getType();
+		String noData = sir.getNodata();
+
+		ArrayList<String> files = sir.getFiles();
+
+		// Create database entries before downloading tile(s)
+		Dataset ds = datasetDao.findDatasetByName(dsName, dsResolution);
+		if (ds == null) {
+			log.info("Creating new Dataset");
+			ds = new Dataset(dsName, dsResolution, dsPrecision);
+			datasetDao.create(ds);
+		} else if (ds.getPrecision() != dsPrecision) {
+			ds.setPrecision(dsPrecision);
+			datasetDao.update(ds);
+		}
+
+		// TimeSlice
+		TimeSlice ts = datasetDao.findTimeSlice(ds.getId(), tsDate);
+		if (ts == null) {
+			log.info("Creating new TimeSlice");
+			ts = new TimeSlice(tsDate);
+			ts.setBounds(bounds);
+			datasetDao.addTimeSlice(ds.getId(), ts);
+		} else {
+			ts.setBounds(bounds);
+			timeSliceDao.update(ts);
+		}
+
+		// Band
+		List<String> bandNames = Arrays.asList(bandName);
+		List<Band> bands = datasetDao.findBandsByName(ds.getId(), bandNames);
+		Band band;
+		if (bands.isEmpty()) {
+			log.info("Creating new Band");
+			band = new Band(bandName, isContinuous, isMetadata);
+			band.setType(type);
+			band.setNodata(noData);
+			datasetDao.addBand(ds.getId(), band);
+		} else {
+			band = bands.get(0);
+			band.setContinuous(isContinuous);
+			band.setMetadata(isMetadata);
+			band.setType(type);
+			band.setNodata(noData);
+			bandDao.update(band);
+		}
+
+		// Import tile(s)
+		importer.setBucket(bucket);
+		importer.setDataset(ds);
+		importer.setResolution(dsResolution);
+		importer.setTimeSlice(ts);
+		importer.setBand(band);
+		importer.setS3Targets(files);
+		importer.setFileFormat(sir.getExtension());
+
+		importer.configure();
+		model.addAttribute(ControllerHelper.RESPONSE_ROOT,
+			new S3ImportResponse(importer.getTaskId(), ds, ts, band));
 		importer.runInBackground();
 
 		return "Success";
