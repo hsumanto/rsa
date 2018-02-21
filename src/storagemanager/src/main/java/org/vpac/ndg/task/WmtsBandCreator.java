@@ -255,15 +255,17 @@ public class WmtsBandCreator extends Application {
         // TASK 4
         // Convert vrt file into a byte based geotiff, gdal was having problems with too many nested vrts
         // hence this step was required
-        Path tifByte = getWorkingDirectory().resolve(targetName + "_byte" + GdalFormat.GEOTIFF.getExtension());
-        GraphicsFile tifByteFile = new GraphicsFile(tifByte);
-        tifByteFile.setFormat(GdalFormat.GEOTIFF);
+        Path vrtScaledByte = getWorkingDirectory().resolve(targetName + "_scaled_byte" + GdalFormat.VRT.getExtension());
+        GraphicsFile vrtScaledByteFile = new GraphicsFile(vrtScaledByte);
+        vrtScaledByteFile.setFormat(GdalFormat.VRT);
 
-        Translator vrtToByteTif = new Translator("Translating vrt (nc based) into tif file of type byte");
-        setTaskCleanupOptions(vrtToByteTif);
-        vrtToByteTif.setSource(vrtMosaicFile);
-        vrtToByteTif.setTarget(tifByteFile);
-        vrtToByteTif.setOutputType("Byte");
+        Translator vrtToByteScaledVrt = new Translator("Translating vrt (nc based) into tif file of type byte");
+        vrtToByteScaledVrt.setProgressWeight(5.0);
+        setTaskCleanupOptions(vrtToByteScaledVrt);
+        vrtToByteScaledVrt.setSource(vrtMosaicFile);
+        vrtToByteScaledVrt.setTarget(vrtScaledByteFile);
+        vrtToByteScaledVrt.setOutputType("Byte");
+        vrtToByteScaledVrt.setNodata("0");
         ScalarReceiver<Double> byteLowestValue = new ScalarReceiver<Double>();
         byteLowestValue.set(1.0);
         ScalarReceiver<Double> byteHighestValue = new ScalarReceiver<Double>();
@@ -275,7 +277,7 @@ public class WmtsBandCreator extends Application {
         scale.add(stats.getMax());
         scale.add(byteLowestValue);
         scale.add(byteHighestValue);
-        vrtToByteTif.setScale(scale);
+        vrtToByteScaledVrt.setScale(scale);
 
 
         //
@@ -286,7 +288,7 @@ public class WmtsBandCreator extends Application {
 
         VrtBuilder noColourVrtBuilder = new VrtBuilder("Building VRT based on Byte layer");
         setTaskCleanupOptions(noColourVrtBuilder);
-        noColourVrtBuilder.setSource(tifByteFile);
+        noColourVrtBuilder.setSource(vrtScaledByteFile);
         noColourVrtBuilder.setTarget(vrtWithNoColourFile);
         noColourVrtBuilder.setTemporaryLocation(getWorkingDirectory());
         noColourVrtBuilder.setCopyToStoragePool(false);
@@ -298,23 +300,11 @@ public class WmtsBandCreator extends Application {
         GraphicsFile vrtWithColourFile = new GraphicsFile(vrtWithColour);
 
         VrtColouriser vrtColourer = new VrtColouriser();
+        vrtColourer.setInsertBefore("<ComplexSource>");
         setTaskCleanupOptions(vrtColourer);
         vrtColourer.setSource(vrtWithNoColourFile);
         vrtColourer.setTarget(vrtWithColourFile);
         vrtColourer.setPalette(_palette);
-
-        //
-        // TASK 7
-        // Make a VRT with an expanded colour 'thing'. gdal2tiles requires this step fortunately it's quick
-        Path vrtWithColourExpanded = getWorkingDirectory().resolve(targetName + "_Colour_Expanded" + Constant.EXT_VRT);
-        GraphicsFile vrtWithColourExpandedFile = new GraphicsFile(vrtWithColourExpanded);
-        vrtWithColourExpandedFile.setFormat(GdalFormat.VRT);
-
-        Translator vrtToExpandedVrt = new Translator("Expanding vrt with colour table");
-        setTaskCleanupOptions(vrtToExpandedVrt);
-        vrtToExpandedVrt.setSource(vrtWithColourFile);
-        vrtToExpandedVrt.setTarget(vrtWithColourExpandedFile);
-        vrtToExpandedVrt.setExpand("rgba");
 
         //
         // TASK 8
@@ -322,7 +312,8 @@ public class WmtsBandCreator extends Application {
         Path wmtsDir = getWorkingDirectory().resolve(targetName);
 
         TileBuilder tileBuilder = new TileBuilder();
-        tileBuilder.setSource(vrtWithColourExpandedFile);
+        tileBuilder.setGdal2TilesCommand("gdal2tiles.rsa.py");
+        tileBuilder.setSource(vrtWithColourFile);
         tileBuilder.setTarget(wmtsDir);
         tileBuilder.setProfile("raster");
 
@@ -331,10 +322,9 @@ public class WmtsBandCreator extends Application {
         getTaskPipeline().addTask(tilebandCreator);
         getTaskPipeline().addTask(sourceVrtBuilder);
         getTaskPipeline().addTask(stats);
-        getTaskPipeline().addTask(vrtToByteTif);
+        getTaskPipeline().addTask(vrtToByteScaledVrt);
         getTaskPipeline().addTask(noColourVrtBuilder);
         getTaskPipeline().addTask(vrtColourer);
-        getTaskPipeline().addTask(vrtToExpandedVrt);
         getTaskPipeline().addTask(tileBuilder);
 
     }
@@ -347,7 +337,7 @@ public class WmtsBandCreator extends Application {
         t.setCleanupSource(false);
         t.setCleanupTarget(false);
     }
-    
+
     /**
      * working directory for the WMTS Band creator is currently under the dataset dir
      */
