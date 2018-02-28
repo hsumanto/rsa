@@ -761,7 +761,7 @@ public class DataController {
 		ModelMap model = new ModelMap();
 
 		return query(qd, threads, minX, minY, maxX, maxY, startDate, endDate,
-				netcdfVersion, buckets, groupBy, null, null, model);
+				netcdfVersion, buckets, groupBy, null, null, null, model);
 	}
 
 	@RequestMapping(value = "/Akka-test/{mb}/{times}", method = RequestMethod.GET)
@@ -781,7 +781,7 @@ public class DataController {
 		for(int i = 0; i < Integer.parseInt(times); i ++) {
 			frontend.tell(new org.vpac.worker.Job.Work(
 					UUID.randomUUID().toString(), emptyStrings, Version.netcdf4_classic, new BoxReal("0 0 0 0"),
-					"bb", null, null, null), ActorRef.noSender());
+					"bb", null, null, null, null), ActorRef.noSender());
 		}
 		return "Success";
 	}
@@ -848,7 +848,7 @@ public class DataController {
 			throws IOException, QueryException, IllegalAccessException {
 		QueryDefinition qd = QueryDefinition.fromXML(file.getInputStream());
 		return query(qd, threads, minX, minY, maxX, maxY, startDate, endDate,
-				netcdfVersion, buckets, groupBy, null, null, model);
+				netcdfVersion, buckets, groupBy, null, null, null, model);
 	}
 
 	@RequestMapping(value = "/Query", method = RequestMethod.POST)
@@ -865,11 +865,12 @@ public class DataController {
 			@RequestParam(required = false) List<String> groupBy,
 			@RequestParam(required = false) String datasetId,
 			@RequestParam(required = false) String bandId,
+			@RequestParam(required = false) String timeSliceId,
 			ModelMap model)
 			throws IOException, QueryException, IllegalAccessException {
 		QueryDefinition qd = QueryDefinition.fromString(query);
 		return query(qd, threads, minX, minY, maxX, maxY, startDate, endDate,
-				netcdfVersion, buckets, groupBy, null, null, model);
+				netcdfVersion, buckets, groupBy, null, null, null, model);
 	}
 
 	static final Pattern GROUP_PATTERN = Pattern.compile("rsa:([^/]+)/([^/]+)/([^/]+)");
@@ -877,7 +878,8 @@ public class DataController {
 	public String query(QueryDefinition qd, String threads,
 			Double minX, Double minY, Double maxX, Double maxY,
 			String startDate, String endDate, String netcdfVersion,
-			String buckets, List<String> groupBy, String datasetId, String bandId, ModelMap model)
+			String buckets, List<String> groupBy, String datasetId,
+			String bandId, String timeSliceId, ModelMap model)
 			throws IOException, QueryException, IllegalAccessException {
 
         log.info("Query Started!");
@@ -960,7 +962,8 @@ public class DataController {
 			log.info("message" + bb);
 			frontend.tell(new org.vpac.worker.Job.Work(
 					UUID.randomUUID().toString(), qd.toXML(), ver, bb,
-					job.getId(), baseRsaDatasetResolution, datasetId, bandId), ActorRef.noSender());
+					job.getId(), baseRsaDatasetResolution, datasetId, bandId,
+					timeSliceId), ActorRef.noSender());
 		}
 		model.addAttribute(ControllerHelper.RESPONSE_ROOT, new QueryResponse(job.getId()));
 		return "Success";

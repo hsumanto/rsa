@@ -147,9 +147,28 @@ public class DatabaseActor extends UntypedActor {
 				if (!isTaskCatsExist(jobId, key)) {
 					Cats cats = ((VectorCats) value).getComponents()[0];
 					cats = cats.optimise();
-					statisticsDao.saveCats(new TaskCats(jobId,
-						key, resolution, cats,
-						cats.getBucketingStrategy().isCategorical()));
+
+					String datasetid = currentWorkInfo.work.datasetId;
+					String bandid = currentWorkInfo.work.bandId;
+					String timesliceid = currentWorkInfo.work.timeSliceId;
+					if (datasetid != null &&
+						bandid != null &&
+						timesliceid != null) {
+						//then it is the result of processing a dataset
+						String name = key;
+						statisticsDao.saveOrReplaceCats(
+							new DatasetCats(
+								datasetid,
+								timesliceid,
+								bandid,
+								name,
+								cats));
+					} else {
+						//then it is a query result
+						statisticsDao.saveCats(new TaskCats(jobId,
+							key, resolution, cats,
+							cats.getBucketingStrategy().isCategorical()));
+					}
 				}
 
 			} else if (Ledger.class.isAssignableFrom(value.getClass())) {

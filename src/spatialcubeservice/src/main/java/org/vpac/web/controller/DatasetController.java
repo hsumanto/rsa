@@ -247,81 +247,8 @@ public class DatasetController {
 		log.info("Hello world");
 
 		return dataController.query(qd, null, null, null, null, null, null, null,
-				null, buckets, null, datasetId, bandId, model);
-/*
-		final Version ver = Version.netcdf4_classic;
-
-		final QueryProgress qp = new QueryProgress(jobProgressDao);
-		String taskId = qp.getTaskId();
-		Path outputDir = FileUtils.getTargetLocation(taskId);
-		if (!Files.exists(outputDir))
-			Files.createDirectories(outputDir);
-		Path outputPath = outputDir.resolve(taskId + "_out.nc");
-
-		log.info("Step0-0");
-		NetcdfFileWriter outputDataset = NetcdfFileWriter.createNew(
-				ver, outputPath.toString());
-
-		Map<String, Foldable<?>> output = null;
-		try {
-			log.info("Step0-1");
-			Query q = new Query(outputDataset);
-			log.info("Step0-2");
-			q.setNumThreads(1);
-			log.info("Step0-3");
-			String p = new File(".").getAbsolutePath();
-			log.info("p:" + p);
-			q.setMemento(qd, new File(".").getAbsolutePath());
-			log.info("Step0-4");
-			try {
-				log.info("Step1");
-				q.setProgress(qp);
-				log.info("Step2");
-				q.run();
-				log.info("Step3");
-				output = q.getAccumulatedOutput();
-				log.info("Step4");
-				save(datasetId, timeSliceId, bandId, output);
-				log.info("Step5");
-			} catch(Exception e) {
-				e.printStackTrace();
-				throw e;
-			} finally {
-				q.close();
-			}
-		} catch (Throwable t) {
-			log.error(t.getMessage());
-			t.getStackTrace();
-		} finally {
-			try {
-				log.info("Test1");
-				outputDataset.close();
-				log.info("Test2");
-			} catch (Exception e) {
-				log.error("Failed to close output file", e);
-			}
-		}
-
-		model.addAttribute(ControllerHelper.RESPONSE_ROOT, new QueryResponse(
-				taskId));
-		return "Success";
-*/
+				null, buckets, null, datasetId, bandId, timeSliceId, model);
 	}
-
-	private void save(String datasetId, String timeSliceId, String bandId, Map<String, Foldable<?>> result) {
-		for (String key : result.keySet()) {
-			if (VectorCats.class.isAssignableFrom(result.get(key).getClass())) {
-				String name = key;
-				VectorCats value = (VectorCats) result.get(key);
-				Cats cats = value.getComponents()[0];
-				cats = cats.optimise();
-
-				statisticsDao.saveOrReplaceCats(new DatasetCats(datasetId,
-						timeSliceId, bandId, name, cats));
-			}
-		}
-	}
-
 
 	private String findPathVariable(String url, String varName) {
 		String returnValue = null;

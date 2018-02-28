@@ -20,10 +20,11 @@ public class Job {
 		public final CellSize outputResolution;
 		public final String datasetId;
 		public final String bandId;
+		public final String timeSliceId;
 
 		public Work(String workId, String queryDefinitionString, Version ver,
-				BoxReal bound, String jobProgressId, CellSize outputResolution, 
-				String datasetId, String bandId) {
+				BoxReal bound, String jobProgressId, CellSize outputResolution,
+				String datasetId, String bandId, String timeSliceId) {
 			this.workId = workId;
 			this.queryDefinitionString = queryDefinitionString;
 			this.netcdfVersion = ver;
@@ -32,19 +33,21 @@ public class Job {
 			this.outputResolution = outputResolution;
 			this.datasetId = datasetId;
 			this.bandId = bandId;
+			this.timeSliceId = timeSliceId;
 			// this.job = job;
 		}
-		
+
 		@Override
 		public String toString() {
-			return "Work{" + "workId='" + workId + '\'' 
-			        + ", qd=" + queryDefinitionString 
+			return "Work{" + "workId='" + workId + '\''
+			        + ", qd=" + queryDefinitionString
 					+ ", ver=" + netcdfVersion
-					+ ", job=" + jobProgressId 
-					+ ", bound=" + bound 
-					+ ", outputResolution=" + outputResolution 
-					+ ", datasetId=" + datasetId 
-					+ ", bandId=" + bandId 
+					+ ", job=" + jobProgressId
+					+ ", bound=" + bound
+					+ ", outputResolution=" + outputResolution
+					+ ", datasetId=" + datasetId
+					+ ", bandId=" + bandId
+					+ ", timeSliceId=" + timeSliceId
 					+ '}';
 		}
 
@@ -53,7 +56,7 @@ public class Job {
 	public static final class WorkComplete implements Serializable {
 		private static final long serialVersionUID = 1L;
 		public final Object result;
-	
+
 		public WorkComplete(Object result) {
 			this.result = result;
 		}
@@ -79,7 +82,7 @@ public class Job {
 		}
 	}
 
-	
+
 	public static final class Error implements Serializable {
 		private static final long serialVersionUID = 1L;
 		public final Exception exception;
