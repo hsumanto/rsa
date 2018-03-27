@@ -233,9 +233,11 @@ public class WmtsQueryCreator extends Application {
         // TASK 8
         // Use gdal2tiles.py to actually build the tiles (HORAy)
         Path wmtsDir = getWorkingDirectory().resolve(targetName);
+        int gdal2tilesProcessors = ndgConfigManager.getConfig().getGdal2TilesProcessors();
 
         TileBuilder tileBuilder = new TileBuilder();
         tileBuilder.setGdal2TilesCommand("gdal2tiles.rsa.py");
+        tileBuilder.setGdal2TilesProcessors(gdal2tilesProcessors);
         tileBuilder.setProgressWeight(70.0);
         tileBuilder.setSource(vrtWithColourFile);
         tileBuilder.setTarget(wmtsDir);

@@ -48,6 +48,9 @@
 	<!-- Specify gdal location here -->
 	<gdalprefix>/usr</gdalprefix>
 
+	<!-- Specify number of processors for gdal2tiles to use here -->
+	<gdal2tilesProcessors>4</gdal2tilesProcessors>
+
 	<epiphanyHost>172.31.25.104</epiphanyHost>
 	<epiphanyPort>8000</epiphanyPort>
 </rsaConfig>

@@ -38,6 +38,7 @@ public class TileBuilder extends BaseTask {
     private boolean zoomLevelsEnabled = false;
     private int zoomMax = 7;
     private int zoomMin = 0;
+    private int gdal2tilesProcessors = -1;
 
     private CommandUtil commandUtil;
     final private Logger log = LoggerFactory.getLogger(TileBuilder.class);
@@ -97,6 +98,11 @@ public class TileBuilder extends BaseTask {
             //add zoom argument
             command.add("-z");
             command.add(Integer.toString(this.zoomMin) + "-" + Integer.toString(this.zoomMax));
+        }
+
+        if (gdal2tilesCommand == "gdal2tiles.rsa.py" && this.gdal2tilesProcessors > 0) {
+            command.add("--processes");
+            command.add(Integer.toString(this.gdal2tilesProcessors));
         }
 
         command.add(source.getFileLocation().toString());
@@ -233,6 +239,14 @@ public class TileBuilder extends BaseTask {
 
     public String getGdal2TilesCommand() {
         return this.gdal2tilesCommand;
+    }
+
+    public void setGdal2TilesProcessors(int processors) {
+        this.gdal2tilesProcessors = processors;
+    }
+
+    public int getGdal2TilesProcessors() {
+        return this.gdal2tilesProcessors;
     }
 
 
