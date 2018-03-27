@@ -36,6 +36,7 @@ public class TileBuilder extends BaseTask {
     private boolean zoomLevelsEnabled = false;
     private int zoomMax = 7;
     private int zoomMin = 0;
+    private int gdalProcessors = -1;
 
     private CommandUtil commandUtil;
     final private Logger log = LoggerFactory.getLogger(TileBuilder.class);
@@ -81,11 +82,17 @@ public class TileBuilder extends BaseTask {
         List<String> command = new ArrayList<String>();
 
         // get the input file list
-        command.add("gdal2tiles.py");
+        command.add("gdal2tiles.parallel.py");
 
         if (profile != null) {
             command.add("-p");
             command.add(profile);
+        }
+
+        if (this.gdalProcessors > 0) {
+          log.info("running parallel:" + Integer.toString(this.gdalProcessors));
+          command.add("--processes");
+          command.add(Integer.toString(this.gdalProcessors));
         }
 
         if (this.zoomLevelsEnabled) {
@@ -222,6 +229,13 @@ public class TileBuilder extends BaseTask {
         this.profile = process;
     }
 
+    public int getGdalProcessors() {
+      return gdalProcessors;
+    }
+
+    public void setGdalProcessors(int processors) {
+      this.gdalProcessors = processors;
+    }
 
 
 

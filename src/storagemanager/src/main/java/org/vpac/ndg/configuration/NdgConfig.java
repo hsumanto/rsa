@@ -108,6 +108,9 @@ public class NdgConfig {
 	// How many heart beats can be missed before a lock expires. Anything less
 	// than 2 is likely to be dangerous.
 	private int lockDeadline = 3;
+	// How many processors for gdal2tiles to use to produce WMTS tiles. -1
+	// indicates non-parallel mode.
+	private int gdalProcessors = -1;
 
 	@XStreamConverter(value=BooleanConverter.class)
 	private boolean generateImportTileAggregation;
@@ -270,4 +273,11 @@ public class NdgConfig {
 		this.preview = preview;
 	}
 
+	public int getGdalProcessors() {
+		return gdalProcessors;
+	}
+
+	public void setGdalProcessors(int gdalProcessors) {
+		this.gdalProcessors = gdalProcessors;
+	}
 }

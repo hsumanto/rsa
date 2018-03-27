@@ -48,6 +48,9 @@
 	<!-- Specify gdal location here -->
 	<gdalprefix>/usr</gdalprefix>
 
+	<!-- Specify number of processors for WMTS tile generation here -->
+	<gdalProcessors>4</gdalProcessors>
+
 	<epiphanyHost>172.31.25.104</epiphanyHost>
 	<epiphanyPort>8000</epiphanyPort>
 </rsaConfig>
