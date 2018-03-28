@@ -149,15 +149,15 @@ public class NdgConfig {
 	public String getTargetProjection() {
 		return "EPSG:" + targetSrsEpsgId;
 	}
-	
+
 	public int getTargetSrsEpsgId() {
 		return targetSrsEpsgId;
 	}
-	
+
 	public void setTargetSrsEpsgId(int targetEpsgId) {
 		this.targetSrsEpsgId = targetEpsgId;
 	}
-	
+
 	public List<ResolutionSpec> getResolutionList() {
 		return resolutionList;
 	}
