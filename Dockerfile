@@ -39,14 +39,19 @@ RUN export DEBIAN_FRONTEND=noninteractive TERM=linux && \
         openjdk-${JDK_VERSION}-jdk \
         openjdk-${JDK_VERSION}-jre \
         python-gdal \
+        python-pip \
         tomcat${TOMCAT_VERSION} \
         tomcat${TOMCAT_VERSION}-admin \
         unzip \
         zlib1g \
         zlib1g-dev \
         zlibc && \
-    ln -s /usr/share/java/gdal.jar /usr/lib/
+    ln -s /usr/share/java/gdal.jar /usr/lib/ && \
+    pip install Pillow
 #    rm -rf /var/lib/apt/lists/*
+
+COPY util/gdal2tiles.rsa.py /usr/bin/
+RUN chmod a+x /usr/bin/gdal2tiles.rsa.py
 
 ENV GDAL_DIR=/usr/share/bin \
     JAVA_HOME=/usr/lib/jvm/java-${JDK_VERSION}-openjdk-amd64 \

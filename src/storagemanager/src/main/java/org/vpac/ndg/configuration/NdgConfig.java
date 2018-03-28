@@ -107,6 +107,9 @@ public class NdgConfig {
 	private float heartBeatSpacing = 60.0f;
 	// How many heart beats can be missed before a lock expires. Anything less
 	// than 2 is likely to be dangerous.
+	private int gdal2tilesProcessors = -1;
+	// How many processors for gdal2tiles to use to produce WMTS tiles.
+	// -1 flags non-parallel mode
 	private int lockDeadline = 3;
 
 	@XStreamConverter(value=BooleanConverter.class)
@@ -146,15 +149,15 @@ public class NdgConfig {
 	public String getTargetProjection() {
 		return "EPSG:" + targetSrsEpsgId;
 	}
-	
+
 	public int getTargetSrsEpsgId() {
 		return targetSrsEpsgId;
 	}
-	
+
 	public void setTargetSrsEpsgId(int targetEpsgId) {
 		this.targetSrsEpsgId = targetEpsgId;
 	}
-	
+
 	public List<ResolutionSpec> getResolutionList() {
 		return resolutionList;
 	}
@@ -270,4 +273,11 @@ public class NdgConfig {
 		this.preview = preview;
 	}
 
+	public int getGdal2TilesProcessors() {
+		return gdal2tilesProcessors;
+	}
+
+	public void setGdal2TilesProcessors(int processors) {
+		this.gdal2tilesProcessors = processors;
+	}
 }

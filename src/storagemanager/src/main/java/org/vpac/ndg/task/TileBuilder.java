@@ -29,6 +29,8 @@ import org.vpac.ndg.storagemanager.GraphicsFile;
  */
 public class TileBuilder extends BaseTask {
 
+    final static String DEFAULT_GDAL2TILES_COMMAND = "gdal2tiles.py";
+
     private GraphicsFile source;
     private Path target;  //in this case the target is simply a directory
     private String profile;
@@ -36,9 +38,12 @@ public class TileBuilder extends BaseTask {
     private boolean zoomLevelsEnabled = false;
     private int zoomMax = 7;
     private int zoomMin = 0;
+    private int gdal2tilesProcessors = -1;
 
     private CommandUtil commandUtil;
     final private Logger log = LoggerFactory.getLogger(TileBuilder.class);
+
+    private String gdal2tilesCommand;
 
     public TileBuilder() {
         this("Building tiles");
@@ -47,6 +52,7 @@ public class TileBuilder extends BaseTask {
     public TileBuilder(String description) {
         super(description);
         commandUtil = new CommandUtil();
+        gdal2tilesCommand = TileBuilder.DEFAULT_GDAL2TILES_COMMAND;
     }
 
     @Override
@@ -81,7 +87,7 @@ public class TileBuilder extends BaseTask {
         List<String> command = new ArrayList<String>();
 
         // get the input file list
-        command.add("gdal2tiles.py");
+        command.add(gdal2tilesCommand);
 
         if (profile != null) {
             command.add("-p");
@@ -92,6 +98,11 @@ public class TileBuilder extends BaseTask {
             //add zoom argument
             command.add("-z");
             command.add(Integer.toString(this.zoomMin) + "-" + Integer.toString(this.zoomMax));
+        }
+
+        if (gdal2tilesCommand == "gdal2tiles.rsa.py" && this.gdal2tilesProcessors > 0) {
+            command.add("--processes");
+            command.add(Integer.toString(this.gdal2tilesProcessors));
         }
 
         command.add(source.getFileLocation().toString());
@@ -222,7 +233,21 @@ public class TileBuilder extends BaseTask {
         this.profile = process;
     }
 
+    public void setGdal2TilesCommand(String command) {
+        this.gdal2tilesCommand = command;
+    }
 
+    public String getGdal2TilesCommand() {
+        return this.gdal2tilesCommand;
+    }
+
+    public void setGdal2TilesProcessors(int processors) {
+        this.gdal2tilesProcessors = processors;
+    }
+
+    public int getGdal2TilesProcessors() {
+        return this.gdal2tilesProcessors;
+    }
 
 
 
